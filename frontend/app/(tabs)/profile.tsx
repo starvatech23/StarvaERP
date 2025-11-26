@@ -1,0 +1,225 @@
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../context/AuthContext';
+import { useRouter } from 'expo-router';
+
+export default function ProfileScreen() {
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'project_manager':
+        return 'Project Manager';
+      case 'admin':
+        return 'Admin';
+      case 'engineer':
+        return 'Engineer';
+      case 'worker':
+        return 'Worker';
+      case 'vendor':
+        return 'Vendor';
+      default:
+        return role;
+    }
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            await signOut();
+            router.replace('/(auth)/welcome');
+          },
+        },
+      ]
+    );
+  };
+
+  const menuItems = [
+    { icon: 'person-outline', label: 'Edit Profile', onPress: () => {} },
+    { icon: 'notifications-outline', label: 'Notifications', onPress: () => {} },
+    { icon: 'settings-outline', label: 'Settings', onPress: () => {} },
+    { icon: 'help-circle-outline', label: 'Help & Support', onPress: () => {} },
+    { icon: 'information-circle-outline', label: 'About', onPress: () => {} },
+  ];
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.headerTitle}>Profile</Text>
+
+        <View style={styles.profileCard}>
+          <View style={styles.avatar}>
+            <Ionicons name="person" size={48} color="#FF6B35" />
+          </View>
+          <Text style={styles.name}>{user?.full_name || 'User'}</Text>
+          <Text style={styles.role}>{getRoleLabel(user?.role || '')}</Text>
+          
+          <View style={styles.infoContainer}>
+            {user?.email && (
+              <View style={styles.infoRow}>
+                <Ionicons name="mail" size={16} color="#718096" />
+                <Text style={styles.infoText}>{user.email}</Text>
+              </View>
+            )}
+            {user?.phone && (
+              <View style={styles.infoRow}>
+                <Ionicons name="call" size={16} color="#718096" />
+                <Text style={styles.infoText}>{user.phone}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.menuContainer}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.menuItem}
+              onPress={item.onPress}
+            >
+              <View style={styles.menuLeft}>
+                <Ionicons name={item.icon as any} size={24} color="#718096" />
+                <Text style={styles.menuLabel}>{item.label}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#CBD5E0" />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.version}>Version 1.0.0</Text>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F7FAFC',
+  },
+  scrollContent: {
+    padding: 16,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1A202C',
+    marginBottom: 24,
+  },
+  profileCard: {
+    backgroundColor: '#FFFFFF',
+    padding: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#FFF5F2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1A202C',
+    marginBottom: 4,
+  },
+  role: {
+    fontSize: 14,
+    color: '#FF6B35',
+    fontWeight: '600',
+    marginBottom: 16,
+  },
+  infoContainer: {
+    gap: 8,
+    width: '100%',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#718096',
+  },
+  menuContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F7FAFC',
+  },
+  menuLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  menuLabel: {
+    fontSize: 16,
+    color: '#1A202C',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#FFF5F5',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#EF4444',
+  },
+  version: {
+    fontSize: 12,
+    color: '#CBD5E0',
+    textAlign: 'center',
+  },
+});
