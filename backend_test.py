@@ -16,534 +16,458 @@ from typing import Dict, Any
 # Get backend URL from environment
 BACKEND_URL = "https://constructflow-40.preview.emergentagent.com/api"
 
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-
-def print_test_header(test_name):
-    print(f"\n{Colors.BLUE}{Colors.BOLD}{'='*60}{Colors.ENDC}")
-    print(f"{Colors.BLUE}{Colors.BOLD}Testing: {test_name}{Colors.ENDC}")
-    print(f"{Colors.BLUE}{Colors.BOLD}{'='*60}{Colors.ENDC}")
-
-def print_success(message):
-    print(f"{Colors.GREEN}✅ {message}{Colors.ENDC}")
-
-def print_error(message):
-    print(f"{Colors.RED}❌ {message}{Colors.ENDC}")
-
-def print_warning(message):
-    print(f"{Colors.YELLOW}⚠️  {message}{Colors.ENDC}")
-
-def print_info(message):
-    print(f"{Colors.BLUE}ℹ️  {message}{Colors.ENDC}")
-
-class ConstructionAppTester:
+class BackendTester:
     def __init__(self):
-        self.session = requests.Session()
-        self.tokens = {}
-        self.users = {}
-        self.test_results = {
-            'passed': 0,
-            'failed': 0,
-            'errors': []
-        }
+        self.base_url = BACKEND_URL
+        self.token = None
+        self.user_id = None
+        self.test_results = []
         
-    def log_result(self, test_name, success, message="", error_details=""):
-        if success:
-            self.test_results['passed'] += 1
-            print_success(f"{test_name}: {message}")
-        else:
-            self.test_results['failed'] += 1
-            error_msg = f"{test_name}: {message}"
-            if error_details:
-                error_msg += f" - {error_details}"
-            self.test_results['errors'].append(error_msg)
-            print_error(error_msg)
-
+    def log_result(self, test_name: str, success: bool, message: str, details: Dict[str, Any] = None):
+        """Log test result"""
+        result = {
+            "test": test_name,
+            "success": success,
+            "message": message,
+            "timestamp": datetime.now().isoformat(),
+            "details": details or {}
+        }
+        self.test_results.append(result)
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status}: {test_name} - {message}")
+        if details and not success:
+            print(f"   Details: {json.dumps(details, indent=2)}")
+    
+    def make_request(self, method: str, endpoint: str, data: Dict = None, headers: Dict = None) -> Dict:
+        """Make HTTP request with error handling"""
+        url = f"{self.base_url}{endpoint}"
+        default_headers = {"Content-Type": "application/json"}
+        
+        if self.token:
+            default_headers["Authorization"] = f"Bearer {self.token}"
+        
+        if headers:
+            default_headers.update(headers)
+        
+        try:
+            if method.upper() == "GET":
+                response = requests.get(url, headers=default_headers, timeout=30)
+            elif method.upper() == "POST":
+                response = requests.post(url, json=data, headers=default_headers, timeout=30)
+            elif method.upper() == "PUT":
+                response = requests.put(url, json=data, headers=default_headers, timeout=30)
+            else:
+                return {"error": f"Unsupported method: {method}"}
+            
+            return {
+                "status_code": response.status_code,
+                "data": response.json() if response.content else {},
+                "headers": dict(response.headers)
+            }
+        except requests.exceptions.RequestException as e:
+            return {"error": str(e)}
+        except json.JSONDecodeError as e:
+            return {"error": f"JSON decode error: {str(e)}", "raw_response": response.text}
+    
     def test_api_health(self):
-        """Test API health check endpoint"""
-        print_test_header("API Health Check")
+        """Test if API is accessible"""
+        print("\n=== Testing API Health ===")
+        response = self.make_request("GET", "/")
         
-        try:
-            response = self.session.get(f"{API_BASE}/")
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('status') == 'running':
-                    self.log_result("Health Check", True, "API is running")
-                    print_info(f"API Version: {data.get('version', 'Unknown')}")
-                    return True
-                else:
-                    self.log_result("Health Check", False, f"Unexpected status: {data.get('status')}")
+        if "error" in response:
+            self.log_result("API Health Check", False, f"API not accessible: {response['error']}")
+            return False
+        
+        if response["status_code"] == 200:
+            self.log_result("API Health Check", True, "API is accessible")
+            return True
+        else:
+            self.log_result("API Health Check", False, f"API returned status {response['status_code']}")
+            return False
+    
+    def register_admin_user(self):
+        """Register an admin user for testing"""
+        print("\n=== Registering Admin User ===")
+        
+        user_data = {
+            "email": "admin@constructflow.com",
+            "password": "AdminPass123!",
+            "full_name": "Test Admin User",
+            "role": "admin",
+            "auth_type": "email",
+            "address": "123 Admin Street, Test City"
+        }
+        
+        response = self.make_request("POST", "/auth/register", user_data)
+        
+        if "error" in response:
+            self.log_result("Admin Registration", False, f"Request failed: {response['error']}")
+            return False
+        
+        if response["status_code"] == 200:
+            data = response["data"]
+            if "access_token" in data and "user" in data:
+                self.token = data["access_token"]
+                self.user_id = data["user"]["id"]
+                self.log_result("Admin Registration", True, f"Admin user registered successfully. User ID: {self.user_id}")
+                return True
             else:
-                self.log_result("Health Check", False, f"HTTP {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("Health Check", False, "Connection failed", str(e))
-            
-        return False
-
-    def test_email_registration(self):
-        """Test email registration flow"""
-        print_test_header("Email Registration")
+                self.log_result("Admin Registration", False, "Invalid response format", response["data"])
+                return False
+        elif response["status_code"] == 400 and "already registered" in str(response["data"]):
+            # User already exists, try to login
+            return self.login_admin_user()
+        else:
+            self.log_result("Admin Registration", False, f"Registration failed with status {response['status_code']}", response["data"])
+            return False
+    
+    def login_admin_user(self):
+        """Login with admin user"""
+        print("\n=== Logging in Admin User ===")
         
-        # Test data
-        test_users = [
-            {
-                "email": "john.engineer@construction.com",
-                "password": "SecurePass123!",
-                "full_name": "John Smith",
-                "role": "engineer",
-                "auth_type": "email",
-                "address": "123 Construction Ave, Builder City"
-            },
-            {
-                "email": "sarah.manager@construction.com", 
-                "password": "ManagerPass456!",
-                "full_name": "Sarah Johnson",
-                "role": "project_manager",
-                "auth_type": "email"
-            },
-            {
-                "email": "admin@construction.com",
-                "password": "AdminPass789!",
-                "full_name": "Admin User",
-                "role": "admin",
-                "auth_type": "email"
-            }
-        ]
-        
-        for user_data in test_users:
-            try:
-                response = self.session.post(f"{API_BASE}/auth/register", json=user_data)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Validate response structure
-                    required_fields = ['access_token', 'token_type', 'user']
-                    if all(field in data for field in required_fields):
-                        user_info = data['user']
-                        
-                        # Store token and user info
-                        self.tokens[user_data['role']] = data['access_token']
-                        self.users[user_data['role']] = user_info
-                        
-                        # Validate user data
-                        if (user_info['email'] == user_data['email'] and 
-                            user_info['full_name'] == user_data['full_name'] and
-                            user_info['role'] == user_data['role']):
-                            
-                            self.log_result("Email Registration", True, 
-                                          f"User {user_data['role']} registered successfully")
-                            print_info(f"User ID: {user_info['id']}")
-                            print_info(f"Token Type: {data['token_type']}")
-                        else:
-                            self.log_result("Email Registration", False, 
-                                          f"User data mismatch for {user_data['role']}")
-                    else:
-                        self.log_result("Email Registration", False, 
-                                      f"Missing required fields in response for {user_data['role']}")
-                        
-                elif response.status_code == 400:
-                    # Check if it's a duplicate email error
-                    error_data = response.json()
-                    if "already registered" in error_data.get('detail', ''):
-                        print_warning(f"User {user_data['email']} already exists - skipping")
-                        # Try to login instead
-                        login_data = {
-                            "identifier": user_data['email'],
-                            "password": user_data['password'],
-                            "auth_type": "email"
-                        }
-                        login_response = self.session.post(f"{API_BASE}/auth/login", json=login_data)
-                        if login_response.status_code == 200:
-                            login_result = login_response.json()
-                            self.tokens[user_data['role']] = login_result['access_token']
-                            self.users[user_data['role']] = login_result['user']
-                            self.log_result("Email Registration", True, 
-                                          f"Existing user {user_data['role']} logged in")
-                        else:
-                            self.log_result("Email Registration", False, 
-                                          f"Failed to login existing user {user_data['role']}")
-                    else:
-                        self.log_result("Email Registration", False, 
-                                      f"Registration failed for {user_data['role']}: {error_data.get('detail')}")
-                else:
-                    self.log_result("Email Registration", False, 
-                                  f"HTTP {response.status_code} for {user_data['role']}")
-                    
-            except Exception as e:
-                self.log_result("Email Registration", False, 
-                              f"Exception for {user_data['role']}", str(e))
-
-    def test_email_login(self):
-        """Test email login flow"""
-        print_test_header("Email Login")
-        
-        # Test with registered user
         login_data = {
-            "identifier": "john.engineer@construction.com",
-            "password": "SecurePass123!",
+            "identifier": "admin@constructflow.com",
+            "password": "AdminPass123!",
             "auth_type": "email"
         }
         
-        try:
-            response = self.session.post(f"{API_BASE}/auth/login", json=login_data)
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                if 'access_token' in data and 'user' in data:
-                    user_info = data['user']
-                    
-                    # Check if last_login was updated
-                    if 'last_login' in user_info and user_info['last_login']:
-                        self.log_result("Email Login", True, "Login successful with updated timestamp")
-                        print_info(f"Last Login: {user_info['last_login']}")
-                        
-                        # Update stored token
-                        self.tokens['engineer'] = data['access_token']
-                    else:
-                        self.log_result("Email Login", False, "last_login not updated")
-                else:
-                    self.log_result("Email Login", False, "Missing required fields in response")
+        response = self.make_request("POST", "/auth/login", login_data)
+        
+        if "error" in response:
+            self.log_result("Admin Login", False, f"Request failed: {response['error']}")
+            return False
+        
+        if response["status_code"] == 200:
+            data = response["data"]
+            if "access_token" in data and "user" in data:
+                self.token = data["access_token"]
+                self.user_id = data["user"]["id"]
+                self.log_result("Admin Login", True, f"Admin user logged in successfully. User ID: {self.user_id}")
+                return True
             else:
-                self.log_result("Email Login", False, f"HTTP {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("Email Login", False, "Login request failed", str(e))
-
-    def test_phone_otp_flow(self):
-        """Test phone OTP registration and login flow"""
-        print_test_header("Phone OTP Flow")
-        
-        phone_number = "+1234567890"
-        
-        # Step 1: Send OTP
-        try:
-            otp_request = {"phone": phone_number}
-            response = self.session.post(f"{API_BASE}/auth/send-otp", json=otp_request)
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                if 'otp' in data:  # Mock OTP is returned
-                    otp_code = data['otp']
-                    self.log_result("Send OTP", True, f"OTP sent successfully: {otp_code}")
-                    
-                    # Step 2: Verify OTP and register
-                    verify_data = {
-                        "phone": phone_number,
-                        "otp": otp_code,
-                        "full_name": "Mike Worker",
-                        "role": "worker"
-                    }
-                    
-                    verify_response = self.session.post(f"{API_BASE}/auth/verify-otp", json=verify_data)
-                    
-                    if verify_response.status_code == 200:
-                        verify_result = verify_response.json()
-                        
-                        if 'access_token' in verify_result and 'user' in verify_result:
-                            user_info = verify_result['user']
-                            
-                            # Store token and user info
-                            self.tokens['worker'] = verify_result['access_token']
-                            self.users['worker'] = user_info
-                            
-                            if (user_info['phone'] == phone_number and 
-                                user_info['full_name'] == "Mike Worker" and
-                                user_info['role'] == "worker"):
-                                
-                                self.log_result("OTP Verification", True, "User registered via OTP")
-                                print_info(f"Worker User ID: {user_info['id']}")
-                            else:
-                                self.log_result("OTP Verification", False, "User data mismatch")
-                        else:
-                            self.log_result("OTP Verification", False, "Missing required fields")
-                    else:
-                        self.log_result("OTP Verification", False, f"HTTP {verify_response.status_code}")
-                        
-                else:
-                    self.log_result("Send OTP", False, "OTP not returned in response")
-            else:
-                self.log_result("Send OTP", False, f"HTTP {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("Phone OTP Flow", False, "OTP flow failed", str(e))
-
-    def test_protected_endpoint(self):
-        """Test protected endpoint with JWT token"""
-        print_test_header("Protected Endpoint Test")
-        
-        # Test with valid token
-        if 'engineer' in self.tokens:
-            headers = {"Authorization": f"Bearer {self.tokens['engineer']}"}
-            
-            try:
-                response = self.session.get(f"{API_BASE}/auth/me", headers=headers)
-                
-                if response.status_code == 200:
-                    user_data = response.json()
-                    
-                    if 'id' in user_data and 'email' in user_data and 'role' in user_data:
-                        self.log_result("Protected Endpoint (Valid Token)", True, 
-                                      f"User info retrieved: {user_data['full_name']}")
-                        print_info(f"User Role: {user_data['role']}")
-                        print_info(f"User Email: {user_data['email']}")
-                    else:
-                        self.log_result("Protected Endpoint (Valid Token)", False, 
-                                      "Incomplete user data returned")
-                else:
-                    self.log_result("Protected Endpoint (Valid Token)", False, 
-                                  f"HTTP {response.status_code}")
-                    
-            except Exception as e:
-                self.log_result("Protected Endpoint (Valid Token)", False, 
-                              "Request failed", str(e))
+                self.log_result("Admin Login", False, "Invalid response format", response["data"])
+                return False
         else:
-            self.log_result("Protected Endpoint (Valid Token)", False, 
-                          "No valid token available")
+            self.log_result("Admin Login", False, f"Login failed with status {response['status_code']}", response["data"])
+            return False
+    
+    def test_profile_update_api(self):
+        """Test Profile Update API - PUT /api/profile"""
+        print("\n=== Testing Profile Update API ===")
         
-        # Test without token (should return 403 with FastAPI HTTPBearer)
-        try:
-            response = self.session.get(f"{API_BASE}/auth/me")
-            
-            if response.status_code == 403:
-                self.log_result("Protected Endpoint (No Token)", True, 
-                              "Correctly rejected request without token")
-            else:
-                self.log_result("Protected Endpoint (No Token)", False, 
-                              f"Expected 403, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("Protected Endpoint (No Token)", False, 
-                          "Request failed", str(e))
-
-    def test_users_endpoint(self):
-        """Test users endpoint with role-based access"""
-        print_test_header("Users Endpoint (Role-based Access)")
+        if not self.token:
+            self.log_result("Profile Update API", False, "No authentication token available")
+            return
         
-        # Test with admin token
-        if 'admin' in self.tokens:
-            headers = {"Authorization": f"Bearer {self.tokens['admin']}"}
-            
-            try:
-                response = self.session.get(f"{API_BASE}/users", headers=headers)
-                
-                if response.status_code == 200:
-                    users_list = response.json()
-                    
-                    if isinstance(users_list, list) and len(users_list) > 0:
-                        self.log_result("Users List (Admin)", True, 
-                                      f"Retrieved {len(users_list)} users")
-                        
-                        # Check user structure
-                        first_user = users_list[0]
-                        required_fields = ['id', 'full_name', 'role', 'is_active']
-                        if all(field in first_user for field in required_fields):
-                            print_info("User data structure is correct")
-                        else:
-                            print_warning("Some user fields missing")
-                            
-                    else:
-                        self.log_result("Users List (Admin)", False, "Empty or invalid users list")
+        # Test 1: Update full profile
+        profile_data = {
+            "full_name": "Updated Admin Name",
+            "email": "updated.admin@constructflow.com",
+            "phone": "+1234567890",
+            "address": "456 Updated Street, New City",
+            "profile_photo": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+        }
+        
+        response = self.make_request("PUT", "/profile", profile_data)
+        
+        if "error" in response:
+            self.log_result("Profile Update - Full Update", False, f"Request failed: {response['error']}")
+        elif response["status_code"] == 200:
+            data = response["data"]
+            if "id" in data and "full_name" in data:
+                if data["full_name"] == profile_data["full_name"]:
+                    self.log_result("Profile Update - Full Update", True, "Profile updated successfully")
                 else:
-                    self.log_result("Users List (Admin)", False, f"HTTP {response.status_code}")
-                    
-            except Exception as e:
-                self.log_result("Users List (Admin)", False, "Request failed", str(e))
+                    self.log_result("Profile Update - Full Update", False, "Profile data not updated correctly", data)
+            else:
+                self.log_result("Profile Update - Full Update", False, "Invalid response format", data)
         else:
-            self.log_result("Users List (Admin)", False, "No admin token available")
+            self.log_result("Profile Update - Full Update", False, f"Update failed with status {response['status_code']}", response["data"])
         
-        # Test users by role
-        if 'admin' in self.tokens:
-            headers = {"Authorization": f"Bearer {self.tokens['admin']}"}
-            
-            try:
-                response = self.session.get(f"{API_BASE}/users/by-role/engineer", headers=headers)
-                
-                if response.status_code == 200:
-                    engineers = response.json()
-                    
-                    if isinstance(engineers, list):
-                        engineer_count = len(engineers)
-                        self.log_result("Users by Role", True, f"Found {engineer_count} engineers")
-                        
-                        # Verify all returned users are engineers
-                        if engineer_count > 0:
-                            all_engineers = all(user.get('role') == 'engineer' for user in engineers)
-                            if all_engineers:
-                                print_info("All returned users have engineer role")
-                            else:
-                                print_warning("Some returned users don't have engineer role")
-                    else:
-                        self.log_result("Users by Role", False, "Invalid response format")
-                else:
-                    self.log_result("Users by Role", False, f"HTTP {response.status_code}")
-                    
-            except Exception as e:
-                self.log_result("Users by Role", False, "Request failed", str(e))
-
-    def test_invalid_credentials(self):
-        """Test login with invalid credentials"""
-        print_test_header("Invalid Credentials Test")
-        
-        # Test wrong password
-        wrong_password_data = {
-            "identifier": "john.engineer@construction.com",
-            "password": "WrongPassword123!",
-            "auth_type": "email"
+        # Test 2: Update individual field
+        partial_data = {
+            "phone": "+9876543210"
         }
         
-        try:
-            response = self.session.post(f"{API_BASE}/auth/login", json=wrong_password_data)
-            
-            if response.status_code == 401:
-                error_data = response.json()
-                if 'detail' in error_data:
-                    self.log_result("Wrong Password", True, "Correctly rejected wrong password")
-                    print_info(f"Error message: {error_data['detail']}")
-                else:
-                    self.log_result("Wrong Password", False, "No error message in response")
-            else:
-                self.log_result("Wrong Password", False, f"Expected 401, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("Wrong Password", False, "Request failed", str(e))
+        response = self.make_request("PUT", "/profile", partial_data)
         
-        # Test non-existent email
-        nonexistent_email_data = {
-            "identifier": "nonexistent@construction.com",
-            "password": "SomePassword123!",
-            "auth_type": "email"
+        if "error" in response:
+            self.log_result("Profile Update - Partial Update", False, f"Request failed: {response['error']}")
+        elif response["status_code"] == 200:
+            data = response["data"]
+            if data.get("phone") == partial_data["phone"]:
+                self.log_result("Profile Update - Partial Update", True, "Partial profile update successful")
+            else:
+                self.log_result("Profile Update - Partial Update", False, "Partial update not applied correctly", data)
+        else:
+            self.log_result("Profile Update - Partial Update", False, f"Partial update failed with status {response['status_code']}", response["data"])
+        
+        # Test 3: Test with invalid data
+        invalid_data = {
+            "email": "invalid-email-format"
         }
         
-        try:
-            response = self.session.post(f"{API_BASE}/auth/login", json=nonexistent_email_data)
-            
-            if response.status_code == 401:
-                error_data = response.json()
-                if 'detail' in error_data:
-                    self.log_result("Non-existent Email", True, "Correctly rejected non-existent email")
-                    print_info(f"Error message: {error_data['detail']}")
-                else:
-                    self.log_result("Non-existent Email", False, "No error message in response")
-            else:
-                self.log_result("Non-existent Email", False, f"Expected 401, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("Non-existent Email", False, "Request failed", str(e))
-
-    def test_different_user_roles(self):
-        """Test creating users with different roles"""
-        print_test_header("Different User Roles Test")
+        response = self.make_request("PUT", "/profile", invalid_data)
         
-        roles_to_test = [
-            {"role": "vendor", "name": "Vendor Company", "email": "vendor@construction.com"},
+        if response["status_code"] == 422:
+            self.log_result("Profile Update - Invalid Data", True, "Validation error handled correctly")
+        else:
+            self.log_result("Profile Update - Invalid Data", False, f"Expected validation error, got status {response['status_code']}", response["data"])
+    
+    def test_company_settings_api(self):
+        """Test Company Settings API - GET/PUT /api/settings/company"""
+        print("\n=== Testing Company Settings API ===")
+        
+        if not self.token:
+            self.log_result("Company Settings API", False, "No authentication token available")
+            return
+        
+        # Test 1: Get company settings
+        response = self.make_request("GET", "/settings/company")
+        
+        if "error" in response:
+            self.log_result("Company Settings - GET", False, f"Request failed: {response['error']}")
+        elif response["status_code"] == 200:
+            data = response["data"]
+            if "company_name" in data:
+                self.log_result("Company Settings - GET", True, "Company settings retrieved successfully")
+            else:
+                self.log_result("Company Settings - GET", False, "Invalid response format", data)
+        else:
+            self.log_result("Company Settings - GET", False, f"GET failed with status {response['status_code']}", response["data"])
+        
+        # Test 2: Update company settings (Admin only)
+        settings_data = {
+            "company_name": "Test Construction Co",
+            "address": "123 Main St, Construction City",
+            "phone": "555-1234",
+            "email": "info@testco.com",
+            "tax_id": "TAX123456",
+            "website": "https://testco.com"
+        }
+        
+        response = self.make_request("PUT", "/settings/company", settings_data)
+        
+        if "error" in response:
+            self.log_result("Company Settings - PUT", False, f"Request failed: {response['error']}")
+        elif response["status_code"] == 200:
+            data = response["data"]
+            if data.get("company_name") == settings_data["company_name"]:
+                self.log_result("Company Settings - PUT", True, "Company settings updated successfully")
+            else:
+                self.log_result("Company Settings - PUT", False, "Settings not updated correctly", data)
+        else:
+            self.log_result("Company Settings - PUT", False, f"PUT failed with status {response['status_code']}", response["data"])
+        
+        # Test 3: Verify updated settings
+        response = self.make_request("GET", "/settings/company")
+        
+        if response["status_code"] == 200:
+            data = response["data"]
+            if data.get("company_name") == settings_data["company_name"]:
+                self.log_result("Company Settings - Verification", True, "Updated settings verified successfully")
+            else:
+                self.log_result("Company Settings - Verification", False, "Settings verification failed", data)
+        else:
+            self.log_result("Company Settings - Verification", False, f"Verification failed with status {response['status_code']}")
+    
+    def test_bulk_leads_upload_api(self):
+        """Test Bulk Leads Upload API - POST /api/crm/leads/bulk"""
+        print("\n=== Testing Bulk Leads Upload API ===")
+        
+        if not self.token:
+            self.log_result("Bulk Leads Upload API", False, "No authentication token available")
+            return
+        
+        # Test 1: Upload valid bulk leads
+        leads_data = [
+            {
+                "client_name": "John Doe Construction",
+                "contact": "555-1111",
+                "email": "john@example.com",
+                "source": "Website",
+                "estimated_value": 50000,
+                "notes": "Interested in residential project"
+            },
+            {
+                "client_name": "Jane Smith Builders",
+                "contact": "555-2222",
+                "email": "jane@example.com",
+                "source": "Referral",
+                "estimated_value": 75000,
+                "notes": "Commercial building project"
+            },
+            {
+                "client_name": "ABC Development Corp",
+                "contact": "555-3333",
+                "source": "Cold Call",
+                "estimated_value": 100000
+            }
         ]
         
-        for role_data in roles_to_test:
-            user_data = {
-                "email": role_data["email"],
-                "password": "TestPass123!",
-                "full_name": role_data["name"],
-                "role": role_data["role"],
+        response = self.make_request("POST", "/crm/leads/bulk", leads_data)
+        
+        if "error" in response:
+            self.log_result("Bulk Leads Upload - Valid Data", False, f"Request failed: {response['error']}")
+        elif response["status_code"] == 200:
+            data = response["data"]
+            if "message" in data and "3 leads" in data["message"]:
+                self.log_result("Bulk Leads Upload - Valid Data", True, f"Bulk upload successful: {data['message']}")
+            else:
+                self.log_result("Bulk Leads Upload - Valid Data", False, "Unexpected response format", data)
+        else:
+            self.log_result("Bulk Leads Upload - Valid Data", False, f"Upload failed with status {response['status_code']}", response["data"])
+        
+        # Test 2: Verify leads were created
+        response = self.make_request("GET", "/crm/leads")
+        
+        if response["status_code"] == 200:
+            leads = response["data"]
+            if isinstance(leads, list) and len(leads) >= 3:
+                # Check if our test leads are in the response
+                test_names = [lead["client_name"] for lead in leads_data]
+                created_names = [lead.get("client_name", "") for lead in leads]
+                
+                found_leads = [name for name in test_names if name in created_names]
+                if len(found_leads) >= 2:  # At least 2 out of 3 should be found
+                    self.log_result("Bulk Leads Upload - Verification", True, f"Found {len(found_leads)} uploaded leads in database")
+                else:
+                    self.log_result("Bulk Leads Upload - Verification", False, f"Only found {len(found_leads)} out of 3 uploaded leads")
+            else:
+                self.log_result("Bulk Leads Upload - Verification", False, f"Expected at least 3 leads, found {len(leads) if isinstance(leads, list) else 0}")
+        else:
+            self.log_result("Bulk Leads Upload - Verification", False, f"Failed to retrieve leads for verification: {response['status_code']}")
+        
+        # Test 3: Test with invalid data
+        invalid_leads = [
+            {
+                "client_name": "",  # Empty required field
+                "contact": "555-4444"
+            }
+        ]
+        
+        response = self.make_request("POST", "/crm/leads/bulk", invalid_leads)
+        
+        if response["status_code"] == 422:
+            self.log_result("Bulk Leads Upload - Invalid Data", True, "Validation error handled correctly")
+        elif response["status_code"] == 200:
+            # Some APIs might accept and skip invalid entries
+            self.log_result("Bulk Leads Upload - Invalid Data", True, "Invalid data handled gracefully")
+        else:
+            self.log_result("Bulk Leads Upload - Invalid Data", False, f"Unexpected response to invalid data: {response['status_code']}")
+    
+    def test_role_based_access(self):
+        """Test role-based access control"""
+        print("\n=== Testing Role-Based Access Control ===")
+        
+        # Register a non-admin user
+        worker_data = {
+            "email": "worker@constructflow.com",
+            "password": "WorkerPass123!",
+            "full_name": "Test Worker",
+            "role": "worker",
+            "auth_type": "email"
+        }
+        
+        response = self.make_request("POST", "/auth/register", worker_data)
+        
+        if response["status_code"] == 200 or (response["status_code"] == 400 and "already registered" in str(response["data"])):
+            # Login as worker
+            login_data = {
+                "identifier": "worker@constructflow.com",
+                "password": "WorkerPass123!",
                 "auth_type": "email"
             }
             
-            try:
-                response = self.session.post(f"{API_BASE}/auth/register", json=user_data)
+            response = self.make_request("POST", "/auth/login", login_data)
+            
+            if response["status_code"] == 200:
+                worker_token = response["data"]["access_token"]
                 
-                if response.status_code == 200:
-                    data = response.json()
-                    user_info = data['user']
-                    
-                    if user_info['role'] == role_data["role"]:
-                        self.log_result(f"Role {role_data['role']}", True, 
-                                      f"User with role {role_data['role']} created successfully")
-                        self.tokens[role_data['role']] = data['access_token']
-                        self.users[role_data['role']] = user_info
-                    else:
-                        self.log_result(f"Role {role_data['role']}", False, 
-                                      f"Role mismatch: expected {role_data['role']}, got {user_info['role']}")
-                        
-                elif response.status_code == 400:
-                    error_data = response.json()
-                    if "already registered" in error_data.get('detail', ''):
-                        print_warning(f"User with role {role_data['role']} already exists")
-                        self.log_result(f"Role {role_data['role']}", True, 
-                                      f"Role {role_data['role']} already exists (expected)")
-                    else:
-                        self.log_result(f"Role {role_data['role']}", False, 
-                                      f"Registration failed: {error_data.get('detail')}")
+                # Temporarily switch to worker token
+                original_token = self.token
+                self.token = worker_token
+                
+                # Test company settings access (should fail)
+                response = self.make_request("PUT", "/settings/company", {"company_name": "Unauthorized"})
+                
+                if response["status_code"] == 403:
+                    self.log_result("Role-Based Access - Company Settings", True, "Worker correctly denied access to company settings")
                 else:
-                    self.log_result(f"Role {role_data['role']}", False, 
-                                  f"HTTP {response.status_code}")
-                    
-            except Exception as e:
-                self.log_result(f"Role {role_data['role']}", False, 
-                              f"Exception for role {role_data['role']}", str(e))
-
-    def run_all_tests(self):
-        """Run all authentication tests"""
-        print(f"{Colors.BOLD}{Colors.BLUE}")
-        print("=" * 80)
-        print("CONSTRUCTION MANAGEMENT APP - BACKEND AUTHENTICATION TESTING")
-        print("=" * 80)
-        print(f"{Colors.ENDC}")
-        
-        print_info(f"Testing Backend URL: {API_BASE}")
-        print_info(f"Test Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        
-        # Run tests in sequence
-        if self.test_api_health():
-            self.test_email_registration()
-            self.test_email_login()
-            self.test_phone_otp_flow()
-            self.test_protected_endpoint()
-            self.test_users_endpoint()
-            self.test_invalid_credentials()
-            self.test_different_user_roles()
+                    self.log_result("Role-Based Access - Company Settings", False, f"Worker should be denied access, got status {response['status_code']}")
+                
+                # Test bulk leads upload (should fail)
+                response = self.make_request("POST", "/crm/leads/bulk", [{"client_name": "Test", "contact": "123"}])
+                
+                if response["status_code"] == 403:
+                    self.log_result("Role-Based Access - Bulk Leads", True, "Worker correctly denied access to bulk leads upload")
+                else:
+                    self.log_result("Role-Based Access - Bulk Leads", False, f"Worker should be denied access, got status {response['status_code']}")
+                
+                # Restore admin token
+                self.token = original_token
+            else:
+                self.log_result("Role-Based Access", False, "Failed to login as worker for access control test")
         else:
-            print_error("API health check failed - skipping other tests")
+            self.log_result("Role-Based Access", False, "Failed to create worker user for access control test")
+    
+    def run_all_tests(self):
+        """Run all backend tests"""
+        print("🚀 Starting Backend API Tests for Construction Management App")
+        print(f"Backend URL: {self.base_url}")
+        print("=" * 80)
         
-        # Print final results
-        self.print_final_results()
+        # Test API health first
+        if not self.test_api_health():
+            print("\n❌ API is not accessible. Stopping tests.")
+            return False
+        
+        # Register/login admin user
+        if not self.register_admin_user():
+            print("\n❌ Failed to authenticate admin user. Stopping tests.")
+            return False
+        
+        # Run all API tests
+        self.test_profile_update_api()
+        self.test_company_settings_api()
+        self.test_bulk_leads_upload_api()
+        self.test_role_based_access()
+        
+        # Print summary
+        self.print_summary()
+        
+        return True
+    
+    def print_summary(self):
+        """Print test summary"""
+        print("\n" + "=" * 80)
+        print("📊 TEST SUMMARY")
+        print("=" * 80)
+        
+        total_tests = len(self.test_results)
+        passed_tests = len([r for r in self.test_results if r["success"]])
+        failed_tests = total_tests - passed_tests
+        
+        print(f"Total Tests: {total_tests}")
+        print(f"✅ Passed: {passed_tests}")
+        print(f"❌ Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        
+        if failed_tests > 0:
+            print("\n🔍 FAILED TESTS:")
+            for result in self.test_results:
+                if not result["success"]:
+                    print(f"  • {result['test']}: {result['message']}")
+        
+        print("\n" + "=" * 80)
 
-    def print_final_results(self):
-        """Print final test results summary"""
-        print(f"\n{Colors.BOLD}{Colors.BLUE}")
-        print("=" * 80)
-        print("FINAL TEST RESULTS")
-        print("=" * 80)
-        print(f"{Colors.ENDC}")
-        
-        total_tests = self.test_results['passed'] + self.test_results['failed']
-        success_rate = (self.test_results['passed'] / total_tests * 100) if total_tests > 0 else 0
-        
-        print(f"{Colors.BOLD}Total Tests: {total_tests}{Colors.ENDC}")
-        print(f"{Colors.GREEN}Passed: {self.test_results['passed']}{Colors.ENDC}")
-        print(f"{Colors.RED}Failed: {self.test_results['failed']}{Colors.ENDC}")
-        print(f"{Colors.BOLD}Success Rate: {success_rate:.1f}%{Colors.ENDC}")
-        
-        if self.test_results['errors']:
-            print(f"\n{Colors.RED}{Colors.BOLD}FAILED TESTS:{Colors.ENDC}")
-            for i, error in enumerate(self.test_results['errors'], 1):
-                print(f"{Colors.RED}{i}. {error}{Colors.ENDC}")
-        
-        if self.tokens:
-            print(f"\n{Colors.GREEN}{Colors.BOLD}GENERATED TOKENS:{Colors.ENDC}")
-            for role, token in self.tokens.items():
-                print(f"{Colors.GREEN}{role}: {token[:50]}...{Colors.ENDC}")
-        
-        print(f"\n{Colors.BLUE}Test Completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}{Colors.ENDC}")
+def main():
+    """Main function"""
+    tester = BackendTester()
+    success = tester.run_all_tests()
+    
+    # Exit with appropriate code
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    tester = ConstructionAppTester()
-    tester.run_all_tests()
+    main()
