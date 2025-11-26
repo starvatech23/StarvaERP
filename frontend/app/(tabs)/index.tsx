@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,14 +7,51 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { projectsAPI, tasksAPI } from '../../services/api';
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
 export default function DashboardScreen() {
   const { user } = useAuth();
+  const router = useRouter();
+  const [projects, setProjects] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [myTasks, setMyTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const [projectsRes, tasksRes, myTasksRes] = await Promise.all([
+        projectsAPI.getAll(),
+        tasksAPI.getAll(),
+        tasksAPI.getAll(undefined, undefined, true),
+      ]);
+      setProjects(projectsRes.data);
+      setTasks(tasksRes.data);
+      setMyTasks(myTasksRes.data);
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadDashboardData();
+  }, []);
 
   const getRoleColor = (role: string) => {
     switch (role) {
