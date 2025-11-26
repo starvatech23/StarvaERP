@@ -1176,6 +1176,111 @@ async def create_quotation(
     
     return QuotationResponse(**quot_dict)
 
+# ============= Company Settings Routes =============
+
+@api_router.get("/settings/company")
+async def get_company_settings(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get company settings"""
+    current_user = await get_current_user(credentials, db)
+    
+    settings = await db.company_settings.find_one({})
+    if not settings:
+        # Return default settings
+        return {
+            "company_name": "Construction Company",
+            "logo": None,
+            "address": None,
+            "phone": None,
+            "email": None,
+            "tax_id": None,
+            "website": None
+        }
+    
+    return serialize_doc(settings)
+
+@api_router.put("/settings/company")
+async def update_company_settings(
+    settings: CompanySettingsUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update company settings (Admin only)"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can update company settings")
+    
+    existing = await db.company_settings.find_one({})
+    update_data = settings.dict(exclude_unset=True)
+    
+    if existing:
+        await db.company_settings.update_one(
+            {"_id": existing["_id"]},
+            {"$set": update_data}
+        )
+    else:
+        await db.company_settings.insert_one(update_data)
+    
+    updated = await db.company_settings.find_one({})
+    return serialize_doc(updated) if updated else update_data
+
+# ============= Profile Routes =============
+
+@api_router.put("/profile")
+async def update_profile(
+    profile: UserProfileUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update user profile"""
+    current_user = await get_current_user(credentials, db)
+    
+    update_data = profile.dict(exclude_unset=True)
+    
+    await db.users.update_one(
+        {"_id": current_user["_id"]},
+        {"$set": update_data}
+    )
+    
+    updated_user = await db.users.find_one({"_id": current_user["_id"]})
+    
+    return UserResponse(
+        id=str(updated_user["_id"]),
+        email=updated_user.get("email"),
+        phone=updated_user.get("phone"),
+        full_name=updated_user["full_name"],
+        role=updated_user["role"],
+        address=updated_user.get("address"),
+        profile_photo=updated_user.get("profile_photo"),
+        is_active=updated_user["is_active"],
+        date_joined=updated_user["date_joined"],
+        last_login=updated_user.get("last_login")
+    )
+
+# ============= Bulk Leads Upload =============
+
+@api_router.post("/crm/leads/bulk")
+async def bulk_upload_leads(
+    leads: List[BulkLeadItem],
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Bulk upload leads (Admin/PM only)"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can bulk upload leads")
+    
+    inserted_count = 0
+    for lead_data in leads:
+        lead_dict = lead_data.dict()
+        lead_dict["created_by"] = str(current_user["_id"])
+        lead_dict["status"] = "new"
+        lead_dict["created_at"] = datetime.utcnow()
+        lead_dict["updated_at"] = datetime.utcnow()
+        
+        await db.leads.insert_one(lead_dict)
+        inserted_count += 1
+    
+    return {"message": f"Successfully uploaded {inserted_count} leads"}
+
 # ============= Root Route =============
 
 @api_router.get("/")
