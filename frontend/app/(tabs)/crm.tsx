@@ -80,12 +80,26 @@ export default function CRMScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>CRM</Text>
-        <TouchableOpacity 
-          style={styles.addButton}
-          onPress={() => router.push('/crm/create-lead' as any)}
-        >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity 
+            style={styles.iconButton}
+            onPress={() => router.push('/crm/upload-leads' as any)}
+          >
+            <Ionicons name="cloud-upload" size={20} color="#FF6B35" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.addButton}
+            onPress={() => {
+              if (activeTab === 'leads') {
+                router.push('/crm/create-lead' as any);
+              } else {
+                router.push('/crm/create-quotation' as any);
+              }
+            }}
+          >
+            <Ionicons name="add" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.tabsContainer}>
