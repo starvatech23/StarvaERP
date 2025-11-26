@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,30 +6,167 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { projectsAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ProjectsScreen() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const canCreateProject = user?.role === 'admin' || user?.role === 'project_manager';
+
+  const loadProjects = async () => {
+    try {
+      const response = await projectsAPI.getAll();
+      setProjects(response.data);
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to load projects');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadProjects();
+  }, []);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'planning':
+        return '#3B82F6';
+      case 'in_progress':
+        return '#F59E0B';
+      case 'completed':
+        return '#10B981';
+      case 'on_hold':
+        return '#6B7280';
+      case 'cancelled':
+        return '#EF4444';
+      default:
+        return '#6B7280';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF6B35" />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Projects</Text>
-          <TouchableOpacity style={styles.addButton}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Projects</Text>
+        {canCreateProject && (
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => router.push('/projects/create' as any)}
+          >
             <Ionicons name="add" size={24} color="#FFFFFF" />
           </TouchableOpacity>
-        </View>
+        )}
+      </View>
 
-        <View style={styles.emptyState}>
-          <Ionicons name="business-outline" size={64} color="#CBD5E0" />
-          <Text style={styles.emptyTitle}>No Projects Yet</Text>
-          <Text style={styles.emptyText}>
-            Create your first project to start managing construction sites
-          </Text>
-          <TouchableOpacity style={styles.createButton}>
-            <Text style={styles.createButtonText}>Create Project</Text>
-          </TouchableOpacity>
-        </View>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF6B35" />
+        }
+      >
+        {projects.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="business-outline" size={64} color="#CBD5E0" />
+            <Text style={styles.emptyTitle}>No Projects Yet</Text>
+            <Text style={styles.emptyText}>
+              {canCreateProject
+                ? 'Create your first project to start managing construction sites'
+                : 'No projects have been created yet'}
+            </Text>
+            {canCreateProject && (
+              <TouchableOpacity
+                style={styles.createButton}
+                onPress={() => router.push('/projects/create' as any)}
+              >
+                <Text style={styles.createButtonText}>Create Project</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : (
+          <View style={styles.projectsList}>
+            {projects.map((project: any) => (
+              <TouchableOpacity
+                key={project.id}
+                style={styles.projectCard}
+                onPress={() => router.push(`/projects/${project.id}` as any)}
+              >
+                <View style={styles.projectHeader}>
+                  <View style={styles.projectTitleContainer}>
+                    <Ionicons name="business" size={20} color="#FF6B35" />
+                    <Text style={styles.projectName} numberOfLines={1}>
+                      {project.name}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      { backgroundColor: getStatusColor(project.status) + '20' },
+                    ]}
+                  >
+                    <Text style={[styles.statusText, { color: getStatusColor(project.status) }]}>
+                      {getStatusLabel(project.status)}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.projectDetails}>
+                  <View style={styles.detailRow}>
+                    <Ionicons name="location" size={14} color="#718096" />
+                    <Text style={styles.detailText} numberOfLines={1}>
+                      {project.location}
+                    </Text>
+                  </View>
+                  {project.project_manager_name && (
+                    <View style={styles.detailRow}>
+                      <Ionicons name="person" size={14} color="#718096" />
+                      <Text style={styles.detailText}>{project.project_manager_name}</Text>
+                    </View>
+                  )}
+                  {project.budget && (
+                    <View style={styles.detailRow}>
+                      <Ionicons name="cash" size={14} color="#718096" />
+                      <Text style={styles.detailText}>
+                        ${project.budget.toLocaleString()}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
