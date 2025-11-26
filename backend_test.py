@@ -11,7 +11,7 @@ from datetime import datetime
 import time
 
 # Get backend URL from environment
-BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://d1fac5b1-21be-4954-a671-7c4584c5db41.preview.emergentagent.com')
+BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://constructflow-40.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
 class Colors:
