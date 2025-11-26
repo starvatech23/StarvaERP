@@ -126,3 +126,19 @@ export const quotationsAPI = {
   update: (id: string, data: any) => api.put(`/crm/quotations/${id}`, data),
   delete: (id: string) => api.delete(`/crm/quotations/${id}`),
 };
+
+// Company Settings API
+export const settingsAPI = {
+  getCompany: () => api.get('/settings/company'),
+  updateCompany: (data: any) => api.put('/settings/company', data),
+};
+
+// Profile API
+export const profileAPI = {
+  update: (data: any) => api.put('/profile', data),
+};
+
+// Bulk Leads Upload API
+export const bulkLeadsAPI = {
+  upload: (data: any[]) => api.post('/crm/leads/bulk', data),
+};
