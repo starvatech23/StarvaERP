@@ -161,7 +161,7 @@ export default function DashboardScreen() {
               <TouchableOpacity
                 key={index}
                 style={styles.actionCard}
-                onPress={() => {}}
+                onPress={action.action}
               >
                 <View style={[styles.actionIcon, { backgroundColor: action.color + '20' }]}>
                   <Ionicons name={action.icon as any} size={28} color={action.color} />
