@@ -11,9 +11,11 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { leadsAPI, quotationsAPI } from '../../services/api';
 
 export default function CRMScreen() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'leads' | 'quotations'>('leads');
   const [leads, setLeads] = useState([]);
   const [quotations, setQuotations] = useState([]);
