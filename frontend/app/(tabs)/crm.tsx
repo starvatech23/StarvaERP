@@ -78,7 +78,10 @@ export default function CRMScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>CRM</Text>
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity 
+          style={styles.addButton}
+          onPress={() => router.push('/crm/create-lead' as any)}
+        >
           <Ionicons name="add" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
