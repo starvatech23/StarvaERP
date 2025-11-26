@@ -52,9 +52,14 @@ export default function ProfileScreen() {
   };
 
   const menuItems = [
-    { icon: 'person-outline', label: 'Edit Profile', onPress: () => {} },
+    { icon: 'person-outline', label: 'Edit Profile', onPress: () => router.push('/profile/edit') },
     { icon: 'notifications-outline', label: 'Notifications', onPress: () => {} },
-    { icon: 'settings-outline', label: 'Settings', onPress: () => {} },
+    { 
+      icon: 'settings-outline', 
+      label: 'Company Settings', 
+      onPress: () => router.push('/settings/company'),
+      adminOnly: true
+    },
     { icon: 'help-circle-outline', label: 'Help & Support', onPress: () => {} },
     { icon: 'information-circle-outline', label: 'About', onPress: () => {} },
   ];
