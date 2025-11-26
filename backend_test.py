@@ -308,16 +308,16 @@ class ConstructionAppTester:
             self.log_result("Protected Endpoint (Valid Token)", False, 
                           "No valid token available")
         
-        # Test without token (should return 401)
+        # Test without token (should return 403 with FastAPI HTTPBearer)
         try:
             response = self.session.get(f"{API_BASE}/auth/me")
             
-            if response.status_code == 401:
+            if response.status_code == 403:
                 self.log_result("Protected Endpoint (No Token)", True, 
                               "Correctly rejected request without token")
             else:
                 self.log_result("Protected Endpoint (No Token)", False, 
-                              f"Expected 401, got {response.status_code}")
+                              f"Expected 403, got {response.status_code}")
                 
         except Exception as e:
             self.log_result("Protected Endpoint (No Token)", False, 
