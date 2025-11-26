@@ -87,16 +87,35 @@ export default function DashboardScreen() {
     }
   };
 
+  const activeProjects = projects.filter((p: any) => p.status === 'in_progress').length;
+  const completedTasks = tasks.filter((t: any) => t.status === 'completed').length;
+  const myPendingTasks = myTasks.filter((t: any) => t.status === 'pending' || t.status === 'in_progress').length;
+
   const quickActions = [
-    { icon: 'add-circle', label: 'New Project', color: '#FF6B35', screen: 'projects' },
-    { icon: 'list', label: 'Tasks', color: '#3B82F6', screen: 'tasks' },
-    { icon: 'cube', label: 'Materials', color: '#8B5CF6', screen: 'materials' },
-    { icon: 'calendar', label: 'Schedule', color: '#F59E0B', screen: 'schedule' },
+    { icon: 'add-circle', label: 'New Project', color: '#FF6B35', action: () => router.push('/projects/create' as any) },
+    { icon: 'list', label: 'My Tasks', color: '#3B82F6', action: () => {} },
+    { icon: 'cube', label: 'Materials', color: '#8B5CF6', action: () => router.push('/(tabs)/materials' as any) },
+    { icon: 'business', label: 'Projects', color: '#F59E0B', action: () => router.push('/(tabs)/projects' as any) },
   ];
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF6B35" />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF6B35" />
+        }
+      >
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Hello,</Text>
