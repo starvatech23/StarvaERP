@@ -22,6 +22,7 @@ from models import (
     WorkScheduleCreate, WorkScheduleUpdate, WorkScheduleResponse,
     LeadCreate, LeadUpdate, LeadResponse,
     QuotationCreate, QuotationUpdate, QuotationResponse,
+    CompanySettingsUpdate, UserProfileUpdate, BulkLeadItem,
     UserRole
 )
 from auth import (
