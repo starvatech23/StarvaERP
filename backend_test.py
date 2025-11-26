@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Construction Management App - Phase 1 Authentication System
-Tests all authentication endpoints and user management functionality
+Backend API Testing Script for Construction Management App
+Tests the newly implemented APIs:
+1. Profile Update API - PUT /api/profile
+2. Company Settings API - GET/PUT /api/settings/company
+3. Bulk Leads Upload API - POST /api/crm/leads/bulk
 """
 
 import requests
 import json
-import os
+import sys
 from datetime import datetime
-import time
+from typing import Dict, Any
 
 # Get backend URL from environment
-BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://constructflow-40.preview.emergentagent.com')
-API_BASE = f"{BACKEND_URL}/api"
+BACKEND_URL = "https://constructflow-40.preview.emergentagent.com/api"
 
 class Colors:
     GREEN = '\033[92m'
