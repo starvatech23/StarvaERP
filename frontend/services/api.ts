@@ -126,3 +126,12 @@ export const quotationsAPI = {
   update: (id: string, data: any) => api.put(`/crm/quotations/${id}`, data),
   delete: (id: string) => api.delete(`/crm/quotations/${id}`),
 };
+
+// Schedules API
+export const scheduleAPI = {
+  getAll: (projectId?: string, date?: string) => 
+    api.get('/schedules', { params: { project_id: projectId, date } }),
+  create: (data: any) => api.post('/schedules', data),
+  update: (id: string, data: any) => api.put(`/schedules/${id}`, data),
+  delete: (id: string) => api.delete(`/schedules/${id}`),
+};
