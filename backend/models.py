@@ -329,3 +329,49 @@ class QuotationResponse(QuotationBase):
     created_by_name: Optional[str] = None
     sent_date: Optional[datetime] = None
     created_at: datetime
+
+# Company Settings Models
+class CompanySettings(BaseModel):
+    company_name: str
+    logo: Optional[str] = None  # base64
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    tax_id: Optional[str] = None
+    website: Optional[str] = None
+
+class CompanySettingsUpdate(BaseModel):
+    company_name: Optional[str] = None
+    logo: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    tax_id: Optional[str] = None
+    website: Optional[str] = None
+
+# Enhanced Quotation Item with Tax
+class QuotationItemWithTax(BaseModel):
+    description: str
+    quantity: float
+    unit_price: float
+    tax_rate: float = 0  # percentage
+    subtotal: float
+    tax_amount: float
+    total: float
+
+# Bulk Lead Upload
+class BulkLeadItem(BaseModel):
+    client_name: str
+    contact: str
+    email: Optional[EmailStr] = None
+    source: Optional[str] = None
+    estimated_value: Optional[float] = None
+    notes: Optional[str] = None
+
+# User Profile Update
+class UserProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    profile_photo: Optional[str] = None
