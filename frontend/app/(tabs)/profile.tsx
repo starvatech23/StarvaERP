@@ -93,19 +93,21 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.menuContainer}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.menuItem}
-              onPress={item.onPress}
-            >
-              <View style={styles.menuLeft}>
-                <Ionicons name={item.icon as any} size={24} color="#718096" />
-                <Text style={styles.menuLabel}>{item.label}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#CBD5E0" />
-            </TouchableOpacity>
-          ))}
+          {menuItems
+            .filter((item) => !item.adminOnly || user?.role === 'admin')
+            .map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.menuItem}
+                onPress={item.onPress}
+              >
+                <View style={styles.menuLeft}>
+                  <Ionicons name={item.icon as any} size={24} color="#718096" />
+                  <Text style={styles.menuLabel}>{item.label}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#CBD5E0" />
+              </TouchableOpacity>
+            ))}
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
