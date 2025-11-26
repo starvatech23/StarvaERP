@@ -853,6 +853,329 @@ async def delete_vendor(
     
     return {"message": "Vendor deleted successfully"}
 
+# ============= Attendance Routes =============
+
+@api_router.get("/attendance", response_model=List[AttendanceResponse])
+async def get_attendance(
+    user_id: str = None,
+    project_id: str = None,
+    date: str = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get attendance records"""
+    current_user = await get_current_user(credentials, db)
+    
+    query = {}
+    if user_id:
+        query["user_id"] = user_id
+    elif current_user["role"] in [UserRole.WORKER, UserRole.ENGINEER]:
+        # Workers/Engineers see only their own attendance
+        query["user_id"] = str(current_user["_id"])
+    
+    if project_id:
+        query["project_id"] = project_id
+    if date:
+        query["date"] = {"$gte": datetime.fromisoformat(date)}
+    
+    records = await db.attendance.find(query).to_list(1000)
+    
+    result = []
+    for record in records:
+        record_dict = serialize_doc(record)
+        
+        # Get user and project names
+        user = await get_user_by_id(record_dict["user_id"])
+        project = await db.projects.find_one({"_id": ObjectId(record_dict["project_id"])})
+        
+        record_dict["user_name"] = user["full_name"] if user else "Unknown"
+        record_dict["project_name"] = project["name"] if project else "Unknown"
+        
+        result.append(AttendanceResponse(**record_dict))
+    
+    return result
+
+@api_router.post("/attendance/check-in", response_model=AttendanceResponse)
+async def check_in(
+    attendance: AttendanceCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Check in to a project"""
+    current_user = await get_current_user(credentials, db)
+    
+    attendance_dict = attendance.dict()
+    attendance_dict["user_id"] = str(current_user["_id"])
+    attendance_dict["date"] = datetime.utcnow()
+    attendance_dict["status"] = "present"
+    
+    result = await db.attendance.insert_one(attendance_dict)
+    attendance_dict["_id"] = result.inserted_id
+    
+    attendance_dict = serialize_doc(attendance_dict)
+    attendance_dict["user_name"] = current_user["full_name"]
+    
+    project = await db.projects.find_one({"_id": ObjectId(attendance_dict["project_id"])})
+    attendance_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    return AttendanceResponse(**attendance_dict)
+
+@api_router.post("/attendance/{attendance_id}/check-out")
+async def check_out(
+    attendance_id: str,
+    checkout: AttendanceCheckout,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Check out from a project"""
+    current_user = await get_current_user(credentials, db)
+    
+    existing = await db.attendance.find_one({"_id": ObjectId(attendance_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Attendance record not found")
+    
+    if str(existing["user_id"]) != str(current_user["_id"]):
+        if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+            raise HTTPException(status_code=403, detail="Can only check out your own attendance")
+    
+    await db.attendance.update_one(
+        {"_id": ObjectId(attendance_id)},
+        {"$set": {"check_out_time": checkout.check_out_time}}
+    )
+    
+    return {"message": "Checked out successfully"}
+
+# ============= Work Schedules Routes =============
+
+@api_router.get("/schedules", response_model=List[WorkScheduleResponse])
+async def get_schedules(
+    project_id: str = None,
+    date: str = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get work schedules"""
+    current_user = await get_current_user(credentials, db)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if date:
+        query["scheduled_date"] = {"$gte": datetime.fromisoformat(date)}
+    
+    schedules = await db.schedules.find(query).to_list(1000)
+    
+    result = []
+    for schedule in schedules:
+        schedule_dict = serialize_doc(schedule)
+        
+        project = await db.projects.find_one({"_id": ObjectId(schedule_dict["project_id"])})
+        schedule_dict["project_name"] = project["name"] if project else "Unknown"
+        
+        if schedule_dict.get("task_id"):
+            task = await db.tasks.find_one({"_id": ObjectId(schedule_dict["task_id"])})
+            schedule_dict["task_title"] = task["title"] if task else None
+        
+        assigned_users = []
+        for user_id in schedule_dict.get("assigned_to", []):
+            user = await get_user_by_id(user_id)
+            if user:
+                assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
+        schedule_dict["assigned_users"] = assigned_users
+        
+        creator = await get_user_by_id(schedule_dict["created_by"])
+        schedule_dict["created_by"] = creator["full_name"] if creator else "Unknown"
+        
+        result.append(WorkScheduleResponse(**schedule_dict))
+    
+    return result
+
+@api_router.post("/schedules", response_model=WorkScheduleResponse)
+async def create_schedule(
+    schedule: WorkScheduleCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a work schedule"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.ENGINEER]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    schedule_dict = schedule.dict()
+    schedule_dict["created_by"] = str(current_user["_id"])
+    schedule_dict["created_at"] = datetime.utcnow()
+    
+    result = await db.schedules.insert_one(schedule_dict)
+    schedule_dict["_id"] = result.inserted_id
+    
+    schedule_dict = serialize_doc(schedule_dict)
+    
+    project = await db.projects.find_one({"_id": ObjectId(schedule_dict["project_id"])})
+    schedule_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    if schedule_dict.get("task_id"):
+        task = await db.tasks.find_one({"_id": ObjectId(schedule_dict["task_id"])})
+        schedule_dict["task_title"] = task["title"] if task else None
+    
+    assigned_users = []
+    for user_id in schedule_dict.get("assigned_to", []):
+        user = await get_user_by_id(user_id)
+        if user:
+            assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
+    schedule_dict["assigned_users"] = assigned_users
+    schedule_dict["created_by"] = current_user["full_name"]
+    
+    return WorkScheduleResponse(**schedule_dict)
+
+# ============= CRM Leads Routes =============
+
+@api_router.get("/crm/leads", response_model=List[LeadResponse])
+async def get_leads(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get all CRM leads"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can access CRM")
+    
+    leads = await db.leads.find().to_list(1000)
+    
+    result = []
+    for lead in leads:
+        lead_dict = serialize_doc(lead)
+        
+        if lead_dict.get("assigned_to"):
+            assignee = await get_user_by_id(lead_dict["assigned_to"])
+            lead_dict["assigned_to_name"] = assignee["full_name"] if assignee else None
+        
+        creator = await get_user_by_id(lead_dict["created_by"])
+        lead_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        
+        result.append(LeadResponse(**lead_dict))
+    
+    return result
+
+@api_router.post("/crm/leads", response_model=LeadResponse)
+async def create_lead(
+    lead: LeadCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new lead"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can create leads")
+    
+    lead_dict = lead.dict()
+    lead_dict["created_by"] = str(current_user["_id"])
+    lead_dict["created_at"] = datetime.utcnow()
+    lead_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.leads.insert_one(lead_dict)
+    lead_dict["_id"] = result.inserted_id
+    
+    lead_dict = serialize_doc(lead_dict)
+    
+    if lead_dict.get("assigned_to"):
+        assignee = await get_user_by_id(lead_dict["assigned_to"])
+        lead_dict["assigned_to_name"] = assignee["full_name"] if assignee else None
+    
+    lead_dict["created_by_name"] = current_user["full_name"]
+    
+    return LeadResponse(**lead_dict)
+
+@api_router.put("/crm/leads/{lead_id}", response_model=LeadResponse)
+async def update_lead(
+    lead_id: str,
+    lead_update: LeadUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a lead"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can update leads")
+    
+    existing = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    update_data = lead_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.leads.update_one(
+        {"_id": ObjectId(lead_id)},
+        {"$set": update_data}
+    )
+    
+    updated_lead = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    lead_dict = serialize_doc(updated_lead)
+    
+    if lead_dict.get("assigned_to"):
+        assignee = await get_user_by_id(lead_dict["assigned_to"])
+        lead_dict["assigned_to_name"] = assignee["full_name"] if assignee else None
+    
+    creator = await get_user_by_id(lead_dict["created_by"])
+    lead_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+    
+    return LeadResponse(**lead_dict)
+
+# ============= CRM Quotations Routes =============
+
+@api_router.get("/crm/quotations", response_model=List[QuotationResponse])
+async def get_quotations(
+    lead_id: str = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get quotations"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can access quotations")
+    
+    query = {}
+    if lead_id:
+        query["lead_id"] = lead_id
+    
+    quotations = await db.quotations.find(query).to_list(1000)
+    
+    result = []
+    for quot in quotations:
+        quot_dict = serialize_doc(quot)
+        
+        lead = await db.leads.find_one({"_id": ObjectId(quot_dict["lead_id"])})
+        quot_dict["lead_name"] = lead["client_name"] if lead else "Unknown"
+        quot_dict["status"] = quot_dict.get("status", "draft")
+        
+        creator = await get_user_by_id(quot_dict["created_by"])
+        quot_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        
+        result.append(QuotationResponse(**quot_dict))
+    
+    return result
+
+@api_router.post("/crm/quotations", response_model=QuotationResponse)
+async def create_quotation(
+    quotation: QuotationCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a quotation"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can create quotations")
+    
+    quot_dict = quotation.dict()
+    quot_dict["created_by"] = str(current_user["_id"])
+    quot_dict["status"] = "draft"
+    quot_dict["created_at"] = datetime.utcnow()
+    
+    result = await db.quotations.insert_one(quot_dict)
+    quot_dict["_id"] = result.inserted_id
+    
+    quot_dict = serialize_doc(quot_dict)
+    
+    lead = await db.leads.find_one({"_id": ObjectId(quot_dict["lead_id"])})
+    quot_dict["lead_name"] = lead["client_name"] if lead else "Unknown"
+    quot_dict["created_by_name"] = current_user["full_name"]
+    
+    return QuotationResponse(**quot_dict)
+
 # ============= Root Route =============
 
 @api_router.get("/")
