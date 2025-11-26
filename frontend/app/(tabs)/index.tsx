@@ -131,15 +131,28 @@ export default function DashboardScreen() {
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
             <Ionicons name="business" size={32} color="#FF6B35" />
-            <Text style={styles.statValue}>5</Text>
+            <Text style={styles.statValue}>{activeProjects}</Text>
             <Text style={styles.statLabel}>Active Projects</Text>
           </View>
           <View style={styles.statCard}>
             <Ionicons name="checkmark-circle" size={32} color="#10B981" />
-            <Text style={styles.statValue}>23</Text>
+            <Text style={styles.statValue}>{completedTasks}</Text>
             <Text style={styles.statLabel}>Tasks Done</Text>
           </View>
         </View>
+
+        {myPendingTasks > 0 && (
+          <TouchableOpacity style={styles.myTasksCard}>
+            <View style={styles.myTasksContent}>
+              <Ionicons name="alert-circle" size={24} color="#F59E0B" />
+              <View style={styles.myTasksText}>
+                <Text style={styles.myTasksTitle}>You have {myPendingTasks} pending tasks</Text>
+                <Text style={styles.myTasksSubtitle}>Tap to view your tasks</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#CBD5E0" />
+          </TouchableOpacity>
+        )}
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
