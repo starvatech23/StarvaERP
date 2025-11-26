@@ -332,4 +332,39 @@ const styles = StyleSheet.create({
     color: '#718096',
     lineHeight: 20,
   },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  myTasksCard: {
+    backgroundColor: '#FFF9E6',
+    padding: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#FDB913',
+  },
+  myTasksContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  myTasksText: {
+    flex: 1,
+  },
+  myTasksTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A202C',
+    marginBottom: 4,
+  },
+  myTasksSubtitle: {
+    fontSize: 12,
+    color: '#718096',
+  },
 });
