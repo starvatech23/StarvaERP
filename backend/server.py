@@ -293,6 +293,330 @@ async def get_users_by_role(role: UserRole, credentials: HTTPAuthorizationCreden
     users = await db.users.find({"role": role}).to_list(1000)
     return [{"id": str(u["_id"]), "name": u["full_name"], "role": u["role"]} for u in users]
 
+# ============= Projects Routes =============
+
+@api_router.get("/projects", response_model=List[ProjectResponse])
+async def get_projects(
+    status: str = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all projects"""
+    current_user = await get_current_user(credentials, db)
+    
+    # Build query
+    query = {}
+    if status:
+        query["status"] = status
+    
+    # Vendors can't access projects
+    if current_user["role"] == UserRole.VENDOR:
+        raise HTTPException(status_code=403, detail="Vendors cannot access projects")
+    
+    projects = await db.projects.find(query).to_list(1000)
+    
+    # Populate project manager name
+    result = []
+    for project in projects:
+        project_dict = serialize_doc(project)
+        if project_dict.get("project_manager_id"):
+            pm = await get_user_by_id(project_dict["project_manager_id"])
+            project_dict["project_manager_name"] = pm["full_name"] if pm else None
+        result.append(ProjectResponse(**project_dict))
+    
+    return result
+
+@api_router.get("/projects/{project_id}", response_model=ProjectResponse)
+async def get_project(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get project details"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] == UserRole.VENDOR:
+        raise HTTPException(status_code=403, detail="Vendors cannot access projects")
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    project_dict = serialize_doc(project)
+    if project_dict.get("project_manager_id"):
+        pm = await get_user_by_id(project_dict["project_manager_id"])
+        project_dict["project_manager_name"] = pm["full_name"] if pm else None
+    
+    return ProjectResponse(**project_dict)
+
+@api_router.post("/projects", response_model=ProjectResponse)
+async def create_project(
+    project: ProjectCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new project"""
+    current_user = await get_current_user(credentials, db)
+    
+    # Only admin and PM can create projects
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can create projects")
+    
+    project_dict = project.dict()
+    project_dict["created_at"] = datetime.utcnow()
+    project_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.projects.insert_one(project_dict)
+    project_dict["_id"] = result.inserted_id
+    
+    project_dict = serialize_doc(project_dict)
+    if project_dict.get("project_manager_id"):
+        pm = await get_user_by_id(project_dict["project_manager_id"])
+        project_dict["project_manager_name"] = pm["full_name"] if pm else None
+    
+    return ProjectResponse(**project_dict)
+
+@api_router.put("/projects/{project_id}", response_model=ProjectResponse)
+async def update_project(
+    project_id: str,
+    project_update: ProjectUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a project"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can update projects")
+    
+    existing = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    update_data = project_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$set": update_data}
+    )
+    
+    updated_project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    project_dict = serialize_doc(updated_project)
+    
+    if project_dict.get("project_manager_id"):
+        pm = await get_user_by_id(project_dict["project_manager_id"])
+        project_dict["project_manager_name"] = pm["full_name"] if pm else None
+    
+    return ProjectResponse(**project_dict)
+
+@api_router.delete("/projects/{project_id}")
+async def delete_project(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a project"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can delete projects")
+    
+    result = await db.projects.delete_one({"_id": ObjectId(project_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    return {"message": "Project deleted successfully"}
+
+# ============= Tasks Routes =============
+
+@api_router.get("/tasks", response_model=List[TaskResponse])
+async def get_tasks(
+    project_id: str = None,
+    status: str = None,
+    assigned_to_me: bool = False,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get tasks with filters"""
+    current_user = await get_current_user(credentials, db)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if status:
+        query["status"] = status
+    if assigned_to_me:
+        query["assigned_to"] = str(current_user["_id"])
+    
+    tasks = await db.tasks.find(query).to_list(1000)
+    
+    result = []
+    for task in tasks:
+        task_dict = serialize_doc(task)
+        
+        # Get creator name
+        creator = await get_user_by_id(task_dict["created_by"])
+        task_dict["created_by_name"] = creator["full_name"] if creator else None
+        
+        # Get assigned users
+        assigned_users = []
+        for user_id in task_dict.get("assigned_to", []):
+            user = await get_user_by_id(user_id)
+            if user:
+                assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
+        task_dict["assigned_users"] = assigned_users
+        
+        result.append(TaskResponse(**task_dict))
+    
+    return result
+
+@api_router.get("/tasks/my-tasks", response_model=List[TaskResponse])
+async def get_my_tasks(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get current user's tasks"""
+    current_user = await get_current_user(credentials, db)
+    
+    tasks = await db.tasks.find({"assigned_to": str(current_user["_id"])}).to_list(1000)
+    
+    result = []
+    for task in tasks:
+        task_dict = serialize_doc(task)
+        
+        creator = await get_user_by_id(task_dict["created_by"])
+        task_dict["created_by_name"] = creator["full_name"] if creator else None
+        
+        assigned_users = []
+        for user_id in task_dict.get("assigned_to", []):
+            user = await get_user_by_id(user_id)
+            if user:
+                assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
+        task_dict["assigned_users"] = assigned_users
+        
+        result.append(TaskResponse(**task_dict))
+    
+    return result
+
+@api_router.get("/tasks/{task_id}", response_model=TaskResponse)
+async def get_task(
+    task_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get task details"""
+    current_user = await get_current_user(credentials, db)
+    
+    task = await db.tasks.find_one({"_id": ObjectId(task_id)})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    task_dict = serialize_doc(task)
+    
+    creator = await get_user_by_id(task_dict["created_by"])
+    task_dict["created_by_name"] = creator["full_name"] if creator else None
+    
+    assigned_users = []
+    for user_id in task_dict.get("assigned_to", []):
+        user = await get_user_by_id(user_id)
+        if user:
+            assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
+    task_dict["assigned_users"] = assigned_users
+    
+    return TaskResponse(**task_dict)
+
+@api_router.post("/tasks", response_model=TaskResponse)
+async def create_task(
+    task: TaskCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new task"""
+    current_user = await get_current_user(credentials, db)
+    
+    # Only admin, PM, and engineers can create tasks
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.ENGINEER]:
+        raise HTTPException(status_code=403, detail="Only admins, project managers, and engineers can create tasks")
+    
+    task_dict = task.dict()
+    task_dict["created_by"] = str(current_user["_id"])
+    task_dict["created_at"] = datetime.utcnow()
+    task_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.tasks.insert_one(task_dict)
+    task_dict["_id"] = result.inserted_id
+    
+    task_dict = serialize_doc(task_dict)
+    task_dict["created_by_name"] = current_user["full_name"]
+    
+    assigned_users = []
+    for user_id in task_dict.get("assigned_to", []):
+        user = await get_user_by_id(user_id)
+        if user:
+            assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
+    task_dict["assigned_users"] = assigned_users
+    
+    return TaskResponse(**task_dict)
+
+@api_router.put("/tasks/{task_id}", response_model=TaskResponse)
+async def update_task(
+    task_id: str,
+    task_update: TaskUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a task"""
+    current_user = await get_current_user(credentials, db)
+    
+    existing = await db.tasks.find_one({"_id": ObjectId(task_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    # Check permissions
+    is_creator = str(existing["created_by"]) == str(current_user["_id"])
+    is_assigned = str(current_user["_id"]) in existing.get("assigned_to", [])
+    is_admin_or_pm = current_user["role"] in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]
+    
+    if not (is_creator or is_assigned or is_admin_or_pm):
+        raise HTTPException(status_code=403, detail="You don't have permission to update this task")
+    
+    update_data = task_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.tasks.update_one(
+        {"_id": ObjectId(task_id)},
+        {"$set": update_data}
+    )
+    
+    updated_task = await db.tasks.find_one({"_id": ObjectId(task_id)})
+    task_dict = serialize_doc(updated_task)
+    
+    creator = await get_user_by_id(task_dict["created_by"])
+    task_dict["created_by_name"] = creator["full_name"] if creator else None
+    
+    assigned_users = []
+    for user_id in task_dict.get("assigned_to", []):
+        user = await get_user_by_id(user_id)
+        if user:
+            assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
+    task_dict["assigned_users"] = assigned_users
+    
+    return TaskResponse(**task_dict)
+
+@api_router.delete("/tasks/{task_id}")
+async def delete_task(
+    task_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a task"""
+    current_user = await get_current_user(credentials, db)
+    
+    existing = await db.tasks.find_one({"_id": ObjectId(task_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    # Only creator, admin, or PM can delete
+    is_creator = str(existing["created_by"]) == str(current_user["_id"])
+    is_admin_or_pm = current_user["role"] in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]
+    
+    if not (is_creator or is_admin_or_pm):
+        raise HTTPException(status_code=403, detail="You don't have permission to delete this task")
+    
+    result = await db.tasks.delete_one({"_id": ObjectId(task_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    return {"message": "Task deleted successfully"}
+
 # ============= Root Route =============
 
 @api_router.get("/")
