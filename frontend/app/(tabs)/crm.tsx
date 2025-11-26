@@ -79,7 +79,7 @@ export default function CRMScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>CRM</Text>
         <TouchableOpacity style={styles.addButton}>
-          <Ionicons name=\"add\" size={24} color=\"#FFFFFF\" />
+          <Ionicons name="add" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
 
@@ -105,13 +105,13 @@ export default function CRMScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor=\"#FF6B35\" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF6B35" />
         }
       >
         {activeTab === 'leads' ? (
           leads.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name=\"people-outline\" size={64} color=\"#CBD5E0\" />
+              <Ionicons name="people-outline" size={64} color="#CBD5E0" />
               <Text style={styles.emptyTitle}>No Leads Yet</Text>
               <Text style={styles.emptyText}>
                 Add leads to track potential clients and manage quotations
@@ -139,12 +139,12 @@ export default function CRMScreen() {
                   </View>
                   <View style={styles.itemDetails}>
                     <View style={styles.detailRow}>
-                      <Ionicons name=\"call\" size={14} color=\"#718096\" />
+                      <Ionicons name="call" size={14} color="#718096" />
                       <Text style={styles.detailText}>{lead.contact}</Text>
                     </View>
                     {lead.estimated_value && (
                       <View style={styles.detailRow}>
-                        <Ionicons name=\"cash\" size={14} color=\"#718096\" />
+                        <Ionicons name="cash" size={14} color="#718096" />
                         <Text style={styles.detailText}>
                           ${lead.estimated_value.toLocaleString()}
                         </Text>
@@ -152,7 +152,7 @@ export default function CRMScreen() {
                     )}
                     {lead.assigned_to_name && (
                       <View style={styles.detailRow}>
-                        <Ionicons name=\"person\" size={14} color=\"#718096\" />
+                        <Ionicons name="person" size={14} color="#718096" />
                         <Text style={styles.detailText}>{lead.assigned_to_name}</Text>
                       </View>
                     )}
@@ -164,7 +164,7 @@ export default function CRMScreen() {
         ) : (
           quotations.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name=\"document-text-outline\" size={64} color=\"#CBD5E0\" />
+              <Ionicons name="document-text-outline" size={64} color="#CBD5E0" />
               <Text style={styles.emptyTitle}>No Quotations Yet</Text>
               <Text style={styles.emptyText}>
                 Create quotations for your leads
@@ -180,11 +180,11 @@ export default function CRMScreen() {
                   </View>
                   <View style={styles.itemDetails}>
                     <View style={styles.detailRow}>
-                      <Ionicons name=\"document\" size={14} color=\"#718096\" />
+                      <Ionicons name="document" size={14} color="#718096" />
                       <Text style={styles.detailText}>{quot.project_type}</Text>
                     </View>
                     <View style={styles.detailRow}>
-                      <Ionicons name=\"time\" size={14} color=\"#718096\" />
+                      <Ionicons name="time" size={14} color="#718096" />
                       <Text style={styles.detailText}>
                         {quot.status.toUpperCase()}
                       </Text>
@@ -205,14 +205,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7FAFC',
   },
-  scrollContent: {
-    padding: 16,
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
   },
   headerTitle: {
     fontSize: 28,
@@ -232,7 +233,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 4,
-    marginBottom: 24,
+    marginHorizontal: 16,
+    marginVertical: 16,
   },
   tab: {
     flex: 1,
@@ -252,6 +254,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  scrollContent: {
+    padding: 16,
   },
   emptyState: {
     alignItems: 'center',
