@@ -173,6 +173,30 @@ export default function DashboardScreen() {
           </View>
         </View>
 
+        {/* Project Timelines */}
+        {projects.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Project Timelines</Text>
+              <TouchableOpacity onPress={() => router.push('/dashboard/timeline' as any)}>
+                <Text style={styles.viewAllText}>View All</Text>
+              </TouchableOpacity>
+            </View>
+            {projects.slice(0, 3).map((project: any) => {
+              const projectTasks = tasks.filter((t: any) => t.project_id === project.id);
+              return (
+                <TimelineCard
+                  key={project.id}
+                  projectId={project.id}
+                  projectName={project.name}
+                  tasks={projectTasks}
+                  onRefresh={loadDashboardData}
+                />
+              );
+            })}
+          </View>
+        )}
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           <View style={styles.activityCard}>
