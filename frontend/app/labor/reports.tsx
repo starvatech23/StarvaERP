@@ -197,6 +197,53 @@ export default function LaborReportsScreen() {
     };
   };
 
+  const prepareSiteChartData = () => {
+    const siteWages = calculateSiteWages();
+    const colors = ['#FF6B35', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'];
+    
+    return siteWages.slice(0, 6).map((site: any, index: number) => ({
+      name: site.projectName.length > 15 ? site.projectName.substring(0, 15) + '...' : site.projectName,
+      population: site.totalWages,
+      color: colors[index % colors.length],
+      legendFontColor: '#1A202C',
+      legendFontSize: 12,
+    }));
+  };
+
+  const prepareAttendanceChartData = () => {
+    const stats = getOverallStats();
+    return [
+      {
+        name: 'Present',
+        population: stats.daysPresent,
+        color: '#10B981',
+        legendFontColor: '#1A202C',
+        legendFontSize: 12,
+      },
+      {
+        name: 'Absent',
+        population: stats.daysAbsent,
+        color: '#EF4444',
+        legendFontColor: '#1A202C',
+        legendFontSize: 12,
+      },
+      {
+        name: 'Overtime',
+        population: stats.overtimeRecords,
+        color: '#F59E0B',
+        legendFontColor: '#1A202C',
+        legendFontSize: 12,
+      },
+    ];
+  };
+
+  const chartConfig = {
+    color: (opacity = 1) => `rgba(255, 107, 53, ${opacity})`,
+    strokeWidth: 2,
+    barPercentage: 0.5,
+    useShadowColorFromDataset: false,
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
