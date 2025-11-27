@@ -12,12 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import axios from 'axios';
-
-// Create a simple API client for labor
-const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8001/api',
-});
+import { workersAPI, laborAttendanceAPI, siteTransfersAPI } from '../../services/api';
 
 export default function LaborScreen() {
   const router = useRouter();
@@ -35,16 +30,18 @@ export default function LaborScreen() {
   const loadData = async () => {
     try {
       if (activeTab === 'workers') {
-        // Note: You'll need to add workersAPI to services/api.ts
-        // For now using placeholder
-        setWorkers([]);
+        const response = await workersAPI.getAll();
+        setWorkers(response.data || []);
       } else if (activeTab === 'attendance') {
-        setAttendance([]);
+        const response = await laborAttendanceAPI.getAll();
+        setAttendance(response.data || []);
       } else {
-        setTransfers([]);
+        const response = await siteTransfersAPI.getAll();
+        setTransfers(response.data || []);
       }
     } catch (error) {
       console.error('Error loading data:', error);
+      Alert.alert('Error', 'Failed to load data');
     } finally {
       setLoading(false);
       setRefreshing(false);
