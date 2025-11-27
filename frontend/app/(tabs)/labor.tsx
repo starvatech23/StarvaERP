@@ -343,6 +343,7 @@ export default function LaborScreen() {
             {activeTab === 'workers' && renderWorkers()}
             {activeTab === 'attendance' && renderAttendance()}
             {activeTab === 'transfers' && renderTransfers()}
+            {activeTab === 'reports' && renderReports()}
           </>
         )}
       </ScrollView>
