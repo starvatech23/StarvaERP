@@ -2133,6 +2133,795 @@ async def create_site_transfer(
     
     return SiteTransferResponse(**transfer_dict)
 
+
+
+# ============= Vendor Management Routes =============
+
+@api_router.get("/vendors", response_model=List[VendorResponse])
+async def get_all_vendors(
+    current_user: dict = Depends(get_current_user),
+    is_active: Optional[bool] = None
+):
+    """Get all vendors"""
+    query = {}
+    if is_active is not None:
+        query["is_active"] = is_active
+    
+    vendors = await db.vendors.find(query).to_list(length=1000)
+    result = []
+    for vendor in vendors:
+        vendor = serialize_doc(vendor)
+        creator = await db.users.find_one({"_id": ObjectId(vendor["created_by"])})
+        vendor["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        result.append(VendorResponse(**vendor))
+    return result
+
+@api_router.post("/vendors", response_model=VendorResponse)
+async def create_vendor(
+    vendor: VendorCreate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+):
+    """Create a new vendor (Admin/PM only)"""
+    vendor_dict = vendor.dict()
+    vendor_dict["created_by"] = str(current_user["_id"])
+    vendor_dict["created_at"] = datetime.utcnow()
+    vendor_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.vendors.insert_one(vendor_dict)
+    vendor_dict["_id"] = result.inserted_id
+    vendor_dict = serialize_doc(vendor_dict)
+    vendor_dict["created_by_name"] = current_user["full_name"]
+    
+    return VendorResponse(**vendor_dict)
+
+@api_router.get("/vendors/{vendor_id}", response_model=VendorResponse)
+async def get_vendor(
+    vendor_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get a specific vendor"""
+    vendor = await db.vendors.find_one({"_id": ObjectId(vendor_id)})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    vendor = serialize_doc(vendor)
+    creator = await db.users.find_one({"_id": ObjectId(vendor["created_by"])})
+    vendor["created_by_name"] = creator["full_name"] if creator else "Unknown"
+    
+    return VendorResponse(**vendor)
+
+@api_router.put("/vendors/{vendor_id}", response_model=VendorResponse)
+async def update_vendor(
+    vendor_id: str,
+    vendor: VendorUpdate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+):
+    """Update a vendor (Admin/PM only)"""
+    update_data = {k: v for k, v in vendor.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    result = await db.vendors.update_one(
+        {"_id": ObjectId(vendor_id)},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    updated_vendor = await db.vendors.find_one({"_id": ObjectId(vendor_id)})
+    updated_vendor = serialize_doc(updated_vendor)
+    creator = await db.users.find_one({"_id": ObjectId(updated_vendor["created_by"])})
+    updated_vendor["created_by_name"] = creator["full_name"] if creator else "Unknown"
+    
+    return VendorResponse(**updated_vendor)
+
+@api_router.delete("/vendors/{vendor_id}")
+async def delete_vendor(
+    vendor_id: str,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    """Delete a vendor (Admin only)"""
+    result = await db.vendors.delete_one({"_id": ObjectId(vendor_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    return {"message": "Vendor deleted successfully"}
+
+# ============= Material Management Routes =============
+
+@api_router.get("/materials", response_model=List[MaterialResponse])
+async def get_all_materials(
+    current_user: dict = Depends(get_current_user),
+    category: Optional[MaterialCategory] = None,
+    is_active: Optional[bool] = None
+):
+    """Get all materials"""
+    query = {}
+    if category:
+        query["category"] = category
+    if is_active is not None:
+        query["is_active"] = is_active
+    
+    materials = await db.materials.find(query).to_list(length=1000)
+    result = []
+    for material in materials:
+        material = serialize_doc(material)
+        result.append(MaterialResponse(**material))
+    return result
+
+@api_router.post("/materials", response_model=MaterialResponse)
+async def create_material(
+    material: MaterialCreate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+):
+    """Create a new material (Admin/PM only)"""
+    material_dict = material.dict()
+    material_dict["created_by"] = str(current_user["_id"])
+    material_dict["created_at"] = datetime.utcnow()
+    material_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.materials.insert_one(material_dict)
+    material_dict["_id"] = result.inserted_id
+    material_dict = serialize_doc(material_dict)
+    
+    return MaterialResponse(**material_dict)
+
+@api_router.get("/materials/{material_id}", response_model=MaterialResponse)
+async def get_material(
+    material_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get a specific material"""
+    material = await db.materials.find_one({"_id": ObjectId(material_id)})
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found")
+    
+    material = serialize_doc(material)
+    return MaterialResponse(**material)
+
+@api_router.put("/materials/{material_id}", response_model=MaterialResponse)
+async def update_material(
+    material_id: str,
+    material: MaterialUpdate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+):
+    """Update a material (Admin/PM only)"""
+    update_data = {k: v for k, v in material.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    result = await db.materials.update_one(
+        {"_id": ObjectId(material_id)},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Material not found")
+    
+    updated_material = await db.materials.find_one({"_id": ObjectId(material_id)})
+    updated_material = serialize_doc(updated_material)
+    
+    return MaterialResponse(**updated_material)
+
+@api_router.delete("/materials/{material_id}")
+async def delete_material(
+    material_id: str,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    """Delete a material (Admin only)"""
+    result = await db.materials.delete_one({"_id": ObjectId(material_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Material not found")
+    return {"message": "Material deleted successfully"}
+
+# ============= Vendor Material Rate Routes =============
+
+@api_router.get("/vendor-material-rates", response_model=List[VendorMaterialRateResponse])
+async def get_vendor_material_rates(
+    current_user: dict = Depends(get_current_user),
+    vendor_id: Optional[str] = None,
+    material_id: Optional[str] = None,
+    is_active: Optional[bool] = None
+):
+    """Get vendor material rates"""
+    query = {}
+    if vendor_id:
+        query["vendor_id"] = vendor_id
+    if material_id:
+        query["material_id"] = material_id
+    if is_active is not None:
+        query["is_active"] = is_active
+    
+    rates = await db.vendor_material_rates.find(query).to_list(length=1000)
+    result = []
+    for rate in rates:
+        rate = serialize_doc(rate)
+        
+        vendor = await db.vendors.find_one({"_id": ObjectId(rate["vendor_id"])})
+        rate["vendor_name"] = vendor["business_name"] if vendor else "Unknown"
+        
+        material = await db.materials.find_one({"_id": ObjectId(rate["material_id"])})
+        rate["material_name"] = material["name"] if material else "Unknown"
+        rate["material_unit"] = material["unit"] if material else "unit"
+        
+        result.append(VendorMaterialRateResponse(**rate))
+    return result
+
+@api_router.post("/vendor-material-rates", response_model=VendorMaterialRateResponse)
+async def create_vendor_material_rate(
+    rate: VendorMaterialRateCreate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+):
+    """Create a new vendor material rate (Admin/PM only)"""
+    rate_dict = rate.dict()
+    rate_dict["created_by"] = str(current_user["_id"])
+    rate_dict["created_at"] = datetime.utcnow()
+    rate_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.vendor_material_rates.insert_one(rate_dict)
+    rate_dict["_id"] = result.inserted_id
+    rate_dict = serialize_doc(rate_dict)
+    
+    vendor = await db.vendors.find_one({"_id": ObjectId(rate_dict["vendor_id"])})
+    rate_dict["vendor_name"] = vendor["business_name"] if vendor else "Unknown"
+    
+    material = await db.materials.find_one({"_id": ObjectId(rate_dict["material_id"])})
+    rate_dict["material_name"] = material["name"] if material else "Unknown"
+    rate_dict["material_unit"] = material["unit"] if material else "unit"
+    
+    return VendorMaterialRateResponse(**rate_dict)
+
+@api_router.put("/vendor-material-rates/{rate_id}", response_model=VendorMaterialRateResponse)
+async def update_vendor_material_rate(
+    rate_id: str,
+    rate: VendorMaterialRateUpdate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+):
+    """Update a vendor material rate (Admin/PM only)"""
+    update_data = {k: v for k, v in rate.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    result = await db.vendor_material_rates.update_one(
+        {"_id": ObjectId(rate_id)},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Rate not found")
+    
+    updated_rate = await db.vendor_material_rates.find_one({"_id": ObjectId(rate_id)})
+    updated_rate = serialize_doc(updated_rate)
+    
+    vendor = await db.vendors.find_one({"_id": ObjectId(updated_rate["vendor_id"])})
+    updated_rate["vendor_name"] = vendor["business_name"] if vendor else "Unknown"
+    
+    material = await db.materials.find_one({"_id": ObjectId(updated_rate["material_id"])})
+    updated_rate["material_name"] = material["name"] if material else "Unknown"
+    updated_rate["material_unit"] = material["unit"] if material else "unit"
+    
+    return VendorMaterialRateResponse(**updated_rate)
+
+# ============= Site Inventory Routes =============
+
+@api_router.get("/site-inventory", response_model=List[SiteInventoryResponse])
+async def get_site_inventory(
+    current_user: dict = Depends(get_current_user),
+    project_id: Optional[str] = None,
+    material_id: Optional[str] = None
+):
+    """Get site inventory"""
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if material_id:
+        query["material_id"] = material_id
+    
+    inventory = await db.site_inventory.find(query).to_list(length=1000)
+    result = []
+    for item in inventory:
+        item = serialize_doc(item)
+        
+        project = await db.projects.find_one({"_id": ObjectId(item["project_id"])})
+        item["project_name"] = project["name"] if project else "Unknown"
+        
+        material = await db.materials.find_one({"_id": ObjectId(item["material_id"])})
+        item["material_name"] = material["name"] if material else "Unknown"
+        item["material_unit"] = material["unit"] if material else "unit"
+        item["material_category"] = material["category"] if material else "misc"
+        item["minimum_stock"] = material.get("minimum_stock", 0) if material else 0
+        
+        result.append(SiteInventoryResponse(**item))
+    return result
+
+@api_router.post("/site-inventory", response_model=SiteInventoryResponse)
+async def create_site_inventory(
+    inventory: SiteInventoryCreate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+):
+    """Create or update site inventory (Admin/PM only)"""
+    # Check if inventory already exists for this project-material combination
+    existing = await db.site_inventory.find_one({
+        "project_id": inventory.project_id,
+        "material_id": inventory.material_id
+    })
+    
+    if existing:
+        # Update existing inventory
+        await db.site_inventory.update_one(
+            {"_id": existing["_id"]},
+            {"$set": {
+                "current_stock": inventory.current_stock,
+                "last_updated": inventory.last_updated
+            }}
+        )
+        inventory_dict = await db.site_inventory.find_one({"_id": existing["_id"]})
+    else:
+        # Create new inventory
+        inventory_dict = inventory.dict()
+        result = await db.site_inventory.insert_one(inventory_dict)
+        inventory_dict["_id"] = result.inserted_id
+    
+    inventory_dict = serialize_doc(inventory_dict)
+    
+    project = await db.projects.find_one({"_id": ObjectId(inventory_dict["project_id"])})
+    inventory_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    material = await db.materials.find_one({"_id": ObjectId(inventory_dict["material_id"])})
+    inventory_dict["material_name"] = material["name"] if material else "Unknown"
+    inventory_dict["material_unit"] = material["unit"] if material else "unit"
+    inventory_dict["material_category"] = material["category"] if material else "misc"
+    inventory_dict["minimum_stock"] = material.get("minimum_stock", 0) if material else 0
+    
+    return SiteInventoryResponse(**inventory_dict)
+
+@api_router.put("/site-inventory/{inventory_id}", response_model=SiteInventoryResponse)
+async def update_site_inventory(
+    inventory_id: str,
+    inventory: SiteInventoryUpdate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.ENGINEER]))
+):
+    """Update site inventory"""
+    update_data = {k: v for k, v in inventory.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    result = await db.site_inventory.update_one(
+        {"_id": ObjectId(inventory_id)},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Inventory not found")
+    
+    updated_inventory = await db.site_inventory.find_one({"_id": ObjectId(inventory_id)})
+    updated_inventory = serialize_doc(updated_inventory)
+    
+    project = await db.projects.find_one({"_id": ObjectId(updated_inventory["project_id"])})
+    updated_inventory["project_name"] = project["name"] if project else "Unknown"
+    
+    material = await db.materials.find_one({"_id": ObjectId(updated_inventory["material_id"])})
+    updated_inventory["material_name"] = material["name"] if material else "Unknown"
+    updated_inventory["material_unit"] = material["unit"] if material else "unit"
+    updated_inventory["material_category"] = material["category"] if material else "misc"
+    updated_inventory["minimum_stock"] = material.get("minimum_stock", 0) if material else 0
+    
+    return SiteInventoryResponse(**updated_inventory)
+
+# ============= Material Requirement Routes =============
+
+@api_router.get("/material-requirements", response_model=List[MaterialRequirementResponse])
+async def get_material_requirements(
+    current_user: dict = Depends(get_current_user),
+    project_id: Optional[str] = None,
+    is_fulfilled: Optional[bool] = None
+):
+    """Get material requirements"""
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if is_fulfilled is not None:
+        query["is_fulfilled"] = is_fulfilled
+    
+    requirements = await db.material_requirements.find(query).to_list(length=1000)
+    result = []
+    for req in requirements:
+        req = serialize_doc(req)
+        
+        project = await db.projects.find_one({"_id": ObjectId(req["project_id"])})
+        req["project_name"] = project["name"] if project else "Unknown"
+        
+        material = await db.materials.find_one({"_id": ObjectId(req["material_id"])})
+        req["material_name"] = material["name"] if material else "Unknown"
+        req["material_unit"] = material["unit"] if material else "unit"
+        req["material_category"] = material["category"] if material else "misc"
+        
+        creator = await db.users.find_one({"_id": ObjectId(req["created_by"])})
+        req["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        
+        result.append(MaterialRequirementResponse(**req))
+    return result
+
+@api_router.post("/material-requirements", response_model=MaterialRequirementResponse)
+async def create_material_requirement(
+    requirement: MaterialRequirementCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a new material requirement"""
+    requirement_dict = requirement.dict()
+    requirement_dict["created_by"] = str(current_user["_id"])
+    requirement_dict["created_at"] = datetime.utcnow()
+    requirement_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.material_requirements.insert_one(requirement_dict)
+    requirement_dict["_id"] = result.inserted_id
+    requirement_dict = serialize_doc(requirement_dict)
+    
+    project = await db.projects.find_one({"_id": ObjectId(requirement_dict["project_id"])})
+    requirement_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    material = await db.materials.find_one({"_id": ObjectId(requirement_dict["material_id"])})
+    requirement_dict["material_name"] = material["name"] if material else "Unknown"
+    requirement_dict["material_unit"] = material["unit"] if material else "unit"
+    requirement_dict["material_category"] = material["category"] if material else "misc"
+    
+    requirement_dict["created_by_name"] = current_user["full_name"]
+    
+    return MaterialRequirementResponse(**requirement_dict)
+
+@api_router.put("/material-requirements/{requirement_id}", response_model=MaterialRequirementResponse)
+async def update_material_requirement(
+    requirement_id: str,
+    requirement: MaterialRequirementUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update a material requirement"""
+    update_data = {k: v for k, v in requirement.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    result = await db.material_requirements.update_one(
+        {"_id": ObjectId(requirement_id)},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Requirement not found")
+    
+    updated_req = await db.material_requirements.find_one({"_id": ObjectId(requirement_id)})
+    updated_req = serialize_doc(updated_req)
+    
+    project = await db.projects.find_one({"_id": ObjectId(updated_req["project_id"])})
+    updated_req["project_name"] = project["name"] if project else "Unknown"
+    
+    material = await db.materials.find_one({"_id": ObjectId(updated_req["material_id"])})
+    updated_req["material_name"] = material["name"] if material else "Unknown"
+    updated_req["material_unit"] = material["unit"] if material else "unit"
+    updated_req["material_category"] = material["category"] if material else "misc"
+    
+    creator = await db.users.find_one({"_id": ObjectId(updated_req["created_by"])})
+    updated_req["created_by_name"] = creator["full_name"] if creator else "Unknown"
+    
+    return MaterialRequirementResponse(**updated_req)
+
+# ============= Purchase Order Routes =============
+
+@api_router.get("/purchase-orders", response_model=List[PurchaseOrderResponse])
+async def get_purchase_orders(
+    current_user: dict = Depends(get_current_user),
+    project_id: Optional[str] = None,
+    vendor_id: Optional[str] = None,
+    status: Optional[PurchaseOrderStatus] = None
+):
+    """Get purchase orders"""
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if vendor_id:
+        query["vendor_id"] = vendor_id
+    if status:
+        query["status"] = status
+    
+    orders = await db.purchase_orders.find(query).to_list(length=1000)
+    result = []
+    for order in orders:
+        order = serialize_doc(order)
+        
+        vendor = await db.vendors.find_one({"_id": ObjectId(order["vendor_id"])})
+        order["vendor_name"] = vendor["business_name"] if vendor else "Unknown"
+        
+        project = await db.projects.find_one({"_id": ObjectId(order["project_id"])})
+        order["project_name"] = project["name"] if project else "Unknown"
+        
+        creator = await db.users.find_one({"_id": ObjectId(order["created_by"])})
+        order["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        
+        # Get PO items
+        items = await db.purchase_order_items.find({"purchase_order_id": order["id"]}).to_list(length=100)
+        order["items"] = []
+        for item in items:
+            item = serialize_doc(item)
+            material = await db.materials.find_one({"_id": ObjectId(item["material_id"])})
+            item["material_name"] = material["name"] if material else "Unknown"
+            item["material_unit"] = material["unit"] if material else "unit"
+            order["items"].append(item)
+        
+        result.append(PurchaseOrderResponse(**order))
+    return result
+
+@api_router.post("/purchase-orders", response_model=PurchaseOrderResponse)
+async def create_purchase_order(
+    order: PurchaseOrderCreate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+):
+    """Create a new purchase order (Admin/PM only)"""
+    order_dict = order.dict()
+    items = order_dict.pop("items")  # Remove items from main dict
+    
+    order_dict["created_by"] = str(current_user["_id"])
+    order_dict["created_at"] = datetime.utcnow()
+    order_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.purchase_orders.insert_one(order_dict)
+    order_dict["_id"] = result.inserted_id
+    order_id = str(result.inserted_id)
+    
+    # Create PO items
+    for item in items:
+        item["purchase_order_id"] = order_id
+        item["created_at"] = datetime.utcnow()
+        await db.purchase_order_items.insert_one(item)
+    
+    order_dict = serialize_doc(order_dict)
+    
+    vendor = await db.vendors.find_one({"_id": ObjectId(order_dict["vendor_id"])})
+    order_dict["vendor_name"] = vendor["business_name"] if vendor else "Unknown"
+    
+    project = await db.projects.find_one({"_id": ObjectId(order_dict["project_id"])})
+    order_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    order_dict["created_by_name"] = current_user["full_name"]
+    
+    # Get created items
+    created_items = await db.purchase_order_items.find({"purchase_order_id": order_id}).to_list(length=100)
+    order_dict["items"] = []
+    for item in created_items:
+        item = serialize_doc(item)
+        material = await db.materials.find_one({"_id": ObjectId(item["material_id"])})
+        item["material_name"] = material["name"] if material else "Unknown"
+        item["material_unit"] = material["unit"] if material else "unit"
+        order_dict["items"].append(item)
+    
+    return PurchaseOrderResponse(**order_dict)
+
+@api_router.put("/purchase-orders/{order_id}", response_model=PurchaseOrderResponse)
+async def update_purchase_order(
+    order_id: str,
+    order: PurchaseOrderUpdate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+):
+    """Update a purchase order (Admin/PM only)"""
+    update_data = {k: v for k, v in order.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    result = await db.purchase_orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Purchase order not found")
+    
+    updated_order = await db.purchase_orders.find_one({"_id": ObjectId(order_id)})
+    updated_order = serialize_doc(updated_order)
+    
+    vendor = await db.vendors.find_one({"_id": ObjectId(updated_order["vendor_id"])})
+    updated_order["vendor_name"] = vendor["business_name"] if vendor else "Unknown"
+    
+    project = await db.projects.find_one({"_id": ObjectId(updated_order["project_id"])})
+    updated_order["project_name"] = project["name"] if project else "Unknown"
+    
+    creator = await db.users.find_one({"_id": ObjectId(updated_order["created_by"])})
+    updated_order["created_by_name"] = creator["full_name"] if creator else "Unknown"
+    
+    # Get PO items
+    items = await db.purchase_order_items.find({"purchase_order_id": updated_order["id"]}).to_list(length=100)
+    updated_order["items"] = []
+    for item in items:
+        item = serialize_doc(item)
+        material = await db.materials.find_one({"_id": ObjectId(item["material_id"])})
+        item["material_name"] = material["name"] if material else "Unknown"
+        item["material_unit"] = material["unit"] if material else "unit"
+        updated_order["items"].append(item)
+    
+    return PurchaseOrderResponse(**updated_order)
+
+# ============= Material Transaction Routes =============
+
+@api_router.get("/material-transactions", response_model=List[MaterialTransactionResponse])
+async def get_material_transactions(
+    current_user: dict = Depends(get_current_user),
+    project_id: Optional[str] = None,
+    material_id: Optional[str] = None,
+    transaction_type: Optional[TransactionType] = None
+):
+    """Get material transactions"""
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if material_id:
+        query["material_id"] = material_id
+    if transaction_type:
+        query["transaction_type"] = transaction_type
+    
+    transactions = await db.material_transactions.find(query).sort("transaction_date", -1).to_list(length=1000)
+    result = []
+    for txn in transactions:
+        txn = serialize_doc(txn)
+        
+        project = await db.projects.find_one({"_id": ObjectId(txn["project_id"])})
+        txn["project_name"] = project["name"] if project else "Unknown"
+        
+        material = await db.materials.find_one({"_id": ObjectId(txn["material_id"])})
+        txn["material_name"] = material["name"] if material else "Unknown"
+        txn["material_unit"] = material["unit"] if material else "unit"
+        
+        creator = await db.users.find_one({"_id": ObjectId(txn["created_by"])})
+        txn["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        
+        result.append(MaterialTransactionResponse(**txn))
+    return result
+
+@api_router.post("/material-transactions", response_model=MaterialTransactionResponse)
+async def create_material_transaction(
+    transaction: MaterialTransactionCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a new material transaction and update inventory"""
+    transaction_dict = transaction.dict()
+    transaction_dict["created_by"] = str(current_user["_id"])
+    transaction_dict["created_at"] = datetime.utcnow()
+    
+    # Create transaction
+    result = await db.material_transactions.insert_one(transaction_dict)
+    transaction_dict["_id"] = result.inserted_id
+    
+    # Update site inventory based on transaction type
+    existing_inventory = await db.site_inventory.find_one({
+        "project_id": transaction.project_id,
+        "material_id": transaction.material_id
+    })
+    
+    if transaction.transaction_type in [TransactionType.RECEIPT, TransactionType.TRANSFER_IN]:
+        # Add to inventory
+        if existing_inventory:
+            new_stock = existing_inventory["current_stock"] + transaction.quantity
+            await db.site_inventory.update_one(
+                {"_id": existing_inventory["_id"]},
+                {"$set": {"current_stock": new_stock, "last_updated": transaction.transaction_date}}
+            )
+        else:
+            # Create new inventory entry
+            await db.site_inventory.insert_one({
+                "project_id": transaction.project_id,
+                "material_id": transaction.material_id,
+                "current_stock": transaction.quantity,
+                "last_updated": transaction.transaction_date
+            })
+    elif transaction.transaction_type in [TransactionType.CONSUMPTION, TransactionType.TRANSFER_OUT, TransactionType.RETURN]:
+        # Subtract from inventory
+        if existing_inventory:
+            new_stock = max(0, existing_inventory["current_stock"] - transaction.quantity)
+            await db.site_inventory.update_one(
+                {"_id": existing_inventory["_id"]},
+                {"$set": {"current_stock": new_stock, "last_updated": transaction.transaction_date}}
+            )
+    elif transaction.transaction_type == TransactionType.ADJUSTMENT:
+        # Direct adjustment
+        if existing_inventory:
+            await db.site_inventory.update_one(
+                {"_id": existing_inventory["_id"]},
+                {"$set": {"current_stock": transaction.quantity, "last_updated": transaction.transaction_date}}
+            )
+        else:
+            await db.site_inventory.insert_one({
+                "project_id": transaction.project_id,
+                "material_id": transaction.material_id,
+                "current_stock": transaction.quantity,
+                "last_updated": transaction.transaction_date
+            })
+    
+    transaction_dict = serialize_doc(transaction_dict)
+    
+    project = await db.projects.find_one({"_id": ObjectId(transaction_dict["project_id"])})
+    transaction_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    material = await db.materials.find_one({"_id": ObjectId(transaction_dict["material_id"])})
+    transaction_dict["material_name"] = material["name"] if material else "Unknown"
+    transaction_dict["material_unit"] = material["unit"] if material else "unit"
+    
+    transaction_dict["created_by_name"] = current_user["full_name"]
+    
+    return MaterialTransactionResponse(**transaction_dict)
+
+# ============= Material Reports Routes =============
+
+@api_router.get("/material-reports/spending")
+async def get_material_spending_report(
+    current_user: dict = Depends(get_current_user),
+    project_id: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    period: str = "weekly"  # weekly or monthly
+):
+    """Get material spending reports"""
+    # Parse dates
+    if period == "weekly":
+        end = datetime.utcnow() if not end_date else datetime.fromisoformat(end_date)
+        start = end - timedelta(days=7) if not start_date else datetime.fromisoformat(start_date)
+    else:  # monthly
+        end = datetime.utcnow() if not end_date else datetime.fromisoformat(end_date)
+        start = end - timedelta(days=30) if not start_date else datetime.fromisoformat(start_date)
+    
+    # Build query
+    query = {
+        "status": {"$in": ["received", "partially_received"]},
+        "order_date": {"$gte": start, "$lte": end}
+    }
+    if project_id:
+        query["project_id"] = project_id
+    
+    # Get all purchase orders in date range
+    orders = await db.purchase_orders.find(query).to_list(length=1000)
+    
+    # Calculate spending by category, site, and vendor
+    category_spending = {}
+    site_spending = {}
+    vendor_spending = {}
+    total_spending = 0
+    
+    for order in orders:
+        total_spending += order.get("final_amount", 0)
+        
+        # Site spending
+        project = await db.projects.find_one({"_id": ObjectId(order["project_id"])})
+        site_name = project["name"] if project else "Unknown"
+        site_spending[site_name] = site_spending.get(site_name, 0) + order.get("final_amount", 0)
+        
+        # Vendor spending
+        vendor = await db.vendors.find_one({"_id": ObjectId(order["vendor_id"])})
+        vendor_name = vendor["business_name"] if vendor else "Unknown"
+        vendor_spending[vendor_name] = vendor_spending.get(vendor_name, 0) + order.get("final_amount", 0)
+        
+        # Category spending
+        items = await db.purchase_order_items.find({"purchase_order_id": str(order["_id"])}).to_list(length=100)
+        for item in items:
+            material = await db.materials.find_one({"_id": ObjectId(item["material_id"])})
+            if material:
+                category = material.get("category", "misc")
+                category_spending[category] = category_spending.get(category, 0) + item.get("amount", 0)
+    
+    return {
+        "period": period,
+        "start_date": start.isoformat(),
+        "end_date": end.isoformat(),
+        "total_spending": total_spending,
+        "category_spending": category_spending,
+        "site_spending": site_spending,
+        "vendor_spending": vendor_spending
+    }
+
 # ============= Root Route =============
 
 @api_router.get("/")
