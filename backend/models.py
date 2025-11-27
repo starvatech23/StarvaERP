@@ -540,3 +540,162 @@ class UserManagementResponse(BaseModel):
     last_login: Optional[datetime] = None
     total_projects: int = 0
     total_tasks: int = 0
+
+# Labor/Worker Management Models
+class SkillGroup(str, Enum):
+    MASON = "mason"
+    CARPENTER = "carpenter"
+    ELECTRICIAN = "electrician"
+    PLUMBER = "plumber"
+    PAINTER = "painter"
+    WELDER = "welder"
+    HELPER = "helper"
+    MACHINE_OPERATOR = "machine_operator"
+    SUPERVISOR = "supervisor"
+    OTHER = "other"
+
+class PayScale(str, Enum):
+    DAILY = "daily"
+    HOURLY = "hourly"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+    CONTRACT = "contract"
+
+class WorkerStatus(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    ON_LEAVE = "on_leave"
+    TERMINATED = "terminated"
+
+class WorkerBase(BaseModel):
+    full_name: str
+    phone: str
+    email: Optional[str] = None
+    date_of_birth: Optional[datetime] = None
+    address: Optional[str] = None
+    emergency_contact: Optional[str] = None
+    
+    # Skill and Pay
+    skill_group: SkillGroup
+    pay_scale: PayScale
+    base_rate: float  # Rate per day/hour/week/month
+    
+    # Documents
+    aadhaar_number: Optional[str] = None
+    aadhaar_photo: Optional[str] = None  # base64
+    pan_number: Optional[str] = None
+    pan_photo: Optional[str] = None  # base64
+    photo: Optional[str] = None  # Worker photo
+    
+    # Bank Details
+    bank_name: Optional[str] = None
+    account_number: Optional[str] = None
+    ifsc_code: Optional[str] = None
+    account_holder_name: Optional[str] = None
+    
+    # Status
+    status: WorkerStatus = WorkerStatus.ACTIVE
+    current_site_id: Optional[str] = None
+    notes: Optional[str] = None
+
+class WorkerCreate(WorkerBase):
+    pass
+
+class WorkerUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    date_of_birth: Optional[datetime] = None
+    address: Optional[str] = None
+    emergency_contact: Optional[str] = None
+    skill_group: Optional[SkillGroup] = None
+    pay_scale: Optional[PayScale] = None
+    base_rate: Optional[float] = None
+    aadhaar_number: Optional[str] = None
+    aadhaar_photo: Optional[str] = None
+    pan_number: Optional[str] = None
+    pan_photo: Optional[str] = None
+    photo: Optional[str] = None
+    bank_name: Optional[str] = None
+    account_number: Optional[str] = None
+    ifsc_code: Optional[str] = None
+    account_holder_name: Optional[str] = None
+    status: Optional[WorkerStatus] = None
+    current_site_id: Optional[str] = None
+    notes: Optional[str] = None
+
+class WorkerResponse(WorkerBase):
+    id: str
+    current_site_name: Optional[str] = None
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+# Labor Attendance Models
+class AttendanceStatus(str, Enum):
+    PRESENT = "present"
+    ABSENT = "absent"
+    HALF_DAY = "half_day"
+    ON_LEAVE = "on_leave"
+
+class LaborAttendanceBase(BaseModel):
+    worker_id: str
+    project_id: str
+    attendance_date: datetime
+    check_in_time: Optional[datetime] = None
+    check_out_time: Optional[datetime] = None
+    status: AttendanceStatus = AttendanceStatus.PRESENT
+    hours_worked: Optional[float] = None
+    overtime_hours: Optional[float] = None
+    wages_earned: Optional[float] = None
+    check_in_photo: Optional[str] = None  # base64
+    check_out_photo: Optional[str] = None  # base64
+    notes: Optional[str] = None
+
+class LaborAttendanceCreate(LaborAttendanceBase):
+    pass
+
+class LaborAttendanceUpdate(BaseModel):
+    check_out_time: Optional[datetime] = None
+    status: Optional[AttendanceStatus] = None
+    hours_worked: Optional[float] = None
+    overtime_hours: Optional[float] = None
+    wages_earned: Optional[float] = None
+    check_out_photo: Optional[str] = None
+    notes: Optional[str] = None
+
+class LaborAttendanceResponse(LaborAttendanceBase):
+    id: str
+    worker_name: str
+    project_name: str
+    worker_skill: str
+    created_by: str
+    created_at: datetime
+    updated_at: datetime
+
+# Site Transfer Models
+class SiteTransferBase(BaseModel):
+    worker_id: str
+    from_project_id: str
+    to_project_id: str
+    transfer_date: datetime
+    transfer_time: datetime
+    hours_at_from_site: Optional[float] = None
+    hours_at_to_site: Optional[float] = None
+    wages_from_site: Optional[float] = None
+    wages_to_site: Optional[float] = None
+    reason: Optional[str] = None
+    approved_by: Optional[str] = None
+
+class SiteTransferCreate(SiteTransferBase):
+    pass
+
+class SiteTransferResponse(SiteTransferBase):
+    id: str
+    worker_name: str
+    from_project_name: str
+    to_project_name: str
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
