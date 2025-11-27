@@ -138,7 +138,52 @@ export default function LaborScreen() {
       );
     }
 
-    return <Text style={styles.placeholderText}>Attendance records will appear here</Text>;
+    // Group by date
+    const groupedByDate: any = {};
+    attendance.forEach((record: any) => {
+      const date = moment(record.attendance_date).format('YYYY-MM-DD');
+      if (!groupedByDate[date]) {
+        groupedByDate[date] = [];
+      }
+      groupedByDate[date].push(record);
+    });
+
+    return Object.keys(groupedByDate).sort().reverse().slice(0, 10).map(date => (
+      <View key={date} style={styles.attendanceCard}>
+        <View style={styles.attendanceHeader}>
+          <Ionicons name="calendar" size={20} color="#FF6B35" />
+          <Text style={styles.attendanceDate}>{moment(date).format('DD MMM YYYY')}</Text>
+        </View>
+        {groupedByDate[date].map((record: any) => (
+          <View key={record.id} style={styles.attendanceRow}>
+            <View style={styles.attendanceWorker}>
+              <Text style={styles.attendanceWorkerName}>{record.worker_name}</Text>
+              <Text style={styles.attendanceProject}>{record.project_name}</Text>
+            </View>
+            <View style={styles.attendanceStatus}>
+              <View
+                style={[
+                  styles.attendanceStatusBadge,
+                  {
+                    backgroundColor:
+                      record.overtime_hours > 0
+                        ? '#F59E0B'
+                        : record.status === 'present'
+                        ? '#10B981'
+                        : '#EF4444',
+                  },
+                ]}
+              >
+                <Text style={styles.attendanceStatusText}>
+                  {record.overtime_hours > 0 ? 'OT' : record.status === 'present' ? 'P' : 'A'}
+                </Text>
+              </View>
+              <Text style={styles.attendanceHours}>{record.hours_worked}h</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+    ));
   };
 
   const renderTransfers = () => {
