@@ -1951,9 +1951,11 @@ async def create_vendor(
 @api_router.get("/vendors/{vendor_id}", response_model=VendorResponse)
 async def get_vendor(
     vendor_id: str,
-    current_user: dict = Depends(get_current_user)
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get a specific vendor"""
+    current_user = await get_current_user(credentials, db)
+    
     vendor = await db.vendors.find_one({"_id": ObjectId(vendor_id)})
     if not vendor:
         raise HTTPException(status_code=404, detail="Vendor not found")
