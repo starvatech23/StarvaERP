@@ -219,29 +219,41 @@ backend:
         comment: "Comprehensive spending analysis API. GET /api/material-reports/spending with weekly/monthly periods, project filtering. Returns total spending, category_spending, site_spending, vendor_spending aggregations."
 
 frontend:
-  - task: "Labor Reports Screen"
+  - task: "Materials Tab Main Screen"
     implemented: true
     working: "NA"
-    file: "/app/frontend/app/labor/reports.tsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Created comprehensive labor reports screen with weekly/monthly wage reports, site-wise cost breakdown, individual worker wages with attendance statistics. Added pie chart visualizations using react-native-chart-kit for site-wise wage distribution and attendance status breakdown. Features period toggle (weekly/monthly), date navigation, project filtering, overall statistics dashboard, and detailed worker wage cards with P/OT/A tracking."
-
-  - task: "Labor Tab Integration"
-    implemented: true
-    working: true
-    file: "/app/frontend/app/(tabs)/labor.tsx"
+    file: "/app/frontend/app/(tabs)/materials.tsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
-      - working: true
+      - working: "NA"
         agent: "main"
-        comment: "Labor tab already has Reports tab integrated. Clicking on Reports tab shows a CTA that navigates to /labor/reports screen. Navigation is working correctly."
+        comment: "Created materials main screen with 4 tabs: Vendors, Materials, Inventory, Reports. Vendors tab shows vendor cards with business name, contact, GST badge, phone/email. Materials tab displays material cards with category icons, color-coded badges, unit info. Inventory tab shows site inventory with low stock alerts (red badges). Reports tab has CTA button to navigate to detailed reports."
+
+  - task: "Material Reports Screen with Charts"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/materials/reports.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Comprehensive material reports screen with weekly/monthly spending analysis. Features: Period toggle, date navigation, project filtering, total spending dashboard. Three interactive chart sections: (1) Category-wise spending with pie chart toggle, (2) Site-wise spending with pie chart toggle, (3) Top vendors bar chart. Additional low stock alerts section at bottom. Uses react-native-chart-kit for PieChart and BarChart visualizations."
+
+  - task: "API Services for Materials"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/services/api.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added 8 new API service modules: vendorsAPI (getAll, getById, create, update, delete), materialsAPI (same CRUD), vendorMaterialRatesAPI (getAll, create, update), siteInventoryAPI (getAll, create, update), materialRequirementsAPI (getAll, create, update), purchaseOrdersAPI (getAll, create, update), materialTransactionsAPI (getAll, create), materialReportsAPI (getSpendingReport with params)."
 
 metadata:
   created_by: "main_agent"
