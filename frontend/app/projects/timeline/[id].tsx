@@ -13,7 +13,6 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { projectsAPI, tasksAPI } from '../../../services/api';
-import GanttChart from 'react-native-gantt-chart';
 import moment from 'moment';
 
 const { width } = Dimensions.get('window');
