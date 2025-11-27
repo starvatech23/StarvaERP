@@ -379,9 +379,33 @@ export default function LaborReportsScreen() {
           <View style={styles.cardHeader}>
             <Ionicons name="location" size={20} color="#FF6B35" />
             <Text style={styles.cardTitle}>Site-wise Wages</Text>
+            <TouchableOpacity
+              style={styles.chartToggle}
+              onPress={() => setShowSiteChart(!showSiteChart)}
+            >
+              <Ionicons
+                name={showSiteChart ? 'list' : 'pie-chart'}
+                size={20}
+                color="#FF6B35"
+              />
+            </TouchableOpacity>
           </View>
           {siteWages.length === 0 ? (
             <Text style={styles.emptyText}>No data for selected period</Text>
+          ) : showSiteChart ? (
+            <View style={styles.chartContainer}>
+              <PieChart
+                data={prepareSiteChartData()}
+                width={screenWidth - 64}
+                height={220}
+                chartConfig={chartConfig}
+                accessor="population"
+                backgroundColor="transparent"
+                paddingLeft="15"
+                center={[10, 0]}
+                absolute
+              />
+            </View>
           ) : (
             siteWages.map((site: any, index: number) => (
               <View key={index} style={styles.listItem}>
