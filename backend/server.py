@@ -546,6 +546,9 @@ async def get_task(
             assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
     task_dict["assigned_users"] = assigned_users
     
+    # Get subtasks
+    task_dict["subtasks"] = await get_task_subtasks(task_dict["id"])
+    
     return TaskResponse(**task_dict)
 
 @api_router.post("/tasks", response_model=TaskResponse)
