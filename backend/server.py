@@ -1919,8 +1919,13 @@ async def get_all_vendors(
     result = []
     for vendor in vendors:
         vendor = serialize_doc(vendor)
-        creator = await db.users.find_one({"_id": ObjectId(vendor["created_by"])})
-        vendor["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        # Handle vendors without created_by field (from old implementation)
+        if "created_by" not in vendor:
+            vendor["created_by"] = "unknown"
+            vendor["created_by_name"] = "Unknown"
+        else:
+            creator = await db.users.find_one({"_id": ObjectId(vendor["created_by"])})
+            vendor["created_by_name"] = creator["full_name"] if creator else "Unknown"
         result.append(VendorResponse(**vendor))
     return result
 
