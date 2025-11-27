@@ -124,6 +124,12 @@ export default function ProjectDetailsScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Project Details</Text>
         <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => router.push(`/projects/timeline/${id}` as any)}
+          >
+            <Ionicons name="stats-chart" size={20} color="#FF6B35" />
+          </TouchableOpacity>
           {canEdit && (
             <TouchableOpacity
               style={styles.iconButton}
