@@ -142,3 +142,41 @@ export const profileAPI = {
 export const bulkLeadsAPI = {
   upload: (data: any[]) => api.post('/crm/leads/bulk', data),
 };
+
+// Payments API
+export const paymentsAPI = {
+  getAll: (projectId?: string) => api.get('/payments', { params: { project_id: projectId } }),
+  create: (data: any) => api.post('/payments', data),
+  update: (id: string, data: any) => api.put(`/payments/${id}`, data),
+};
+
+// Expenses API
+export const expensesAPI = {
+  getAll: (projectId?: string) => api.get('/expenses', { params: { project_id: projectId } }),
+  create: (data: any) => api.post('/expenses', data),
+  update: (id: string, data: any) => api.put(`/expenses/${id}`, data),
+};
+
+// Notifications API
+export const notificationsAPI = {
+  getAll: (unreadOnly?: boolean) => api.get('/notifications', { params: { unread_only: unreadOnly } }),
+  markAsRead: (id: string) => api.put(`/notifications/${id}/read`),
+  markAllAsRead: () => api.put('/notifications/mark-all-read'),
+};
+
+// Activity Log API
+export const activityAPI = {
+  getAll: (limit?: number) => api.get('/activity', { params: { limit } }),
+};
+
+// User Management API (Admin)
+export const adminUsersAPI = {
+  getAll: () => api.get('/admin/users'),
+  updateRole: (userId: string, role: string) => api.put(`/admin/users/${userId}/role`, { role }),
+  updateStatus: (userId: string, isActive: boolean) => api.put(`/admin/users/${userId}/status`, { is_active: isActive }),
+};
+
+// Reports API
+export const reportsAPI = {
+  getFinancialReport: (projectId: string) => api.get(`/reports/financial/${projectId}`),
+};
