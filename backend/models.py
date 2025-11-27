@@ -125,6 +125,7 @@ class TaskBase(BaseModel):
     due_date: Optional[datetime] = None
     assigned_to: List[str] = []  # User IDs
     attachments: List[str] = []  # base64 or URLs
+    parent_task_id: Optional[str] = None  # For subtasks
 
 class TaskCreate(TaskBase):
     pass
@@ -143,6 +144,7 @@ class TaskResponse(TaskBase):
     created_by: str
     created_by_name: Optional[str] = None
     assigned_users: List[Dict[str, str]] = []  # [{"id": "", "name": ""}]
+    subtasks: List[Dict[str, Any]] = []  # Subtasks
     created_at: datetime
     updated_at: datetime
 
