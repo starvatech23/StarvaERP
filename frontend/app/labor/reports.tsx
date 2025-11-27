@@ -843,4 +843,35 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#718096',
   },
+  chartToggle: {
+    marginLeft: 'auto',
+    padding: 8,
+  },
+  chartContainer: {
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 16,
+  },
+  attendanceStatBox: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  attendanceStatIndicator: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  attendanceStatLabel: {
+    fontSize: 12,
+    color: '#718096',
+  },
+  attendanceStatValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A202C',
+  },
 });
