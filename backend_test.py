@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Labor Reports Feature
-Tests the data flow for labor reports including workers, attendance, and projects APIs.
+Comprehensive Backend API Testing for Vendor & Materials Management Module
+Tests all 8 major API groups with complete workflow scenarios
 """
 
 import requests
 import json
-from datetime import datetime, timedelta
 import uuid
+from datetime import datetime, timedelta
+from typing import Dict, List, Any
 import sys
-import os
 
 # Configuration
 BASE_URL = "https://buildflow-74.preview.emergentagent.com/api"
-TEST_USER_EMAIL = "admin@buildflow.com"
-TEST_USER_PASSWORD = "admin123"
-TEST_USER_PHONE = "+919876543210"
+HEADERS = {"Content-Type": "application/json"}
 
-class LaborReportsAPITester:
+class VendorMaterialsAPITester:
     def __init__(self):
         self.base_url = BASE_URL
         self.auth_token = None
