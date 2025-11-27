@@ -1,238 +1,278 @@
-diff --git a/frontend/app/(tabs)/labor.tsx b/frontend/app/(tabs)/labor.tsx
-index b7f6298..92a6956 100644
---- a/frontend/app/(tabs)/labor.tsx
-+++ b/frontend/app/(tabs)/labor.tsx
-@@ -201,6 +201,25 @@ export default function LaborScreen() {
-     return <Text style={styles.placeholderText}>Transfer records will appear here</Text>;
-   };
- 
-+  const renderReports = () => {
-+    return (
-+      <View style={styles.reportsContainer}>
-+        <Ionicons name="stats-chart" size={80} color="#FF6B35" />
-+        <Text style={styles.reportsTitle}>Labour Wage Reports</Text>
-+        <Text style={styles.reportsText}>
-+          View weekly and monthly wage reports, site-wise breakdowns, and individual labourer earnings
-+        </Text>
-+        <TouchableOpacity
-+          style={styles.viewReportsButton}
-+          onPress={() => router.push('/labor/reports' as any)}
-+        >
-+          <Ionicons name="document-text" size={20} color="#FFFFFF" />
-+          <Text style={styles.viewReportsText}>View Reports</Text>
-+        </TouchableOpacity>
-+      </View>
-+    );
-+  };
-+
-   return (
-     <SafeAreaView style={styles.container}>
-       <View style={styles.header}>
-@@ -289,6 +308,25 @@ export default function LaborScreen() {
-             Transfers
-           </Text>
-         </TouchableOpacity>
-+
-+        <TouchableOpacity
-+          style={[styles.tab, activeTab === 'reports' && styles.activeTab]}
-+          onPress={() => setActiveTab('reports')}
-+        >
-+          <Ionicons
-+            name="stats-chart"
-+            size={20}
-+            color={activeTab === 'reports' ? '#FF6B35' : '#718096'}
-+          />
-+          <Text
-+            style={[
-+              styles.tabText,
-+              activeTab === 'reports' && styles.activeTabText,
-+            ]}
-+          >
-+            Reports
-+          </Text>
-+        </TouchableOpacity>
-       </View>
- 
-       {/* Content */}
-@@ -305,6 +343,7 @@ export default function LaborScreen() {
-             {activeTab === 'workers' && renderWorkers()}
-             {activeTab === 'attendance' && renderAttendance()}
-             {activeTab === 'transfers' && renderTransfers()}
-+            {activeTab === 'reports' && renderReports()}
-           </>
-         )}
-       </ScrollView>
-@@ -536,4 +575,39 @@ const styles = StyleSheet.create({
-     fontWeight: '600',
-     color: '#718096',
-   },
-+  reportsContainer: {
-+    alignItems: 'center',
-+    justifyContent: 'center',
-+    paddingVertical: 60,
-+    paddingHorizontal: 32,
-+  },
-+  reportsTitle: {
-+    fontSize: 24,
-+    fontWeight: '700',
-+    color: '#1A202C',
-+    marginTop: 24,
-+    marginBottom: 12,
-+    textAlign: 'center',
-+  },
-+  reportsText: {
-+    fontSize: 16,
-+    color: '#718096',
-+    textAlign: 'center',
-+    lineHeight: 24,
-+    marginBottom: 32,
-+  },
-+  viewReportsButton: {
-+    flexDirection: 'row',
-+    alignItems: 'center',
-+    backgroundColor: '#FF6B35',
-+    paddingHorizontal: 24,
-+    paddingVertical: 12,
-+    borderRadius: 8,
-+    gap: 8,
-+  },
-+  viewReportsText: {
-+    fontSize: 16,
-+    fontWeight: '600',
-+    color: '#FFFFFF',
-+  },
- });
 diff --git a/model.patch b/model.patch
-index 51236f7..e69de29 100644
+index 567aaba..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,129 +0,0 @@
--diff --git a/backend/server.py b/backend/server.py
--index 6b60aa6..c7414c6 100644
----- a/backend/server.py
--+++ b/backend/server.py
--@@ -7,7 +7,7 @@ import os
-- import logging
-- from pathlib import Path
-- from typing import List
---from datetime import datetime
--+from datetime import datetime, timedelta
-- from bson import ObjectId
-- import socketio
+@@ -1,238 +0,0 @@
+-diff --git a/frontend/app/(tabs)/labor.tsx b/frontend/app/(tabs)/labor.tsx
+-index b7f6298..92a6956 100644
+---- a/frontend/app/(tabs)/labor.tsx
+-+++ b/frontend/app/(tabs)/labor.tsx
+-@@ -201,6 +201,25 @@ export default function LaborScreen() {
+-     return <Text style={styles.placeholderText}>Transfer records will appear here</Text>;
+-   };
 - 
+-+  const renderReports = () => {
+-+    return (
+-+      <View style={styles.reportsContainer}>
+-+        <Ionicons name="stats-chart" size={80} color="#FF6B35" />
+-+        <Text style={styles.reportsTitle}>Labour Wage Reports</Text>
+-+        <Text style={styles.reportsText}>
+-+          View weekly and monthly wage reports, site-wise breakdowns, and individual labourer earnings
+-+        </Text>
+-+        <TouchableOpacity
+-+          style={styles.viewReportsButton}
+-+          onPress={() => router.push('/labor/reports' as any)}
+-+        >
+-+          <Ionicons name="document-text" size={20} color="#FFFFFF" />
+-+          <Text style={styles.viewReportsText}>View Reports</Text>
+-+        </TouchableOpacity>
+-+      </View>
+-+    );
+-+  };
+-+
+-   return (
+-     <SafeAreaView style={styles.container}>
+-       <View style={styles.header}>
+-@@ -289,6 +308,25 @@ export default function LaborScreen() {
+-             Transfers
+-           </Text>
+-         </TouchableOpacity>
+-+
+-+        <TouchableOpacity
+-+          style={[styles.tab, activeTab === 'reports' && styles.activeTab]}
+-+          onPress={() => setActiveTab('reports')}
+-+        >
+-+          <Ionicons
+-+            name="stats-chart"
+-+            size={20}
+-+            color={activeTab === 'reports' ? '#FF6B35' : '#718096'}
+-+          />
+-+          <Text
+-+            style={[
+-+              styles.tabText,
+-+              activeTab === 'reports' && styles.activeTabText,
+-+            ]}
+-+          >
+-+            Reports
+-+          </Text>
+-+        </TouchableOpacity>
+-       </View>
+- 
+-       {/* Content */}
+-@@ -305,6 +343,7 @@ export default function LaborScreen() {
+-             {activeTab === 'workers' && renderWorkers()}
+-             {activeTab === 'attendance' && renderAttendance()}
+-             {activeTab === 'transfers' && renderTransfers()}
+-+            {activeTab === 'reports' && renderReports()}
+-           </>
+-         )}
+-       </ScrollView>
+-@@ -536,4 +575,39 @@ const styles = StyleSheet.create({
+-     fontWeight: '600',
+-     color: '#718096',
+-   },
+-+  reportsContainer: {
+-+    alignItems: 'center',
+-+    justifyContent: 'center',
+-+    paddingVertical: 60,
+-+    paddingHorizontal: 32,
+-+  },
+-+  reportsTitle: {
+-+    fontSize: 24,
+-+    fontWeight: '700',
+-+    color: '#1A202C',
+-+    marginTop: 24,
+-+    marginBottom: 12,
+-+    textAlign: 'center',
+-+  },
+-+  reportsText: {
+-+    fontSize: 16,
+-+    color: '#718096',
+-+    textAlign: 'center',
+-+    lineHeight: 24,
+-+    marginBottom: 32,
+-+  },
+-+  viewReportsButton: {
+-+    flexDirection: 'row',
+-+    alignItems: 'center',
+-+    backgroundColor: '#FF6B35',
+-+    paddingHorizontal: 24,
+-+    paddingVertical: 12,
+-+    borderRadius: 8,
+-+    gap: 8,
+-+  },
+-+  viewReportsText: {
+-+    fontSize: 16,
+-+    fontWeight: '600',
+-+    color: '#FFFFFF',
+-+  },
+- });
 -diff --git a/model.patch b/model.patch
--index a6c5b2d..e69de29 100644
+-index 51236f7..e69de29 100644
 ---- a/model.patch
 -+++ b/model.patch
--@@ -1,111 +0,0 @@
---diff --git a/frontend/app/(tabs)/index.tsx b/frontend/app/(tabs)/index.tsx
---index f531a69..54883ab 100644
------ a/frontend/app/(tabs)/index.tsx
---+++ b/frontend/app/(tabs)/index.tsx
---@@ -282,11 +282,21 @@ const styles = StyleSheet.create({
---   section: {
---     marginBottom: 24,
---   },
---+  sectionHeader: {
---+    flexDirection: 'row',
---+    justifyContent: 'space-between',
---+    alignItems: 'center',
---+    marginBottom: 16,
---+  },
---   sectionTitle: {
---     fontSize: 18,
---     fontWeight: '700',
---     color: '#1A202C',
----    marginBottom: 16,
---+  },
---+  viewAllText: {
---+    fontSize: 14,
---+    fontWeight: '600',
---+    color: '#FF6B35',
---   },
---   actionsGrid: {
---     flexDirection: 'row',
+-@@ -1,129 +0,0 @@
+--diff --git a/backend/server.py b/backend/server.py
+--index 6b60aa6..c7414c6 100644
+----- a/backend/server.py
+--+++ b/backend/server.py
+--@@ -7,7 +7,7 @@ import os
+-- import logging
+-- from pathlib import Path
+-- from typing import List
+---from datetime import datetime
+--+from datetime import datetime, timedelta
+-- from bson import ObjectId
+-- import socketio
+-- 
 --diff --git a/model.patch b/model.patch
---index 2fc8a8f..e69de29 100644
+--index a6c5b2d..e69de29 100644
 ----- a/model.patch
 --+++ b/model.patch
---@@ -1,79 +0,0 @@
----diff --git a/test_result.md b/test_result.md
----index 7cffd74..5805522 100644
------- a/test_result.md
----+++ b/test_result.md
----@@ -113,39 +113,48 @@ user_problem_statement: |
---- backend:
----   - task: "Profile Update API"
----     implemented: true
-----    working: "NA"
----+    working: true
----     file: "/app/backend/server.py"
----     stuck_count: 0
----     priority: "high"
-----    needs_retesting: true
----+    needs_retesting: false
----     status_history:
----       - working: "NA"
----         agent: "main"
----         comment: "Added PUT /api/profile endpoint to update user profile information (full_name, email, phone, address, profile_photo)"
----+      - working: true
----+        agent: "testing"
----+        comment: "✅ TESTED SUCCESSFULLY: Profile Update API working correctly. Full profile update, partial field updates, and validation error handling all functioning properly. API accepts valid profile data and correctly rejects invalid email formats."
---- 
----   - task: "Company Settings API"
----     implemented: true
-----    working: "NA"
----+    working: true
----     file: "/app/backend/server.py"
----     stuck_count: 0
----     priority: "high"
-----    needs_retesting: true
----+    needs_retesting: false
----     status_history:
----       - working: "NA"
----         agent: "main"
----         comment: "Added GET /api/settings/company and PUT /api/settings/company endpoints for managing company settings (Admin only)"
----+      - working: true
----+        agent: "testing"
----+        comment: "✅ TESTED SUCCESSFULLY: Company Settings API working correctly. GET endpoint retrieves settings properly, PUT endpoint updates settings correctly (admin-only access enforced), and data persistence verified. Role-based access control working as expected."
---- 
----   - task: "Bulk Leads Upload API"
----     implemented: true
-----    working: "NA"
----+    working: true
----     file: "/app/backend/server.py"
----     stuck_count: 0
----     priority: "high"
-----    needs_retesting: true
----+    needs_retesting: false
----     status_history:
----       - working: "NA"
----         agent: "main"
----         comment: "Added POST /api/crm/leads/bulk endpoint to upload multiple leads at once (Admin/PM only)"
----+      - working: true
----+        agent: "testing"
----+        comment: "✅ TESTED SUCCESSFULLY: Bulk Leads Upload API working correctly. Successfully uploaded 3 test leads, data persistence verified in database, role-based access control enforced (admin/PM only), and invalid data handled gracefully."
---- 
----   - task: "Enhanced Quotation Models"
----     implemented: true
----@@ -252,9 +261,6 @@ metadata:
---- 
---- test_plan:
----   current_focus:
-----    - "Profile Update API"
-----    - "Company Settings API"
-----    - "Bulk Leads Upload API"
----     - "Enhanced Quotation Models"
----   stuck_tasks: []
----   test_all: false
----@@ -262,4 +268,6 @@ test_plan:
---- 
---- agent_communication:
----   - agent: "main"
-----    message: "Implemented Week 1 features: Profile Edit, Company Settings, Enhanced Quotation Module, and Excel Upload for Leads. Backend APIs are ready for testing. Frontend screens created with proper navigation and form validation. Installed required packages: xlsx, react-native-svg, expo-document-picker, expo-file-system. Ready for backend testing."
----\ No newline at end of file
----+    message: "Implemented Week 1 features: Profile Edit, Company Settings, Enhanced Quotation Module, and Excel Upload for Leads. Backend APIs are ready for testing. Frontend screens created with proper navigation and form validation. Installed required packages: xlsx, react-native-svg, expo-document-picker, expo-file-system. Ready for backend testing."
----+  - agent: "testing"
----+    message: "✅ BACKEND TESTING COMPLETED SUCCESSFULLY: All 3 newly implemented APIs tested and working perfectly. Profile Update API (PUT /api/profile) - full/partial updates working with proper validation. Company Settings API (GET/PUT /api/settings/company) - admin-only access enforced, data persistence verified. Bulk Leads Upload API (POST /api/crm/leads/bulk) - successfully uploaded 3 leads, role-based access working. All APIs have proper authentication, authorization, and error handling. 13/13 tests passed (100% success rate). Ready for main agent to summarize and finish."
----\ No newline at end of file
+--@@ -1,111 +0,0 @@
+---diff --git a/frontend/app/(tabs)/index.tsx b/frontend/app/(tabs)/index.tsx
+---index f531a69..54883ab 100644
+------ a/frontend/app/(tabs)/index.tsx
+---+++ b/frontend/app/(tabs)/index.tsx
+---@@ -282,11 +282,21 @@ const styles = StyleSheet.create({
+---   section: {
+---     marginBottom: 24,
+---   },
+---+  sectionHeader: {
+---+    flexDirection: 'row',
+---+    justifyContent: 'space-between',
+---+    alignItems: 'center',
+---+    marginBottom: 16,
+---+  },
+---   sectionTitle: {
+---     fontSize: 18,
+---     fontWeight: '700',
+---     color: '#1A202C',
+----    marginBottom: 16,
+---+  },
+---+  viewAllText: {
+---+    fontSize: 14,
+---+    fontWeight: '600',
+---+    color: '#FF6B35',
+---   },
+---   actionsGrid: {
+---     flexDirection: 'row',
+---diff --git a/model.patch b/model.patch
+---index 2fc8a8f..e69de29 100644
+------ a/model.patch
+---+++ b/model.patch
+---@@ -1,79 +0,0 @@
+----diff --git a/test_result.md b/test_result.md
+----index 7cffd74..5805522 100644
+------- a/test_result.md
+----+++ b/test_result.md
+----@@ -113,39 +113,48 @@ user_problem_statement: |
+---- backend:
+----   - task: "Profile Update API"
+----     implemented: true
+-----    working: "NA"
+----+    working: true
+----     file: "/app/backend/server.py"
+----     stuck_count: 0
+----     priority: "high"
+-----    needs_retesting: true
+----+    needs_retesting: false
+----     status_history:
+----       - working: "NA"
+----         agent: "main"
+----         comment: "Added PUT /api/profile endpoint to update user profile information (full_name, email, phone, address, profile_photo)"
+----+      - working: true
+----+        agent: "testing"
+----+        comment: "✅ TESTED SUCCESSFULLY: Profile Update API working correctly. Full profile update, partial field updates, and validation error handling all functioning properly. API accepts valid profile data and correctly rejects invalid email formats."
+---- 
+----   - task: "Company Settings API"
+----     implemented: true
+-----    working: "NA"
+----+    working: true
+----     file: "/app/backend/server.py"
+----     stuck_count: 0
+----     priority: "high"
+-----    needs_retesting: true
+----+    needs_retesting: false
+----     status_history:
+----       - working: "NA"
+----         agent: "main"
+----         comment: "Added GET /api/settings/company and PUT /api/settings/company endpoints for managing company settings (Admin only)"
+----+      - working: true
+----+        agent: "testing"
+----+        comment: "✅ TESTED SUCCESSFULLY: Company Settings API working correctly. GET endpoint retrieves settings properly, PUT endpoint updates settings correctly (admin-only access enforced), and data persistence verified. Role-based access control working as expected."
+---- 
+----   - task: "Bulk Leads Upload API"
+----     implemented: true
+-----    working: "NA"
+----+    working: true
+----     file: "/app/backend/server.py"
+----     stuck_count: 0
+----     priority: "high"
+-----    needs_retesting: true
+----+    needs_retesting: false
+----     status_history:
+----       - working: "NA"
+----         agent: "main"
+----         comment: "Added POST /api/crm/leads/bulk endpoint to upload multiple leads at once (Admin/PM only)"
+----+      - working: true
+----+        agent: "testing"
+----+        comment: "✅ TESTED SUCCESSFULLY: Bulk Leads Upload API working correctly. Successfully uploaded 3 test leads, data persistence verified in database, role-based access control enforced (admin/PM only), and invalid data handled gracefully."
+---- 
+----   - task: "Enhanced Quotation Models"
+----     implemented: true
+----@@ -252,9 +261,6 @@ metadata:
+---- 
+---- test_plan:
+----   current_focus:
+-----    - "Profile Update API"
+-----    - "Company Settings API"
+-----    - "Bulk Leads Upload API"
+----     - "Enhanced Quotation Models"
+----   stuck_tasks: []
+----   test_all: false
+----@@ -262,4 +268,6 @@ test_plan:
+---- 
+---- agent_communication:
+----   - agent: "main"
+-----    message: "Implemented Week 1 features: Profile Edit, Company Settings, Enhanced Quotation Module, and Excel Upload for Leads. Backend APIs are ready for testing. Frontend screens created with proper navigation and form validation. Installed required packages: xlsx, react-native-svg, expo-document-picker, expo-file-system. Ready for backend testing."
+----\ No newline at end of file
+----+    message: "Implemented Week 1 features: Profile Edit, Company Settings, Enhanced Quotation Module, and Excel Upload for Leads. Backend APIs are ready for testing. Frontend screens created with proper navigation and form validation. Installed required packages: xlsx, react-native-svg, expo-document-picker, expo-file-system. Ready for backend testing."
+----+  - agent: "testing"
+----+    message: "✅ BACKEND TESTING COMPLETED SUCCESSFULLY: All 3 newly implemented APIs tested and working perfectly. Profile Update API (PUT /api/profile) - full/partial updates working with proper validation. Company Settings API (GET/PUT /api/settings/company) - admin-only access enforced, data persistence verified. Bulk Leads Upload API (POST /api/crm/leads/bulk) - successfully uploaded 3 leads, role-based access working. All APIs have proper authentication, authorization, and error handling. 13/13 tests passed (100% success rate). Ready for main agent to summarize and finish."
+----\ No newline at end of file
+diff --git a/test_result.md b/test_result.md
+index 0bf7b13..180adad 100644
+--- a/test_result.md
++++ b/test_result.md
+@@ -129,15 +129,18 @@ backend:
+ 
+   - task: "Labor Report Data Endpoints"
+     implemented: true
+-    working: "NA"
++    working: true
+     file: "/app/backend/server.py"
+     stuck_count: 0
+     priority: "high"
+-    needs_retesting: true
++    needs_retesting: false
+     status_history:
+       - working: "NA"
+         agent: "main"
+         comment: "Backend APIs for attendance and workers exist. Frontend fetches and calculates wage reports, site-wise costs, and worker statistics client-side. Need to verify data flow for reports."
++      - working: true
++        agent: "testing"
++        comment: "✅ COMPREHENSIVE BACKEND TESTING COMPLETED - All 13 tests passed (100% success rate). Verified: (1) GET /api/workers - Returns workers with id, full_name, phone, skill_group, base_rate, pay_scale, current_site_name. (2) GET /api/labor-attendance - Returns attendance records with worker_id, worker_name, worker_skill, project_id, project_name, attendance_date, status, hours_worked, overtime_hours, wages_earned. (3) GET /api/projects - Returns projects with id and name for filtering. (4) API filtering works correctly by project_id, worker_id, and date. (5) Authentication properly required for all endpoints. (6) Report calculations verified: total wages, status counts, worker-wise totals, site-wise breakdowns all working. (7) Created test data: 3 workers with different skills (mason, carpenter, electrician), 1 test project, 21 attendance records over 7 days with varied patterns (present/absent/overtime). Backend data flow for labor reports is fully functional and ready for frontend integration."
+ 
+ frontend:
+   - task: "Labor Reports Screen"
+@@ -180,4 +183,6 @@ test_plan:
+ 
+ agent_communication:
+   - agent: "main"
+-    message: "Implemented Labor Reports feature with comprehensive wage tracking and visualizations. Created reports screen at /app/frontend/app/labor/reports.tsx with: (1) Weekly/Monthly period toggle, (2) Date navigation with previous/next, (3) Project filtering dropdown, (4) Overall statistics dashboard showing total wages, workers, hours, and attendance rate, (5) Attendance distribution with pie chart toggle, (6) Site-wise wage breakdown with pie chart visualization, (7) Individual worker wage cards with detailed P/OT/A stats and Mark Paid buttons, (8) Advance payments placeholder. Installed react-native-chart-kit for pie charts. Backend APIs for workers and attendance already exist and working. Reports screen fetches data and performs client-side calculations. Ready for backend testing to verify data flow."
+\ No newline at end of file
++    message: "Implemented Labor Reports feature with comprehensive wage tracking and visualizations. Created reports screen at /app/frontend/app/labor/reports.tsx with: (1) Weekly/Monthly period toggle, (2) Date navigation with previous/next, (3) Project filtering dropdown, (4) Overall statistics dashboard showing total wages, workers, hours, and attendance rate, (5) Attendance distribution with pie chart toggle, (6) Site-wise wage breakdown with pie chart visualization, (7) Individual worker wage cards with detailed P/OT/A stats and Mark Paid buttons, (8) Advance payments placeholder. Installed react-native-chart-kit for pie charts. Backend APIs for workers and attendance already exist and working. Reports screen fetches data and performs client-side calculations. Ready for backend testing to verify data flow."
++  - agent: "testing"
++    message: "✅ BACKEND TESTING COMPLETE - Labor Reports backend data flow is fully functional! All 13 comprehensive tests passed with 100% success rate. Verified all required APIs: GET /api/workers (returns workers with base rates, skill groups, site names), GET /api/labor-attendance (returns attendance with wages_earned, hours_worked, overtime_hours), GET /api/projects (returns projects for filtering). All filtering works correctly (by project, worker, date). Authentication properly enforced. Report calculations verified for total wages, status counts, worker-wise totals, and site-wise breakdowns. Created comprehensive test data including 3 workers with different skills, 1 project, and 21 attendance records with varied patterns. Backend is ready for frontend integration. Main agent should now focus on frontend testing or summarize completion."
+\ No newline at end of file
