@@ -66,6 +66,17 @@ export default function TabsLayout() {
           }}
         />
       )}
+      {(canAccessProjects || user?.role === 'admin') && (
+        <Tabs.Screen
+          name="labor"
+          options={{
+            title: 'Labor',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="people-circle" size={size} color={color} />
+            ),
+          }}
+        />
+      )}
       <Tabs.Screen
         name="profile"
         options={{
