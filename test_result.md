@@ -166,19 +166,18 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "1.0"
-  test_sequence: 1
+  version: "2.0"
+  test_sequence: 2
   run_ui: false
 
 test_plan:
   current_focus:
-    - "Enhanced Quotation Models"
+    - "Labor Report Data Endpoints"
+    - "Labor Reports Screen"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
-    message: "Implemented Week 1 features: Profile Edit, Company Settings, Enhanced Quotation Module, and Excel Upload for Leads. Backend APIs are ready for testing. Frontend screens created with proper navigation and form validation. Installed required packages: xlsx, react-native-svg, expo-document-picker, expo-file-system. Ready for backend testing."
-  - agent: "testing"
-    message: "✅ BACKEND TESTING COMPLETED SUCCESSFULLY: All 3 newly implemented APIs tested and working perfectly. Profile Update API (PUT /api/profile) - full/partial updates working with proper validation. Company Settings API (GET/PUT /api/settings/company) - admin-only access enforced, data persistence verified. Bulk Leads Upload API (POST /api/crm/leads/bulk) - successfully uploaded 3 leads, role-based access working. All APIs have proper authentication, authorization, and error handling. 13/13 tests passed (100% success rate). Ready for main agent to summarize and finish."
+    message: "Implemented Labor Reports feature with comprehensive wage tracking and visualizations. Created reports screen at /app/frontend/app/labor/reports.tsx with: (1) Weekly/Monthly period toggle, (2) Date navigation with previous/next, (3) Project filtering dropdown, (4) Overall statistics dashboard showing total wages, workers, hours, and attendance rate, (5) Attendance distribution with pie chart toggle, (6) Site-wise wage breakdown with pie chart visualization, (7) Individual worker wage cards with detailed P/OT/A stats and Mark Paid buttons, (8) Advance payments placeholder. Installed react-native-chart-kit for pie charts. Backend APIs for workers and attendance already exist and working. Reports screen fetches data and performs client-side calculations. Ready for backend testing to verify data flow."
