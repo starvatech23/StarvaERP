@@ -76,14 +76,41 @@ export default function AddWorkerScreen() {
 
     setLoading(true);
     try {
-      await workersAPI.create({
+      const response = await workersAPI.create({
         ...formData,
         base_rate: parseFloat(formData.base_rate),
       });
 
-      Alert.alert('Success', 'Worker added successfully', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      Alert.alert(
+        '✅ Success!', 
+        `Labourer "${formData.full_name}" has been successfully added to the system.\n\nSkill: ${formData.skill_group}\nPay Rate: ₹${formData.base_rate}/${formData.pay_scale}`,
+        [
+          { text: 'Add Another', onPress: () => {
+            setFormData({
+              full_name: '',
+              phone: '',
+              email: '',
+              date_of_birth: '',
+              address: '',
+              emergency_contact: '',
+              skill_group: 'helper',
+              pay_scale: 'daily',
+              base_rate: '',
+              aadhaar_number: '',
+              aadhaar_photo: '',
+              pan_number: '',
+              pan_photo: '',
+              photo: '',
+              bank_name: '',
+              account_number: '',
+              ifsc_code: '',
+              account_holder_name: '',
+              notes: '',
+            });
+          }},
+          { text: 'Done', onPress: () => router.back(), style: 'cancel' },
+        ]
+      );
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to add worker');
     } finally {
