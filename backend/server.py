@@ -23,6 +23,11 @@ from models import (
     LeadCreate, LeadUpdate, LeadResponse,
     QuotationCreate, QuotationUpdate, QuotationResponse,
     CompanySettingsUpdate, UserProfileUpdate, BulkLeadItem,
+    PaymentCreate, PaymentUpdate, PaymentResponse,
+    ExpenseCreate, ExpenseUpdate, ExpenseResponse,
+    NotificationCreate, NotificationResponse,
+    ActivityLogCreate, ActivityLogResponse,
+    UserRoleUpdate, UserStatusUpdate, UserManagementResponse,
     UserRole
 )
 from auth import (
