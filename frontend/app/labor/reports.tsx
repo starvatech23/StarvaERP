@@ -374,6 +374,59 @@ export default function LaborReportsScreen() {
           </View>
         </View>
 
+        {/* Attendance Distribution Chart */}
+        {attendance.length > 0 && (
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="stats-chart" size={20} color="#FF6B35" />
+              <Text style={styles.cardTitle}>Attendance Distribution</Text>
+              <TouchableOpacity
+                style={styles.chartToggle}
+                onPress={() => setShowAttendanceChart(!showAttendanceChart)}
+              >
+                <Ionicons
+                  name={showAttendanceChart ? 'list' : 'pie-chart'}
+                  size={20}
+                  color="#FF6B35"
+                />
+              </TouchableOpacity>
+            </View>
+            {showAttendanceChart ? (
+              <View style={styles.chartContainer}>
+                <PieChart
+                  data={prepareAttendanceChartData()}
+                  width={screenWidth - 64}
+                  height={220}
+                  chartConfig={chartConfig}
+                  accessor="population"
+                  backgroundColor="transparent"
+                  paddingLeft="15"
+                  center={[10, 0]}
+                  absolute
+                />
+              </View>
+            ) : (
+              <View style={styles.statsRow}>
+                <View style={styles.attendanceStatBox}>
+                  <View style={[styles.attendanceStatIndicator, { backgroundColor: '#10B981' }]} />
+                  <Text style={styles.attendanceStatLabel}>Present</Text>
+                  <Text style={styles.attendanceStatValue}>{overallStats.daysPresent}</Text>
+                </View>
+                <View style={styles.attendanceStatBox}>
+                  <View style={[styles.attendanceStatIndicator, { backgroundColor: '#EF4444' }]} />
+                  <Text style={styles.attendanceStatLabel}>Absent</Text>
+                  <Text style={styles.attendanceStatValue}>{overallStats.daysAbsent}</Text>
+                </View>
+                <View style={styles.attendanceStatBox}>
+                  <View style={[styles.attendanceStatIndicator, { backgroundColor: '#F59E0B' }]} />
+                  <Text style={styles.attendanceStatLabel}>Overtime</Text>
+                  <Text style={styles.attendanceStatValue}>{overallStats.overtimeRecords}</Text>
+                </View>
+              </View>
+            )}
+          </View>
+        )}
+
         {/* Site-wise Wages */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
