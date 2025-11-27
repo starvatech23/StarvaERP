@@ -81,17 +81,15 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 
 def require_role(allowed_roles: list):
     """Decorator to check if user has required role"""
-    def role_dependency(credentials: HTTPAuthorizationCredentials = Depends(security)):
-        async def role_checker(db):
-            user = await get_current_user(credentials, db)
-            if user["role"] not in allowed_roles:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="You don't have permission to access this resource"
-                )
-            return user
-        return role_checker
-    return role_dependency
+    async def role_checker(credentials: HTTPAuthorizationCredentials = Depends(security), db = None):
+        user = await get_current_user(credentials, db)
+        if user["role"] not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to access this resource"
+            )
+        return user
+    return role_checker
 
 # Mock OTP Functions
 def generate_otp() -> str:
