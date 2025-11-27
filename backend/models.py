@@ -699,3 +699,293 @@ class SiteTransferResponse(SiteTransferBase):
     created_by: str
     created_by_name: Optional[str] = None
     created_at: datetime
+
+
+# ============= Vendor & Materials Management Models =============
+
+# Vendor Models
+class VendorBase(BaseModel):
+    business_name: str
+    contact_person: str
+    phone: str
+    email: Optional[EmailStr] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pincode: Optional[str] = None
+    gst_number: Optional[str] = None
+    pan_number: Optional[str] = None
+    payment_terms: Optional[str] = None  # e.g., "Net 30", "Cash on Delivery"
+    bank_name: Optional[str] = None
+    account_number: Optional[str] = None
+    ifsc_code: Optional[str] = None
+    account_holder_name: Optional[str] = None
+    is_active: bool = True
+    notes: Optional[str] = None
+
+class VendorCreate(VendorBase):
+    pass
+
+class VendorUpdate(BaseModel):
+    business_name: Optional[str] = None
+    contact_person: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pincode: Optional[str] = None
+    gst_number: Optional[str] = None
+    pan_number: Optional[str] = None
+    payment_terms: Optional[str] = None
+    bank_name: Optional[str] = None
+    account_number: Optional[str] = None
+    ifsc_code: Optional[str] = None
+    account_holder_name: Optional[str] = None
+    is_active: Optional[bool] = None
+    notes: Optional[str] = None
+
+class VendorResponse(VendorBase):
+    id: str
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+# Material Category Enum
+class MaterialCategory(str, Enum):
+    CEMENT = "cement"
+    STEEL = "steel"
+    SAND = "sand"
+    AGGREGATE = "aggregate"
+    BRICKS = "bricks"
+    BLOCKS = "blocks"
+    TILES = "tiles"
+    PAINT = "paint"
+    PLUMBING = "plumbing"
+    ELECTRICAL = "electrical"
+    HARDWARE = "hardware"
+    WOOD = "wood"
+    GLASS = "glass"
+    MISC = "miscellaneous"
+
+# Material Models
+class MaterialBase(BaseModel):
+    name: str
+    category: MaterialCategory
+    unit: str  # kg, ton, bag, piece, sqft, cft, liter, etc.
+    description: Optional[str] = None
+    minimum_stock: Optional[float] = 0
+    hsn_code: Optional[str] = None
+    is_active: bool = True
+
+class MaterialCreate(MaterialBase):
+    pass
+
+class MaterialUpdate(BaseModel):
+    name: Optional[str] = None
+    category: Optional[MaterialCategory] = None
+    unit: Optional[str] = None
+    description: Optional[str] = None
+    minimum_stock: Optional[float] = None
+    hsn_code: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class MaterialResponse(MaterialBase):
+    id: str
+    created_by: str
+    created_at: datetime
+    updated_at: datetime
+
+# Vendor Material Rate Models
+class VendorMaterialRateBase(BaseModel):
+    vendor_id: str
+    material_id: str
+    rate_per_unit: float
+    effective_from: datetime
+    effective_to: Optional[datetime] = None
+    is_active: bool = True
+    notes: Optional[str] = None
+
+class VendorMaterialRateCreate(VendorMaterialRateBase):
+    pass
+
+class VendorMaterialRateUpdate(BaseModel):
+    rate_per_unit: Optional[float] = None
+    effective_from: Optional[datetime] = None
+    effective_to: Optional[datetime] = None
+    is_active: Optional[bool] = None
+    notes: Optional[str] = None
+
+class VendorMaterialRateResponse(VendorMaterialRateBase):
+    id: str
+    vendor_name: str
+    material_name: str
+    material_unit: str
+    created_by: str
+    created_at: datetime
+    updated_at: datetime
+
+# Site Inventory Models
+class SiteInventoryBase(BaseModel):
+    project_id: str
+    material_id: str
+    current_stock: float
+    last_updated: datetime
+
+class SiteInventoryCreate(SiteInventoryBase):
+    pass
+
+class SiteInventoryUpdate(BaseModel):
+    current_stock: Optional[float] = None
+    last_updated: Optional[datetime] = None
+
+class SiteInventoryResponse(SiteInventoryBase):
+    id: str
+    project_name: str
+    material_name: str
+    material_unit: str
+    material_category: str
+    minimum_stock: float
+
+# Material Requirement Models
+class MaterialRequirementBase(BaseModel):
+    project_id: str
+    material_id: str
+    required_quantity: float
+    required_by_date: datetime
+    priority: TaskPriority = TaskPriority.MEDIUM
+    purpose: Optional[str] = None
+    is_fulfilled: bool = False
+    notes: Optional[str] = None
+
+class MaterialRequirementCreate(MaterialRequirementBase):
+    pass
+
+class MaterialRequirementUpdate(BaseModel):
+    required_quantity: Optional[float] = None
+    required_by_date: Optional[datetime] = None
+    priority: Optional[TaskPriority] = None
+    purpose: Optional[str] = None
+    is_fulfilled: Optional[bool] = None
+    notes: Optional[str] = None
+
+class MaterialRequirementResponse(MaterialRequirementBase):
+    id: str
+    project_name: str
+    material_name: str
+    material_unit: str
+    material_category: str
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+# Purchase Order Status Enum
+class PurchaseOrderStatus(str, Enum):
+    DRAFT = "draft"
+    PENDING = "pending"
+    APPROVED = "approved"
+    ORDERED = "ordered"
+    PARTIALLY_RECEIVED = "partially_received"
+    RECEIVED = "received"
+    CANCELLED = "cancelled"
+
+# Purchase Order Models
+class PurchaseOrderBase(BaseModel):
+    po_number: str
+    vendor_id: str
+    project_id: str
+    order_date: datetime
+    expected_delivery_date: datetime
+    status: PurchaseOrderStatus = PurchaseOrderStatus.DRAFT
+    payment_terms: Optional[str] = None
+    total_amount: float
+    tax_amount: Optional[float] = 0
+    discount_amount: Optional[float] = 0
+    final_amount: float
+    delivery_address: Optional[str] = None
+    notes: Optional[str] = None
+
+class PurchaseOrderCreate(PurchaseOrderBase):
+    items: List[Dict[str, Any]]  # Will contain material_id, quantity, rate, amount
+
+class PurchaseOrderUpdate(BaseModel):
+    expected_delivery_date: Optional[datetime] = None
+    status: Optional[PurchaseOrderStatus] = None
+    payment_terms: Optional[str] = None
+    total_amount: Optional[float] = None
+    tax_amount: Optional[float] = None
+    discount_amount: Optional[float] = None
+    final_amount: Optional[float] = None
+    delivery_address: Optional[str] = None
+    notes: Optional[str] = None
+
+class PurchaseOrderResponse(PurchaseOrderBase):
+    id: str
+    vendor_name: str
+    project_name: str
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    items: List[Dict[str, Any]]
+
+# Purchase Order Item Models
+class PurchaseOrderItemBase(BaseModel):
+    purchase_order_id: str
+    material_id: str
+    quantity: float
+    rate_per_unit: float
+    amount: float
+    received_quantity: float = 0
+    notes: Optional[str] = None
+
+class PurchaseOrderItemCreate(PurchaseOrderItemBase):
+    pass
+
+class PurchaseOrderItemUpdate(BaseModel):
+    quantity: Optional[float] = None
+    rate_per_unit: Optional[float] = None
+    amount: Optional[float] = None
+    received_quantity: Optional[float] = None
+    notes: Optional[str] = None
+
+class PurchaseOrderItemResponse(PurchaseOrderItemBase):
+    id: str
+    material_name: str
+    material_unit: str
+    created_at: datetime
+
+# Material Transaction Type Enum
+class TransactionType(str, Enum):
+    RECEIPT = "receipt"  # Material received
+    CONSUMPTION = "consumption"  # Material consumed
+    TRANSFER_IN = "transfer_in"  # Transfer from another site
+    TRANSFER_OUT = "transfer_out"  # Transfer to another site
+    RETURN = "return"  # Return to vendor
+    ADJUSTMENT = "adjustment"  # Stock adjustment
+
+# Material Transaction Models
+class MaterialTransactionBase(BaseModel):
+    project_id: str
+    material_id: str
+    transaction_type: TransactionType
+    quantity: float
+    transaction_date: datetime
+    reference_type: Optional[str] = None  # 'purchase_order', 'task', etc.
+    reference_id: Optional[str] = None
+    notes: Optional[str] = None
+
+class MaterialTransactionCreate(MaterialTransactionBase):
+    pass
+
+class MaterialTransactionResponse(MaterialTransactionBase):
+    id: str
+    project_name: str
+    material_name: str
+    material_unit: str
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+
