@@ -17,6 +17,8 @@ import { Picker } from '@react-native-picker/picker';
 import moment from 'moment';
 import { PieChart } from 'react-native-chart-kit';
 
+const screenWidth = Dimensions.get('window').width;
+
 export default function LaborReportsScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -26,6 +28,8 @@ export default function LaborReportsScreen() {
   const [workers, setWorkers] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<any[]>([]);
   const [currentDate, setCurrentDate] = useState(moment());
+  const [showSiteChart, setShowSiteChart] = useState(false);
+  const [showAttendanceChart, setShowAttendanceChart] = useState(false);
 
   useEffect(() => {
     loadData();
