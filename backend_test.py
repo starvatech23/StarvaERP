@@ -94,426 +94,402 @@ class LaborReportsAPITester:
     def get_headers(self):
         """Get authorization headers"""
         return {"Authorization": f"Bearer {self.auth_token}"}
+
+    def test_projects_api(self):
+        """Test GET /api/projects endpoint"""
+        print("📋 Testing Projects API...")
         
         try:
-            if method.upper() == "GET":
-                response = requests.get(url, headers=default_headers, timeout=30)
-            elif method.upper() == "POST":
-                response = requests.post(url, json=data, headers=default_headers, timeout=30)
-            elif method.upper() == "PUT":
-                response = requests.put(url, json=data, headers=default_headers, timeout=30)
-            else:
-                return {"error": f"Unsupported method: {method}"}
+            response = requests.get(f"{self.base_url}/projects", headers=self.get_headers())
             
-            return {
-                "status_code": response.status_code,
-                "data": response.json() if response.content else {},
-                "headers": dict(response.headers)
-            }
-        except requests.exceptions.RequestException as e:
-            return {"error": str(e)}
-        except json.JSONDecodeError as e:
-            return {"error": f"JSON decode error: {str(e)}", "raw_response": response.text}
-    
-    def test_api_health(self):
-        """Test if API is accessible"""
-        print("\n=== Testing API Health ===")
-        response = self.make_request("GET", "/")
-        
-        if "error" in response:
-            self.log_result("API Health Check", False, f"API not accessible: {response['error']}")
-            return False
-        
-        if response["status_code"] == 200:
-            self.log_result("API Health Check", True, "API is accessible")
-            return True
-        else:
-            self.log_result("API Health Check", False, f"API returned status {response['status_code']}")
-            return False
-    
-    def register_admin_user(self):
-        """Register an admin user for testing"""
-        print("\n=== Registering Admin User ===")
-        
-        user_data = {
-            "email": "admin@constructflow.com",
-            "password": "AdminPass123!",
-            "full_name": "Test Admin User",
-            "role": "admin",
-            "auth_type": "email",
-            "address": "123 Admin Street, Test City"
-        }
-        
-        response = self.make_request("POST", "/auth/register", user_data)
-        
-        if "error" in response:
-            self.log_result("Admin Registration", False, f"Request failed: {response['error']}")
-            return False
-        
-        if response["status_code"] == 200:
-            data = response["data"]
-            if "access_token" in data and "user" in data:
-                self.token = data["access_token"]
-                self.user_id = data["user"]["id"]
-                self.log_result("Admin Registration", True, f"Admin user registered successfully. User ID: {self.user_id}")
-                return True
-            else:
-                self.log_result("Admin Registration", False, "Invalid response format", response["data"])
-                return False
-        elif response["status_code"] == 400 and "already registered" in str(response["data"]):
-            # User already exists, try to login
-            return self.login_admin_user()
-        else:
-            self.log_result("Admin Registration", False, f"Registration failed with status {response['status_code']}", response["data"])
-            return False
-    
-    def login_admin_user(self):
-        """Login with admin user"""
-        print("\n=== Logging in Admin User ===")
-        
-        login_data = {
-            "identifier": "admin@constructflow.com",
-            "password": "AdminPass123!",
-            "auth_type": "email"
-        }
-        
-        response = self.make_request("POST", "/auth/login", login_data)
-        
-        if "error" in response:
-            self.log_result("Admin Login", False, f"Request failed: {response['error']}")
-            return False
-        
-        if response["status_code"] == 200:
-            data = response["data"]
-            if "access_token" in data and "user" in data:
-                self.token = data["access_token"]
-                self.user_id = data["user"]["id"]
-                self.log_result("Admin Login", True, f"Admin user logged in successfully. User ID: {self.user_id}")
-                return True
-            else:
-                self.log_result("Admin Login", False, "Invalid response format", response["data"])
-                return False
-        else:
-            self.log_result("Admin Login", False, f"Login failed with status {response['status_code']}", response["data"])
-            return False
-    
-    def test_profile_update_api(self):
-        """Test Profile Update API - PUT /api/profile"""
-        print("\n=== Testing Profile Update API ===")
-        
-        if not self.token:
-            self.log_result("Profile Update API", False, "No authentication token available")
-            return
-        
-        # Test 1: Update full profile
-        profile_data = {
-            "full_name": "Updated Admin Name",
-            "email": "updated.admin@constructflow.com",
-            "phone": "+1234567890",
-            "address": "456 Updated Street, New City",
-            "profile_photo": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-        }
-        
-        response = self.make_request("PUT", "/profile", profile_data)
-        
-        if "error" in response:
-            self.log_result("Profile Update - Full Update", False, f"Request failed: {response['error']}")
-        elif response["status_code"] == 200:
-            data = response["data"]
-            if "id" in data and "full_name" in data:
-                if data["full_name"] == profile_data["full_name"]:
-                    self.log_result("Profile Update - Full Update", True, "Profile updated successfully")
+            if response.status_code == 200:
+                projects = response.json()
+                self.log_result("GET /api/projects", True, f"Retrieved {len(projects)} projects")
+                
+                # Verify response structure
+                if projects:
+                    project = projects[0]
+                    required_fields = ['id', 'name']
+                    missing_fields = [field for field in required_fields if field not in project]
+                    
+                    if missing_fields:
+                        self.log_result("Projects Response Structure", False, f"Missing fields: {missing_fields}")
+                    else:
+                        self.log_result("Projects Response Structure", True, "All required fields present")
+                        # Store test projects
+                        self.test_data['projects'] = projects[:3]  # Keep first 3 for testing
                 else:
-                    self.log_result("Profile Update - Full Update", False, "Profile data not updated correctly", data)
+                    # Create a test project if none exist
+                    self.create_test_project()
+                    
             else:
-                self.log_result("Profile Update - Full Update", False, "Invalid response format", data)
-        else:
-            self.log_result("Profile Update - Full Update", False, f"Update failed with status {response['status_code']}", response["data"])
-        
-        # Test 2: Update individual field
-        partial_data = {
-            "phone": "+9876543210"
-        }
-        
-        response = self.make_request("PUT", "/profile", partial_data)
-        
-        if "error" in response:
-            self.log_result("Profile Update - Partial Update", False, f"Request failed: {response['error']}")
-        elif response["status_code"] == 200:
-            data = response["data"]
-            if data.get("phone") == partial_data["phone"]:
-                self.log_result("Profile Update - Partial Update", True, "Partial profile update successful")
-            else:
-                self.log_result("Profile Update - Partial Update", False, "Partial update not applied correctly", data)
-        else:
-            self.log_result("Profile Update - Partial Update", False, f"Partial update failed with status {response['status_code']}", response["data"])
-        
-        # Test 3: Test with invalid data
-        invalid_data = {
-            "email": "invalid-email-format"
-        }
-        
-        response = self.make_request("PUT", "/profile", invalid_data)
-        
-        if response["status_code"] == 422:
-            self.log_result("Profile Update - Invalid Data", True, "Validation error handled correctly")
-        else:
-            self.log_result("Profile Update - Invalid Data", False, f"Expected validation error, got status {response['status_code']}", response["data"])
-    
-    def test_company_settings_api(self):
-        """Test Company Settings API - GET/PUT /api/settings/company"""
-        print("\n=== Testing Company Settings API ===")
-        
-        if not self.token:
-            self.log_result("Company Settings API", False, "No authentication token available")
-            return
-        
-        # Test 1: Get company settings
-        response = self.make_request("GET", "/settings/company")
-        
-        if "error" in response:
-            self.log_result("Company Settings - GET", False, f"Request failed: {response['error']}")
-        elif response["status_code"] == 200:
-            data = response["data"]
-            if "company_name" in data:
-                self.log_result("Company Settings - GET", True, "Company settings retrieved successfully")
-            else:
-                self.log_result("Company Settings - GET", False, "Invalid response format", data)
-        else:
-            self.log_result("Company Settings - GET", False, f"GET failed with status {response['status_code']}", response["data"])
-        
-        # Test 2: Update company settings (Admin only)
-        settings_data = {
-            "company_name": "Test Construction Co",
-            "address": "123 Main St, Construction City",
-            "phone": "555-1234",
-            "email": "info@testco.com",
-            "tax_id": "TAX123456",
-            "website": "https://testco.com"
-        }
-        
-        response = self.make_request("PUT", "/settings/company", settings_data)
-        
-        if "error" in response:
-            self.log_result("Company Settings - PUT", False, f"Request failed: {response['error']}")
-        elif response["status_code"] == 200:
-            data = response["data"]
-            if data.get("company_name") == settings_data["company_name"]:
-                self.log_result("Company Settings - PUT", True, "Company settings updated successfully")
-            else:
-                self.log_result("Company Settings - PUT", False, "Settings not updated correctly", data)
-        else:
-            self.log_result("Company Settings - PUT", False, f"PUT failed with status {response['status_code']}", response["data"])
-        
-        # Test 3: Verify updated settings
-        response = self.make_request("GET", "/settings/company")
-        
-        if response["status_code"] == 200:
-            data = response["data"]
-            if data.get("company_name") == settings_data["company_name"]:
-                self.log_result("Company Settings - Verification", True, "Updated settings verified successfully")
-            else:
-                self.log_result("Company Settings - Verification", False, "Settings verification failed", data)
-        else:
-            self.log_result("Company Settings - Verification", False, f"Verification failed with status {response['status_code']}")
-    
-    def test_bulk_leads_upload_api(self):
-        """Test Bulk Leads Upload API - POST /api/crm/leads/bulk"""
-        print("\n=== Testing Bulk Leads Upload API ===")
-        
-        if not self.token:
-            self.log_result("Bulk Leads Upload API", False, "No authentication token available")
-            return
-        
-        # Test 1: Upload valid bulk leads
-        leads_data = [
-            {
-                "client_name": "John Doe Construction",
-                "contact": "555-1111",
-                "email": "john@example.com",
-                "source": "Website",
-                "estimated_value": 50000,
-                "notes": "Interested in residential project"
-            },
-            {
-                "client_name": "Jane Smith Builders",
-                "contact": "555-2222",
-                "email": "jane@example.com",
-                "source": "Referral",
-                "estimated_value": 75000,
-                "notes": "Commercial building project"
-            },
-            {
-                "client_name": "ABC Development Corp",
-                "contact": "555-3333",
-                "source": "Cold Call",
-                "estimated_value": 100000
-            }
-        ]
-        
-        response = self.make_request("POST", "/crm/leads/bulk", leads_data)
-        
-        if "error" in response:
-            self.log_result("Bulk Leads Upload - Valid Data", False, f"Request failed: {response['error']}")
-        elif response["status_code"] == 200:
-            data = response["data"]
-            if "message" in data and "3 leads" in data["message"]:
-                self.log_result("Bulk Leads Upload - Valid Data", True, f"Bulk upload successful: {data['message']}")
-            else:
-                self.log_result("Bulk Leads Upload - Valid Data", False, "Unexpected response format", data)
-        else:
-            self.log_result("Bulk Leads Upload - Valid Data", False, f"Upload failed with status {response['status_code']}", response["data"])
-        
-        # Test 2: Verify leads were created
-        response = self.make_request("GET", "/crm/leads")
-        
-        if response["status_code"] == 200:
-            leads = response["data"]
-            if isinstance(leads, list) and len(leads) >= 3:
-                # Check if our test leads are in the response
-                test_names = [lead["client_name"] for lead in leads_data]
-                created_names = [lead.get("client_name", "") for lead in leads]
+                self.log_result("GET /api/projects", False, f"HTTP {response.status_code}: {response.text}")
                 
-                found_leads = [name for name in test_names if name in created_names]
-                if len(found_leads) >= 2:  # At least 2 out of 3 should be found
-                    self.log_result("Bulk Leads Upload - Verification", True, f"Found {len(found_leads)} uploaded leads in database")
-                else:
-                    self.log_result("Bulk Leads Upload - Verification", False, f"Only found {len(found_leads)} out of 3 uploaded leads")
-            else:
-                self.log_result("Bulk Leads Upload - Verification", False, f"Expected at least 3 leads, found {len(leads) if isinstance(leads, list) else 0}")
-        else:
-            self.log_result("Bulk Leads Upload - Verification", False, f"Failed to retrieve leads for verification: {response['status_code']}")
-        
-        # Test 3: Test with invalid data
-        invalid_leads = [
-            {
-                "client_name": "",  # Empty required field
-                "contact": "555-4444"
-            }
-        ]
-        
-        response = self.make_request("POST", "/crm/leads/bulk", invalid_leads)
-        
-        if response["status_code"] == 422:
-            self.log_result("Bulk Leads Upload - Invalid Data", True, "Validation error handled correctly")
-        elif response["status_code"] == 200:
-            # Some APIs might accept and skip invalid entries
-            self.log_result("Bulk Leads Upload - Invalid Data", True, "Invalid data handled gracefully")
-        else:
-            self.log_result("Bulk Leads Upload - Invalid Data", False, f"Unexpected response to invalid data: {response['status_code']}")
-    
-    def test_role_based_access(self):
-        """Test role-based access control"""
-        print("\n=== Testing Role-Based Access Control ===")
-        
-        # Register a non-admin user
-        worker_data = {
-            "email": "worker@constructflow.com",
-            "password": "WorkerPass123!",
-            "full_name": "Test Worker",
-            "role": "worker",
-            "auth_type": "email"
-        }
-        
-        response = self.make_request("POST", "/auth/register", worker_data)
-        
-        if response["status_code"] == 200 or (response["status_code"] == 400 and "already registered" in str(response["data"])):
-            # Login as worker
-            login_data = {
-                "identifier": "worker@constructflow.com",
-                "password": "WorkerPass123!",
-                "auth_type": "email"
-            }
-            
-            response = self.make_request("POST", "/auth/login", login_data)
-            
-            if response["status_code"] == 200:
-                worker_token = response["data"]["access_token"]
-                
-                # Temporarily switch to worker token
-                original_token = self.token
-                self.token = worker_token
-                
-                # Test company settings access (should fail)
-                response = self.make_request("PUT", "/settings/company", {"company_name": "Unauthorized"})
-                
-                if response["status_code"] == 403:
-                    self.log_result("Role-Based Access - Company Settings", True, "Worker correctly denied access to company settings")
-                else:
-                    self.log_result("Role-Based Access - Company Settings", False, f"Worker should be denied access, got status {response['status_code']}")
-                
-                # Test bulk leads upload (should fail)
-                response = self.make_request("POST", "/crm/leads/bulk", [{"client_name": "Test", "contact": "123"}])
-                
-                if response["status_code"] == 403:
-                    self.log_result("Role-Based Access - Bulk Leads", True, "Worker correctly denied access to bulk leads upload")
-                else:
-                    self.log_result("Role-Based Access - Bulk Leads", False, f"Worker should be denied access, got status {response['status_code']}")
-                
-                # Restore admin token
-                self.token = original_token
-            else:
-                self.log_result("Role-Based Access", False, "Failed to login as worker for access control test")
-        else:
-            self.log_result("Role-Based Access", False, "Failed to create worker user for access control test")
-    
-    def run_all_tests(self):
-        """Run all backend tests"""
-        print("🚀 Starting Backend API Tests for Construction Management App")
-        print(f"Backend URL: {self.base_url}")
-        print("=" * 80)
-        
-        # Test API health first
-        if not self.test_api_health():
-            print("\n❌ API is not accessible. Stopping tests.")
-            return False
-        
-        # Register/login admin user
-        if not self.register_admin_user():
-            print("\n❌ Failed to authenticate admin user. Stopping tests.")
-            return False
-        
-        # Run all API tests
-        self.test_profile_update_api()
-        self.test_company_settings_api()
-        self.test_bulk_leads_upload_api()
-        self.test_role_based_access()
-        
-        # Print summary
-        self.print_summary()
-        
-        return True
-    
-    def print_summary(self):
-        """Print test summary"""
-        print("\n" + "=" * 80)
-        print("📊 TEST SUMMARY")
-        print("=" * 80)
-        
-        total_tests = len(self.test_results)
-        passed_tests = len([r for r in self.test_results if r["success"]])
-        failed_tests = total_tests - passed_tests
-        
-        print(f"Total Tests: {total_tests}")
-        print(f"✅ Passed: {passed_tests}")
-        print(f"❌ Failed: {failed_tests}")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
-        
-        if failed_tests > 0:
-            print("\n🔍 FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"  • {result['test']}: {result['message']}")
-        
-        print("\n" + "=" * 80)
+        except Exception as e:
+            self.log_result("GET /api/projects", False, f"Exception: {str(e)}")
 
-def main():
-    """Main function"""
-    tester = BackendTester()
-    success = tester.run_all_tests()
-    
-    # Exit with appropriate code
-    sys.exit(0 if success else 1)
+    def create_test_project(self):
+        """Create a test project for testing"""
+        project_data = {
+            "name": "Test Construction Site",
+            "location": "Mumbai",
+            "address": "Test Address, Mumbai",
+            "client_name": "Test Client",
+            "client_contact": "+919876543210",
+            "status": "in_progress",
+            "budget": 1000000.0,
+            "description": "Test project for labor reports"
+        }
+        
+        try:
+            response = requests.post(f"{self.base_url}/projects", json=project_data, headers=self.get_headers())
+            if response.status_code == 200:
+                project = response.json()
+                self.test_data['projects'] = [project]
+                self.log_result("Create Test Project", True, f"Created project: {project['name']}")
+            else:
+                self.log_result("Create Test Project", False, f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            self.log_result("Create Test Project", False, f"Exception: {str(e)}")
+
+    def test_workers_api(self):
+        """Test GET /api/workers endpoint"""
+        print("👷 Testing Workers API...")
+        
+        try:
+            response = requests.get(f"{self.base_url}/workers", headers=self.get_headers())
+            
+            if response.status_code == 200:
+                workers = response.json()
+                self.log_result("GET /api/workers", True, f"Retrieved {len(workers)} workers")
+                
+                # Verify response structure
+                if workers:
+                    worker = workers[0]
+                    required_fields = ['id', 'full_name', 'phone', 'skill_group', 'base_rate', 'pay_scale']
+                    missing_fields = [field for field in required_fields if field not in worker]
+                    
+                    if missing_fields:
+                        self.log_result("Workers Response Structure", False, f"Missing fields: {missing_fields}")
+                    else:
+                        self.log_result("Workers Response Structure", True, "All required fields present")
+                        # Store test workers
+                        self.test_data['workers'] = workers[:3]  # Keep first 3 for testing
+                else:
+                    # Create test workers if none exist
+                    self.create_test_workers()
+                    
+            else:
+                self.log_result("GET /api/workers", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_result("GET /api/workers", False, f"Exception: {str(e)}")
+
+    def create_test_workers(self):
+        """Create test workers for testing"""
+        test_workers = [
+            {
+                "full_name": "Rajesh Kumar",
+                "phone": "+919876543211",
+                "skill_group": "mason",
+                "pay_scale": "daily",
+                "base_rate": 800.0,
+                "status": "active",
+                "current_site_id": self.test_data['projects'][0]['id'] if self.test_data['projects'] else None
+            },
+            {
+                "full_name": "Suresh Sharma",
+                "phone": "+919876543212",
+                "skill_group": "carpenter",
+                "pay_scale": "daily",
+                "base_rate": 900.0,
+                "status": "active",
+                "current_site_id": self.test_data['projects'][0]['id'] if self.test_data['projects'] else None
+            },
+            {
+                "full_name": "Amit Singh",
+                "phone": "+919876543213",
+                "skill_group": "electrician",
+                "pay_scale": "daily",
+                "base_rate": 1000.0,
+                "status": "active",
+                "current_site_id": self.test_data['projects'][0]['id'] if self.test_data['projects'] else None
+            }
+        ]
+        
+        created_workers = []
+        for worker_data in test_workers:
+            try:
+                response = requests.post(f"{self.base_url}/workers", json=worker_data, headers=self.get_headers())
+                if response.status_code == 200:
+                    worker = response.json()
+                    created_workers.append(worker)
+                    self.log_result(f"Create Test Worker: {worker_data['full_name']}", True, f"Created worker with ID: {worker['id']}")
+                else:
+                    self.log_result(f"Create Test Worker: {worker_data['full_name']}", False, f"HTTP {response.status_code}: {response.text}")
+            except Exception as e:
+                self.log_result(f"Create Test Worker: {worker_data['full_name']}", False, f"Exception: {str(e)}")
+        
+        self.test_data['workers'] = created_workers
+
+    def test_labor_attendance_api(self):
+        """Test GET /api/labor-attendance endpoint"""
+        print("📅 Testing Labor Attendance API...")
+        
+        try:
+            response = requests.get(f"{self.base_url}/labor-attendance", headers=self.get_headers())
+            
+            if response.status_code == 200:
+                attendance_records = response.json()
+                self.log_result("GET /api/labor-attendance", True, f"Retrieved {len(attendance_records)} attendance records")
+                
+                # Verify response structure
+                if attendance_records:
+                    record = attendance_records[0]
+                    required_fields = ['id', 'worker_id', 'worker_name', 'worker_skill', 'project_id', 'project_name', 
+                                     'attendance_date', 'status', 'hours_worked', 'overtime_hours', 'wages_earned']
+                    missing_fields = [field for field in required_fields if field not in record]
+                    
+                    if missing_fields:
+                        self.log_result("Labor Attendance Response Structure", False, f"Missing fields: {missing_fields}")
+                    else:
+                        self.log_result("Labor Attendance Response Structure", True, "All required fields present")
+                        self.test_data['attendance_records'] = attendance_records[:5]  # Keep first 5 for testing
+                else:
+                    # Create test attendance records if none exist
+                    self.create_test_attendance_records()
+                    
+            else:
+                self.log_result("GET /api/labor-attendance", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_result("GET /api/labor-attendance", False, f"Exception: {str(e)}")
+
+    def create_test_attendance_records(self):
+        """Create test attendance records"""
+        if not self.test_data['workers'] or not self.test_data['projects']:
+            self.log_result("Create Test Attendance Records", False, "No workers or projects available for creating attendance records")
+            return
+        
+        # Create attendance records for the last 7 days
+        created_records = []
+        for i in range(7):  # Last 7 days
+            date = datetime.now() - timedelta(days=i)
+            
+            for worker in self.test_data['workers']:
+                # Vary attendance patterns
+                if i % 3 == 0:  # Absent every 3rd day
+                    status = "absent"
+                    hours_worked = 0
+                    overtime_hours = 0
+                    wages_earned = 0
+                elif i % 5 == 0:  # Overtime every 5th day
+                    status = "present"
+                    hours_worked = 8
+                    overtime_hours = 2
+                    wages_earned = worker['base_rate'] + (worker['base_rate'] * 0.5 * 2)  # 1.5x for overtime
+                else:  # Regular day
+                    status = "present"
+                    hours_worked = 8
+                    overtime_hours = 0
+                    wages_earned = worker['base_rate']
+                
+                attendance_data = {
+                    "worker_id": worker['id'],
+                    "project_id": self.test_data['projects'][0]['id'],
+                    "attendance_date": date.isoformat(),
+                    "status": status,
+                    "hours_worked": hours_worked,
+                    "overtime_hours": overtime_hours,
+                    "wages_earned": wages_earned,
+                    "check_in_time": date.replace(hour=8, minute=0).isoformat() if status == "present" else None,
+                    "check_out_time": date.replace(hour=17, minute=0).isoformat() if status == "present" else None
+                }
+                
+                try:
+                    response = requests.post(f"{self.base_url}/labor-attendance", json=attendance_data, headers=self.get_headers())
+                    if response.status_code == 200:
+                        record = response.json()
+                        created_records.append(record)
+                    else:
+                        self.log_result(f"Create Attendance Record for {worker['full_name']}", False, f"HTTP {response.status_code}: {response.text}")
+                except Exception as e:
+                    self.log_result(f"Create Attendance Record for {worker['full_name']}", False, f"Exception: {str(e)}")
+        
+        if created_records:
+            self.test_data['attendance_records'] = created_records
+            self.log_result("Create Test Attendance Records", True, f"Created {len(created_records)} attendance records")
+
+    def test_labor_attendance_filtering(self):
+        """Test labor attendance API with filters"""
+        print("🔍 Testing Labor Attendance API Filters...")
+        
+        if not self.test_data['projects'] or not self.test_data['workers']:
+            self.log_result("Labor Attendance Filtering", False, "No test data available for filtering tests")
+            return
+        
+        # Test filtering by project
+        try:
+            project_id = self.test_data['projects'][0]['id']
+            response = requests.get(f"{self.base_url}/labor-attendance?project_id={project_id}", headers=self.get_headers())
+            
+            if response.status_code == 200:
+                records = response.json()
+                self.log_result("Filter by Project ID", True, f"Retrieved {len(records)} records for project")
+            else:
+                self.log_result("Filter by Project ID", False, f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            self.log_result("Filter by Project ID", False, f"Exception: {str(e)}")
+        
+        # Test filtering by worker
+        try:
+            worker_id = self.test_data['workers'][0]['id']
+            response = requests.get(f"{self.base_url}/labor-attendance?worker_id={worker_id}", headers=self.get_headers())
+            
+            if response.status_code == 200:
+                records = response.json()
+                self.log_result("Filter by Worker ID", True, f"Retrieved {len(records)} records for worker")
+            else:
+                self.log_result("Filter by Worker ID", False, f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            self.log_result("Filter by Worker ID", False, f"Exception: {str(e)}")
+        
+        # Test filtering by date
+        try:
+            today = datetime.now().strftime("%Y-%m-%d")
+            response = requests.get(f"{self.base_url}/labor-attendance?date={today}", headers=self.get_headers())
+            
+            if response.status_code == 200:
+                records = response.json()
+                self.log_result("Filter by Date", True, f"Retrieved {len(records)} records for today")
+            else:
+                self.log_result("Filter by Date", False, f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            self.log_result("Filter by Date", False, f"Exception: {str(e)}")
+
+    def test_report_data_calculations(self):
+        """Test that data can be used for report calculations"""
+        print("📊 Testing Report Data Calculations...")
+        
+        if not self.test_data['workers'] or not self.test_data['attendance_records']:
+            self.log_result("Report Data Calculations", False, "Insufficient test data for calculations")
+            return
+        
+        try:
+            # Calculate total wages earned
+            total_wages = sum(record.get('wages_earned', 0) for record in self.test_data['attendance_records'])
+            
+            # Count attendance statuses
+            status_counts = {}
+            for record in self.test_data['attendance_records']:
+                status = record.get('status', 'unknown')
+                status_counts[status] = status_counts.get(status, 0) + 1
+            
+            # Calculate worker-wise totals
+            worker_totals = {}
+            for record in self.test_data['attendance_records']:
+                worker_name = record.get('worker_name', 'Unknown')
+                if worker_name not in worker_totals:
+                    worker_totals[worker_name] = {
+                        'total_wages': 0,
+                        'days_present': 0,
+                        'days_absent': 0,
+                        'overtime_days': 0
+                    }
+                
+                worker_totals[worker_name]['total_wages'] += record.get('wages_earned', 0)
+                if record.get('status') == 'present':
+                    worker_totals[worker_name]['days_present'] += 1
+                elif record.get('status') == 'absent':
+                    worker_totals[worker_name]['days_absent'] += 1
+                
+                if record.get('overtime_hours', 0) > 0:
+                    worker_totals[worker_name]['overtime_days'] += 1
+            
+            # Site-wise calculations (assuming single site for test data)
+            site_wages = {}
+            for record in self.test_data['attendance_records']:
+                project_name = record.get('project_name', 'Unknown')
+                site_wages[project_name] = site_wages.get(project_name, 0) + record.get('wages_earned', 0)
+            
+            self.log_result("Report Data Calculations", True, 
+                          f"Calculated: Total wages: ₹{total_wages}, Status counts: {status_counts}, "
+                          f"Workers: {len(worker_totals)}, Sites: {len(site_wages)}")
+            
+        except Exception as e:
+            self.log_result("Report Data Calculations", False, f"Exception: {str(e)}")
+
+    def test_authentication_requirements(self):
+        """Test that APIs require proper authentication"""
+        print("🔒 Testing Authentication Requirements...")
+        
+        # Test without auth token
+        try:
+            response = requests.get(f"{self.base_url}/workers")
+            if response.status_code == 401 or response.status_code == 403:
+                self.log_result("Workers API Authentication", True, "Properly requires authentication")
+            else:
+                self.log_result("Workers API Authentication", False, f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            self.log_result("Workers API Authentication", False, f"Exception: {str(e)}")
+        
+        try:
+            response = requests.get(f"{self.base_url}/labor-attendance")
+            if response.status_code == 401 or response.status_code == 403:
+                self.log_result("Labor Attendance API Authentication", True, "Properly requires authentication")
+            else:
+                self.log_result("Labor Attendance API Authentication", False, f"Expected 401/403, got {response.status_code}")
+        except Exception as e:
+            self.log_result("Labor Attendance API Authentication", False, f"Exception: {str(e)}")
+
+    def run_all_tests(self):
+        """Run all test scenarios"""
+        print("🚀 Starting Labor Reports Backend API Tests")
+        print("=" * 60)
+        
+        # Step 1: Authentication
+        if not self.authenticate():
+            print("❌ Authentication failed. Cannot proceed with tests.")
+            return
+        
+        # Step 2: Test Projects API
+        self.test_projects_api()
+        
+        # Step 3: Test Workers API
+        self.test_workers_api()
+        
+        # Step 4: Test Labor Attendance API
+        self.test_labor_attendance_api()
+        
+        # Step 5: Test API Filtering
+        self.test_labor_attendance_filtering()
+        
+        # Step 6: Test Report Calculations
+        self.test_report_data_calculations()
+        
+        # Step 7: Test Authentication Requirements
+        self.test_authentication_requirements()
+        
+        # Print Summary
+        print("=" * 60)
+        print("📋 TEST SUMMARY")
+        print("=" * 60)
+        print(f"✅ Passed: {self.test_results['passed']}")
+        print(f"❌ Failed: {self.test_results['failed']}")
+        
+        if self.test_results['errors']:
+            print("\n🔍 FAILED TESTS:")
+            for error in self.test_results['errors']:
+                print(f"   • {error}")
+        
+        success_rate = (self.test_results['passed'] / (self.test_results['passed'] + self.test_results['failed'])) * 100
+        print(f"\n📊 Success Rate: {success_rate:.1f}%")
+        
+        if self.test_results['failed'] == 0:
+            print("\n🎉 All tests passed! Labor Reports backend APIs are working correctly.")
+        else:
+            print(f"\n⚠️  {self.test_results['failed']} test(s) failed. Please review the issues above.")
 
 if __name__ == "__main__":
-    main()
+    tester = LaborReportsAPITester()
+    tester.run_all_tests()
