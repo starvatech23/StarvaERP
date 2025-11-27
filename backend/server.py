@@ -2007,11 +2007,13 @@ async def delete_vendor(
 
 @api_router.get("/materials", response_model=List[MaterialResponse])
 async def get_all_materials(
-    current_user: dict = Depends(get_current_user),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     category: Optional[MaterialCategory] = None,
     is_active: Optional[bool] = None
 ):
     """Get all materials"""
+    current_user = await get_current_user(credentials, db)
+    
     query = {}
     if category:
         query["category"] = category
