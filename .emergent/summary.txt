@@ -1,103 +1,100 @@
 <analysis>
-The trajectory outlines the development of a comprehensive construction management mobile application from scratch. The process began with the AI engineer clarifying high-level requirements with the user, establishing a phased development plan.
+The trajectory details the iterative development of a construction management mobile application. The process started from an initial MVP with core features like user authentication, project, task, material, and CRM management, built on a FastAPI backend and React Native (Expo) frontend.
 
-Phase 1 focused on building a robust backend with FastAPI and MongoDB, implementing user authentication (registration, login, mock OTP) with JWT, and setting up the foundational frontend structure using Expo Router, including authentication context and navigation.
+The development then progressed through several user-requested enhancement cycles. Week 1 tasks involved adding an editable profile, company settings, an enhanced quotation module, Excel lead uploads, and project timeline views. A significant debugging step during this phase was replacing a problematic  library with a custom timeline component and fixing a missing  dependency.
 
-Subsequent phases incrementally added core features: Phase 2 (Projects & Tasks), Phase 3 (Materials & Vendors), and placeholder modules for CRM and Schedules. Development was iterative, involving creating backend models and API endpoints first, followed by building the corresponding frontend screens in React Native.
+Subsequently, the focus shifted to a highly detailed Labor Management module. This involved extensive backend work to create models and APIs for laborers, attendance (including P/OT/A status), wage splits, site transfers, and document uploads. The frontend was built out with screens for adding laborers, marking daily attendance, a weekly grid view for bulk attendance marking, and laborer profile modals. A duplicate CRM module () was also identified and removed.
 
-Several debugging cycles occurred. The engineer addressed syntax errors in frontend files (incorrectly escaped quotes), fixed a duplicate variable declaration in the API service file, and resolved broken navigation by creating missing create and detail screens for various modules.
-
-The most recent user interaction provided a detailed list of enhancements for the completed MVP, including an admin panel, Gantt charts, Excel lead imports, and an enhanced quotation module. The engineer has just updated the backend models and API endpoints to support these new features and acknowledged the user's Week 1 priority list for implementation.
-
-The user's primary language is English. Future responses should be in English.
+The most recent work involved starting the Reporting feature for the labor module, with the backend and a placeholder frontend screen being created. The user's primary language is English, and future communications should be in English.
 </analysis>
 
 <product_requirements>
-The goal is to build a comprehensive, cross-platform (iOS, Android, Web) project management application for a construction company.
+The objective is to build a comprehensive, cross-platform construction management application.
 
-**Core Features Implemented (MVP):**
-*   **User Management:** Role-based access control with email/phone authentication and mock OTP verification. Users can register, log in, and view their profile.
-*   **Project & Task Management:** Users can create, view, and manage construction projects and associated tasks.
-*   **Material & Vendor Management:** Functionality to track construction materials and manage vendor information.
-*   **CRM:** A basic system for managing customer leads.
-*   **Dashboard:** A central dashboard providing an overview of projects and tasks.
+**Phase 1: MVP (Completed)**
+*   **User Management:** Secure user registration and login with JWT-based authentication.
+*   **Core Modules:** CRUD functionality for Projects, Tasks, Materials, Vendors, and a basic CRM for leads.
 
-**Pending Enhancements (User-Requested):**
-1.  **Admin Panel:** A settings area for administrators to add/edit company name, logo, and other global configurations.
-2.  **Role-based Module Access:** Granular control over which user roles can access specific modules.
-3.  **Gantt Charts:** Visual Gantt chart representations for both individual project schedules and an overall project timeline on the dashboard.
-4.  **Lead Management:** Ability to upload leads from an Excel spreadsheet and receive notifications.
-5.  **Quotation Module:** An enhanced module to create detailed quotations with line items, pricing, taxes, and descriptions.
-6.  **Editable Profiles:** Allow users to edit their profile information.
+**Phase 2: Enhancements (Partially/Fully Implemented)**
+*   **Admin & Profile:** An admin panel for company settings (name, logo) and an editable user profile screen.
+*   **Enhanced CRM & Quotes:** Ability to upload leads via Excel and a detailed quotation creation module.
+*   **Project Visualization:** Replaced a buggy Gantt chart with a custom timeline view on both the main dashboard and individual project pages. Interactive timeline cards were introduced to show project progress.
+*   **Task Management:** Added backend support for sub-tasks and a task deletion endpoint.
+*   **Labor Management:** A full-featured module to manage laborers. This includes:
+    *   Adding laborers with personal/bank details and document uploads (Aadhaar, PAN).
+    *   An attendance system with options for Present (P), Overtime (OT), and Absent (A).
+    *   A weekly grid view for bulk attendance marking.
+    *   Functionality for site transfers and wage splitting.
+    *   Reporting on weekly/monthly wages, site-wise costs, and advances.
+*   **UX Improvements:** Add confirmation pop-ups after data entry/modification.
+
 </product_requirements>
 
 <key_technical_concepts>
-- **Full-Stack Architecture:** FastAPI (Python) backend, React Native (Expo) frontend, MongoDB database.
-- **Mobile Development:** Expo SDK with file-based routing via .
-- **Authentication:** JWT (JSON Web Tokens) for securing API endpoints.
-- **State Management:** React Context API () for managing user authentication state globally.
-- **API Communication:** Centralized API service layer using  to interact with the backend.
-- **UI Components:** Standard React Native components, with additional libraries like  and .
+- **Backend:** FastAPI (Python) with Beanie ODM for MongoDB.
+- **Frontend:** React Native with Expo SDK and  for file-based routing.
+- **Authentication:** JWT for securing API endpoints.
+- **State Management:** React Context API () for global auth state.
+- **API Communication:** Centralized  instance for frontend-backend interaction.
+- **Dependencies:**  for date handling,  and  for file uploads.
+- **UI:** Standard React Native components.
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a standard monorepo structure with separate  and  directories.
-
-**Directory Structure:**
+The application uses a monorepo structure with distinct  and  directories.
 
 
-**Key Files:**
-- ****
-  - **Importance:** The main FastAPI application file. It defines all API routes for authentication, projects, tasks, materials, vendors, CRM, and the newly added stubs for company settings and quotations.
-  - **Changes:** Initially created for authentication, it was incrementally updated to include CRUD endpoints for all core modules. The latest change added routes like  and .
 
 - ****
-  - **Importance:** Defines the Pydantic and Beanie (MongoDB) models for all data structures (User, Project, Task, Material, Vendor, Lead).
-  - **Changes:** Created and expanded in phases. The most recent edit added new models for  and a more detailed  to support the latest user requests.
+  - **Importance:** Defines all database schemas.
+  - **Summary of changes:** Significantly expanded to support new features. Added , enhanced , , and a comprehensive set of models for the Labor module (, , , , , ).
 
 - ****
-  - **Importance:** The root layout for the entire application. It wraps the app in the  to make authentication state available everywhere and uses  to render the current route.
-  - **Summary:** This file sets up the global context and routing foundation.
+  - **Importance:** The main FastAPI application defining all API endpoints.
+  - **Summary of changes:** Added numerous CRUD endpoints for all new models, including settings, quotations, sub-tasks, and the entire labor management system (add laborer, mark attendance, get reports, etc.). A bug fix for a missing  import was applied.
 
 - ****
-  - **Importance:** Manages global authentication state (user, token, loading status) and provides functions for login and logout.
-  - **Summary:** A standard React Context implementation that uses  for token persistence and makes auth state accessible via a custom hook ().
+  - **Importance:** Centralizes all  API calls from the frontend.
+  - **Summary of changes:** Updated multiple times to add new service functions corresponding to the newly created backend endpoints for labor management and other features.
 
 - ****
-  - **Importance:** A centralized  instance for all backend communication. It organizes API calls by feature (e.g., , ).
-  - **Changes:** This file was updated multiple times to add new functions corresponding to the new backend endpoints for each module. A bug was fixed here where  was declared twice.
+  - **Importance:** The main screen for the new Labor Management module.
+  - **Summary of changes:** Created from scratch. It was updated to include a tabbed interface for Labourers, Attendance, and Reports. It also includes the logic for fetching laborers and displaying a modal for a laborer's profile.
 
 - ****
-  - **Importance:** Defines the main tab navigation structure for the authenticated part of the app (Dashboard, Projects, Materials, CRM, Profile).
-  - **Summary:** Uses Expo Router's  component to create the bottom tab bar, defining each tab's icon and name.
+  - **Importance:** Provides a user-friendly grid for marking attendance for multiple laborers over a week.
+  - **Summary of changes:** A new screen created to fulfill the user's request for a bulk attendance marking interface.
+
+- ****
+  - **Importance:** Placeholder screen for displaying various labor-related financial reports.
+  - **Summary of changes:** Newly created file containing the basic structure for the reports UI, which is the current focus of development.
+
+- ****
+  - **Importance:** This was a duplicate, redundant file.
+  - **Summary of changes:** The file was identified as a duplicate of  and was deleted to clean up the codebase.
+
+- ****
+  - **Importance:** Screen for visualizing a project's timeline.
+  - **Summary of changes:** Initially implemented using . After encountering a dateTimes error, the component was refactored to remove the library and use a simpler, custom-built timeline view to ensure stability.
 </code_architecture>
 
 <pending_tasks>
-- **Frontend Implementation for Week 1 Tasks:**
-  - Build the UI for the Admin Panel (Company Settings).
-  - Build the UI for the enhanced Quotation module.
-  - Implement the Profile Edit functionality.
-  - Implement the Excel upload feature for leads.
-  - Integrate a Gantt chart library for project timeline views.
-- **Implement Role-Based Module Access:** Add frontend logic to hide/show navigation and features based on the user's role.
-- **Complete Placeholder Screens:** Flesh out the  and full  modules beyond the basic screens.
+- **Complete Labor Reports UI:** The  screen has been created but needs to be fully implemented and linked to the Reports tab in .
+- **Implement Interactive Timeline/Task Features:** Add frontend functionality for creating sub-tasks, inline task status updates, and task deletion.
+- **Add Confirmation Pop-ups:** Implement confirmation modals across all modules after data is added or modified, as requested.
+- **Implement Role-Based Access Control:** Build the frontend logic to restrict access to modules based on user roles.
 </pending_tasks>
 
 <current_work>
-The AI engineer was actively working on a new set of feature enhancements requested by the user, who prioritized them into a Week 1 list.
+The immediate past work focused on building out the **Labor Management module** based on detailed user requests.
 
-**Work Done:**
-The backend has been updated to support these new features. Specifically:
-1.  **** was edited to include new database models for  (to store company name, logo) and an enhanced  model.
-2.  **** was edited to add new API endpoints for these models, including routes for:
-    -   , 
-    -   CRUD endpoints for 
-    -    for Excel uploads.
-    -   Endpoints for user role management.
+Most recently, the user asked to **proceed with reporting features for labour management module.** In response, the AI engineer took the following actions:
+1.  **Created a new frontend screen for reports:** A file was created at . This file contains the foundational React Native component structure for a reports screen, including placeholders for Weekly Wage Report, Site-wise Labour Cost, and Advance Payments.
+2.  **Acknowledged the next step:** The engineer noted that the  screen was created and that the next action would be to integrate it into the main labor screen ().
 
-The engineer acknowledged the Week 1 plan, which includes implementing Profile Edit, Company Settings, Enhanced Quotation, Excel Upload, and a basic Gantt/Timeline view. The backend groundwork for this is complete, and the next step is to begin frontend implementation. The engineer was about to install the necessary frontend packages for Gantt charts and Excel parsing before being interrupted.
+The work was paused just before editing  to render the newly created  component when the Reports tab is selected. The backend APIs for fetching report data are already in place.
 </current_work>
 
 <optional_next_step>
-Install frontend dependencies for Gantt charts ( or similar) and Excel parsing (), then begin building the UI for the first Week 1 feature, such as the editable Profile screen or the Company Settings page.
+Update  to render the new  component from  when the Reports tab is active.
 </optional_next_step>

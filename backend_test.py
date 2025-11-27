@@ -14,7 +14,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 # Get backend URL from environment
-BACKEND_URL = "https://constructflow-40.preview.emergentagent.com/api"
+BACKEND_URL = "https://buildflow-74.preview.emergentagent.com/api"
 
 class BackendTester:
     def __init__(self):
