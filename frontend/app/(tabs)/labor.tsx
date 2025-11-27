@@ -205,20 +205,30 @@ export default function LaborScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Labor Management</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => {
-            if (activeTab === 'workers') {
-              router.push('/labor/add-worker' as any);
-            } else if (activeTab === 'attendance') {
-              router.push('/labor/mark-attendance' as any);
-            } else {
-              router.push('/labor/transfer-worker' as any);
-            }
-          }}
-        >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          {activeTab === 'attendance' && (
+            <TouchableOpacity
+              style={styles.weeklyButton}
+              onPress={() => router.push('/labor/weekly-attendance' as any)}
+            >
+              <Ionicons name="calendar" size={20} color="#FF6B35" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => {
+              if (activeTab === 'workers') {
+                router.push('/labor/add-worker' as any);
+              } else if (activeTab === 'attendance') {
+                router.push('/labor/mark-attendance' as any);
+              } else {
+                router.push('/labor/transfer-worker' as any);
+              }
+            }}
+          >
+            <Ionicons name="add" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Tabs */}
