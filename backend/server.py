@@ -2159,9 +2159,15 @@ async def get_all_vendors(
 @api_router.post("/vendors", response_model=VendorResponse)
 async def create_vendor(
     vendor: VendorCreate,
-    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a new vendor (Admin/PM only)"""
+    current_user = await get_current_user(credentials, db)
+    
+    # Only admin, PM can create vendors
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can create vendors")
+    
     vendor_dict = vendor.dict()
     vendor_dict["created_by"] = str(current_user["_id"])
     vendor_dict["created_at"] = datetime.utcnow()
