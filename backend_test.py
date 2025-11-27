@@ -17,81 +17,94 @@ HEADERS = {"Content-Type": "application/json"}
 
 class VendorMaterialsAPITester:
     def __init__(self):
-        self.base_url = BASE_URL
         self.auth_token = None
-        self.test_data = {
-            'users': [],
-            'projects': [],
-            'workers': [],
-            'attendance_records': []
-        }
-        self.test_results = {
-            'passed': 0,
-            'failed': 0,
-            'errors': []
-        }
-
-    def log_result(self, test_name, success, message="", response_data=None):
+        self.headers = HEADERS.copy()
+        self.test_data = {}
+        self.test_results = []
+        
+    def log_test(self, test_name: str, success: bool, details: str = ""):
         """Log test results"""
         status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status}: {test_name}")
-        if message:
-            print(f"   {message}")
-        if response_data and not success:
-            print(f"   Response: {response_data}")
-        
-        if success:
-            self.test_results['passed'] += 1
-        else:
-            self.test_results['failed'] += 1
-            self.test_results['errors'].append(f"{test_name}: {message}")
-        print()
-
+        print(f"{status} {test_name}")
+        if details:
+            print(f"   Details: {details}")
+        self.test_results.append({
+            "test": test_name,
+            "success": success,
+            "details": details
+        })
+    
     def authenticate(self):
         """Authenticate and get access token"""
-        print("🔐 Authenticating...")
+        print("\n🔐 AUTHENTICATION")
         
-        # Try email authentication first
-        auth_data = {
-            "identifier": TEST_USER_EMAIL,
-            "password": TEST_USER_PASSWORD,
+        # Register a test admin user
+        register_data = {
+            "email": "admin@buildflow.com",
+            "password": "admin123",
+            "full_name": "Test Admin",
+            "role": "admin",
             "auth_type": "email"
         }
         
         try:
-            response = requests.post(f"{self.base_url}/auth/login", json=auth_data)
+            response = requests.post(f"{BASE_URL}/auth/register", json=register_data)
             if response.status_code == 200:
                 data = response.json()
                 self.auth_token = data["access_token"]
-                self.log_result("Email Authentication", True, f"Logged in as {data['user']['full_name']}")
+                self.headers["Authorization"] = f"Bearer {self.auth_token}"
+                self.log_test("Admin Registration", True, "Admin user registered successfully")
                 return True
             else:
-                # Try to register if login fails
-                register_data = {
-                    "email": TEST_USER_EMAIL,
-                    "password": TEST_USER_PASSWORD,
-                    "full_name": "Test Admin",
-                    "role": "admin",
+                # Try login if user already exists
+                login_data = {
+                    "identifier": "admin@buildflow.com",
+                    "password": "admin123",
                     "auth_type": "email"
                 }
-                
-                reg_response = requests.post(f"{self.base_url}/auth/register", json=register_data)
-                if reg_response.status_code == 200:
-                    data = reg_response.json()
+                response = requests.post(f"{BASE_URL}/auth/login", json=login_data)
+                if response.status_code == 200:
+                    data = response.json()
                     self.auth_token = data["access_token"]
-                    self.log_result("User Registration & Authentication", True, f"Registered and logged in as {data['user']['full_name']}")
+                    self.headers["Authorization"] = f"Bearer {self.auth_token}"
+                    self.log_test("Admin Login", True, "Admin user logged in successfully")
                     return True
                 else:
-                    self.log_result("Authentication", False, f"Login failed: {response.status_code}, Register failed: {reg_response.status_code}")
+                    self.log_test("Authentication", False, f"Failed: {response.text}")
                     return False
-                    
         except Exception as e:
-            self.log_result("Authentication", False, f"Exception: {str(e)}")
+            self.log_test("Authentication", False, f"Exception: {str(e)}")
             return False
-
-    def get_headers(self):
-        """Get authorization headers"""
-        return {"Authorization": f"Bearer {self.auth_token}"}
+    
+    def create_test_project(self):
+        """Create a test project for inventory and requirements"""
+        print("\n🏗️ CREATING TEST PROJECT")
+        
+        project_data = {
+            "name": "Materials Test Project",
+            "location": "Mumbai",
+            "address": "Test Site, Mumbai, Maharashtra",
+            "client_name": "ABC Construction Ltd",
+            "client_contact": "+91-9876543210",
+            "status": "in_progress",
+            "budget": 5000000.0,
+            "description": "Test project for materials management testing"
+        }
+        
+        try:
+            response = requests.post(f"{BASE_URL}/projects", json=project_data, headers=self.headers)
+            if response.status_code == 200:
+                project = response.json()
+                self.test_data["project_id"] = project["id"]
+                self.test_data["project_name"] = project["name"]
+                self.log_test("Test Project Creation", True, f"Project ID: {project['id']}")
+                return True
+            else:
+                self.log_test("Test Project Creation", False, f"Status: {response.status_code}, Response: {response.text}")
+                return False
+        except Exception as e:
+            self.log_test("Test Project Creation", False, f"Exception: {str(e)}")
+            return False
 
     def test_projects_api(self):
         """Test GET /api/projects endpoint"""
