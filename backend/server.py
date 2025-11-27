@@ -1905,10 +1905,12 @@ async def create_site_transfer(
 
 @api_router.get("/vendors", response_model=List[VendorResponse])
 async def get_all_vendors(
-    current_user: dict = Depends(get_current_user),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     is_active: Optional[bool] = None
 ):
     """Get all vendors"""
+    current_user = await get_current_user(credentials, db)
+    
     query = {}
     if is_active is not None:
         query["is_active"] = is_active
