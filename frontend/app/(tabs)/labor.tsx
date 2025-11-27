@@ -201,6 +201,25 @@ export default function LaborScreen() {
     return <Text style={styles.placeholderText}>Transfer records will appear here</Text>;
   };
 
+  const renderReports = () => {
+    return (
+      <View style={styles.reportsContainer}>
+        <Ionicons name="stats-chart" size={80} color="#FF6B35" />
+        <Text style={styles.reportsTitle}>Labour Wage Reports</Text>
+        <Text style={styles.reportsText}>
+          View weekly and monthly wage reports, site-wise breakdowns, and individual labourer earnings
+        </Text>
+        <TouchableOpacity
+          style={styles.viewReportsButton}
+          onPress={() => router.push('/labor/reports' as any)}
+        >
+          <Ionicons name="document-text" size={20} color="#FFFFFF" />
+          <Text style={styles.viewReportsText}>View Reports</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
