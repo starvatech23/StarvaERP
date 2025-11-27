@@ -105,402 +105,290 @@ class VendorMaterialsAPITester:
         except Exception as e:
             self.log_test("Test Project Creation", False, f"Exception: {str(e)}")
             return False
-
-    def test_projects_api(self):
-        """Test GET /api/projects endpoint"""
-        print("📋 Testing Projects API...")
+    
+    def test_vendor_management(self):
+        """Test GROUP 1: Vendor Management APIs"""
+        print("\n📋 GROUP 1: VENDOR MANAGEMENT APIS")
         
-        try:
-            response = requests.get(f"{self.base_url}/projects", headers=self.get_headers())
-            
-            if response.status_code == 200:
-                projects = response.json()
-                self.log_result("GET /api/projects", True, f"Retrieved {len(projects)} projects")
-                
-                # Verify response structure
-                if projects:
-                    project = projects[0]
-                    required_fields = ['id', 'name']
-                    missing_fields = [field for field in required_fields if field not in project]
-                    
-                    if missing_fields:
-                        self.log_result("Projects Response Structure", False, f"Missing fields: {missing_fields}")
-                    else:
-                        self.log_result("Projects Response Structure", True, "All required fields present")
-                        # Store test projects
-                        self.test_data['projects'] = projects[:3]  # Keep first 3 for testing
-                else:
-                    # Create a test project if none exist
-                    self.create_test_project()
-                    
-            else:
-                self.log_result("GET /api/projects", False, f"HTTP {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            self.log_result("GET /api/projects", False, f"Exception: {str(e)}")
-
-    def create_test_project(self):
-        """Create a test project for testing"""
-        project_data = {
-            "name": "Test Construction Site",
-            "location": "Mumbai",
-            "address": "Test Address, Mumbai",
-            "client_name": "Test Client",
-            "client_contact": "+919876543210",
-            "status": "in_progress",
-            "budget": 1000000.0,
-            "description": "Test project for labor reports"
+        # Test 1: Create Vendor
+        vendor_data = {
+            "business_name": "Supreme Cement Suppliers",
+            "contact_person": "Rajesh Kumar",
+            "phone": "+91-9876543210",
+            "email": "rajesh@supremecement.com",
+            "address": "Industrial Area, Sector 15",
+            "city": "Gurgaon",
+            "state": "Haryana",
+            "pincode": "122001",
+            "gst_number": "07ABCDE1234F1Z5",
+            "pan_number": "ABCDE1234F",
+            "payment_terms": "Net 30 days",
+            "bank_name": "HDFC Bank",
+            "account_number": "12345678901234",
+            "ifsc_code": "HDFC0001234",
+            "account_holder_name": "Supreme Cement Suppliers",
+            "is_active": True,
+            "notes": "Reliable cement supplier with good quality products"
         }
         
         try:
-            response = requests.post(f"{self.base_url}/projects", json=project_data, headers=self.get_headers())
+            response = requests.post(f"{BASE_URL}/vendors", json=vendor_data, headers=self.headers)
             if response.status_code == 200:
-                project = response.json()
-                self.test_data['projects'] = [project]
-                self.log_result("Create Test Project", True, f"Created project: {project['name']}")
+                vendor = response.json()
+                self.test_data["vendor1_id"] = vendor["id"]
+                self.log_test("Create Vendor", True, f"Vendor ID: {vendor['id']}")
             else:
-                self.log_result("Create Test Project", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Create Vendor", False, f"Status: {response.status_code}, Response: {response.text}")
+                return False
         except Exception as e:
-            self.log_result("Create Test Project", False, f"Exception: {str(e)}")
-
-    def test_workers_api(self):
-        """Test GET /api/workers endpoint"""
-        print("👷 Testing Workers API...")
+            self.log_test("Create Vendor", False, f"Exception: {str(e)}")
+            return False
+        
+        # Create second vendor
+        vendor2_data = {
+            "business_name": "Steel World Industries",
+            "contact_person": "Amit Sharma",
+            "phone": "+91-9876543211",
+            "email": "amit@steelworld.com",
+            "address": "Steel Market, Phase 2",
+            "city": "Delhi",
+            "state": "Delhi",
+            "pincode": "110001",
+            "gst_number": "07FGHIJ5678K2L6",
+            "pan_number": "FGHIJ5678K",
+            "payment_terms": "Cash on Delivery",
+            "bank_name": "SBI Bank",
+            "account_number": "98765432109876",
+            "ifsc_code": "SBIN0001234",
+            "account_holder_name": "Steel World Industries",
+            "is_active": True,
+            "notes": "Steel and iron supplier"
+        }
         
         try:
-            response = requests.get(f"{self.base_url}/workers", headers=self.get_headers())
-            
+            response = requests.post(f"{BASE_URL}/vendors", json=vendor2_data, headers=self.headers)
             if response.status_code == 200:
-                workers = response.json()
-                self.log_result("GET /api/workers", True, f"Retrieved {len(workers)} workers")
-                
-                # Verify response structure
-                if workers:
-                    worker = workers[0]
-                    required_fields = ['id', 'full_name', 'phone', 'skill_group', 'base_rate', 'pay_scale']
-                    missing_fields = [field for field in required_fields if field not in worker]
-                    
-                    if missing_fields:
-                        self.log_result("Workers Response Structure", False, f"Missing fields: {missing_fields}")
-                    else:
-                        self.log_result("Workers Response Structure", True, "All required fields present")
-                        # Store test workers
-                        self.test_data['workers'] = workers[:3]  # Keep first 3 for testing
-                else:
-                    # Create test workers if none exist
-                    self.create_test_workers()
-                    
+                vendor2 = response.json()
+                self.test_data["vendor2_id"] = vendor2["id"]
+                self.log_test("Create Second Vendor", True, f"Vendor ID: {vendor2['id']}")
             else:
-                self.log_result("GET /api/workers", False, f"HTTP {response.status_code}: {response.text}")
-                
+                self.log_test("Create Second Vendor", False, f"Status: {response.status_code}")
+                return False
         except Exception as e:
-            self.log_result("GET /api/workers", False, f"Exception: {str(e)}")
-
-    def create_test_workers(self):
-        """Create test workers for testing"""
-        test_workers = [
+            self.log_test("Create Second Vendor", False, f"Exception: {str(e)}")
+            return False
+        
+        # Test 2: Get All Vendors
+        try:
+            response = requests.get(f"{BASE_URL}/vendors", headers=self.headers)
+            if response.status_code == 200:
+                vendors = response.json()
+                if len(vendors) >= 2:
+                    self.log_test("Get All Vendors", True, f"Retrieved {len(vendors)} vendors")
+                else:
+                    self.log_test("Get All Vendors", False, f"Expected at least 2 vendors, got {len(vendors)}")
+            else:
+                self.log_test("Get All Vendors", False, f"Status: {response.status_code}")
+        except Exception as e:
+            self.log_test("Get All Vendors", False, f"Exception: {str(e)}")
+        
+        # Test 3: Get Specific Vendor
+        try:
+            response = requests.get(f"{BASE_URL}/vendors/{self.test_data['vendor1_id']}", headers=self.headers)
+            if response.status_code == 200:
+                vendor = response.json()
+                if vendor["business_name"] == "Supreme Cement Suppliers":
+                    self.log_test("Get Specific Vendor", True, f"Retrieved vendor: {vendor['business_name']}")
+                else:
+                    self.log_test("Get Specific Vendor", False, "Vendor data mismatch")
+            else:
+                self.log_test("Get Specific Vendor", False, f"Status: {response.status_code}")
+        except Exception as e:
+            self.log_test("Get Specific Vendor", False, f"Exception: {str(e)}")
+        
+        # Test 4: Update Vendor
+        update_data = {
+            "payment_terms": "Net 15 days",
+            "notes": "Updated payment terms - reliable supplier"
+        }
+        
+        try:
+            response = requests.put(f"{BASE_URL}/vendors/{self.test_data['vendor1_id']}", json=update_data, headers=self.headers)
+            if response.status_code == 200:
+                vendor = response.json()
+                if vendor["payment_terms"] == "Net 15 days":
+                    self.log_test("Update Vendor", True, "Payment terms updated successfully")
+                else:
+                    self.log_test("Update Vendor", False, "Update not reflected")
+            else:
+                self.log_test("Update Vendor", False, f"Status: {response.status_code}")
+        except Exception as e:
+            self.log_test("Update Vendor", False, f"Exception: {str(e)}")
+        
+        return True
+    
+    def test_material_management(self):
+        """Test GROUP 2: Material Management APIs"""
+        print("\n🧱 GROUP 2: MATERIAL MANAGEMENT APIS")
+        
+        # Test 1: Create Materials
+        materials_data = [
             {
-                "full_name": "Rajesh Kumar",
-                "phone": "+919876543211",
-                "skill_group": "mason",
-                "pay_scale": "daily",
-                "base_rate": 800.0,
-                "status": "active",
-                "current_site_id": self.test_data['projects'][0]['id'] if self.test_data['projects'] else None
+                "name": "OPC Cement 53 Grade",
+                "category": "cement",
+                "unit": "bag",
+                "description": "High quality cement for construction",
+                "minimum_stock": 100.0,
+                "hsn_code": "25231000",
+                "is_active": True
             },
             {
-                "full_name": "Suresh Sharma",
-                "phone": "+919876543212",
-                "skill_group": "carpenter",
-                "pay_scale": "daily",
-                "base_rate": 900.0,
-                "status": "active",
-                "current_site_id": self.test_data['projects'][0]['id'] if self.test_data['projects'] else None
+                "name": "TMT Steel Bars 12mm",
+                "category": "steel",
+                "unit": "kg",
+                "description": "Thermo-mechanically treated steel bars",
+                "minimum_stock": 500.0,
+                "hsn_code": "72142000",
+                "is_active": True
             },
             {
-                "full_name": "Amit Singh",
-                "phone": "+919876543213",
-                "skill_group": "electrician",
-                "pay_scale": "daily",
-                "base_rate": 1000.0,
-                "status": "active",
-                "current_site_id": self.test_data['projects'][0]['id'] if self.test_data['projects'] else None
+                "name": "River Sand",
+                "category": "sand",
+                "unit": "cft",
+                "description": "Fine river sand for construction",
+                "minimum_stock": 50.0,
+                "hsn_code": "25051000",
+                "is_active": True
             }
         ]
         
-        created_workers = []
-        for worker_data in test_workers:
+        material_ids = []
+        for i, material_data in enumerate(materials_data):
             try:
-                response = requests.post(f"{self.base_url}/workers", json=worker_data, headers=self.get_headers())
+                response = requests.post(f"{BASE_URL}/materials", json=material_data, headers=self.headers)
                 if response.status_code == 200:
-                    worker = response.json()
-                    created_workers.append(worker)
-                    self.log_result(f"Create Test Worker: {worker_data['full_name']}", True, f"Created worker with ID: {worker['id']}")
+                    material = response.json()
+                    material_ids.append(material["id"])
+                    self.log_test(f"Create Material {i+1}", True, f"Material: {material['name']}")
                 else:
-                    self.log_result(f"Create Test Worker: {worker_data['full_name']}", False, f"HTTP {response.status_code}: {response.text}")
+                    self.log_test(f"Create Material {i+1}", False, f"Status: {response.status_code}")
+                    return False
             except Exception as e:
-                self.log_result(f"Create Test Worker: {worker_data['full_name']}", False, f"Exception: {str(e)}")
+                self.log_test(f"Create Material {i+1}", False, f"Exception: {str(e)}")
+                return False
         
-        self.test_data['workers'] = created_workers
-
-    def test_labor_attendance_api(self):
-        """Test GET /api/labor-attendance endpoint"""
-        print("📅 Testing Labor Attendance API...")
+        self.test_data["material_ids"] = material_ids
+        self.test_data["cement_id"] = material_ids[0]
+        self.test_data["steel_id"] = material_ids[1]
+        self.test_data["sand_id"] = material_ids[2]
         
+        # Test 2: Get All Materials
         try:
-            response = requests.get(f"{self.base_url}/labor-attendance", headers=self.get_headers())
-            
+            response = requests.get(f"{BASE_URL}/materials", headers=self.headers)
             if response.status_code == 200:
-                attendance_records = response.json()
-                self.log_result("GET /api/labor-attendance", True, f"Retrieved {len(attendance_records)} attendance records")
-                
-                # Verify response structure
-                if attendance_records:
-                    record = attendance_records[0]
-                    required_fields = ['id', 'worker_id', 'worker_name', 'worker_skill', 'project_id', 'project_name', 
-                                     'attendance_date', 'status', 'hours_worked', 'overtime_hours', 'wages_earned']
-                    missing_fields = [field for field in required_fields if field not in record]
-                    
-                    if missing_fields:
-                        self.log_result("Labor Attendance Response Structure", False, f"Missing fields: {missing_fields}")
-                    else:
-                        self.log_result("Labor Attendance Response Structure", True, "All required fields present")
-                        self.test_data['attendance_records'] = attendance_records[:5]  # Keep first 5 for testing
+                materials = response.json()
+                if len(materials) >= 3:
+                    self.log_test("Get All Materials", True, f"Retrieved {len(materials)} materials")
                 else:
-                    # Create test attendance records if none exist
-                    self.create_test_attendance_records()
-                    
+                    self.log_test("Get All Materials", False, f"Expected at least 3 materials, got {len(materials)}")
             else:
-                self.log_result("GET /api/labor-attendance", False, f"HTTP {response.status_code}: {response.text}")
-                
+                self.log_test("Get All Materials", False, f"Status: {response.status_code}")
         except Exception as e:
-            self.log_result("GET /api/labor-attendance", False, f"Exception: {str(e)}")
-
-    def create_test_attendance_records(self):
-        """Create test attendance records"""
-        if not self.test_data['workers'] or not self.test_data['projects']:
-            self.log_result("Create Test Attendance Records", False, "No workers or projects available for creating attendance records")
-            return
+            self.log_test("Get All Materials", False, f"Exception: {str(e)}")
         
-        # Create attendance records for the last 7 days
-        created_records = []
-        for i in range(7):  # Last 7 days
-            date = datetime.now() - timedelta(days=i)
-            
-            for worker in self.test_data['workers']:
-                # Vary attendance patterns
-                if i % 3 == 0:  # Absent every 3rd day
-                    status = "absent"
-                    hours_worked = 0
-                    overtime_hours = 0
-                    wages_earned = 0
-                elif i % 5 == 0:  # Overtime every 5th day
-                    status = "present"
-                    hours_worked = 8
-                    overtime_hours = 2
-                    wages_earned = worker['base_rate'] + (worker['base_rate'] * 0.5 * 2)  # 1.5x for overtime
-                else:  # Regular day
-                    status = "present"
-                    hours_worked = 8
-                    overtime_hours = 0
-                    wages_earned = worker['base_rate']
-                
-                attendance_data = {
-                    "worker_id": worker['id'],
-                    "project_id": self.test_data['projects'][0]['id'],
-                    "attendance_date": date.isoformat(),
-                    "status": status,
-                    "hours_worked": hours_worked,
-                    "overtime_hours": overtime_hours,
-                    "wages_earned": wages_earned,
-                    "check_in_time": date.replace(hour=8, minute=0).isoformat() if status == "present" else None,
-                    "check_out_time": date.replace(hour=17, minute=0).isoformat() if status == "present" else None
-                }
-                
-                try:
-                    response = requests.post(f"{self.base_url}/labor-attendance", json=attendance_data, headers=self.get_headers())
-                    if response.status_code == 200:
-                        record = response.json()
-                        created_records.append(record)
-                    else:
-                        self.log_result(f"Create Attendance Record for {worker['full_name']}", False, f"HTTP {response.status_code}: {response.text}")
-                except Exception as e:
-                    self.log_result(f"Create Attendance Record for {worker['full_name']}", False, f"Exception: {str(e)}")
-        
-        if created_records:
-            self.test_data['attendance_records'] = created_records
-            self.log_result("Create Test Attendance Records", True, f"Created {len(created_records)} attendance records")
-
-    def test_labor_attendance_filtering(self):
-        """Test labor attendance API with filters"""
-        print("🔍 Testing Labor Attendance API Filters...")
-        
-        if not self.test_data['projects'] or not self.test_data['workers']:
-            self.log_result("Labor Attendance Filtering", False, "No test data available for filtering tests")
-            return
-        
-        # Test filtering by project
+        # Test 3: Get Material by Category
         try:
-            project_id = self.test_data['projects'][0]['id']
-            response = requests.get(f"{self.base_url}/labor-attendance?project_id={project_id}", headers=self.get_headers())
-            
+            response = requests.get(f"{BASE_URL}/materials?category=cement", headers=self.headers)
             if response.status_code == 200:
-                records = response.json()
-                self.log_result("Filter by Project ID", True, f"Retrieved {len(records)} records for project")
+                materials = response.json()
+                cement_materials = [m for m in materials if m["category"] == "cement"]
+                if len(cement_materials) >= 1:
+                    self.log_test("Filter Materials by Category", True, f"Found {len(cement_materials)} cement materials")
+                else:
+                    self.log_test("Filter Materials by Category", False, "No cement materials found")
             else:
-                self.log_result("Filter by Project ID", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Filter Materials by Category", False, f"Status: {response.status_code}")
         except Exception as e:
-            self.log_result("Filter by Project ID", False, f"Exception: {str(e)}")
+            self.log_test("Filter Materials by Category", False, f"Exception: {str(e)}")
         
-        # Test filtering by worker
+        # Test 4: Update Material
+        update_data = {
+            "minimum_stock": 150.0,
+            "description": "Premium quality OPC cement 53 grade"
+        }
+        
         try:
-            worker_id = self.test_data['workers'][0]['id']
-            response = requests.get(f"{self.base_url}/labor-attendance?worker_id={worker_id}", headers=self.get_headers())
-            
+            response = requests.put(f"{BASE_URL}/materials/{self.test_data['cement_id']}", json=update_data, headers=self.headers)
             if response.status_code == 200:
-                records = response.json()
-                self.log_result("Filter by Worker ID", True, f"Retrieved {len(records)} records for worker")
+                material = response.json()
+                if material["minimum_stock"] == 150.0:
+                    self.log_test("Update Material", True, "Minimum stock updated successfully")
+                else:
+                    self.log_test("Update Material", False, "Update not reflected")
             else:
-                self.log_result("Filter by Worker ID", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Update Material", False, f"Status: {response.status_code}")
         except Exception as e:
-            self.log_result("Filter by Worker ID", False, f"Exception: {str(e)}")
+            self.log_test("Update Material", False, f"Exception: {str(e)}")
         
-        # Test filtering by date
-        try:
-            today = datetime.now().strftime("%Y-%m-%d")
-            response = requests.get(f"{self.base_url}/labor-attendance?date={today}", headers=self.get_headers())
-            
-            if response.status_code == 200:
-                records = response.json()
-                self.log_result("Filter by Date", True, f"Retrieved {len(records)} records for today")
-            else:
-                self.log_result("Filter by Date", False, f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            self.log_result("Filter by Date", False, f"Exception: {str(e)}")
-
-    def test_report_data_calculations(self):
-        """Test that data can be used for report calculations"""
-        print("📊 Testing Report Data Calculations...")
-        
-        if not self.test_data['workers'] or not self.test_data['attendance_records']:
-            self.log_result("Report Data Calculations", False, "Insufficient test data for calculations")
-            return
-        
-        try:
-            # Calculate total wages earned
-            total_wages = sum(record.get('wages_earned', 0) for record in self.test_data['attendance_records'])
-            
-            # Count attendance statuses
-            status_counts = {}
-            for record in self.test_data['attendance_records']:
-                status = record.get('status', 'unknown')
-                status_counts[status] = status_counts.get(status, 0) + 1
-            
-            # Calculate worker-wise totals
-            worker_totals = {}
-            for record in self.test_data['attendance_records']:
-                worker_name = record.get('worker_name', 'Unknown')
-                if worker_name not in worker_totals:
-                    worker_totals[worker_name] = {
-                        'total_wages': 0,
-                        'days_present': 0,
-                        'days_absent': 0,
-                        'overtime_days': 0
-                    }
-                
-                worker_totals[worker_name]['total_wages'] += record.get('wages_earned', 0)
-                if record.get('status') == 'present':
-                    worker_totals[worker_name]['days_present'] += 1
-                elif record.get('status') == 'absent':
-                    worker_totals[worker_name]['days_absent'] += 1
-                
-                if record.get('overtime_hours', 0) > 0:
-                    worker_totals[worker_name]['overtime_days'] += 1
-            
-            # Site-wise calculations (assuming single site for test data)
-            site_wages = {}
-            for record in self.test_data['attendance_records']:
-                project_name = record.get('project_name', 'Unknown')
-                site_wages[project_name] = site_wages.get(project_name, 0) + record.get('wages_earned', 0)
-            
-            self.log_result("Report Data Calculations", True, 
-                          f"Calculated: Total wages: ₹{total_wages}, Status counts: {status_counts}, "
-                          f"Workers: {len(worker_totals)}, Sites: {len(site_wages)}")
-            
-        except Exception as e:
-            self.log_result("Report Data Calculations", False, f"Exception: {str(e)}")
-
-    def test_authentication_requirements(self):
-        """Test that APIs require proper authentication"""
-        print("🔒 Testing Authentication Requirements...")
-        
-        # Test without auth token
-        try:
-            response = requests.get(f"{self.base_url}/workers")
-            if response.status_code == 401 or response.status_code == 403:
-                self.log_result("Workers API Authentication", True, "Properly requires authentication")
-            else:
-                self.log_result("Workers API Authentication", False, f"Expected 401/403, got {response.status_code}")
-        except Exception as e:
-            self.log_result("Workers API Authentication", False, f"Exception: {str(e)}")
-        
-        try:
-            response = requests.get(f"{self.base_url}/labor-attendance")
-            if response.status_code == 401 or response.status_code == 403:
-                self.log_result("Labor Attendance API Authentication", True, "Properly requires authentication")
-            else:
-                self.log_result("Labor Attendance API Authentication", False, f"Expected 401/403, got {response.status_code}")
-        except Exception as e:
-            self.log_result("Labor Attendance API Authentication", False, f"Exception: {str(e)}")
-
+        return True
+    
     def run_all_tests(self):
-        """Run all test scenarios"""
-        print("🚀 Starting Labor Reports Backend API Tests")
-        print("=" * 60)
+        """Run all test groups"""
+        print("🚀 STARTING COMPREHENSIVE VENDOR & MATERIALS MANAGEMENT API TESTING")
+        print("="*80)
         
-        # Step 1: Authentication
+        # Authentication
         if not self.authenticate():
             print("❌ Authentication failed. Cannot proceed with tests.")
-            return
+            return False
         
-        # Step 2: Test Projects API
-        self.test_projects_api()
+        # Create test project
+        if not self.create_test_project():
+            print("❌ Test project creation failed. Cannot proceed with tests.")
+            return False
         
-        # Step 3: Test Workers API
-        self.test_workers_api()
+        # Run test groups
+        test_groups = [
+            self.test_vendor_management,
+            self.test_material_management
+        ]
         
-        # Step 4: Test Labor Attendance API
-        self.test_labor_attendance_api()
+        for test_group in test_groups:
+            try:
+                test_group()
+            except Exception as e:
+                print(f"❌ Test group failed with exception: {str(e)}")
         
-        # Step 5: Test API Filtering
-        self.test_labor_attendance_filtering()
+        # Print summary
+        passed, failed = self.print_summary()
         
-        # Step 6: Test Report Calculations
-        self.test_report_data_calculations()
+        return failed == 0
+    
+    def print_summary(self):
+        """Print test summary"""
+        print("\n" + "="*80)
+        print("🎯 VENDOR & MATERIALS MANAGEMENT API TESTING SUMMARY")
+        print("="*80)
         
-        # Step 7: Test Authentication Requirements
-        self.test_authentication_requirements()
+        total_tests = len(self.test_results)
+        passed_tests = len([t for t in self.test_results if t["success"]])
+        failed_tests = total_tests - passed_tests
         
-        # Print Summary
-        print("=" * 60)
-        print("📋 TEST SUMMARY")
-        print("=" * 60)
-        print(f"✅ Passed: {self.test_results['passed']}")
-        print(f"❌ Failed: {self.test_results['failed']}")
+        print(f"Total Tests: {total_tests}")
+        print(f"✅ Passed: {passed_tests}")
+        print(f"❌ Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
-        if self.test_results['errors']:
-            print("\n🔍 FAILED TESTS:")
-            for error in self.test_results['errors']:
-                print(f"   • {error}")
+        if failed_tests > 0:
+            print(f"\n❌ FAILED TESTS:")
+            for test in self.test_results:
+                if not test["success"]:
+                    print(f"   • {test['test']}: {test['details']}")
         
-        success_rate = (self.test_results['passed'] / (self.test_results['passed'] + self.test_results['failed'])) * 100
-        print(f"\n📊 Success Rate: {success_rate:.1f}%")
-        
-        if self.test_results['failed'] == 0:
-            print("\n🎉 All tests passed! Labor Reports backend APIs are working correctly.")
-        else:
-            print(f"\n⚠️  {self.test_results['failed']} test(s) failed. Please review the issues above.")
+        print("\n🎉 TESTING COMPLETED!")
+        return passed_tests, failed_tests
 
 if __name__ == "__main__":
-    tester = LaborReportsAPITester()
-    tester.run_all_tests()
+    tester = VendorMaterialsAPITester()
+    success = tester.run_all_tests()
+    sys.exit(0 if success else 1)
