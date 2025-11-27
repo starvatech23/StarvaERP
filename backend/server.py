@@ -2031,6 +2031,9 @@ async def get_all_materials(
     result = []
     for material in materials:
         material = serialize_doc(material)
+        # Handle materials without created_by field (from old implementation)
+        if "created_by" not in material:
+            material["created_by"] = "unknown"
         result.append(MaterialResponse(**material))
     return result
 
