@@ -1282,6 +1282,440 @@ async def bulk_upload_leads(
     
     return {"message": f"Successfully uploaded {inserted_count} leads"}
 
+# ============= Payments Routes =============
+
+@api_router.get("/payments", response_model=List[PaymentResponse])
+async def get_payments(
+    project_id: str = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get payments"""
+    current_user = await get_current_user(credentials, db)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    
+    payments = await db.payments.find(query).to_list(1000)
+    
+    result = []
+    for payment in payments:
+        payment_dict = serialize_doc(payment)
+        
+        project = await db.projects.find_one({"_id": ObjectId(payment_dict["project_id"])})
+        payment_dict["project_name"] = project["name"] if project else "Unknown"
+        
+        creator = await get_user_by_id(payment_dict["created_by"])
+        payment_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        
+        result.append(PaymentResponse(**payment_dict))
+    
+    return result
+
+@api_router.post("/payments", response_model=PaymentResponse)
+async def create_payment(
+    payment: PaymentCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a payment"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    payment_dict = payment.dict()
+    payment_dict["created_by"] = str(current_user["_id"])
+    payment_dict["created_at"] = datetime.utcnow()
+    
+    result = await db.payments.insert_one(payment_dict)
+    payment_dict["_id"] = result.inserted_id
+    
+    payment_dict = serialize_doc(payment_dict)
+    
+    project = await db.projects.find_one({"_id": ObjectId(payment_dict["project_id"])})
+    payment_dict["project_name"] = project["name"] if project else "Unknown"
+    payment_dict["created_by_name"] = current_user["full_name"]
+    
+    # Log activity
+    await log_activity(
+        db, current_user["_id"], "payment_added",
+        f"Added payment of ₹{payment.amount} for project",
+        payment_dict["id"], "payment"
+    )
+    
+    return PaymentResponse(**payment_dict)
+
+@api_router.put("/payments/{payment_id}", response_model=PaymentResponse)
+async def update_payment(
+    payment_id: str,
+    payment_update: PaymentUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a payment"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    existing = await db.payments.find_one({"_id": ObjectId(payment_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    update_data = payment_update.dict(exclude_unset=True)
+    
+    await db.payments.update_one(
+        {"_id": ObjectId(payment_id)},
+        {"$set": update_data}
+    )
+    
+    updated_payment = await db.payments.find_one({"_id": ObjectId(payment_id)})
+    payment_dict = serialize_doc(updated_payment)
+    
+    project = await db.projects.find_one({"_id": ObjectId(payment_dict["project_id"])})
+    payment_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    creator = await get_user_by_id(payment_dict["created_by"])
+    payment_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+    
+    return PaymentResponse(**payment_dict)
+
+# ============= Expenses Routes =============
+
+@api_router.get("/expenses", response_model=List[ExpenseResponse])
+async def get_expenses(
+    project_id: str = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get expenses"""
+    current_user = await get_current_user(credentials, db)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    
+    expenses = await db.expenses.find(query).to_list(1000)
+    
+    result = []
+    for expense in expenses:
+        expense_dict = serialize_doc(expense)
+        
+        project = await db.projects.find_one({"_id": ObjectId(expense_dict["project_id"])})
+        expense_dict["project_name"] = project["name"] if project else "Unknown"
+        
+        if expense_dict.get("vendor_id"):
+            vendor = await db.vendors.find_one({"_id": ObjectId(expense_dict["vendor_id"])})
+            expense_dict["vendor_name"] = vendor["company_name"] if vendor else None
+        
+        creator = await get_user_by_id(expense_dict["created_by"])
+        expense_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        
+        result.append(ExpenseResponse(**expense_dict))
+    
+    return result
+
+@api_router.post("/expenses", response_model=ExpenseResponse)
+async def create_expense(
+    expense: ExpenseCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create an expense"""
+    current_user = await get_current_user(credentials, db)
+    
+    expense_dict = expense.dict()
+    expense_dict["created_by"] = str(current_user["_id"])
+    expense_dict["created_at"] = datetime.utcnow()
+    
+    result = await db.expenses.insert_one(expense_dict)
+    expense_dict["_id"] = result.inserted_id
+    
+    expense_dict = serialize_doc(expense_dict)
+    
+    project = await db.projects.find_one({"_id": ObjectId(expense_dict["project_id"])})
+    expense_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    if expense_dict.get("vendor_id"):
+        vendor = await db.vendors.find_one({"_id": ObjectId(expense_dict["vendor_id"])})
+        expense_dict["vendor_name"] = vendor["company_name"] if vendor else None
+    
+    expense_dict["created_by_name"] = current_user["full_name"]
+    
+    # Log activity
+    await log_activity(
+        db, current_user["_id"], "expense_added",
+        f"Added expense of ₹{expense.amount}",
+        expense_dict["id"], "expense"
+    )
+    
+    return ExpenseResponse(**expense_dict)
+
+@api_router.put("/expenses/{expense_id}", response_model=ExpenseResponse)
+async def update_expense(
+    expense_id: str,
+    expense_update: ExpenseUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update an expense"""
+    current_user = await get_current_user(credentials, db)
+    
+    existing = await db.expenses.find_one({"_id": ObjectId(expense_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    
+    # Only creator or admin/PM can update
+    is_creator = str(existing["created_by"]) == str(current_user["_id"])
+    is_admin_or_pm = current_user["role"] in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]
+    
+    if not (is_creator or is_admin_or_pm):
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    update_data = expense_update.dict(exclude_unset=True)
+    
+    await db.expenses.update_one(
+        {"_id": ObjectId(expense_id)},
+        {"$set": update_data}
+    )
+    
+    updated_expense = await db.expenses.find_one({"_id": ObjectId(expense_id)})
+    expense_dict = serialize_doc(updated_expense)
+    
+    project = await db.projects.find_one({"_id": ObjectId(expense_dict["project_id"])})
+    expense_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    if expense_dict.get("vendor_id"):
+        vendor = await db.vendors.find_one({"_id": ObjectId(expense_dict["vendor_id"])})
+        expense_dict["vendor_name"] = vendor["company_name"] if vendor else None
+    
+    creator = await get_user_by_id(expense_dict["created_by"])
+    expense_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+    
+    return ExpenseResponse(**expense_dict)
+
+# ============= Notifications Routes =============
+
+@api_router.get("/notifications", response_model=List[NotificationResponse])
+async def get_notifications(
+    unread_only: bool = False,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get user notifications"""
+    current_user = await get_current_user(credentials, db)
+    
+    query = {"user_id": str(current_user["_id"])}
+    if unread_only:
+        query["is_read"] = False
+    
+    notifications = await db.notifications.find(query).sort("created_at", -1).to_list(100)
+    
+    return [NotificationResponse(**serialize_doc(n)) for n in notifications]
+
+@api_router.put("/notifications/{notification_id}/read")
+async def mark_notification_read(
+    notification_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Mark notification as read"""
+    current_user = await get_current_user(credentials, db)
+    
+    result = await db.notifications.update_one(
+        {"_id": ObjectId(notification_id), "user_id": str(current_user["_id"])},
+        {"$set": {"is_read": True}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    
+    return {"message": "Notification marked as read"}
+
+@api_router.put("/notifications/mark-all-read")
+async def mark_all_notifications_read(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Mark all notifications as read"""
+    current_user = await get_current_user(credentials, db)
+    
+    await db.notifications.update_many(
+        {"user_id": str(current_user["_id"]), "is_read": False},
+        {"$set": {"is_read": True}}
+    )
+    
+    return {"message": "All notifications marked as read"}
+
+# ============= Activity Log Routes =============
+
+@api_router.get("/activity", response_model=List[ActivityLogResponse])
+async def get_activity_log(
+    limit: int = 50,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get activity log"""
+    current_user = await get_current_user(credentials, db)
+    
+    activities = await db.activity_logs.find().sort("created_at", -1).limit(limit).to_list(limit)
+    
+    result = []
+    for activity in activities:
+        activity_dict = serialize_doc(activity)
+        
+        user = await get_user_by_id(activity_dict["user_id"])
+        if user:
+            activity_dict["user_name"] = user["full_name"]
+            activity_dict["user_role"] = user["role"]
+        else:
+            activity_dict["user_name"] = "Unknown"
+            activity_dict["user_role"] = "unknown"
+        
+        result.append(ActivityLogResponse(**activity_dict))
+    
+    return result
+
+# ============= User Management Routes =============
+
+@api_router.get("/admin/users", response_model=List[UserManagementResponse])
+async def get_all_users_admin(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all users with stats (Admin only)"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    users = await db.users.find().to_list(1000)
+    
+    result = []
+    for user in users:
+        user_dict = serialize_doc(user)
+        
+        # Get stats
+        project_count = await db.projects.count_documents({"project_manager_id": user_dict["id"]})
+        task_count = await db.tasks.count_documents({"assigned_to": user_dict["id"]})
+        
+        result.append(UserManagementResponse(
+            id=user_dict["id"],
+            email=user_dict.get("email"),
+            phone=user_dict.get("phone"),
+            full_name=user_dict["full_name"],
+            role=user_dict["role"],
+            is_active=user_dict["is_active"],
+            date_joined=user_dict["date_joined"],
+            last_login=user_dict.get("last_login"),
+            total_projects=project_count,
+            total_tasks=task_count
+        ))
+    
+    return result
+
+@api_router.put("/admin/users/{user_id}/role")
+async def update_user_role(
+    user_id: str,
+    role_update: UserRoleUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update user role (Admin only)"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    result = await db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"role": role_update.role}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User role updated successfully"}
+
+@api_router.put("/admin/users/{user_id}/status")
+async def update_user_status(
+    user_id: str,
+    status_update: UserStatusUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Activate/Deactivate user (Admin only)"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    if str(current_user["_id"]) == user_id:
+        raise HTTPException(status_code=400, detail="Cannot deactivate your own account")
+    
+    result = await db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"is_active": status_update.is_active}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User status updated successfully"}
+
+# ============= Financial Reports Routes =============
+
+@api_router.get("/reports/financial/{project_id}")
+async def get_project_financial_report(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get financial report for a project"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Get all payments
+    payments = await db.payments.find({"project_id": project_id}).to_list(1000)
+    total_received = sum(p["amount"] for p in payments if p["payment_type"] == "client_payment" and p["status"] == "paid")
+    total_pending = sum(p["amount"] for p in payments if p["payment_type"] == "client_payment" and p["status"] == "pending")
+    
+    # Get all expenses
+    expenses = await db.expenses.find({"project_id": project_id}).to_list(1000)
+    total_expenses = sum(e["amount"] for e in expenses)
+    
+    # Get vendor payments
+    vendor_payments = [p for p in payments if p["payment_type"] == "vendor_payment"]
+    total_vendor_paid = sum(p["amount"] for p in vendor_payments if p["status"] == "paid")
+    
+    # Calculate profit/loss
+    budget = project.get("budget", 0)
+    profit_loss = total_received - total_expenses
+    
+    return {
+        "project_id": project_id,
+        "project_name": project["name"],
+        "budget": budget,
+        "total_received": total_received,
+        "total_pending": total_pending,
+        "total_expenses": total_expenses,
+        "total_vendor_paid": total_vendor_paid,
+        "profit_loss": profit_loss,
+        "budget_utilization": (total_expenses / budget * 100) if budget > 0 else 0,
+        "payment_breakdown": {
+            "paid": total_received,
+            "pending": total_pending,
+            "total": total_received + total_pending
+        }
+    }
+
+# Helper function for logging activities
+async def log_activity(db, user_id: str, activity_type: str, description: str, reference_id: str = None, reference_type: str = None):
+    """Helper to log activities"""
+    activity = {
+        "user_id": user_id,
+        "activity_type": activity_type,
+        "description": description,
+        "reference_id": reference_id,
+        "reference_type": reference_type,
+        "created_at": datetime.utcnow()
+    }
+    await db.activity_logs.insert_one(activity)
+
 # ============= Root Route =============
 
 @api_router.get("/")
