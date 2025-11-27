@@ -1750,6 +1750,380 @@ async def log_activity(db, user_id: str, activity_type: str, description: str, r
     }
     await db.activity_logs.insert_one(activity)
 
+# ============= Workers/Labor Management Routes =============
+
+@api_router.get("/workers", response_model=List[WorkerResponse])
+async def get_workers(
+    status: str = None,
+    skill_group: str = None,
+    project_id: str = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all workers"""
+    current_user = await get_current_user(credentials, db)
+    
+    query = {}
+    if status:
+        query["status"] = status
+    if skill_group:
+        query["skill_group"] = skill_group
+    if project_id:
+        query["current_site_id"] = project_id
+    
+    workers = await db.workers.find(query).to_list(1000)
+    
+    result = []
+    for worker in workers:
+        worker_dict = serialize_doc(worker)
+        
+        # Get current site name
+        if worker_dict.get("current_site_id"):
+            project = await db.projects.find_one({"_id": ObjectId(worker_dict["current_site_id"])})
+            worker_dict["current_site_name"] = project["name"] if project else None
+        
+        # Get creator name
+        creator = await get_user_by_id(worker_dict["created_by"])
+        worker_dict["created_by_name"] = creator["full_name"] if creator else None
+        
+        result.append(WorkerResponse(**worker_dict))
+    
+    return result
+
+@api_router.post("/workers", response_model=WorkerResponse)
+async def create_worker(
+    worker: WorkerCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new worker"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can add workers")
+    
+    worker_dict = worker.dict()
+    worker_dict["created_by"] = str(current_user["_id"])
+    worker_dict["created_at"] = datetime.utcnow()
+    worker_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.workers.insert_one(worker_dict)
+    worker_dict["_id"] = result.inserted_id
+    
+    worker_dict = serialize_doc(worker_dict)
+    worker_dict["created_by_name"] = current_user["full_name"]
+    worker_dict["current_site_name"] = None
+    
+    return WorkerResponse(**worker_dict)
+
+@api_router.get("/workers/{worker_id}", response_model=WorkerResponse)
+async def get_worker(
+    worker_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get worker details"""
+    current_user = await get_current_user(credentials, db)
+    
+    worker = await db.workers.find_one({"_id": ObjectId(worker_id)})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    
+    worker_dict = serialize_doc(worker)
+    
+    if worker_dict.get("current_site_id"):
+        project = await db.projects.find_one({"_id": ObjectId(worker_dict["current_site_id"])})
+        worker_dict["current_site_name"] = project["name"] if project else None
+    
+    creator = await get_user_by_id(worker_dict["created_by"])
+    worker_dict["created_by_name"] = creator["full_name"] if creator else None
+    
+    return WorkerResponse(**worker_dict)
+
+@api_router.put("/workers/{worker_id}", response_model=WorkerResponse)
+async def update_worker(
+    worker_id: str,
+    worker_update: WorkerUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a worker"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can update workers")
+    
+    existing = await db.workers.find_one({"_id": ObjectId(worker_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    
+    update_data = worker_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.workers.update_one(
+        {"_id": ObjectId(worker_id)},
+        {"$set": update_data}
+    )
+    
+    updated_worker = await db.workers.find_one({"_id": ObjectId(worker_id)})
+    worker_dict = serialize_doc(updated_worker)
+    
+    if worker_dict.get("current_site_id"):
+        project = await db.projects.find_one({"_id": ObjectId(worker_dict["current_site_id"])})
+        worker_dict["current_site_name"] = project["name"] if project else None
+    
+    creator = await get_user_by_id(worker_dict["created_by"])
+    worker_dict["created_by_name"] = creator["full_name"] if creator else None
+    
+    return WorkerResponse(**worker_dict)
+
+@api_router.delete("/workers/{worker_id}")
+async def delete_worker(
+    worker_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a worker"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can delete workers")
+    
+    result = await db.workers.delete_one({"_id": ObjectId(worker_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    
+    return {"message": "Worker deleted successfully"}
+
+# ============= Labor Attendance Routes =============
+
+@api_router.get("/labor-attendance", response_model=List[LaborAttendanceResponse])
+async def get_labor_attendance(
+    project_id: str = None,
+    worker_id: str = None,
+    date: str = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get labor attendance records"""
+    current_user = await get_current_user(credentials, db)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if worker_id:
+        query["worker_id"] = worker_id
+    if date:
+        # Filter by date
+        start_date = datetime.fromisoformat(date)
+        end_date = start_date + timedelta(days=1)
+        query["attendance_date"] = {"$gte": start_date, "$lt": end_date}
+    
+    attendances = await db.labor_attendance.find(query).to_list(1000)
+    
+    result = []
+    for attendance in attendances:
+        attendance_dict = serialize_doc(attendance)
+        
+        # Get worker details
+        worker = await db.workers.find_one({"_id": ObjectId(attendance_dict["worker_id"])})
+        attendance_dict["worker_name"] = worker["full_name"] if worker else "Unknown"
+        attendance_dict["worker_skill"] = worker["skill_group"] if worker else "unknown"
+        
+        # Get project name
+        project = await db.projects.find_one({"_id": ObjectId(attendance_dict["project_id"])})
+        attendance_dict["project_name"] = project["name"] if project else "Unknown"
+        
+        result.append(LaborAttendanceResponse(**attendance_dict))
+    
+    return result
+
+@api_router.post("/labor-attendance", response_model=LaborAttendanceResponse)
+async def create_labor_attendance(
+    attendance: LaborAttendanceCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Mark attendance for a worker"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can mark attendance")
+    
+    # Get worker details for wage calculation
+    worker = await db.workers.find_one({"_id": ObjectId(attendance.worker_id)})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    
+    attendance_dict = attendance.dict()
+    attendance_dict["created_by"] = str(current_user["_id"])
+    attendance_dict["created_at"] = datetime.utcnow()
+    attendance_dict["updated_at"] = datetime.utcnow()
+    
+    # Calculate wages if hours worked is provided
+    if attendance_dict.get("hours_worked"):
+        worker_rate = worker.get("base_rate", 0)
+        pay_scale = worker.get("pay_scale", "daily")
+        
+        if pay_scale == "hourly":
+            attendance_dict["wages_earned"] = attendance_dict["hours_worked"] * worker_rate
+        elif pay_scale == "daily":
+            attendance_dict["wages_earned"] = worker_rate  # Full day rate
+    
+    result = await db.labor_attendance.insert_one(attendance_dict)
+    attendance_dict["_id"] = result.inserted_id
+    
+    attendance_dict = serialize_doc(attendance_dict)
+    attendance_dict["worker_name"] = worker["full_name"]
+    attendance_dict["worker_skill"] = worker["skill_group"]
+    
+    project = await db.projects.find_one({"_id": ObjectId(attendance.project_id)})
+    attendance_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    return LaborAttendanceResponse(**attendance_dict)
+
+@api_router.put("/labor-attendance/{attendance_id}", response_model=LaborAttendanceResponse)
+async def update_labor_attendance(
+    attendance_id: str,
+    attendance_update: LaborAttendanceUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update attendance (e.g., checkout)"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can update attendance")
+    
+    existing = await db.labor_attendance.find_one({"_id": ObjectId(attendance_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Attendance record not found")
+    
+    update_data = attendance_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    # Recalculate wages if hours changed
+    if "hours_worked" in update_data:
+        worker = await db.workers.find_one({"_id": ObjectId(existing["worker_id"])})
+        if worker:
+            worker_rate = worker.get("base_rate", 0)
+            pay_scale = worker.get("pay_scale", "daily")
+            
+            if pay_scale == "hourly":
+                update_data["wages_earned"] = update_data["hours_worked"] * worker_rate
+            elif pay_scale == "daily":
+                update_data["wages_earned"] = worker_rate
+    
+    await db.labor_attendance.update_one(
+        {"_id": ObjectId(attendance_id)},
+        {"$set": update_data}
+    )
+    
+    updated_attendance = await db.labor_attendance.find_one({"_id": ObjectId(attendance_id)})
+    attendance_dict = serialize_doc(updated_attendance)
+    
+    worker = await db.workers.find_one({"_id": ObjectId(attendance_dict["worker_id"])})
+    attendance_dict["worker_name"] = worker["full_name"] if worker else "Unknown"
+    attendance_dict["worker_skill"] = worker["skill_group"] if worker else "unknown"
+    
+    project = await db.projects.find_one({"_id": ObjectId(attendance_dict["project_id"])})
+    attendance_dict["project_name"] = project["name"] if project else "Unknown"
+    
+    return LaborAttendanceResponse(**attendance_dict)
+
+# ============= Site Transfer Routes =============
+
+@api_router.get("/site-transfers", response_model=List[SiteTransferResponse])
+async def get_site_transfers(
+    worker_id: str = None,
+    date: str = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get site transfer records"""
+    current_user = await get_current_user(credentials, db)
+    
+    query = {}
+    if worker_id:
+        query["worker_id"] = worker_id
+    if date:
+        start_date = datetime.fromisoformat(date)
+        end_date = start_date + timedelta(days=1)
+        query["transfer_date"] = {"$gte": start_date, "$lt": end_date}
+    
+    transfers = await db.site_transfers.find(query).to_list(1000)
+    
+    result = []
+    for transfer in transfers:
+        transfer_dict = serialize_doc(transfer)
+        
+        # Get worker name
+        worker = await db.workers.find_one({"_id": ObjectId(transfer_dict["worker_id"])})
+        transfer_dict["worker_name"] = worker["full_name"] if worker else "Unknown"
+        
+        # Get project names
+        from_project = await db.projects.find_one({"_id": ObjectId(transfer_dict["from_project_id"])})
+        transfer_dict["from_project_name"] = from_project["name"] if from_project else "Unknown"
+        
+        to_project = await db.projects.find_one({"_id": ObjectId(transfer_dict["to_project_id"])})
+        transfer_dict["to_project_name"] = to_project["name"] if to_project else "Unknown"
+        
+        # Get creator name
+        creator = await get_user_by_id(transfer_dict["created_by"])
+        transfer_dict["created_by_name"] = creator["full_name"] if creator else None
+        
+        result.append(SiteTransferResponse(**transfer_dict))
+    
+    return result
+
+@api_router.post("/site-transfers", response_model=SiteTransferResponse)
+async def create_site_transfer(
+    transfer: SiteTransferCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Transfer worker from one site to another"""
+    current_user = await get_current_user(credentials, db)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can transfer workers")
+    
+    # Get worker details
+    worker = await db.workers.find_one({"_id": ObjectId(transfer.worker_id)})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    
+    transfer_dict = transfer.dict()
+    transfer_dict["created_by"] = str(current_user["_id"])
+    transfer_dict["created_at"] = datetime.utcnow()
+    transfer_dict["approved_by"] = str(current_user["_id"])
+    
+    # Calculate split wages if hours provided
+    if transfer_dict.get("hours_at_from_site") and transfer_dict.get("hours_at_to_site"):
+        worker_rate = worker.get("base_rate", 0)
+        pay_scale = worker.get("pay_scale", "daily")
+        
+        if pay_scale == "hourly":
+            transfer_dict["wages_from_site"] = transfer_dict["hours_at_from_site"] * worker_rate
+            transfer_dict["wages_to_site"] = transfer_dict["hours_at_to_site"] * worker_rate
+        elif pay_scale == "daily":
+            total_hours = transfer_dict["hours_at_from_site"] + transfer_dict["hours_at_to_site"]
+            if total_hours > 0:
+                transfer_dict["wages_from_site"] = (transfer_dict["hours_at_from_site"] / total_hours) * worker_rate
+                transfer_dict["wages_to_site"] = (transfer_dict["hours_at_to_site"] / total_hours) * worker_rate
+    
+    result = await db.site_transfers.insert_one(transfer_dict)
+    transfer_dict["_id"] = result.inserted_id
+    
+    # Update worker's current site
+    await db.workers.update_one(
+        {"_id": ObjectId(transfer.worker_id)},
+        {"$set": {"current_site_id": transfer.to_project_id}}
+    )
+    
+    transfer_dict = serialize_doc(transfer_dict)
+    transfer_dict["worker_name"] = worker["full_name"]
+    
+    from_project = await db.projects.find_one({"_id": ObjectId(transfer.from_project_id)})
+    transfer_dict["from_project_name"] = from_project["name"] if from_project else "Unknown"
+    
+    to_project = await db.projects.find_one({"_id": ObjectId(transfer.to_project_id)})
+    transfer_dict["to_project_name"] = to_project["name"] if to_project else "Unknown"
+    
+    transfer_dict["created_by_name"] = current_user["full_name"]
+    
+    return SiteTransferResponse(**transfer_dict)
+
 # ============= Root Route =============
 
 @api_router.get("/")
