@@ -331,6 +331,18 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1A202C',
   },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  weeklyButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFF5F2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   addButton: {
     width: 44,
     height: 44,
