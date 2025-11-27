@@ -2156,9 +2156,14 @@ async def get_vendor_material_rates(
 @api_router.post("/vendor-material-rates", response_model=VendorMaterialRateResponse)
 async def create_vendor_material_rate(
     rate: VendorMaterialRateCreate,
-    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a new vendor material rate (Admin/PM only)"""
+    current_user = await get_current_user(credentials, db)
+    
+    # Only admin, PM can create rates
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can create vendor material rates")
     rate_dict = rate.dict()
     rate_dict["created_by"] = str(current_user["_id"])
     rate_dict["created_at"] = datetime.utcnow()
