@@ -16,12 +16,14 @@ import { workersAPI, laborAttendanceAPI, siteTransfersAPI } from '../../services
 
 export default function LaborScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'workers' | 'attendance' | 'transfers'>('workers');
+  const [activeTab, setActiveTab] = useState<'workers' | 'attendance' | 'transfers' | 'reports'>('workers');
   const [workers, setWorkers] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [transfers, setTransfers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedWorker, setSelectedWorker] = useState<any>(null);
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
 
   useEffect(() => {
     loadData();
