@@ -2260,9 +2260,15 @@ async def get_all_materials(
 @api_router.post("/materials", response_model=MaterialResponse)
 async def create_material(
     material: MaterialCreate,
-    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a new material (Admin/PM only)"""
+    current_user = await get_current_user(credentials, db)
+    
+    # Only admin, PM can create materials
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can create materials")
+    
     material_dict = material.dict()
     material_dict["created_by"] = str(current_user["_id"])
     material_dict["created_at"] = datetime.utcnow()
