@@ -202,3 +202,62 @@ export const siteTransfersAPI = {
   getAll: (params?: any) => api.get('/site-transfers', { params }),
   create: (data: any) => api.post('/site-transfers', data),
 };
+
+
+// Vendors API
+export const vendorsAPI = {
+  getAll: (params?: any) => api.get('/vendors', { params }),
+  getById: (id: string) => api.get(`/vendors/${id}`),
+  create: (data: any) => api.post('/vendors', data),
+  update: (id: string, data: any) => api.put(`/vendors/${id}`, data),
+  delete: (id: string) => api.delete(`/vendors/${id}`),
+};
+
+// Materials API
+export const materialsAPI = {
+  getAll: (params?: any) => api.get('/materials', { params }),
+  getById: (id: string) => api.get(`/materials/${id}`),
+  create: (data: any) => api.post('/materials', data),
+  update: (id: string, data: any) => api.put(`/materials/${id}`, data),
+  delete: (id: string) => api.delete(`/materials/${id}`),
+};
+
+// Vendor Material Rates API
+export const vendorMaterialRatesAPI = {
+  getAll: (params?: any) => api.get('/vendor-material-rates', { params }),
+  create: (data: any) => api.post('/vendor-material-rates', data),
+  update: (id: string, data: any) => api.put(`/vendor-material-rates/${id}`, data),
+};
+
+// Site Inventory API
+export const siteInventoryAPI = {
+  getAll: (params?: any) => api.get('/site-inventory', { params }),
+  create: (data: any) => api.post('/site-inventory', data),
+  update: (id: string, data: any) => api.put(`/site-inventory/${id}`, data),
+};
+
+// Material Requirements API
+export const materialRequirementsAPI = {
+  getAll: (params?: any) => api.get('/material-requirements', { params }),
+  create: (data: any) => api.post('/material-requirements', data),
+  update: (id: string, data: any) => api.put(`/material-requirements/${id}`, data),
+};
+
+// Purchase Orders API
+export const purchaseOrdersAPI = {
+  getAll: (params?: any) => api.get('/purchase-orders', { params }),
+  create: (data: any) => api.post('/purchase-orders', data),
+  update: (id: string, data: any) => api.put(`/purchase-orders/${id}`, data),
+};
+
+// Material Transactions API
+export const materialTransactionsAPI = {
+  getAll: (params?: any) => api.get('/material-transactions', { params }),
+  create: (data: any) => api.post('/material-transactions', data),
+};
+
+// Material Reports API
+export const materialReportsAPI = {
+  getSpendingReport: (params?: any) => api.get('/material-reports/spending', { params }),
+};
+
