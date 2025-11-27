@@ -128,7 +128,7 @@ export default function AddWorkerScreen() {
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1A202C" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Add Worker</Text>
+          <Text style={styles.headerTitle}>Add Labourer</Text>
           <View style={styles.placeholder} />
         </View>
 
