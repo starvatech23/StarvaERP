@@ -1,53 +1,99 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Script for Construction Management App
-Tests the newly implemented APIs:
-1. Profile Update API - PUT /api/profile
-2. Company Settings API - GET/PUT /api/settings/company
-3. Bulk Leads Upload API - POST /api/crm/leads/bulk
+Backend API Testing for Labor Reports Feature
+Tests the data flow for labor reports including workers, attendance, and projects APIs.
 """
 
 import requests
 import json
+from datetime import datetime, timedelta
+import uuid
 import sys
-from datetime import datetime
-from typing import Dict, Any
+import os
 
-# Get backend URL from environment
-BACKEND_URL = "https://buildflow-74.preview.emergentagent.com/api"
+# Configuration
+BASE_URL = "https://buildflow-74.preview.emergentagent.com/api"
+TEST_USER_EMAIL = "admin@buildflow.com"
+TEST_USER_PASSWORD = "admin123"
+TEST_USER_PHONE = "+919876543210"
 
-class BackendTester:
+class LaborReportsAPITester:
     def __init__(self):
-        self.base_url = BACKEND_URL
-        self.token = None
-        self.user_id = None
-        self.test_results = []
-        
-    def log_result(self, test_name: str, success: bool, message: str, details: Dict[str, Any] = None):
-        """Log test result"""
-        result = {
-            "test": test_name,
-            "success": success,
-            "message": message,
-            "timestamp": datetime.now().isoformat(),
-            "details": details or {}
+        self.base_url = BASE_URL
+        self.auth_token = None
+        self.test_data = {
+            'users': [],
+            'projects': [],
+            'workers': [],
+            'attendance_records': []
         }
-        self.test_results.append(result)
+        self.test_results = {
+            'passed': 0,
+            'failed': 0,
+            'errors': []
+        }
+
+    def log_result(self, test_name, success, message="", response_data=None):
+        """Log test results"""
         status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status}: {test_name} - {message}")
-        if details and not success:
-            print(f"   Details: {json.dumps(details, indent=2)}")
-    
-    def make_request(self, method: str, endpoint: str, data: Dict = None, headers: Dict = None) -> Dict:
-        """Make HTTP request with error handling"""
-        url = f"{self.base_url}{endpoint}"
-        default_headers = {"Content-Type": "application/json"}
+        print(f"{status}: {test_name}")
+        if message:
+            print(f"   {message}")
+        if response_data and not success:
+            print(f"   Response: {response_data}")
         
-        if self.token:
-            default_headers["Authorization"] = f"Bearer {self.token}"
+        if success:
+            self.test_results['passed'] += 1
+        else:
+            self.test_results['failed'] += 1
+            self.test_results['errors'].append(f"{test_name}: {message}")
+        print()
+
+    def authenticate(self):
+        """Authenticate and get access token"""
+        print("🔐 Authenticating...")
         
-        if headers:
-            default_headers.update(headers)
+        # Try email authentication first
+        auth_data = {
+            "identifier": TEST_USER_EMAIL,
+            "password": TEST_USER_PASSWORD,
+            "auth_type": "email"
+        }
+        
+        try:
+            response = requests.post(f"{self.base_url}/auth/login", json=auth_data)
+            if response.status_code == 200:
+                data = response.json()
+                self.auth_token = data["access_token"]
+                self.log_result("Email Authentication", True, f"Logged in as {data['user']['full_name']}")
+                return True
+            else:
+                # Try to register if login fails
+                register_data = {
+                    "email": TEST_USER_EMAIL,
+                    "password": TEST_USER_PASSWORD,
+                    "full_name": "Test Admin",
+                    "role": "admin",
+                    "auth_type": "email"
+                }
+                
+                reg_response = requests.post(f"{self.base_url}/auth/register", json=register_data)
+                if reg_response.status_code == 200:
+                    data = reg_response.json()
+                    self.auth_token = data["access_token"]
+                    self.log_result("User Registration & Authentication", True, f"Registered and logged in as {data['user']['full_name']}")
+                    return True
+                else:
+                    self.log_result("Authentication", False, f"Login failed: {response.status_code}, Register failed: {reg_response.status_code}")
+                    return False
+                    
+        except Exception as e:
+            self.log_result("Authentication", False, f"Exception: {str(e)}")
+            return False
+
+    def get_headers(self):
+        """Get authorization headers"""
+        return {"Authorization": f"Bearer {self.auth_token}"}
         
         try:
             if method.upper() == "GET":
