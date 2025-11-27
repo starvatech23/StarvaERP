@@ -149,67 +149,7 @@ class TaskResponse(TaskBase):
     updated_at: datetime
 
 # Material Models
-class MaterialBase(BaseModel):
-    name: str
-    category: str
-    quantity: float
-    unit: str  # kg, pcs, bags, etc.
-    unit_price: Optional[float] = None
-    vendor_id: Optional[str] = None
-    project_id: Optional[str] = None
-    location: Optional[str] = None
-    photos: List[str] = []
-    reorder_level: Optional[float] = None
-
-class MaterialCreate(MaterialBase):
-    pass
-
-class MaterialUpdate(BaseModel):
-    name: Optional[str] = None
-    category: Optional[str] = None
-    quantity: Optional[float] = None
-    unit: Optional[str] = None
-    unit_price: Optional[float] = None
-    vendor_id: Optional[str] = None
-    project_id: Optional[str] = None
-    location: Optional[str] = None
-    photos: Optional[List[str]] = None
-    reorder_level: Optional[float] = None
-
-class MaterialResponse(MaterialBase):
-    id: str
-    vendor_name: Optional[str] = None
-    project_name: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
-
-# Vendor Models
-class VendorBase(BaseModel):
-    company_name: str
-    contact_person: str
-    email: Optional[EmailStr] = None
-    phone: str
-    address: Optional[str] = None
-    materials_supplied: List[str] = []
-    rating: Optional[float] = None
-    payment_terms: Optional[str] = None
-
-class VendorCreate(VendorBase):
-    pass
-
-class VendorUpdate(BaseModel):
-    company_name: Optional[str] = None
-    contact_person: Optional[str] = None
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
-    materials_supplied: Optional[List[str]] = None
-    rating: Optional[float] = None
-    payment_terms: Optional[str] = None
-
-class VendorResponse(VendorBase):
-    id: str
-    created_at: datetime
+# Note: Material and Vendor models moved to end of file for comprehensive implementation
 
 # Attendance Models
 class AttendanceBase(BaseModel):
