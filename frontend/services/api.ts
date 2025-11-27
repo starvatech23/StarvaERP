@@ -74,16 +74,7 @@ export const tasksAPI = {
   delete: (id: string) => api.delete(`/tasks/${id}`),
 };
 
-// Materials API
-export const materialsAPI = {
-  getAll: (projectId?: string) => api.get('/materials', { params: { project_id: projectId } }),
-  getById: (id: string) => api.get(`/materials/${id}`),
-  create: (data: any) => api.post('/materials', data),
-  update: (id: string, data: any) => api.put(`/materials/${id}`, data),
-  delete: (id: string) => api.delete(`/materials/${id}`),
-};
-
-// Note: Vendors API moved to end of file with comprehensive material management APIs
+// Note: Materials and Vendors APIs moved to end of file with comprehensive material management module
 
 // Attendance API
 export const attendanceAPI = {
