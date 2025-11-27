@@ -2074,9 +2074,14 @@ async def get_material(
 async def update_material(
     material_id: str,
     material: MaterialUpdate,
-    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.PROJECT_MANAGER]))
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update a material (Admin/PM only)"""
+    current_user = await get_current_user(credentials, db)
+    
+    # Only admin, PM can update materials
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can update materials")
     update_data = {k: v for k, v in material.dict().items() if v is not None}
     if not update_data:
         raise HTTPException(status_code=400, detail="No data to update")
