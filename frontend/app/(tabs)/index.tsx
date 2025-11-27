@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { projectsAPI, tasksAPI } from '../../services/api';
 import { useRouter } from 'expo-router';
+import TimelineCard from '../../components/TimelineCard';
 
 const { width } = Dimensions.get('window');
 
