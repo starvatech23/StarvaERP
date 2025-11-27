@@ -103,12 +103,16 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Building a comprehensive construction management mobile app with Week 1 priority features:
-  1. Profile Edit - Allow users to edit their profile information
-  2. Company Settings (Admin Panel) - Admins can edit company name, logo, and configurations
-  3. Enhanced Quotation Module - Create detailed quotations with line items, pricing, taxes
-  4. Excel Upload for Leads - Upload leads from Excel file
-  5. Gantt Chart/Timeline View - Visual timeline for project schedules
+  Building a comprehensive construction management mobile app. Current work focuses on:
+  Labor Management Module - Reporting Features:
+  1. Complete the labor reports screen with weekly/monthly wage reports
+  2. Site-wise labour cost breakdown with pie charts
+  3. Individual labourer wage tracking with attendance statistics
+  4. Advance payments tracking (placeholder)
+  5. Add interactive pie chart visualizations for:
+     - Site-wise wage distribution
+     - Attendance status breakdown (Present/Absent/Overtime)
+  Previous completed work includes profile management, company settings, quotations, excel upload, timeline views, and full labor management with attendance tracking.
 
 backend:
   - task: "Profile Update API"
