@@ -375,3 +375,166 @@ class UserProfileUpdate(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     profile_photo: Optional[str] = None
+
+# Payment & Financial Models
+class PaymentStatus(str, Enum):
+    PENDING = "pending"
+    PAID = "paid"
+    PARTIAL = "partial"
+    OVERDUE = "overdue"
+    CANCELLED = "cancelled"
+
+class PaymentType(str, Enum):
+    CLIENT_PAYMENT = "client_payment"
+    VENDOR_PAYMENT = "vendor_payment"
+    EXPENSE = "expense"
+    SALARY = "salary"
+    OTHER = "other"
+
+class PaymentBase(BaseModel):
+    project_id: str
+    payment_type: PaymentType
+    amount: float
+    payment_date: datetime
+    status: PaymentStatus = PaymentStatus.PENDING
+    description: Optional[str] = None
+    invoice_number: Optional[str] = None
+    payment_method: Optional[str] = None  # cash, bank_transfer, cheque, etc.
+    reference_number: Optional[str] = None
+    notes: Optional[str] = None
+
+class PaymentCreate(PaymentBase):
+    pass
+
+class PaymentUpdate(BaseModel):
+    amount: Optional[float] = None
+    payment_date: Optional[datetime] = None
+    status: Optional[PaymentStatus] = None
+    description: Optional[str] = None
+    payment_method: Optional[str] = None
+    reference_number: Optional[str] = None
+    notes: Optional[str] = None
+
+class PaymentResponse(PaymentBase):
+    id: str
+    project_name: str
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+
+# Expense Models
+class ExpenseCategory(str, Enum):
+    MATERIALS = "materials"
+    LABOR = "labor"
+    EQUIPMENT = "equipment"
+    TRANSPORTATION = "transportation"
+    PERMITS = "permits"
+    UTILITIES = "utilities"
+    SUBCONTRACTOR = "subcontractor"
+    OTHER = "other"
+
+class ExpenseBase(BaseModel):
+    project_id: str
+    category: ExpenseCategory
+    amount: float
+    expense_date: datetime
+    vendor_id: Optional[str] = None
+    description: str
+    receipt_photo: Optional[str] = None  # base64
+    is_approved: bool = False
+
+class ExpenseCreate(ExpenseBase):
+    pass
+
+class ExpenseUpdate(BaseModel):
+    category: Optional[ExpenseCategory] = None
+    amount: Optional[float] = None
+    expense_date: Optional[datetime] = None
+    vendor_id: Optional[str] = None
+    description: Optional[str] = None
+    receipt_photo: Optional[str] = None
+    is_approved: Optional[bool] = None
+
+class ExpenseResponse(ExpenseBase):
+    id: str
+    project_name: str
+    vendor_name: Optional[str] = None
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+
+# Notification Models
+class NotificationType(str, Enum):
+    TASK_ASSIGNED = "task_assigned"
+    TASK_COMPLETED = "task_completed"
+    PROJECT_UPDATE = "project_update"
+    LEAD_STATUS_CHANGE = "lead_status_change"
+    PAYMENT_DUE = "payment_due"
+    LOW_STOCK = "low_stock"
+    ATTENDANCE_ALERT = "attendance_alert"
+    GENERAL = "general"
+
+class NotificationBase(BaseModel):
+    user_id: str
+    notification_type: NotificationType
+    title: str
+    message: str
+    reference_id: Optional[str] = None  # ID of related entity
+    reference_type: Optional[str] = None  # project, task, lead, etc.
+    is_read: bool = False
+
+class NotificationCreate(NotificationBase):
+    pass
+
+class NotificationResponse(NotificationBase):
+    id: str
+    created_at: datetime
+
+# Activity Log Models
+class ActivityType(str, Enum):
+    PROJECT_CREATED = "project_created"
+    PROJECT_UPDATED = "project_updated"
+    TASK_CREATED = "task_created"
+    TASK_UPDATED = "task_updated"
+    PAYMENT_ADDED = "payment_added"
+    EXPENSE_ADDED = "expense_added"
+    LEAD_CREATED = "lead_created"
+    LEAD_UPDATED = "lead_updated"
+    USER_JOINED = "user_joined"
+    OTHER = "other"
+
+class ActivityLogBase(BaseModel):
+    user_id: str
+    activity_type: ActivityType
+    description: str
+    reference_id: Optional[str] = None
+    reference_type: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+class ActivityLogCreate(ActivityLogBase):
+    pass
+
+class ActivityLogResponse(ActivityLogBase):
+    id: str
+    user_name: str
+    user_role: str
+    created_at: datetime
+
+# User Management Models
+class UserRoleUpdate(BaseModel):
+    role: UserRole
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool
+
+class UserManagementResponse(BaseModel):
+    id: str
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    full_name: str
+    role: UserRole
+    is_active: bool
+    date_joined: datetime
+    last_login: Optional[datetime] = None
+    total_projects: int = 0
+    total_tasks: int = 0
