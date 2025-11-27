@@ -104,15 +104,22 @@
 
 user_problem_statement: |
   Building a comprehensive construction management mobile app. Current work focuses on:
-  Labor Management Module - Reporting Features:
-  1. Complete the labor reports screen with weekly/monthly wage reports
-  2. Site-wise labour cost breakdown with pie charts
-  3. Individual labourer wage tracking with attendance statistics
-  4. Advance payments tracking (placeholder)
-  5. Add interactive pie chart visualizations for:
-     - Site-wise wage distribution
-     - Attendance status breakdown (Present/Absent/Overtime)
-  Previous completed work includes profile management, company settings, quotations, excel upload, timeline views, and full labor management with attendance tracking.
+  
+  Vendor & Materials Management Module (NEW - COMPREHENSIVE):
+  1. Vendor Management: Add vendor business details (name, contact, GST, PAN, bank details, payment terms)
+  2. Material Master: Material catalog with categories, units, minimum stock levels
+  3. Vendor Material Rates: Track vendor-specific rates for each material with effective dates
+  4. Site Inventory: Current stock tracking at each site with low stock alerts
+  5. Material Requirements: Future material needs per site with priority levels
+  6. Purchase Orders: Create POs with multiple items, track delivery status
+  7. Material Transactions: Track receipts, consumption, transfers, returns with auto inventory updates
+  8. Material Reports with Charts:
+     - Weekly/monthly spending reports by category, site, and vendor
+     - Pie charts for category-wise and site-wise spending distribution
+     - Bar charts for top vendor spending
+     - Low stock alerts dashboard
+  
+  Previously completed: Labor reports with wage tracking, profile management, quotations, timeline views, and full labor management.
 
 backend:
   - task: "Labor Management APIs"
