@@ -115,7 +115,7 @@ user_problem_statement: |
   Previous completed work includes profile management, company settings, quotations, excel upload, timeline views, and full labor management with attendance tracking.
 
 backend:
-  - task: "Profile Update API"
+  - task: "Labor Management APIs"
     implemented: true
     working: true
     file: "/app/backend/server.py"
@@ -123,54 +123,21 @@ backend:
     priority: "high"
     needs_retesting: false
     status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Added PUT /api/profile endpoint to update user profile information (full_name, email, phone, address, profile_photo)"
       - working: true
-        agent: "testing"
-        comment: "✅ TESTED SUCCESSFULLY: Profile Update API working correctly. Full profile update, partial field updates, and validation error handling all functioning properly. API accepts valid profile data and correctly rejects invalid email formats."
-
-  - task: "Company Settings API"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
         agent: "main"
-        comment: "Added GET /api/settings/company and PUT /api/settings/company endpoints for managing company settings (Admin only)"
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED SUCCESSFULLY: Company Settings API working correctly. GET endpoint retrieves settings properly, PUT endpoint updates settings correctly (admin-only access enforced), and data persistence verified. Role-based access control working as expected."
+        comment: "All labor management APIs (workers, attendance, site transfers) are implemented and working. Endpoints include: GET/POST/PUT/DELETE for workers, GET/POST/PUT for attendance records, GET/POST for site transfers."
 
-  - task: "Bulk Leads Upload API"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Added POST /api/crm/leads/bulk endpoint to upload multiple leads at once (Admin/PM only)"
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED SUCCESSFULLY: Bulk Leads Upload API working correctly. Successfully uploaded 3 test leads, data persistence verified in database, role-based access control enforced (admin/PM only), and invalid data handled gracefully."
-
-  - task: "Enhanced Quotation Models"
+  - task: "Labor Report Data Endpoints"
     implemented: true
     working: "NA"
-    file: "/app/backend/models.py"
+    file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added QuotationItemWithTax, BulkLeadItem, and UserProfileUpdate models to support new features"
+        comment: "Backend APIs for attendance and workers exist. Frontend fetches and calculates wage reports, site-wise costs, and worker statistics client-side. Need to verify data flow for reports."
 
 frontend:
   - task: "Profile Edit Screen"
