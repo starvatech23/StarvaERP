@@ -122,32 +122,101 @@ user_problem_statement: |
   Previously completed: Labor reports with wage tracking, profile management, quotations, timeline views, and full labor management.
 
 backend:
-  - task: "Labor Management APIs"
+  - task: "Vendor Management APIs"
     implemented: true
-    working: true
+    working: "NA"
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "main"
-        comment: "All labor management APIs (workers, attendance, site transfers) are implemented and working. Endpoints include: GET/POST/PUT/DELETE for workers, GET/POST/PUT for attendance records, GET/POST for site transfers."
-
-  - task: "Labor Report Data Endpoints"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Backend APIs for attendance and workers exist. Frontend fetches and calculates wage reports, site-wise costs, and worker statistics client-side. Need to verify data flow for reports."
-      - working: true
-        agent: "testing"
-        comment: "✅ COMPREHENSIVE BACKEND TESTING COMPLETED - All 13 tests passed (100% success rate). Verified: (1) GET /api/workers - Returns workers with id, full_name, phone, skill_group, base_rate, pay_scale, current_site_name. (2) GET /api/labor-attendance - Returns attendance records with worker_id, worker_name, worker_skill, project_id, project_name, attendance_date, status, hours_worked, overtime_hours, wages_earned. (3) GET /api/projects - Returns projects with id and name for filtering. (4) API filtering works correctly by project_id, worker_id, and date. (5) Authentication properly required for all endpoints. (6) Report calculations verified: total wages, status counts, worker-wise totals, site-wise breakdowns all working. (7) Created test data: 3 workers with different skills (mason, carpenter, electrician), 1 test project, 21 attendance records over 7 days with varied patterns (present/absent/overtime). Backend data flow for labor reports is fully functional and ready for frontend integration."
+        comment: "Comprehensive vendor CRUD APIs with business details, GST, PAN, bank info. Endpoints: GET/POST/PUT/DELETE /api/vendors. Includes filtering by active status and proper authentication/authorization (Admin/PM only for modifications)."
+
+  - task: "Material Management APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Material master CRUD with categories (cement, steel, sand, etc.), units, minimum stock. Endpoints: GET/POST/PUT/DELETE /api/materials. Supports category filtering."
+
+  - task: "Vendor Material Rate APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Track vendor-specific rates for materials with effective dates. GET/POST/PUT /api/vendor-material-rates. Supports filtering by vendor_id, material_id, and active status."
+
+  - task: "Site Inventory APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Site inventory tracking with current stock levels. GET/POST/PUT /api/site-inventory. Auto-creates or updates inventory for project-material combinations. Includes low stock detection."
+
+  - task: "Material Requirements APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Future material requirements planning per site. GET/POST/PUT /api/material-requirements. Supports priority levels and fulfillment tracking."
+
+  - task: "Purchase Order APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Complete PO management with line items. GET/POST/PUT /api/purchase-orders. Creates PO with multiple items, tracks status (draft, pending, ordered, received, etc.). Admin/PM only."
+
+  - task: "Material Transaction APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Transaction tracking with auto inventory updates. POST /api/material-transactions. Supports receipt, consumption, transfer_in, transfer_out, return, adjustment. Automatically updates site_inventory based on transaction type."
+
+  - task: "Material Spending Reports API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Comprehensive spending analysis API. GET /api/material-reports/spending with weekly/monthly periods, project filtering. Returns total spending, category_spending, site_spending, vendor_spending aggregations."
 
 frontend:
   - task: "Labor Reports Screen"
