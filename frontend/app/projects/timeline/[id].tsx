@@ -437,8 +437,55 @@ const styles = StyleSheet.create({
     backgroundColor: '#10B981',
     borderRadius: 4,
   },
-  ganttContainer: {
+  timelineContainer: {
+    gap: 12,
     marginTop: 8,
+  },
+  timelineItem: {
+    flexDirection: 'row',
+    backgroundColor: '#F7FAFC',
+    padding: 12,
+    borderRadius: 8,
+    gap: 12,
+  },
+  timelineLeft: {
+    flex: 1,
+  },
+  timelineName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A202C',
+    marginBottom: 4,
+  },
+  timelineDate: {
+    fontSize: 12,
+    color: '#718096',
+    marginBottom: 2,
+  },
+  timelineDuration: {
+    fontSize: 11,
+    color: '#A0AEC0',
+  },
+  timelineRight: {
+    justifyContent: 'center',
+    minWidth: 100,
+  },
+  timelineBarContainer: {
+    height: 8,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  timelineBar: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  timelineProgress: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#718096',
+    textAlign: 'right',
   },
   emptyState: {
     alignItems: 'center',
