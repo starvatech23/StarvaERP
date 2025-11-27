@@ -180,3 +180,25 @@ export const adminUsersAPI = {
 export const reportsAPI = {
   getFinancialReport: (projectId: string) => api.get(`/reports/financial/${projectId}`),
 };
+
+// Workers API
+export const workersAPI = {
+  getAll: (params?: any) => api.get('/workers', { params }),
+  getById: (id: string) => api.get(`/workers/${id}`),
+  create: (data: any) => api.post('/workers', data),
+  update: (id: string, data: any) => api.put(`/workers/${id}`, data),
+  delete: (id: string) => api.delete(`/workers/${id}`),
+};
+
+// Labor Attendance API
+export const laborAttendanceAPI = {
+  getAll: (params?: any) => api.get('/labor-attendance', { params }),
+  create: (data: any) => api.post('/labor-attendance', data),
+  update: (id: string, data: any) => api.put(`/labor-attendance/${id}`, data),
+};
+
+// Site Transfers API
+export const siteTransfersAPI = {
+  getAll: (params?: any) => api.get('/site-transfers', { params }),
+  create: (data: any) => api.post('/site-transfers', data),
+};
