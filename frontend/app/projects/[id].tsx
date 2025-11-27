@@ -222,6 +222,19 @@ export default function ProjectDetailsScreen() {
           </View>
         )}
 
+        {/* Project Timeline Card */}
+        {tasks.length > 0 && (
+          <TimelineCard
+            projectId={id as string}
+            projectName={project.name}
+            tasks={tasks}
+            onRefresh={() => {
+              loadProject();
+              loadTasks();
+            }}
+          />
+        )}
+
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Tasks ({tasks.length})</Text>
