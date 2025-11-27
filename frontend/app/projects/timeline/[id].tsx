@@ -185,23 +185,47 @@ export default function ProjectTimelineScreen() {
           </View>
         </View>
 
-        {/* Gantt Chart */}
+        {/* Simple Timeline View */}
         {ganttData.length > 0 ? (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Timeline View</Text>
-            <View style={styles.ganttContainer}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-                <GanttChart
-                  data={ganttData}
-                  viewMode="day"
-                  showToday
-                  columnWidth={40}
-                  barHeight={40}
-                  onTaskPress={(task: any) => {
-                    router.push(`/tasks/${task.id}` as any);
-                  }}
-                />
-              </ScrollView>
+            <View style={styles.timelineContainer}>
+              {ganttData.map((item: any, index: number) => {
+                const duration = moment(item.end).diff(moment(item.start), 'days');
+                const daysFromStart = moment(item.start).diff(moment(ganttData[0].start), 'days');
+                
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.timelineItem}
+                    onPress={() => router.push(`/tasks/${item.id}` as any)}
+                  >
+                    <View style={styles.timelineLeft}>
+                      <Text style={styles.timelineName} numberOfLines={2}>
+                        {item.name}
+                      </Text>
+                      <Text style={styles.timelineDate}>
+                        {moment(item.start).format('MMM DD')} - {moment(item.end).format('MMM DD')}
+                      </Text>
+                      <Text style={styles.timelineDuration}>{duration} days</Text>
+                    </View>
+                    <View style={styles.timelineRight}>
+                      <View style={styles.timelineBarContainer}>
+                        <View
+                          style={[
+                            styles.timelineBar,
+                            {
+                              backgroundColor: item.color,
+                              width: `${Math.min(item.progress, 100)}%`,
+                            },
+                          ]}
+                        />
+                      </View>
+                      <Text style={styles.timelineProgress}>{item.progress}%</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
         ) : (
