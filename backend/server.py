@@ -431,11 +431,30 @@ async def delete_project(
 
 # ============= Tasks Routes =============
 
+async def get_task_subtasks(task_id: str):
+    """Helper function to get subtasks"""
+    subtasks = await db.tasks.find({"parent_task_id": task_id}).to_list(100)
+    result = []
+    for subtask in subtasks:
+        subtask_dict = serialize_doc(subtask)
+        
+        # Get assigned users for subtask
+        assigned_users = []
+        for user_id in subtask_dict.get("assigned_to", []):
+            user = await get_user_by_id(user_id)
+            if user:
+                assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
+        subtask_dict["assigned_users"] = assigned_users
+        result.append(subtask_dict)
+    
+    return result
+
 @api_router.get("/tasks", response_model=List[TaskResponse])
 async def get_tasks(
     project_id: str = None,
     status: str = None,
     assigned_to_me: bool = False,
+    parent_only: bool = True,  # By default, only get parent tasks
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get tasks with filters"""
@@ -448,6 +467,10 @@ async def get_tasks(
         query["status"] = status
     if assigned_to_me:
         query["assigned_to"] = str(current_user["_id"])
+    
+    # Filter parent tasks only (no subtasks)
+    if parent_only:
+        query["parent_task_id"] = None
     
     tasks = await db.tasks.find(query).to_list(1000)
     
@@ -466,6 +489,9 @@ async def get_tasks(
             if user:
                 assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
         task_dict["assigned_users"] = assigned_users
+        
+        # Get subtasks
+        task_dict["subtasks"] = await get_task_subtasks(task_dict["id"])
         
         result.append(TaskResponse(**task_dict))
     
