@@ -308,6 +308,25 @@ export default function LaborScreen() {
             Transfers
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'reports' && styles.activeTab]}
+          onPress={() => setActiveTab('reports')}
+        >
+          <Ionicons
+            name="stats-chart"
+            size={20}
+            color={activeTab === 'reports' ? '#FF6B35' : '#718096'}
+          />
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'reports' && styles.activeTabText,
+            ]}
+          >
+            Reports
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Content */}
