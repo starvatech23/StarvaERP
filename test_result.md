@@ -140,89 +140,29 @@ backend:
         comment: "Backend APIs for attendance and workers exist. Frontend fetches and calculates wage reports, site-wise costs, and worker statistics client-side. Need to verify data flow for reports."
 
 frontend:
-  - task: "Profile Edit Screen"
+  - task: "Labor Reports Screen"
     implemented: true
     working: "NA"
-    file: "/app/frontend/app/profile/edit.tsx"
+    file: "/app/frontend/app/labor/reports.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Created edit profile screen at /profile/edit with form for updating user details (full_name, email, phone, address). Integrated with profile API."
+        comment: "Created comprehensive labor reports screen with weekly/monthly wage reports, site-wise cost breakdown, individual worker wages with attendance statistics. Added pie chart visualizations using react-native-chart-kit for site-wise wage distribution and attendance status breakdown. Features period toggle (weekly/monthly), date navigation, project filtering, overall statistics dashboard, and detailed worker wage cards with P/OT/A tracking."
 
-  - task: "Company Settings Screen"
+  - task: "Labor Tab Integration"
     implemented: true
-    working: "NA"
-    file: "/app/frontend/app/settings/company.tsx"
+    working: true
+    file: "/app/frontend/app/(tabs)/labor.tsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
-      - working: "NA"
+      - working: true
         agent: "main"
-        comment: "Created company settings screen at /settings/company with admin-only access. Form includes company name, address, phone, email, tax_id, website."
-
-  - task: "Enhanced Quotation Create Screen"
-    implemented: true
-    working: "NA"
-    file: "/app/frontend/app/crm/create-quotation.tsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Created detailed quotation screen at /crm/create-quotation with line items, quantities, unit prices, tax rates, automatic calculations for subtotal, tax, and total amounts."
-
-  - task: "Excel Upload Leads Screen"
-    implemented: true
-    working: "NA"
-    file: "/app/frontend/app/crm/upload-leads.tsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Created Excel upload screen at /crm/upload-leads using expo-document-picker and xlsx library. Parses Excel files and validates required fields before bulk upload."
-
-  - task: "API Service Updates"
-    implemented: true
-    working: "NA"
-    file: "/app/frontend/services/api.ts"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Added settingsAPI, profileAPI, and bulkLeadsAPI with methods for new endpoints"
-
-  - task: "Profile Screen Navigation"
-    implemented: true
-    working: "NA"
-    file: "/app/frontend/app/(tabs)/profile.tsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Updated profile screen to link to /profile/edit and /settings/company (admin only). Added role-based filtering for menu items."
-
-  - task: "CRM Screen Action Buttons"
-    implemented: true
-    working: "NA"
-    file: "/app/frontend/app/(tabs)/crm.tsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Added upload leads button and dynamic add button (creates lead or quotation based on active tab)"
+        comment: "Labor tab already has Reports tab integrated. Clicking on Reports tab shows a CTA that navigates to /labor/reports screen. Navigation is working correctly."
 
 metadata:
   created_by: "main_agent"
