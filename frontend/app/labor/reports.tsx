@@ -8,12 +8,14 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { workersAPI, laborAttendanceAPI, projectsAPI } from '../../services/api';
 import { Picker } from '@react-native-picker/picker';
 import moment from 'moment';
+import { PieChart } from 'react-native-chart-kit';
 
 export default function LaborReportsScreen() {
   const router = useRouter();
