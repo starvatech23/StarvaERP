@@ -129,15 +129,18 @@ backend:
 
   - task: "Labor Report Data Endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Backend APIs for attendance and workers exist. Frontend fetches and calculates wage reports, site-wise costs, and worker statistics client-side. Need to verify data flow for reports."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE BACKEND TESTING COMPLETED - All 13 tests passed (100% success rate). Verified: (1) GET /api/workers - Returns workers with id, full_name, phone, skill_group, base_rate, pay_scale, current_site_name. (2) GET /api/labor-attendance - Returns attendance records with worker_id, worker_name, worker_skill, project_id, project_name, attendance_date, status, hours_worked, overtime_hours, wages_earned. (3) GET /api/projects - Returns projects with id and name for filtering. (4) API filtering works correctly by project_id, worker_id, and date. (5) Authentication properly required for all endpoints. (6) Report calculations verified: total wages, status counts, worker-wise totals, site-wise breakdowns all working. (7) Created test data: 3 workers with different skills (mason, carpenter, electrician), 1 test project, 21 attendance records over 7 days with varied patterns (present/absent/overtime). Backend data flow for labor reports is fully functional and ready for frontend integration."
 
 frontend:
   - task: "Labor Reports Screen"
