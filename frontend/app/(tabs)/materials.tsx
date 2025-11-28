@@ -96,40 +96,57 @@ export default function MaterialsScreen() {
       );
     }
 
-    return vendors.map((vendor: any) => (
-      <TouchableOpacity
-        key={vendor.id}
-        style={styles.card}
-        onPress={() => router.push(`/materials/vendor-details/${vendor.id}` as any)}
-      >
-        <View style={styles.cardHeader}>
-          <View style={styles.vendorInfo}>
-            <Ionicons name="business" size={40} color="#FF6B35" />
-            <View style={styles.vendorDetails}>
-              <Text style={styles.vendorName}>{vendor.business_name}</Text>
-              <Text style={styles.vendorContact}>{vendor.contact_person}</Text>
+    return vendors.map((vendor: any) => {
+      const dues = vendorDues[vendor.id];
+      const hasDues = dues && dues.total_dues > 0;
+      
+      return (
+        <TouchableOpacity
+          key={vendor.id}
+          style={styles.card}
+          onPress={() => router.push(`/materials/vendor-details/${vendor.id}` as any)}
+        >
+          <View style={styles.cardHeader}>
+            <View style={styles.vendorInfo}>
+              <Ionicons name="business" size={40} color="#FF6B35" />
+              <View style={styles.vendorDetails}>
+                <Text style={styles.vendorName}>{vendor.business_name}</Text>
+                <Text style={styles.vendorContact}>{vendor.contact_person}</Text>
+              </View>
             </View>
+            {vendor.gst_number && (
+              <View style={styles.gstBadge}>
+                <Text style={styles.gstText}>GST</Text>
+              </View>
+            )}
           </View>
-          {vendor.gst_number && (
-            <View style={styles.gstBadge}>
-              <Text style={styles.gstText}>GST</Text>
+          
+          {hasDues && (
+            <View style={styles.duesSection}>
+              <View style={styles.duesInfo}>
+                <Ionicons name="cash-outline" size={18} color="#DC2626" />
+                <Text style={styles.duesLabel}>Payment Due:</Text>
+                <Text style={styles.duesAmount}>₹{dues.total_dues.toLocaleString()}</Text>
+              </View>
+              <Text style={styles.duesOrders}>{dues.order_count} pending order(s)</Text>
             </View>
           )}
-        </View>
-        <View style={styles.cardFooter}>
-          <View style={styles.infoItem}>
-            <Ionicons name="call-outline" size={16} color="#718096" />
-            <Text style={styles.infoText}>{vendor.phone}</Text>
-          </View>
-          {vendor.email && (
+          
+          <View style={styles.cardFooter}>
             <View style={styles.infoItem}>
-              <Ionicons name="mail-outline" size={16} color="#718096" />
-              <Text style={styles.infoText}>{vendor.email}</Text>
+              <Ionicons name="call-outline" size={16} color="#718096" />
+              <Text style={styles.infoText}>{vendor.phone}</Text>
             </View>
-          )}
-        </View>
-      </TouchableOpacity>
-    ));
+            {vendor.email && (
+              <View style={styles.infoItem}>
+                <Ionicons name="mail-outline" size={16} color="#718096" />
+                <Text style={styles.infoText}>{vendor.email}</Text>
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
+      );
+    });
   };
 
   const renderMaterials = () => {
