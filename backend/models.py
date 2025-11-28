@@ -126,6 +126,22 @@ class TaskBase(BaseModel):
     assigned_to: List[str] = []  # User IDs
     attachments: List[str] = []  # base64 or URLs
     parent_task_id: Optional[str] = None  # For subtasks
+    # Construction-specific fields
+    work_type: Optional[ConstructionWorkType] = None
+    measurement_type: Optional[MeasurementType] = None
+    # Gantt chart fields
+    planned_start_date: Optional[datetime] = None
+    planned_end_date: Optional[datetime] = None
+    actual_start_date: Optional[datetime] = None
+    actual_end_date: Optional[datetime] = None
+    progress_percentage: float = 0  # 0-100
+    # Work measurement
+    work_area: Optional[float] = None  # Square feet
+    work_length: Optional[float] = None  # Feet
+    work_breadth: Optional[float] = None  # Feet
+    work_height: Optional[float] = None  # Feet
+    work_count: Optional[int] = None  # Number of items
+    dependencies: List[str] = []  # Task IDs that must complete before this one
 
 class TaskCreate(TaskBase):
     pass
