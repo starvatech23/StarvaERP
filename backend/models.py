@@ -906,6 +906,32 @@ class TransactionType(str, Enum):
     RETURN = "return"  # Return to vendor
     ADJUSTMENT = "adjustment"  # Stock adjustment
 
+# Construction Work Type Enum
+class ConstructionWorkType(str, Enum):
+    EARTHWORK = "earthwork"  # Volume based (LxBxH)
+    CONCRETE_WORK = "concrete_work"  # Volume based
+    BRICKWORK = "brickwork"  # Area based (wall area)
+    BLOCKWORK = "blockwork"  # Area based
+    PLASTERING = "plastering"  # Area based
+    FLOORING = "flooring"  # Area based
+    TILING = "tiling"  # Area based
+    PAINTING = "painting"  # Area based
+    ELECTRICAL = "electrical"  # Linear or count based
+    PLUMBING = "plumbing"  # Linear or count based
+    CARPENTRY = "carpentry"  # Area or count based
+    STEEL_FIXING = "steel_fixing"  # Weight based
+    ROOFING = "roofing"  # Area based
+    WATERPROOFING = "waterproofing"  # Area based
+    GENERAL = "general"  # No specific calculation
+
+# Work Measurement Type
+class MeasurementType(str, Enum):
+    AREA = "area"  # Square feet
+    VOLUME = "volume"  # Cubic feet (L×B×H)
+    LENGTH = "length"  # Linear feet
+    COUNT = "count"  # Number of items
+    WEIGHT = "weight"  # Kilograms
+
 # Material Transaction Models
 class MaterialTransactionBase(BaseModel):
     project_id: str
