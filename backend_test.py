@@ -189,7 +189,8 @@ class BackendTester:
                 if response.status_code == 200:
                     vendor = response.json()
                     self.test_data[f"vendor_{i+1}_id"] = vendor["id"]
-                    self.log_result(f"POST /api/vendors (Vendor {i+1})", True, f"Created vendor: {vendor['company_name']}")
+                    vendor_name = vendor.get("business_name", vendor.get("company_name", "Unknown Vendor"))
+                    self.log_result(f"POST /api/vendors (Vendor {i+1})", True, f"Created vendor: {vendor_name}")
                 else:
                     self.log_result(f"POST /api/vendors (Vendor {i+1})", False, f"Failed: {response.status_code}", response.text)
             except Exception as e:
