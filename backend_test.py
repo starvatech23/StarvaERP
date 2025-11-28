@@ -154,7 +154,7 @@ class BackendTester:
         # Test 2: POST /api/vendors - Create test vendors
         test_vendors = [
             {
-                "company_name": "Shree Cement Ltd",
+                "business_name": "Shree Cement Ltd",
                 "contact_person": "Rajesh Kumar",
                 "phone": "+91-9876543210",
                 "email": "rajesh@shreecement.com",
@@ -168,7 +168,7 @@ class BackendTester:
                 "is_active": True
             },
             {
-                "company_name": "Modern Steel Works",
+                "business_name": "Modern Steel Works",
                 "contact_person": "Amit Sharma",
                 "phone": "+91-9876543211",
                 "email": "amit@modernsteel.com",
