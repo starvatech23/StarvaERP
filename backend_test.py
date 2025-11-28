@@ -228,7 +228,7 @@ class BackendTester:
         # Test 5: DELETE /api/vendors/{id} - Create and delete test vendor
         try:
             delete_vendor_data = {
-                "company_name": "Test Delete Vendor",
+                "business_name": "Test Delete Vendor",
                 "contact_person": "Test Person",
                 "phone": "+91-9999999999",
                 "email": "delete@test.com",
