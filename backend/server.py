@@ -2666,6 +2666,55 @@ async def create_material_transaction(
     
     return MaterialTransactionResponse(**transaction_dict)
 
+# ============= Vendor Payment Dues Route =============
+
+@api_router.get("/vendors/{vendor_id}/payment-dues")
+async def get_vendor_payment_dues(
+    vendor_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get total payment dues for a vendor"""
+    # Get all purchase orders for this vendor
+    orders = await db.purchase_orders.find({
+        "vendor_id": vendor_id,
+        "status": {"$in": ["pending", "approved", "ordered", "partially_received", "received"]}
+    }).to_list(length=1000)
+    
+    total_dues = 0
+    for order in orders:
+        # Assuming orders are unpaid unless marked otherwise
+        # You can add a 'paid' field to track payment status
+        total_dues += order.get("final_amount", 0)
+    
+    return {
+        "vendor_id": vendor_id,
+        "total_dues": total_dues,
+        "order_count": len(orders)
+    }
+
+@api_router.get("/vendors/all/payment-dues")
+async def get_all_vendors_payment_dues(
+    current_user: dict = Depends(get_current_user)
+):
+    """Get payment dues for all vendors"""
+    vendors = await db.vendors.find().to_list(length=1000)
+    vendor_dues = {}
+    
+    for vendor in vendors:
+        vendor_id = str(vendor["_id"])
+        orders = await db.purchase_orders.find({
+            "vendor_id": vendor_id,
+            "status": {"$in": ["pending", "approved", "ordered", "partially_received", "received"]}
+        }).to_list(length=1000)
+        
+        total_dues = sum(order.get("final_amount", 0) for order in orders)
+        vendor_dues[vendor_id] = {
+            "total_dues": total_dues,
+            "order_count": len(orders)
+        }
+    
+    return vendor_dues
+
 # ============= Material Reports Routes =============
 
 @api_router.get("/material-reports/spending")
