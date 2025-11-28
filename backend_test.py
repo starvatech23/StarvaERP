@@ -478,7 +478,7 @@ class BackendTester:
                         "vendor_id": self.test_data["vendor_2_id"],
                         "project_id": self.test_data["project_id"],
                         "order_date": datetime.now().isoformat(),
-                        "expected_delivery": (datetime.now() + timedelta(days=10)).isoformat(),
+                        "expected_delivery_date": (datetime.now() + timedelta(days=10)).isoformat(),
                         "status": "ordered",
                         "items": [
                             {
@@ -490,6 +490,7 @@ class BackendTester:
                         ],
                         "subtotal": 325000,
                         "tax_amount": 12200,
+                        "total_amount": 337200,
                         "final_amount": 337200,
                         "notes": "Quality steel required"
                     }
