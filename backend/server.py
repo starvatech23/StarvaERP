@@ -53,6 +53,10 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ.get('DB_NAME', 'construction_db')]
 
+# Dependency to get database
+async def get_database():
+    return db
+
 # Create the main app
 app = FastAPI(title="Construction Management API")
 
