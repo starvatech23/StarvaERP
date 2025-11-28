@@ -39,8 +39,12 @@ export default function MaterialsScreen() {
   const loadData = async () => {
     try {
       if (activeTab === 'vendors') {
-        const response = await vendorsAPI.getAll();
-        setVendors(response.data || []);
+        const [vendorsRes, duesRes] = await Promise.all([
+          vendorsAPI.getAll(),
+          vendorsAPI.getAllPaymentDues(),
+        ]);
+        setVendors(vendorsRes.data || []);
+        setVendorDues(duesRes.data || {});
       } else if (activeTab === 'materials') {
         const response = await materialsAPI.getAll();
         setMaterials(response.data || []);
