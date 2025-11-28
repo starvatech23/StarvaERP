@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { vendorsAPI, materialsAPI, siteInventoryAPI } from '../../services/api';
 
 export default function MaterialsScreen() {
@@ -20,8 +21,16 @@ export default function MaterialsScreen() {
   const [vendors, setVendors] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [vendorDues, setVendorDues] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Reload data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [activeTab])
+  );
 
   useEffect(() => {
     loadData();
