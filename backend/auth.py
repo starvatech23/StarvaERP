@@ -91,7 +91,7 @@ def require_role(allowed_roles: list):
                 detail="You don't have permission to access this resource"
             )
         return user
-    return Depends(role_checker)
+    return role_checker
 
 # Mock OTP Functions
 def generate_otp() -> str:
