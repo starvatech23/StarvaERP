@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend API Testing for Vendor & Materials Management Module
-Tests all 8 major API groups with complete workflow scenarios
+Comprehensive Backend Testing for Vendor & Materials Management Module
+Tests all CRUD operations, payment dues, inventory management, and reporting endpoints
 """
 
 import requests
 import json
-import uuid
-from datetime import datetime, timedelta
-from typing import Dict, List, Any
 import sys
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
 
 # Configuration
 BASE_URL = "https://buildflow-74.preview.emergentagent.com/api"
