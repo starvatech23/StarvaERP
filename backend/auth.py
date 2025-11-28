@@ -55,9 +55,11 @@ def decode_token(token: str) -> dict:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db = None):
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get current authenticated user from token"""
     from bson import ObjectId
+    # Import here to avoid circular dependency
+    from server import db
     
     token = credentials.credentials
     payload = decode_token(token)
@@ -81,15 +83,15 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 
 def require_role(allowed_roles: list):
     """Decorator to check if user has required role"""
-    async def role_checker(credentials: HTTPAuthorizationCredentials = Depends(security), db = None):
-        user = await get_current_user(credentials, db)
+    async def role_checker(credentials: HTTPAuthorizationCredentials = Depends(security)):
+        user = await get_current_user(credentials)
         if user["role"] not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You don't have permission to access this resource"
             )
         return user
-    return role_checker
+    return Depends(role_checker)
 
 # Mock OTP Functions
 def generate_otp() -> str:
