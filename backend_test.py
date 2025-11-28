@@ -203,7 +203,8 @@ class BackendTester:
                 response = requests.get(f"{BASE_URL}/vendors/{vendor_id}", headers=self.headers)
                 if response.status_code == 200:
                     vendor = response.json()
-                    self.log_result("GET /api/vendors/{id}", True, f"Retrieved vendor: {vendor['company_name']}")
+                    vendor_name = vendor.get("business_name", vendor.get("company_name", "Unknown Vendor"))
+                    self.log_result("GET /api/vendors/{id}", True, f"Retrieved vendor: {vendor_name}")
                 else:
                     self.log_result("GET /api/vendors/{id}", False, f"Failed: {response.status_code}", response.text)
             except Exception as e:
