@@ -955,3 +955,50 @@ class MaterialTransactionResponse(MaterialTransactionBase):
     created_by_name: Optional[str] = None
     created_at: datetime
 
+# ============= Task Material Management Models =============
+
+# Task Material Estimation Model
+class TaskMaterialEstimate(BaseModel):
+    task_id: str
+    material_id: str
+    estimated_quantity: float
+    actual_quantity: float = 0
+    unit: str
+    notes: Optional[str] = None
+
+class TaskMaterialEstimateResponse(TaskMaterialEstimate):
+    id: str
+    material_name: str
+    material_category: str
+    created_at: datetime
+
+# Task Work Measurement Model
+class TaskWorkMeasurement(BaseModel):
+    work_type: ConstructionWorkType
+    measurement_type: MeasurementType
+    area: Optional[float] = None  # Square feet
+    length: Optional[float] = None  # Feet
+    breadth: Optional[float] = None  # Feet
+    height: Optional[float] = None  # Feet
+    count: Optional[int] = None  # Number of items
+    weight: Optional[float] = None  # Kg
+    notes: Optional[str] = None
+
+class TaskWorkMeasurementResponse(TaskWorkMeasurement):
+    calculated_value: float  # Calculated area/volume based on type
+
+# Material Consumption Rate Template (Industry Standards)
+class MaterialConsumptionTemplate(BaseModel):
+    work_type: ConstructionWorkType
+    material_category: str
+    material_name: str
+    consumption_rate: float  # Per unit (sqft/cuft/etc)
+    unit: str
+    measurement_type: MeasurementType
+    description: str
+    is_active: bool = True
+
+class MaterialConsumptionTemplateResponse(MaterialConsumptionTemplate):
+    id: str
+    created_at: datetime
+
