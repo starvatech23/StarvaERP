@@ -39,7 +39,34 @@ class BackendTester:
     def authenticate(self):
         """Authenticate and get token"""
         try:
-            # Register a test admin user
+            # Try phone-based authentication first
+            phone = "+91-9876543210"
+            
+            # Step 1: Send OTP
+            otp_request = {"phone": phone}
+            response = requests.post(f"{BASE_URL}/auth/send-otp", json=otp_request, headers=self.headers)
+            
+            if response.status_code == 200:
+                otp_data = response.json()
+                otp = otp_data.get("otp", "123456")  # Use the returned OTP or default
+                
+                # Step 2: Verify OTP and register/login
+                verify_data = {
+                    "phone": phone,
+                    "otp": otp,
+                    "full_name": "Test Admin",
+                    "role": "admin"
+                }
+                
+                response = requests.post(f"{BASE_URL}/auth/verify-otp", json=verify_data, headers=self.headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    self.auth_token = data["access_token"]
+                    self.headers["Authorization"] = f"Bearer {self.auth_token}"
+                    self.log_result("Authentication", True, "Successfully authenticated via phone OTP")
+                    return True
+            
+            # Fallback to email authentication
             register_data = {
                 "full_name": "Test Admin",
                 "email": "admin@test.com",
