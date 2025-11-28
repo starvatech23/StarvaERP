@@ -656,4 +656,33 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  duesSection: {
+    backgroundColor: '#FEF2F2',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  duesInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  duesLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#991B1B',
+  },
+  duesAmount: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#DC2626',
+    marginLeft: 'auto',
+  },
+  duesOrders: {
+    fontSize: 12,
+    color: '#DC2626',
+    marginLeft: 26,
+  },
 });
