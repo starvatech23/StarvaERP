@@ -266,7 +266,7 @@ async def verify_otp(request: OTPVerify):
 @api_router.get("/auth/me", response_model=UserResponse)
 async def get_current_user_info(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get current user information"""
-    user = await get_current_user(credentials, db)
+    user = await get_current_user(credentials)
     return UserResponse(
         id=str(user["_id"]),
         email=user.get("email"),
@@ -285,7 +285,7 @@ async def get_current_user_info(credentials: HTTPAuthorizationCredentials = Depe
 @api_router.get("/users", response_model=List[UserResponse])
 async def get_users(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get all users (admin/PM only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Not authorized")
@@ -307,7 +307,7 @@ async def get_users(credentials: HTTPAuthorizationCredentials = Depends(security
 @api_router.get("/users/by-role/{role}")
 async def get_users_by_role(role: UserRole, credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get users by role"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     users = await db.users.find({"role": role}).to_list(1000)
     return [{"id": str(u["_id"]), "name": u["full_name"], "role": u["role"]} for u in users]
@@ -320,7 +320,7 @@ async def get_projects(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get all projects"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     # Build query
     query = {}
@@ -350,7 +350,7 @@ async def get_project(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get project details"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] == UserRole.VENDOR:
         raise HTTPException(status_code=403, detail="Vendors cannot access projects")
@@ -372,7 +372,7 @@ async def create_project(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a new project"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     # Only admin and PM can create projects
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
@@ -399,7 +399,7 @@ async def update_project(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update a project"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and project managers can update projects")
@@ -431,7 +431,7 @@ async def delete_project(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Delete a project"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and project managers can delete projects")
@@ -471,7 +471,7 @@ async def get_tasks(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get tasks with filters"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {}
     if project_id:
@@ -513,7 +513,7 @@ async def get_tasks(
 @api_router.get("/tasks/my-tasks", response_model=List[TaskResponse])
 async def get_my_tasks(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get current user's tasks"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     tasks = await db.tasks.find({"assigned_to": str(current_user["_id"])}).to_list(1000)
     
@@ -541,7 +541,7 @@ async def get_task(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get task details"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     task = await db.tasks.find_one({"_id": ObjectId(task_id)})
     if not task:
@@ -570,7 +570,7 @@ async def create_task(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a new task"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     # Only admin, PM, and engineers can create tasks
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.ENGINEER]:
@@ -603,7 +603,7 @@ async def update_task(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update a task"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     existing = await db.tasks.find_one({"_id": ObjectId(task_id)})
     if not existing:
@@ -646,7 +646,7 @@ async def delete_task(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Delete a task"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     existing = await db.tasks.find_one({"_id": ObjectId(task_id)})
     if not existing:
@@ -677,7 +677,7 @@ async def get_attendance(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get attendance records"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {}
     if user_id:
@@ -714,7 +714,7 @@ async def check_in(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Check in to a project"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     attendance_dict = attendance.dict()
     attendance_dict["user_id"] = str(current_user["_id"])
@@ -739,7 +739,7 @@ async def check_out(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Check out from a project"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     existing = await db.attendance.find_one({"_id": ObjectId(attendance_id)})
     if not existing:
@@ -765,7 +765,7 @@ async def get_schedules(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get work schedules"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {}
     if project_id:
@@ -806,7 +806,7 @@ async def create_schedule(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a work schedule"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.ENGINEER]:
         raise HTTPException(status_code=403, detail="Insufficient permissions")
@@ -842,7 +842,7 @@ async def create_schedule(
 @api_router.get("/crm/leads", response_model=List[LeadResponse])
 async def get_leads(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get all CRM leads"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and PMs can access CRM")
@@ -870,7 +870,7 @@ async def create_lead(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a new lead"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and PMs can create leads")
@@ -900,7 +900,7 @@ async def update_lead(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update a lead"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and PMs can update leads")
@@ -937,7 +937,7 @@ async def get_quotations(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get quotations"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and PMs can access quotations")
@@ -969,7 +969,7 @@ async def create_quotation(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a quotation"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and PMs can create quotations")
@@ -995,7 +995,7 @@ async def create_quotation(
 @api_router.get("/settings/company")
 async def get_company_settings(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get company settings"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     settings = await db.company_settings.find_one({})
     if not settings:
@@ -1018,7 +1018,7 @@ async def update_company_settings(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update company settings (Admin only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Only admins can update company settings")
@@ -1045,7 +1045,7 @@ async def update_profile(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update user profile"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     update_data = profile.dict(exclude_unset=True)
     
@@ -1077,7 +1077,7 @@ async def bulk_upload_leads(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Bulk upload leads (Admin/PM only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and PMs can bulk upload leads")
@@ -1103,7 +1103,7 @@ async def get_payments(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get payments"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {}
     if project_id:
@@ -1131,7 +1131,7 @@ async def create_payment(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a payment"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Insufficient permissions")
@@ -1165,7 +1165,7 @@ async def update_payment(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update a payment"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Insufficient permissions")
@@ -1200,7 +1200,7 @@ async def get_expenses(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get expenses"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {}
     if project_id:
@@ -1232,7 +1232,7 @@ async def create_expense(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create an expense"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     expense_dict = expense.dict()
     expense_dict["created_by"] = str(current_user["_id"])
@@ -1268,7 +1268,7 @@ async def update_expense(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update an expense"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     existing = await db.expenses.find_one({"_id": ObjectId(expense_id)})
     if not existing:
@@ -1311,7 +1311,7 @@ async def get_notifications(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get user notifications"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {"user_id": str(current_user["_id"])}
     if unread_only:
@@ -1327,7 +1327,7 @@ async def mark_notification_read(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Mark notification as read"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     result = await db.notifications.update_one(
         {"_id": ObjectId(notification_id), "user_id": str(current_user["_id"])},
@@ -1344,7 +1344,7 @@ async def mark_all_notifications_read(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Mark all notifications as read"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     await db.notifications.update_many(
         {"user_id": str(current_user["_id"]), "is_read": False},
@@ -1361,7 +1361,7 @@ async def get_activity_log(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get activity log"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     activities = await db.activity_logs.find().sort("created_at", -1).limit(limit).to_list(limit)
     
@@ -1388,7 +1388,7 @@ async def get_all_users_admin(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get all users with stats (Admin only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -1425,7 +1425,7 @@ async def update_user_role(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update user role (Admin only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -1447,7 +1447,7 @@ async def update_user_status(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Activate/Deactivate user (Admin only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -1473,7 +1473,7 @@ async def get_project_financial_report(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get financial report for a project"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Insufficient permissions")
@@ -1539,7 +1539,7 @@ async def get_workers(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get all workers"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {}
     if status:
@@ -1574,7 +1574,7 @@ async def create_worker(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a new worker"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and project managers can add workers")
@@ -1599,7 +1599,7 @@ async def get_worker(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get worker details"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     worker = await db.workers.find_one({"_id": ObjectId(worker_id)})
     if not worker:
@@ -1623,7 +1623,7 @@ async def update_worker(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update a worker"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and project managers can update workers")
@@ -1658,7 +1658,7 @@ async def delete_worker(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Delete a worker"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Only admins can delete workers")
@@ -1679,7 +1679,7 @@ async def get_labor_attendance(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get labor attendance records"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {}
     if project_id:
@@ -1717,7 +1717,7 @@ async def create_labor_attendance(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Mark attendance for a worker"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and project managers can mark attendance")
@@ -1761,7 +1761,7 @@ async def update_labor_attendance(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update attendance (e.g., checkout)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and project managers can update attendance")
@@ -1811,7 +1811,7 @@ async def get_site_transfers(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get site transfer records"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {}
     if worker_id:
@@ -1852,7 +1852,7 @@ async def create_site_transfer(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Transfer worker from one site to another"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
         raise HTTPException(status_code=403, detail="Only admins and project managers can transfer workers")
@@ -1913,7 +1913,7 @@ async def get_all_vendors(
     is_active: Optional[bool] = None
 ):
     """Get all vendors"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {}
     if is_active is not None:
@@ -1939,7 +1939,7 @@ async def create_vendor(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a new vendor (Admin/PM only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     # Only admin, PM can create vendors
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
@@ -1963,7 +1963,7 @@ async def get_vendor(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get a specific vendor"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     vendor = await db.vendors.find_one({"_id": ObjectId(vendor_id)})
     if not vendor:
@@ -1982,7 +1982,7 @@ async def update_vendor(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update a vendor (Admin/PM only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     # Only admin, PM can update vendors
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
@@ -2028,7 +2028,7 @@ async def get_all_materials(
     is_active: Optional[bool] = None
 ):
     """Get all materials"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     query = {}
     if category:
@@ -2052,7 +2052,7 @@ async def create_material(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a new material (Admin/PM only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     # Only admin, PM can create materials
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
@@ -2089,7 +2089,7 @@ async def update_material(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Update a material (Admin/PM only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     # Only admin, PM can update materials
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
@@ -2163,7 +2163,7 @@ async def create_vendor_material_rate(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Create a new vendor material rate (Admin/PM only)"""
-    current_user = await get_current_user(credentials, db)
+    current_user = await get_current_user(credentials)
     
     # Only admin, PM can create rates
     if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
