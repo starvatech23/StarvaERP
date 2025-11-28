@@ -395,7 +395,8 @@ class BackendTester:
                     "project_id": self.test_data["project_id"],
                     "material_id": self.test_data["material_1_id"],
                     "current_stock": 250,
-                    "location": "Warehouse A"
+                    "location": "Warehouse A",
+                    "last_updated": datetime.now().isoformat()
                 }
                 
                 response = requests.post(f"{BASE_URL}/site-inventory", json=inventory_data, headers=self.headers)
