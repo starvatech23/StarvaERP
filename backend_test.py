@@ -112,10 +112,12 @@ class BackendTester:
                 "name": "Test Construction Site",
                 "description": "Test project for materials testing",
                 "location": "Test Location",
+                "address": "123 Test Street, Test City",
+                "client_name": "Test Client Ltd",
                 "start_date": datetime.now().isoformat(),
                 "end_date": (datetime.now() + timedelta(days=90)).isoformat(),
                 "budget": 1000000,
-                "status": "active"
+                "status": "planning"
             }
             
             response = requests.post(f"{BASE_URL}/projects", json=project_data, headers=self.headers)
