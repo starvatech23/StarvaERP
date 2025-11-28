@@ -195,6 +195,8 @@ export const vendorsAPI = {
   create: (data: any) => api.post('/vendors', data),
   update: (id: string, data: any) => api.put(`/vendors/${id}`, data),
   delete: (id: string) => api.delete(`/vendors/${id}`),
+  getPaymentDues: (id: string) => api.get(`/vendors/${id}/payment-dues`),
+  getAllPaymentDues: () => api.get('/vendors/all/payment-dues'),
 };
 
 // Materials API
