@@ -443,7 +443,7 @@ class BackendTester:
                     "vendor_id": self.test_data["vendor_1_id"],
                     "project_id": self.test_data["project_id"],
                     "order_date": datetime.now().isoformat(),
-                    "expected_delivery": (datetime.now() + timedelta(days=7)).isoformat(),
+                    "expected_delivery_date": (datetime.now() + timedelta(days=7)).isoformat(),
                     "status": "ordered",
                     "items": [
                         {
@@ -455,6 +455,7 @@ class BackendTester:
                     ],
                     "subtotal": 220000,
                     "tax_amount": 4200,
+                    "total_amount": 224200,
                     "final_amount": 224200,
                     "notes": "Urgent delivery required"
                 }
