@@ -247,3 +247,19 @@ export const materialReportsAPI = {
   getSpendingReport: (params?: any) => api.get('/material-reports/spending', { params }),
 };
 
+// Task Material Management API
+export const taskMaterialsAPI = {
+  getTemplates: (workType?: string) => api.get('/material-templates', { params: { work_type: workType } }),
+  estimateMaterials: (taskId: string) => api.post(`/tasks/${taskId}/estimate-materials`),
+  linkMaterials: (taskId: string, materials: any[]) => api.post(`/tasks/${taskId}/materials`, materials),
+  getTaskMaterials: (taskId: string) => api.get(`/tasks/${taskId}/materials`),
+  startWork: (taskId: string) => api.post(`/tasks/${taskId}/start-work`),
+  consumeMaterials: (taskId: string, consumption: any[]) => api.post(`/tasks/${taskId}/consume-materials`, consumption),
+  completeWork: (taskId: string, progress: number) => api.post(`/tasks/${taskId}/complete-work?progress_percentage=${progress}`),
+};
+
+// Gantt Chart API
+export const ganttAPI = {
+  getProjectGanttData: (projectId: string) => api.get(`/projects/${projectId}/gantt-data`),
+};
+
