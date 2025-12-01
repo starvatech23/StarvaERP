@@ -2985,50 +2985,6 @@ async def get_project_gantt_data(
         "tasks": gantt_data
     }
 
-        else:
-            # Create new inventory entry
-            await db.site_inventory.insert_one({
-                "project_id": transaction.project_id,
-                "material_id": transaction.material_id,
-                "current_stock": transaction.quantity,
-                "last_updated": transaction.transaction_date
-            })
-    elif transaction.transaction_type in [TransactionType.CONSUMPTION, TransactionType.TRANSFER_OUT, TransactionType.RETURN]:
-        # Subtract from inventory
-        if existing_inventory:
-            new_stock = max(0, existing_inventory["current_stock"] - transaction.quantity)
-            await db.site_inventory.update_one(
-                {"_id": existing_inventory["_id"]},
-                {"$set": {"current_stock": new_stock, "last_updated": transaction.transaction_date}}
-            )
-    elif transaction.transaction_type == TransactionType.ADJUSTMENT:
-        # Direct adjustment
-        if existing_inventory:
-            await db.site_inventory.update_one(
-                {"_id": existing_inventory["_id"]},
-                {"$set": {"current_stock": transaction.quantity, "last_updated": transaction.transaction_date}}
-            )
-        else:
-            await db.site_inventory.insert_one({
-                "project_id": transaction.project_id,
-                "material_id": transaction.material_id,
-                "current_stock": transaction.quantity,
-                "last_updated": transaction.transaction_date
-            })
-    
-    transaction_dict = serialize_doc(transaction_dict)
-    
-    project = await db.projects.find_one({"_id": ObjectId(transaction_dict["project_id"])})
-    transaction_dict["project_name"] = project["name"] if project else "Unknown"
-    
-    material = await db.materials.find_one({"_id": ObjectId(transaction_dict["material_id"])})
-    transaction_dict["material_name"] = material["name"] if material else "Unknown"
-    transaction_dict["material_unit"] = material["unit"] if material else "unit"
-    
-    transaction_dict["created_by_name"] = current_user["full_name"]
-    
-    return MaterialTransactionResponse(**transaction_dict)
-
 # ============= Vendor Payment Dues Route =============
 
 @api_router.get("/vendors/{vendor_id}/payment-dues")
