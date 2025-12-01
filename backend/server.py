@@ -2622,6 +2622,369 @@ async def create_material_transaction(
                 {"_id": existing_inventory["_id"]},
                 {"$set": {"current_stock": new_stock, "last_updated": transaction.transaction_date}}
             )
+
+
+# ============= Task Material Management Routes =============
+
+@api_router.get("/material-templates")
+async def get_material_templates(
+    work_type: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get material consumption templates"""
+    query = {"is_active": True}
+    if work_type:
+        query["work_type"] = work_type
+    
+    templates = await db.material_consumption_templates.find(query).to_list(length=1000)
+    return [serialize_doc(t) for t in templates]
+
+@api_router.post("/tasks/{task_id}/estimate-materials")
+async def estimate_task_materials(
+    task_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Auto-calculate material requirements based on task work type and measurements"""
+    task = await db.tasks.find_one({"_id": ObjectId(task_id)})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    if not task.get("work_type"):
+        raise HTTPException(status_code=400, detail="Task must have a work_type set")
+    
+    # Get templates for this work type
+    templates = await db.material_consumption_templates.find({
+        "work_type": task["work_type"],
+        "is_active": True
+    }).to_list(length=100)
+    
+    if not templates:
+        return {"message": "No templates found for this work type", "estimates": []}
+    
+    # Calculate work quantity based on measurement type
+    work_quantity = 0
+    measurement_type = task.get("measurement_type")
+    
+    if measurement_type == "area":
+        work_quantity = task.get("work_area", 0)
+    elif measurement_type == "volume":
+        # Calculate L x B x H
+        l = task.get("work_length", 0)
+        b = task.get("work_breadth", 0)
+        h = task.get("work_height", 0)
+        work_quantity = l * b * h
+    elif measurement_type == "length":
+        work_quantity = task.get("work_length", 0)
+    elif measurement_type == "count":
+        work_quantity = task.get("work_count", 0)
+    elif measurement_type == "weight":
+        work_quantity = task.get("work_count", 0)  # Weight in kg
+    
+    if work_quantity == 0:
+        raise HTTPException(status_code=400, detail="Task has no work measurements set")
+    
+    # Calculate material requirements
+    estimates = []
+    for template in templates:
+        # Get rate per base unit (usually per 100 for area, per 1 for others)
+        rate = template["consumption_rate"]
+        template_measurement = template["measurement_type"]
+        
+        # Adjust for base quantities (templates are usually per 100 sqft, etc.)
+        if template_measurement == "area":
+            estimated_qty = (work_quantity / 100) * rate
+        elif template_measurement == "volume":
+            # Template is per cubic meter (35.3 cft)
+            work_qty_cum = work_quantity / 35.3
+            estimated_qty = work_qty_cum * rate
+        elif template_measurement == "weight":
+            # Template is per 1000 kg
+            estimated_qty = (work_quantity / 1000) * rate
+        else:
+            estimated_qty = work_quantity * rate
+        
+        # Find matching material in inventory
+        material = await db.materials.find_one({
+            "category": template["material_category"],
+            "is_active": True
+        })
+        
+        estimate = {
+            "material_category": template["material_category"],
+            "material_name": template["material_name"],
+            "estimated_quantity": round(estimated_qty, 2),
+            "unit": template["unit"],
+            "template_description": template["description"],
+            "material_id": str(material["_id"]) if material else None
+        }
+        estimates.append(estimate)
+    
+    return {
+        "task_id": task_id,
+        "work_type": task["work_type"],
+        "work_quantity": work_quantity,
+        "measurement_type": measurement_type,
+        "estimates": estimates
+    }
+
+@api_router.post("/tasks/{task_id}/materials")
+async def link_materials_to_task(
+    task_id: str,
+    materials: List[dict],
+    current_user: dict = Depends(get_current_user)
+):
+    """Link materials to a task with estimated quantities"""
+    task = await db.tasks.find_one({"_id": ObjectId(task_id)})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    # Clear existing material estimates for this task
+    await db.task_material_estimates.delete_many({"task_id": task_id})
+    
+    # Create new estimates
+    created_estimates = []
+    for material_data in materials:
+        estimate_doc = {
+            "task_id": task_id,
+            "material_id": material_data["material_id"],
+            "estimated_quantity": material_data["estimated_quantity"],
+            "actual_quantity": 0,
+            "unit": material_data["unit"],
+            "notes": material_data.get("notes", ""),
+            "created_at": datetime.utcnow()
+        }
+        result = await db.task_material_estimates.insert_one(estimate_doc)
+        estimate_doc["_id"] = result.inserted_id
+        
+        # Get material details
+        material = await db.materials.find_one({"_id": ObjectId(material_data["material_id"])})
+        estimate_doc["material_name"] = material["name"] if material else "Unknown"
+        estimate_doc["material_category"] = material["category"] if material else "unknown"
+        
+        created_estimates.append(serialize_doc(estimate_doc))
+    
+    return {"message": f"Linked {len(created_estimates)} materials to task", "estimates": created_estimates}
+
+@api_router.get("/tasks/{task_id}/materials")
+async def get_task_materials(
+    task_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get materials linked to a task"""
+    estimates = await db.task_material_estimates.find({"task_id": task_id}).to_list(length=100)
+    
+    result = []
+    for estimate in estimates:
+        estimate = serialize_doc(estimate)
+        material = await db.materials.find_one({"_id": ObjectId(estimate["material_id"])})
+        estimate["material_name"] = material["name"] if material else "Unknown"
+        estimate["material_category"] = material["category"] if material else "unknown"
+        result.append(estimate)
+    
+    return result
+
+@api_router.post("/tasks/{task_id}/start-work")
+async def start_task_work(
+    task_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Mark task as started and reserve materials from inventory"""
+    task = await db.tasks.find_one({"_id": ObjectId(task_id)})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    # Update task with actual start date
+    await db.tasks.update_one(
+        {"_id": ObjectId(task_id)},
+        {"$set": {
+            "actual_start_date": datetime.utcnow(),
+            "status": "in_progress"
+        }}
+    )
+    
+    # Get material estimates
+    estimates = await db.task_material_estimates.find({"task_id": task_id}).to_list(length=100)
+    
+    # Check inventory availability
+    project_id = task["project_id"]
+    insuffic ient_materials = []
+    
+    for estimate in estimates:
+        inventory = await db.site_inventory.find_one({
+            "project_id": project_id,
+            "material_id": estimate["material_id"]
+        })
+        
+        if not inventory or inventory["current_stock"] < estimate["estimated_quantity"]:
+            material = await db.materials.find_one({"_id": ObjectId(estimate["material_id"])})
+            insufficient_materials.append({
+                "material_name": material["name"] if material else "Unknown",
+                "required": estimate["estimated_quantity"],
+                "available": inventory["current_stock"] if inventory else 0
+            })
+    
+    if insufficient_materials:
+        return {
+            "status": "warning",
+            "message": "Insufficient materials in inventory",
+            "task_started": True,
+            "insufficient_materials": insufficient_materials
+        }
+    
+    return {
+        "status": "success",
+        "message": "Task started successfully",
+        "task_started": True
+    }
+
+@api_router.post("/tasks/{task_id}/consume-materials")
+async def record_material_consumption(
+    task_id: str,
+    consumption_data: List[dict],
+    current_user: dict = Depends(get_current_user)
+):
+    """Record actual material consumption and update inventory"""
+    task = await db.tasks.find_one({"_id": ObjectId(task_id)})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    project_id = task["project_id"]
+    transactions_created = []
+    
+    for consumption in consumption_data:
+        material_id = consumption["material_id"]
+        quantity = consumption["quantity"]
+        
+        # Update actual quantity in estimates
+        await db.task_material_estimates.update_one(
+            {"task_id": task_id, "material_id": material_id},
+            {"$inc": {"actual_quantity": quantity}}
+        )
+        
+        # Create material transaction
+        transaction = {
+            "project_id": project_id,
+            "material_id": material_id,
+            "transaction_type": "consumption",
+            "quantity": quantity,
+            "transaction_date": datetime.utcnow(),
+            "reference_type": "task",
+            "reference_id": task_id,
+            "notes": f"Consumed for task: {task.get('title', 'Unknown')}",
+            "created_by": str(current_user["_id"]),
+            "created_at": datetime.utcnow()
+        }
+        result = await db.material_transactions.insert_one(transaction)
+        
+        # Update inventory
+        inventory = await db.site_inventory.find_one({
+            "project_id": project_id,
+            "material_id": material_id
+        })
+        
+        if inventory:
+            new_stock = max(0, inventory["current_stock"] - quantity)
+            await db.site_inventory.update_one(
+                {"_id": inventory["_id"]},
+                {"$set": {"current_stock": new_stock, "last_updated": datetime.utcnow()}}
+            )
+        
+        transactions_created.append(str(result.inserted_id))
+    
+    return {
+        "message": f"Recorded consumption of {len(consumption_data)} materials",
+        "transactions": transactions_created
+    }
+
+@api_router.post("/tasks/{task_id}/complete-work")
+async def complete_task_work(
+    task_id: str,
+    progress_percentage: float = 100,
+    current_user: dict = Depends(get_current_user)
+):
+    """Mark task as completed with actual end date"""
+    await db.tasks.update_one(
+        {"_id": ObjectId(task_id)},
+        {"$set": {
+            "actual_end_date": datetime.utcnow(),
+            "progress_percentage": progress_percentage,
+            "status": "completed" if progress_percentage >= 100 else "in_progress"
+        }}
+    )
+    
+    # Get material usage summary
+    estimates = await db.task_material_estimates.find({"task_id": task_id}).to_list(length=100)
+    
+    summary = []
+    for estimate in estimates:
+        material = await db.materials.find_one({"_id": ObjectId(estimate["material_id"])})
+        variance = estimate["actual_quantity"] - estimate["estimated_quantity"]
+        variance_pct = (variance / estimate["estimated_quantity"] * 100) if estimate["estimated_quantity"] > 0 else 0
+        
+        summary.append({
+            "material_name": material["name"] if material else "Unknown",
+            "estimated": estimate["estimated_quantity"],
+            "actual": estimate["actual_quantity"],
+            "variance": variance,
+            "variance_percentage": round(variance_pct, 2),
+            "unit": estimate["unit"]
+        })
+    
+    return {
+        "message": "Task completed",
+        "progress": progress_percentage,
+        "material_summary": summary
+    }
+
+@api_router.get("/projects/{project_id}/gantt-data")
+async def get_project_gantt_data(
+    project_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all tasks with timeline data for Gantt chart"""
+    tasks = await db.tasks.find({"project_id": project_id}).to_list(length=1000)
+    
+    gantt_data = []
+    for task in tasks:
+        task = serialize_doc(task)
+        
+        # Get assigned user names
+        assigned_names = []
+        if task.get("assigned_to"):
+            for user_id in task["assigned_to"]:
+                user = await db.users.find_one({"_id": ObjectId(user_id)})
+                if user:
+                    assigned_names.append(user["full_name"])
+        
+        # Get dependency task titles
+        dep_titles = []
+        if task.get("dependencies"):
+            for dep_id in task["dependencies"]:
+                dep_task = await db.tasks.find_one({"_id": ObjectId(dep_id)})
+                if dep_task:
+                    dep_titles.append(dep_task["title"])
+        
+        gantt_item = {
+            "id": task["id"],
+            "title": task["title"],
+            "planned_start": task.get("planned_start_date"),
+            "planned_end": task.get("planned_end_date"),
+            "actual_start": task.get("actual_start_date"),
+            "actual_end": task.get("actual_end_date"),
+            "progress": task.get("progress_percentage", 0),
+            "status": task.get("status", "todo"),
+            "assigned_to": assigned_names,
+            "dependencies": dep_titles,
+            "work_type": task.get("work_type"),
+            "priority": task.get("priority", "medium")
+        }
+        gantt_data.append(gantt_item)
+    
+    return {
+        "project_id": project_id,
+        "tasks": gantt_data
+    }
+
         else:
             # Create new inventory entry
             await db.site_inventory.insert_one({
