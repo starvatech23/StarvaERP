@@ -662,4 +662,88 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  transferHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  transferInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  transferDetails: {
+    flex: 1,
+  },
+  transferWorkerName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A202C',
+    marginBottom: 4,
+  },
+  transferDate: {
+    fontSize: 14,
+    color: '#718096',
+  },
+  transferRoute: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    backgroundColor: '#F7FAFC',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  siteBox: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  siteLabel: {
+    fontSize: 12,
+    color: '#718096',
+    marginBottom: 4,
+  },
+  siteName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A202C',
+    textAlign: 'center',
+  },
+  hours: {
+    fontSize: 12,
+    color: '#FF6B35',
+    marginTop: 4,
+  },
+  transferReason: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#EFF6FF',
+    padding: 8,
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+  reasonText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#1E40AF',
+  },
+  wagesSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+  },
+  wagesLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#718096',
+  },
+  wagesValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#10B981',
+  },
 });
