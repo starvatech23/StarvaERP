@@ -198,7 +198,57 @@ export default function LaborScreen() {
       );
     }
 
-    return <Text style={styles.placeholderText}>Transfer records will appear here</Text>;
+    return transfers.map((transfer: any) => (
+      <View key={transfer.id} style={styles.card}>
+        <View style={styles.transferHeader}>
+          <View style={styles.transferInfo}>
+            <Ionicons name="person-circle" size={32} color="#FF6B35" />
+            <View style={styles.transferDetails}>
+              <Text style={styles.transferWorkerName}>{transfer.worker_name}</Text>
+              <Text style={styles.transferDate}>
+                {moment(transfer.transfer_date).format('DD MMM YYYY')}
+              </Text>
+            </View>
+          </View>
+        </View>
+        
+        <View style={styles.transferRoute}>
+          <View style={styles.siteBox}>
+            <Text style={styles.siteLabel}>From</Text>
+            <Text style={styles.siteName}>{transfer.from_project_name}</Text>
+            {transfer.hours_at_from_site > 0 && (
+              <Text style={styles.hours}>{transfer.hours_at_from_site}h</Text>
+            )}
+          </View>
+          
+          <Ionicons name="arrow-forward" size={24} color="#FF6B35" />
+          
+          <View style={styles.siteBox}>
+            <Text style={styles.siteLabel}>To</Text>
+            <Text style={styles.siteName}>{transfer.to_project_name}</Text>
+            {transfer.hours_at_to_site > 0 && (
+              <Text style={styles.hours}>{transfer.hours_at_to_site}h</Text>
+            )}
+          </View>
+        </View>
+        
+        {transfer.reason && (
+          <View style={styles.transferReason}>
+            <Ionicons name="information-circle-outline" size={16} color="#718096" />
+            <Text style={styles.reasonText}>{transfer.reason}</Text>
+          </View>
+        )}
+        
+        {(transfer.wages_from_site || transfer.wages_to_site) && (
+          <View style={styles.wagesSection}>
+            <Text style={styles.wagesLabel}>Split Wages:</Text>
+            <Text style={styles.wagesValue}>
+              ₹{transfer.wages_from_site?.toFixed(2) || 0} + ₹{transfer.wages_to_site?.toFixed(2) || 0}
+            </Text>
+          </View>
+        )}
+      </View>
+    ));
   };
 
   const renderReports = () => {
