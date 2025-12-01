@@ -2807,7 +2807,7 @@ async def start_task_work(
     
     # Check inventory availability
     project_id = task["project_id"]
-    insuffic ient_materials = []
+    insufficient_materials = []
     
     for estimate in estimates:
         inventory = await db.site_inventory.find_one({
