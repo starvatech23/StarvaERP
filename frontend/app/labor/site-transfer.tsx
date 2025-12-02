@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     color: '#1E40AF',
     lineHeight: 18,
   },
-  hoursInput: {
+  hoursInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
@@ -422,20 +422,27 @@ const styles = StyleSheet.create({
     padding: 12,
     gap: 8,
   },
-  hoursValue: {
+  hoursInput: {
+    flex: 1,
     fontSize: 16,
     color: '#1A202C',
   },
-  reasonInput: {
+  hoursUnit: {
+    fontSize: 14,
+    color: '#718096',
+  },
+  input: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     borderRadius: 8,
     padding: 12,
-  },
-  reasonValue: {
     fontSize: 16,
     color: '#1A202C',
+  },
+  textArea: {
+    height: 80,
+    paddingTop: 12,
   },
   footer: {
     padding: 16,
