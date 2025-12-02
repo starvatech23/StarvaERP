@@ -3622,6 +3622,200 @@ async def create_or_update_setting(
         
         return SystemSettingResponse(**serialize_doc(setting_dict))
 
+
+# ============= Team Management Routes =============
+
+@api_router.get("/teams", response_model=List[TeamResponse])
+async def get_teams(
+    is_active: bool = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all teams"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can view teams")
+    
+    query = {}
+    if is_active is not None:
+        query["is_active"] = is_active
+    
+    teams = await db.teams.find(query).to_list(1000)
+    
+    # Count members in each team
+    result = []
+    for team in teams:
+        team_dict = serialize_doc(team)
+        member_count = await db.users.count_documents({"team_id": team_dict["id"]})
+        team_dict["member_count"] = member_count
+        result.append(TeamResponse(**team_dict))
+    
+    return result
+
+@api_router.post("/teams", response_model=TeamResponse)
+async def create_team(
+    team: TeamCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new team"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can create teams")
+    
+    # Check if team name already exists
+    existing = await db.teams.find_one({"name": team.name})
+    if existing:
+        raise HTTPException(status_code=400, detail="Team name already exists")
+    
+    team_dict = team.dict()
+    team_dict["created_at"] = datetime.utcnow()
+    team_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.teams.insert_one(team_dict)
+    team_dict["_id"] = result.inserted_id
+    team_dict["member_count"] = 0
+    
+    return TeamResponse(**serialize_doc(team_dict))
+
+@api_router.get("/teams/{team_id}", response_model=TeamResponse)
+async def get_team(
+    team_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get team by ID"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can view teams")
+    
+    team = await db.teams.find_one({"_id": ObjectId(team_id)})
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    team_dict = serialize_doc(team)
+    member_count = await db.users.count_documents({"team_id": team_dict["id"]})
+    team_dict["member_count"] = member_count
+    
+    return TeamResponse(**team_dict)
+
+@api_router.put("/teams/{team_id}", response_model=TeamResponse)
+async def update_team(
+    team_id: str,
+    team_update: TeamUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a team"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can update teams")
+    
+    existing = await db.teams.find_one({"_id": ObjectId(team_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    update_data = team_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.teams.update_one({"_id": ObjectId(team_id)}, {"$set": update_data})
+    
+    updated = await db.teams.find_one({"_id": ObjectId(team_id)})
+    team_dict = serialize_doc(updated)
+    member_count = await db.users.count_documents({"team_id": team_dict["id"]})
+    team_dict["member_count"] = member_count
+    
+    return TeamResponse(**team_dict)
+
+@api_router.delete("/teams/{team_id}")
+async def delete_team(
+    team_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a team"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can delete teams")
+    
+    # Check if team has users
+    users_in_team = await db.users.count_documents({"team_id": team_id})
+    if users_in_team > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete team. {users_in_team} users are assigned to this team"
+        )
+    
+    result = await db.teams.delete_one({"_id": ObjectId(team_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    return {"message": "Team deleted successfully"}
+
+# ============= Add User by Admin Route =============
+
+@api_router.post("/users/create", response_model=UserResponse)
+async def create_user_by_admin(
+    user_data: UserCreateByAdmin,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Admin creates a new user directly (auto-approved)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can create users")
+    
+    # Verify role exists
+    role = await db.roles.find_one({"_id": ObjectId(user_data.role_id)})
+    if not role:
+        raise HTTPException(status_code=400, detail="Role not found")
+    
+    # Verify team exists
+    team = await db.teams.find_one({"_id": ObjectId(user_data.team_id)})
+    if not team:
+        raise HTTPException(status_code=400, detail="Team not found")
+    
+    # Check if email already exists
+    existing_email = await db.users.find_one({"email": user_data.email})
+    if existing_email:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Check if phone already exists
+    existing_phone = await db.users.find_one({"phone": user_data.phone})
+    if existing_phone:
+        raise HTTPException(status_code=400, detail="Phone number already registered")
+    
+    # Create user with auto-approval
+    user_dict = {
+        "email": user_data.email,
+        "phone": user_data.phone,
+        "full_name": user_data.full_name,
+        "role_id": user_data.role_id,
+        "team_id": user_data.team_id,
+        "address": user_data.address,
+        "approval_status": ApprovalStatus.APPROVED,
+        "approved_by": current_user["id"],
+        "approved_at": datetime.utcnow(),
+        "is_active": True,
+        "date_joined": datetime.utcnow(),
+        "last_login": None,
+    }
+    
+    # Hash password if provided
+    if user_data.password:
+        user_dict["password"] = pwd_context.hash(user_data.password)
+    
+    result = await db.users.insert_one(user_dict)
+    user_dict["_id"] = result.inserted_id
+    
+    # Prepare response with role and team names
+    response_dict = serialize_doc(user_dict)
+    response_dict["role_name"] = role["name"]
+    response_dict["team_name"] = team["name"]
+    
+    return UserResponse(**response_dict)
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
