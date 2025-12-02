@@ -369,6 +369,12 @@ const styles = StyleSheet.create({
     gap: 6,
     flex: 1,
   },
+  managerText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#1A202C',
+    flex: 1,
+  },
   callButton: {
     width: 32,
     height: 32,
