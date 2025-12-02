@@ -124,6 +124,13 @@ export default function ProjectsScreen() {
               const totalTasks = project.task_count?.total || 0;
               const progressPercent = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
               
+              // Debug logging
+              console.log(`Project ${project.name}:`, {
+                has_manager_id: !!project.project_manager_id,
+                manager_name: project.project_manager_name,
+                manager_phone: project.manager_phone
+              });
+              
               return (
                 <TouchableOpacity
                   key={project.id}
