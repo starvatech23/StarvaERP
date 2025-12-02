@@ -105,8 +105,11 @@ class ProjectEnhancementTester:
                     "phone": user_data["phone"],
                     "full_name": user_data["full_name"]
                 }
+                print(f"Created test user {role}: {user_id}")
                 return user_id
-            return None
+            else:
+                print(f"Failed to create test user: {response.status_code} - {response.text}")
+                return None
         except Exception as e:
             print(f"Error creating test user: {e}")
             return None
