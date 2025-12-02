@@ -82,6 +82,40 @@ class BackendTester:
             
         if self.auth_token:
             HEADERS["Authorization"] = f"Bearer {self.auth_token}"
+            
+            # Create additional test users with approved status for team management testing
+            test_users = [
+                {
+                    "email": "manager1@siteflow.com",
+                    "password": "manager123",
+                    "full_name": "Project Manager 1",
+                    "role": "project_manager",
+                    "auth_type": "email",
+                    "approval_status": "approved"
+                },
+                {
+                    "email": "engineer1@siteflow.com", 
+                    "password": "engineer123",
+                    "full_name": "Site Engineer 1",
+                    "role": "engineer",
+                    "auth_type": "email",
+                    "approval_status": "approved"
+                }
+            ]
+            
+            for user_data in test_users:
+                try:
+                    response = requests.post(f"{BASE_URL}/auth/register", json=user_data, headers=HEADERS)
+                    if response.status_code in [200, 201]:
+                        user = response.json()
+                        self.created_resources["users"].append(user.get("user", {}).get("id"))
+                        self.log_result(f"Create Test User {user_data['role']}", True, f"Created {user_data['full_name']}")
+                    else:
+                        # User might already exist, that's okay
+                        self.log_result(f"Create Test User {user_data['role']}", True, f"User {user_data['full_name']} already exists or created")
+                except Exception as e:
+                    self.log_result(f"Create Test User {user_data['role']}", False, f"Error creating user: {str(e)}")
+            
             return True
         return False
     
