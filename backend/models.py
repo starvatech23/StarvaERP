@@ -144,7 +144,8 @@ class UserBase(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     full_name: str
-    role: UserRole
+    role: Optional[UserRole] = None  # Keep for backward compatibility
+    role_id: Optional[str] = None  # New: dynamic role reference
     address: Optional[str] = None
     profile_photo: Optional[str] = None  # base64
 
@@ -157,11 +158,30 @@ class UserLogin(BaseModel):
     password: Optional[str] = None  # For email login
     auth_type: str  # 'email' or 'phone'
 
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    full_name: Optional[str] = None
+    role: Optional[UserRole] = None
+    role_id: Optional[str] = None
+    address: Optional[str] = None
+    profile_photo: Optional[str] = None
+    is_active: Optional[bool] = None
+
 class UserResponse(UserBase):
     id: str
     is_active: bool
+    approval_status: ApprovalStatus = ApprovalStatus.PENDING
+    approved_by: Optional[str] = None
+    approved_at: Optional[datetime] = None
+    role_name: Optional[str] = None  # Populated from role_id
     date_joined: datetime
     last_login: Optional[datetime] = None
+
+class UserApprovalRequest(BaseModel):
+    user_id: str
+    action: str  # 'approve' or 'reject'
+    role_id: Optional[str] = None  # Assign role during approval
 
 class OTPRequest(BaseModel):
     phone: str
