@@ -1,43 +1,36 @@
 <analysis>
-The trajectory details the iterative development of a construction management mobile application. The process started from an initial MVP with core features like user authentication, project, task, material, and CRM management, built on a FastAPI backend and React Native (Expo) frontend.
+The trajectory documents the development of a construction management application, evolving from simple feature enhancements to a complex, multi-module system. The work began with a request to update project cards on the dashboard (). This involved backend modifications to  and  to include task counts and project manager details in the API response.
 
-The development then progressed through several user-requested enhancement cycles. Week 1 tasks involved adding an editable profile, company settings, an enhanced quotation module, Excel lead uploads, and project timeline views. A significant debugging step during this phase was replacing a problematic  library with a custom timeline component and fixing a missing  dependency.
+Subsequent debugging sessions addressed critical UI/UX issues. A non-existent project edit screen was created () to fix a navigation error. Then, a persistent bug where project manager names were invisible in dropdown menus was resolved by applying specific styles to  components in both the create and edit project screens.
 
-Subsequently, the focus shifted to a highly detailed Labor Management module. This involved extensive backend work to create models and APIs for laborers, attendance (including P/OT/A status), wage splits, site transfers, and document uploads. The frontend was built out with screens for adding laborers, marking daily attendance, a weekly grid view for bulk attendance marking, and laborer profile modals. A duplicate CRM module () was also identified and removed.
+The project's scope then expanded significantly with a request for a comprehensive Role-Based Access Control (RBAC) and user management system. This led to the creation of a new Admin module. Backend models were updated to support dynamic roles, permissions, and a user approval workflow. Numerous new API endpoints were added to . Correspondingly, a new set of frontend screens were built under  for user approvals, role management, and team/department management.
 
-The most recent work involved starting the Reporting feature for the labor module, with the backend and a placeholder frontend screen being created. The user's primary language is English, and future communications should be in English.
+Most recently, a project team management feature was added, allowing multiple users to be assigned to a project. The  model was updated, new APIs were created, and a team management screen () was built. The latest user interaction is a bug report identifying three specific issues with the newly implemented team and project editing features.
+
+The user's primary language is English. The next agent must respond in English.
 </analysis>
 
 <product_requirements>
-The objective is to build a comprehensive, cross-platform construction management application.
+The application is a comprehensive, cross-platform construction management tool. The primary goal is to provide granular control over projects, users, and resources through a robust administrative backend and an intuitive mobile frontend.
 
-**Phase 1: MVP (Completed)**
-*   **User Management:** Secure user registration and login with JWT-based authentication.
-*   **Core Modules:** CRUD functionality for Projects, Tasks, Materials, Vendors, and a basic CRM for leads.
-
-**Phase 2: Enhancements (Partially/Fully Implemented)**
-*   **Admin & Profile:** An admin panel for company settings (name, logo) and an editable user profile screen.
-*   **Enhanced CRM & Quotes:** Ability to upload leads via Excel and a detailed quotation creation module.
-*   **Project Visualization:** Replaced a buggy Gantt chart with a custom timeline view on both the main dashboard and individual project pages. Interactive timeline cards were introduced to show project progress.
-*   **Task Management:** Added backend support for sub-tasks and a task deletion endpoint.
-*   **Labor Management:** A full-featured module to manage laborers. This includes:
-    *   Adding laborers with personal/bank details and document uploads (Aadhaar, PAN).
-    *   An attendance system with options for Present (P), Overtime (OT), and Absent (A).
-    *   A weekly grid view for bulk attendance marking.
-    *   Functionality for site transfers and wage splitting.
-    *   Reporting on weekly/monthly wages, site-wise costs, and advances.
-*   **UX Improvements:** Add confirmation pop-ups after data entry/modification.
-
+**Core Features Implemented:**
+*   **Project Management:** CRUD operations for projects, with dashboard cards displaying key info like engineer name, progress, and value.
+*   **User & Team Management:** A full-fledged admin module allows for the creation of departments (Teams) and direct user creation. Users are assigned to teams.
+*   **Role-Based Access Control (RBAC):** A dynamic RBAC system where admins can create custom roles (e.g., Project Manager, Engineer) and assign specific permissions for viewing/editing different modules.
+*   **User Self-Registration & Approval:** New users can self-register by selecting a role. Their account remains pending until an administrator approves it through the admin dashboard.
+*   **Project Team Assignment:** Functionality to assign multiple approved users to a specific project team. This includes a dedicated screen to manage team members.
+*   **In-App Communication:** Call buttons are implemented on project cards and team member lists to initiate phone calls to key personnel like Project Managers.
 </product_requirements>
 
 <key_technical_concepts>
-- **Backend:** FastAPI (Python) with Beanie ODM for MongoDB.
-- **Frontend:** React Native with Expo SDK and  for file-based routing.
-- **Authentication:** JWT for securing API endpoints.
-- **State Management:** React Context API () for global auth state.
-- **API Communication:** Centralized  instance for frontend-backend interaction.
-- **Dependencies:**  for date handling,  and  for file uploads.
-- **UI:** Standard React Native components.
+- **Backend:** FastAPI (Python) using Beanie ODM for MongoDB.
+- **Frontend:** React Native with Expo.
+- **Routing:** File-based routing with .
+- **API Communication:** Centralized  instance in .
+- **Authentication:** JWT-based authentication.
+- **UI Components:** Standard React Native components, with  for dropdowns.
+- **State Management:** Component-level state (, ) and navigation context ().
+- **Database:** MongoDB.
 </key_technical_concepts>
 
 <code_architecture>
@@ -46,55 +39,45 @@ The application uses a monorepo structure with distinct  and  directories.
 
 
 - ****
-  - **Importance:** Defines all database schemas.
-  - **Summary of changes:** Significantly expanded to support new features. Added , enhanced , , and a comprehensive set of models for the Labor module (, , , , , ).
+  - **Importance:** Defines all MongoDB document schemas using Pydantic and Beanie. It is the single source of truth for the application's data structure.
+  - **Summary of changes:** Heavily modified to support the RBAC and Team management features. New models like , , , , and  were added. The core  and  models were updated to include relationships to these new models (e.g., , , ).
 
 - ****
-  - **Importance:** The main FastAPI application defining all API endpoints.
-  - **Summary of changes:** Added numerous CRUD endpoints for all new models, including settings, quotations, sub-tasks, and the entire labor management system (add laborer, mark attendance, get reports, etc.). A bug fix for a missing  import was applied.
+  - **Importance:** The main FastAPI application file containing all API endpoints.
+  - **Summary of changes:** Grew substantially with the addition of numerous CRUD endpoints for the new modules: , , , , , and . Existing user and project endpoints were updated to populate related data like role names and team details.
 
 - ****
-  - **Importance:** Centralizes all  API calls from the frontend.
-  - **Summary of changes:** Updated multiple times to add new service functions corresponding to the newly created backend endpoints for labor management and other features.
+  - **Importance:** A centralized module that exports  instances for making all API calls from the frontend. This keeps API logic separate from UI components.
+  - **Summary of changes:** Updated multiple times to add new API service objects for , , and  to interact with the new backend endpoints. Fixed a critical bug involving a duplicate declaration of .
 
 - ****
-  - **Importance:** The main screen for the new Labor Management module.
-  - **Summary of changes:** Created from scratch. It was updated to include a tabbed interface for Labourers, Attendance, and Reports. It also includes the logic for fetching laborers and displaying a modal for a laborer's profile.
+  - **Importance:** The screen for editing an existing project's details. This file is central to the current bug report.
+  - **Summary of changes:** Created from scratch to fix a navigation error. The logic for loading potential Project Managers was updated to fetch all active users, moving away from a hardcoded role query. The  component was styled to fix invisible dropdown items.
 
-- ****
-  - **Importance:** Provides a user-friendly grid for marking attendance for multiple laborers over a week.
-  - **Summary of changes:** A new screen created to fulfill the user's request for a bulk attendance marking interface.
-
-- ****
-  - **Importance:** Placeholder screen for displaying various labor-related financial reports.
-  - **Summary of changes:** Newly created file containing the basic structure for the reports UI, which is the current focus of development.
-
-- ****
-  - **Importance:** This was a duplicate, redundant file.
-  - **Summary of changes:** The file was identified as a duplicate of  and was deleted to clean up the codebase.
-
-- ****
-  - **Importance:** Screen for visualizing a project's timeline.
-  - **Summary of changes:** Initially implemented using . After encountering a dateTimes error, the component was refactored to remove the library and use a simpler, custom-built timeline view to ensure stability.
+- ** (New Module)**
+  - **Importance:** This new directory contains all screens related to the admin dashboard, providing a centralized place for managing users, roles, and teams.
+  - **Summary of changes:** This entire module was created. It includes an index page () with dashboard stats and navigation, and subdirectories for managing , , and  with list, create, and edit screens.
 </code_architecture>
 
 <pending_tasks>
-- **Complete Labor Reports UI:** The  screen has been created but needs to be fully implemented and linked to the Reports tab in .
-- **Implement Interactive Timeline/Task Features:** Add frontend functionality for creating sub-tasks, inline task status updates, and task deletion.
-- **Add Confirmation Pop-ups:** Implement confirmation modals across all modules after data is added or modified, as requested.
-- **Implement Role-Based Access Control:** Build the frontend logic to restrict access to modules based on user roles.
+- Diagnose and resolve the three issues reported by the user:
+  1.  Inability to navigate back from the Edit Team page.
+  2.  Failure to add team members to projects from the Edit Project page.
+  3.  Inability to assign project managers within the Edit Project page.
+- Implement remaining features from the original plan, such as Gantt Charts and a more detailed Task-Material linking UI.
 </pending_tasks>
 
 <current_work>
-The immediate past work focused on building out the **Labor Management module** based on detailed user requests.
+The immediate task is to diagnose and fix a set of critical bugs reported by the user related to the recently implemented team and project management features. The AI engineer was about to begin the investigation when the summary was requested.
 
-Most recently, the user asked to **proceed with reporting features for labour management module.** In response, the AI engineer took the following actions:
-1.  **Created a new frontend screen for reports:** A file was created at . This file contains the foundational React Native component structure for a reports screen, including placeholders for Weekly Wage Report, Site-wise Labour Cost, and Advance Payments.
-2.  **Acknowledged the next step:** The engineer noted that the  screen was created and that the next action would be to integrate it into the main labor screen ().
+The specific issues are:
+1.  **Navigation Bug:** Users are stuck on the  screen because the back navigation is not working. This is likely a routing or header configuration issue.
+2.  **Team Assignment Bug:** The functionality to add members to a project's team from the  screen is broken. The cause is unknown but could be related to API calls, state management, or the UI component responsible for selection.
+3.  **Project Manager Assignment Bug:** Similar to the team assignment bug, the dropdown or selection mechanism for assigning a Project Manager on the  screen is not functioning correctly. This is a regression, as a similar issue was fixed previously, suggesting the recent changes might have reintroduced a problem.
 
-The work was paused just before editing  to render the newly created  component when the Reports tab is selected. The backend APIs for fetching report data are already in place.
+The current focus is entirely on resolving these three functional blockers to restore the core usability of the project and team management modules.
 </current_work>
 
 <optional_next_step>
-Update  to render the new  component from  when the Reports tab is active.
+Begin diagnosing the first reported issue: Users are unable to navigate back from the Edit Team page. I will start by examining the code for  to check its navigation and header setup.
 </optional_next_step>

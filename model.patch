@@ -1334,7 +1334,7 @@ index 548f708..e69de29 100644
 ----+from typing import Dict, Any, Optional, List
 ----+
 ----+# Configuration
-----+BACKEND_URL = "https://buildflow-78.preview.emergentagent.com/api"
+----+BACKEND_URL = "https://siteflow-11.preview.emergentagent.com/api"
 ----+TEST_USER_EMAIL = "admin@buildflow.com"
 ----+TEST_USER_PASSWORD = "admin123"
 ----+
