@@ -1,3 +1,36 @@
+// Role Management API
+export const rolesAPI = {
+  getAll: (isActive?: boolean) => api.get('/roles', { params: { is_active: isActive } }),
+  getById: (id: string) => api.get(`/roles/${id}`),
+  create: (data: any) => api.post('/roles', data),
+  update: (id: string, data: any) => api.put(`/roles/${id}`, data),
+  delete: (id: string) => api.delete(`/roles/${id}`),
+  getPermissions: (roleId: string) => api.get(`/roles/${roleId}/permissions`),
+};
+
+// Permission Management API
+export const permissionsAPI = {
+  create: (data: any) => api.post('/permissions', data),
+  update: (id: string, data: any) => api.put(`/permissions/${id}`, data),
+  delete: (id: string) => api.delete(`/permissions/${id}`),
+};
+
+// User Management API
+export const userManagementAPI = {
+  getPending: () => api.get('/users/pending'),
+  getActive: () => api.get('/users/active'),
+  approve: (userId: string, action: string, roleId?: string) => 
+    api.post(`/users/${userId}/approve`, { user_id: userId, action, role_id: roleId }),
+  update: (userId: string, data: any) => api.put(`/users/${userId}`, data),
+};
+
+// System Settings API
+export const settingsAPI = {
+  getAll: () => api.get('/settings'),
+  createOrUpdate: (data: any) => api.post('/settings', data),
+};
+
+
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
