@@ -96,6 +96,8 @@ export const projectsAPI = {
   create: (data: any) => api.post('/projects', data),
   update: (id: string, data: any) => api.put(`/projects/${id}`, data),
   delete: (id: string) => api.delete(`/projects/${id}`),
+  updateTeam: (id: string, teamMemberIds: string[]) => 
+    api.put(`/projects/${id}/team`, { team_member_ids: teamMemberIds }),
 };
 
 // Tasks API
