@@ -249,66 +249,48 @@ export default function SiteTransferScreen() {
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Hours at From Site (Optional)</Text>
-              <View style={styles.hoursInput}>
+              <View style={styles.hoursInputContainer}>
                 <Ionicons name="time-outline" size={20} color="#718096" />
-                <Text
-                  style={styles.hoursValue}
-                  onPress={() => {
-                    Alert.prompt(
-                      'Hours at From Site',
-                      'Enter hours worked',
-                      (text) => setFormData({ ...formData, hours_at_from_site: text }),
-                      'plain-text',
-                      formData.hours_at_from_site,
-                      'numeric'
-                    );
-                  }}
-                >
-                  {formData.hours_at_from_site || 'Tap to enter hours'}
-                </Text>
+                <TextInput
+                  style={styles.hoursInput}
+                  value={formData.hours_at_from_site}
+                  onChangeText={(text) => setFormData({ ...formData, hours_at_from_site: text })}
+                  placeholder="Enter hours"
+                  keyboardType="decimal-pad"
+                  placeholderTextColor="#CBD5E0"
+                />
+                <Text style={styles.hoursUnit}>hours</Text>
               </View>
             </View>
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Hours at To Site (Optional)</Text>
-              <View style={styles.hoursInput}>
+              <View style={styles.hoursInputContainer}>
                 <Ionicons name="time-outline" size={20} color="#718096" />
-                <Text
-                  style={styles.hoursValue}
-                  onPress={() => {
-                    Alert.prompt(
-                      'Hours at To Site',
-                      'Enter hours worked',
-                      (text) => setFormData({ ...formData, hours_at_to_site: text }),
-                      'plain-text',
-                      formData.hours_at_to_site,
-                      'numeric'
-                    );
-                  }}
-                >
-                  {formData.hours_at_to_site || 'Tap to enter hours'}
-                </Text>
+                <TextInput
+                  style={styles.hoursInput}
+                  value={formData.hours_at_to_site}
+                  onChangeText={(text) => setFormData({ ...formData, hours_at_to_site: text })}
+                  placeholder="Enter hours"
+                  keyboardType="decimal-pad"
+                  placeholderTextColor="#CBD5E0"
+                />
+                <Text style={styles.hoursUnit}>hours</Text>
               </View>
             </View>
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Reason (Optional)</Text>
-              <View style={styles.reasonInput}>
-                <Text
-                  style={styles.reasonValue}
-                  onPress={() => {
-                    Alert.prompt(
-                      'Transfer Reason',
-                      'Enter reason for transfer',
-                      (text) => setFormData({ ...formData, reason: text }),
-                      'plain-text',
-                      formData.reason
-                    );
-                  }}
-                >
-                  {formData.reason || 'Tap to enter reason'}
-                </Text>
-              </View>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                value={formData.reason}
+                onChangeText={(text) => setFormData({ ...formData, reason: text })}
+                placeholder="Enter transfer reason"
+                placeholderTextColor="#CBD5E0"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
             </View>
           </View>
         </ScrollView>
