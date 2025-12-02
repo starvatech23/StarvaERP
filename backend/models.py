@@ -194,6 +194,7 @@ class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     role: Optional[UserRole] = None
     role_id: Optional[str] = None
+    team_id: Optional[str] = None
     address: Optional[str] = None
     profile_photo: Optional[str] = None
     is_active: Optional[bool] = None
@@ -205,6 +206,7 @@ class UserResponse(UserBase):
     approved_by: Optional[str] = None
     approved_at: Optional[datetime] = None
     role_name: Optional[str] = None  # Populated from role_id
+    team_name: Optional[str] = None  # Populated from team_id
     date_joined: datetime
     last_login: Optional[datetime] = None
 
