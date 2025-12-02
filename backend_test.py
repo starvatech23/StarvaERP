@@ -20,716 +20,361 @@ HEADERS = {"Content-Type": "application/json"}
 class BackendTester:
     def __init__(self):
         self.auth_token = None
-        self.headers = HEADERS.copy()
-        self.test_data = {}
-        self.results = []
+        self.test_results = []
+        self.created_resources = {
+            "teams": [],
+            "projects": [],
+            "users": []
+        }
         
-    def log_result(self, test_name: str, success: bool, message: str, details: str = ""):
+    def log_result(self, test_name, success, message, response_data=None):
         """Log test result"""
-        status = "✅ PASS" if success else "❌ FAIL"
         result = {
             "test": test_name,
-            "status": status,
+            "success": success,
             "message": message,
-            "details": details,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "response_data": response_data
         }
-        self.results.append(result)
+        self.test_results.append(result)
+        status = "✅ PASS" if success else "❌ FAIL"
         print(f"{status}: {test_name} - {message}")
-        if details and not success:
-            print(f"   Details: {details}")
-    
+        
     def authenticate(self):
-        """Authenticate and get token"""
+        """Authenticate as admin user"""
+        print("\n🔐 AUTHENTICATION")
+        print("=" * 50)
+        
+        # Try to register admin user first
+        admin_data = {
+            "email": "admin@siteflow.com",
+            "password": "admin123",
+            "full_name": "Admin User",
+            "role": "admin",
+            "auth_type": "email"
+        }
+        
         try:
-            # Try phone-based authentication first
-            phone = "+91-9876543210"
-            
-            # Step 1: Send OTP
-            otp_request = {"phone": phone}
-            response = requests.post(f"{BASE_URL}/auth/send-otp", json=otp_request, headers=self.headers)
-            
-            if response.status_code == 200:
-                otp_data = response.json()
-                otp = otp_data.get("otp", "123456")  # Use the returned OTP or default
-                
-                # Step 2: Verify OTP and register/login
-                verify_data = {
-                    "phone": phone,
-                    "otp": otp,
-                    "full_name": "Test Admin",
-                    "role": "admin"
-                }
-                
-                response = requests.post(f"{BASE_URL}/auth/verify-otp", json=verify_data, headers=self.headers)
-                if response.status_code == 200:
-                    data = response.json()
-                    self.auth_token = data["access_token"]
-                    self.headers["Authorization"] = f"Bearer {self.auth_token}"
-                    self.log_result("Authentication", True, "Successfully authenticated via phone OTP")
-                    return True
-            
-            # Fallback to email authentication
-            register_data = {
-                "full_name": "Test Admin",
-                "email": "admin@test.com",
-                "password": "testpass123",
-                "role": "admin",
-                "auth_type": "email"
-            }
-            
-            response = requests.post(f"{BASE_URL}/auth/register", json=register_data, headers=self.headers)
-            
-            if response.status_code == 200:
+            response = requests.post(f"{BASE_URL}/auth/register", json=admin_data, headers=HEADERS)
+            if response.status_code == 201 or response.status_code == 200:
                 data = response.json()
-                self.auth_token = data["access_token"]
-                self.headers["Authorization"] = f"Bearer {self.auth_token}"
-                self.log_result("Authentication", True, "Successfully authenticated as admin")
-                return True
-            elif response.status_code == 400 and "already registered" in response.text:
-                # Try login instead
+                self.auth_token = data.get("access_token")
+                self.log_result("Admin Registration", True, "Admin user registered successfully")
+            else:
+                # Try login if registration fails (user might already exist)
                 login_data = {
-                    "identifier": "admin@test.com",
-                    "password": "testpass123",
+                    "identifier": "admin@siteflow.com",
+                    "password": "admin123",
                     "auth_type": "email"
                 }
-                response = requests.post(f"{BASE_URL}/auth/login", json=login_data, headers=self.headers)
+                response = requests.post(f"{BASE_URL}/auth/login", json=login_data, headers=HEADERS)
                 if response.status_code == 200:
                     data = response.json()
-                    self.auth_token = data["access_token"]
-                    self.headers["Authorization"] = f"Bearer {self.auth_token}"
-                    self.log_result("Authentication", True, "Successfully logged in as existing admin")
-                    return True
-            
-            self.log_result("Authentication", False, f"Failed to authenticate: {response.status_code}", response.text)
-            return False
-            
+                    self.auth_token = data.get("access_token")
+                    self.log_result("Admin Login", True, "Admin user logged in successfully")
+                else:
+                    self.log_result("Authentication", False, f"Failed to authenticate: {response.text}")
+                    return False
         except Exception as e:
             self.log_result("Authentication", False, f"Authentication error: {str(e)}")
             return False
-    
-    def create_test_project(self):
-        """Create a test project for inventory testing"""
-        try:
-            project_data = {
-                "name": "Test Construction Site",
-                "description": "Test project for materials testing",
-                "location": "Test Location",
-                "address": "123 Test Street, Test City",
-                "client_name": "Test Client Ltd",
-                "start_date": datetime.now().isoformat(),
-                "end_date": (datetime.now() + timedelta(days=90)).isoformat(),
-                "budget": 1000000,
-                "status": "planning"
-            }
             
-            response = requests.post(f"{BASE_URL}/projects", json=project_data, headers=self.headers)
-            if response.status_code == 200:
-                project = response.json()
-                self.test_data["project_id"] = project["id"]
-                self.log_result("Test Project Creation", True, f"Created test project: {project['name']}")
-                return True
+        if self.auth_token:
+            HEADERS["Authorization"] = f"Bearer {self.auth_token}"
+            return True
+        return False
+    
+    def test_teams_management_apis(self):
+        """Test Teams Management APIs"""
+        print("\n🏢 TEAMS MANAGEMENT APIS")
+        print("=" * 50)
+        
+        # Test 1: Create a test team
+        team_data = {
+            "name": f"Test Team {uuid.uuid4().hex[:8]}",
+            "description": "Test team for API testing",
+            "is_active": True
+        }
+        
+        try:
+            response = requests.post(f"{BASE_URL}/teams", json=team_data, headers=HEADERS)
+            if response.status_code == 200 or response.status_code == 201:
+                team = response.json()
+                team_id = team.get("id")
+                self.created_resources["teams"].append(team_id)
+                self.log_result("Create Team", True, f"Team created with ID: {team_id}", team)
             else:
-                self.log_result("Test Project Creation", False, f"Failed to create project: {response.status_code}", response.text)
+                self.log_result("Create Team", False, f"Failed to create team: {response.text}")
                 return False
-                
         except Exception as e:
-            self.log_result("Test Project Creation", False, f"Project creation error: {str(e)}")
+            self.log_result("Create Team", False, f"Error creating team: {str(e)}")
             return False
-
-    # ============= GROUP 1: VENDOR MANAGEMENT TESTS =============
-    
-    def test_vendor_management(self):
-        """Test all vendor CRUD operations"""
-        print("\n=== GROUP 1: VENDOR MANAGEMENT TESTS ===")
         
-        # Test 1: GET /api/vendors (empty list initially)
+        # Test 2: GET /api/teams/{team_id} - Load team data for editing
         try:
-            response = requests.get(f"{BASE_URL}/vendors", headers=self.headers)
+            response = requests.get(f"{BASE_URL}/teams/{team_id}", headers=HEADERS)
             if response.status_code == 200:
-                vendors = response.json()
-                self.log_result("GET /api/vendors", True, f"Retrieved {len(vendors)} vendors")
-            else:
-                self.log_result("GET /api/vendors", False, f"Failed: {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("GET /api/vendors", False, f"Error: {str(e)}")
-        
-        # Test 2: POST /api/vendors - Create test vendors
-        test_vendors = [
-            {
-                "business_name": "Shree Cement Ltd",
-                "contact_person": "Rajesh Kumar",
-                "phone": "+91-9876543210",
-                "email": "rajesh@shreecement.com",
-                "address": "Industrial Area, Rajasthan",
-                "gst_number": "08AABCS1234C1Z5",
-                "pan_number": "AABCS1234C",
-                "bank_name": "HDFC Bank",
-                "account_number": "12345678901234",
-                "ifsc_code": "HDFC0001234",
-                "payment_terms": "30 days",
-                "is_active": True
-            },
-            {
-                "business_name": "Modern Steel Works",
-                "contact_person": "Amit Sharma",
-                "phone": "+91-9876543211",
-                "email": "amit@modernsteel.com",
-                "address": "Steel Complex, Gujarat",
-                "gst_number": "24AABCS5678D1Z5",
-                "pan_number": "AABCS5678D",
-                "bank_name": "SBI Bank",
-                "account_number": "56789012345678",
-                "ifsc_code": "SBIN0001234",
-                "payment_terms": "45 days",
-                "is_active": True
-            }
-        ]
-        
-        for i, vendor_data in enumerate(test_vendors):
-            try:
-                response = requests.post(f"{BASE_URL}/vendors", json=vendor_data, headers=self.headers)
-                if response.status_code == 200:
-                    vendor = response.json()
-                    self.test_data[f"vendor_{i+1}_id"] = vendor["id"]
-                    vendor_name = vendor.get("business_name", vendor.get("company_name", "Unknown Vendor"))
-                    self.log_result(f"POST /api/vendors (Vendor {i+1})", True, f"Created vendor: {vendor_name}")
-                else:
-                    self.log_result(f"POST /api/vendors (Vendor {i+1})", False, f"Failed: {response.status_code}", response.text)
-            except Exception as e:
-                self.log_result(f"POST /api/vendors (Vendor {i+1})", False, f"Error: {str(e)}")
-        
-        # Test 3: GET /api/vendors/{id} - Get specific vendor
-        if "vendor_1_id" in self.test_data:
-            try:
-                vendor_id = self.test_data["vendor_1_id"]
-                response = requests.get(f"{BASE_URL}/vendors/{vendor_id}", headers=self.headers)
-                if response.status_code == 200:
-                    vendor = response.json()
-                    vendor_name = vendor.get("business_name", vendor.get("company_name", "Unknown Vendor"))
-                    self.log_result("GET /api/vendors/{id}", True, f"Retrieved vendor: {vendor_name}")
-                else:
-                    self.log_result("GET /api/vendors/{id}", False, f"Failed: {response.status_code}", response.text)
-            except Exception as e:
-                self.log_result("GET /api/vendors/{id}", False, f"Error: {str(e)}")
-        
-        # Test 4: PUT /api/vendors/{id} - Update vendor
-        if "vendor_1_id" in self.test_data:
-            try:
-                vendor_id = self.test_data["vendor_1_id"]
-                update_data = {
-                    "phone": "+91-9876543299",
-                    "payment_terms": "60 days"
-                }
-                response = requests.put(f"{BASE_URL}/vendors/{vendor_id}", json=update_data, headers=self.headers)
-                if response.status_code == 200:
-                    vendor = response.json()
-                    self.log_result("PUT /api/vendors/{id}", True, f"Updated vendor phone: {vendor['phone']}")
-                else:
-                    self.log_result("PUT /api/vendors/{id}", False, f"Failed: {response.status_code}", response.text)
-            except Exception as e:
-                self.log_result("PUT /api/vendors/{id}", False, f"Error: {str(e)}")
-        
-        # Test 5: DELETE /api/vendors/{id} - Create and delete test vendor
-        try:
-            delete_vendor_data = {
-                "business_name": "Test Delete Vendor",
-                "contact_person": "Test Person",
-                "phone": "+91-9999999999",
-                "email": "delete@test.com",
-                "address": "Test Address",
-                "is_active": True
-            }
-            
-            # Create vendor to delete
-            response = requests.post(f"{BASE_URL}/vendors", json=delete_vendor_data, headers=self.headers)
-            if response.status_code == 200:
-                vendor = response.json()
-                delete_vendor_id = vendor["id"]
+                team_data = response.json()
+                expected_fields = ["id", "name", "description", "is_active", "member_count"]
+                missing_fields = [field for field in expected_fields if field not in team_data]
                 
-                # Now delete it
-                response = requests.delete(f"{BASE_URL}/vendors/{delete_vendor_id}", headers=self.headers)
-                if response.status_code == 200:
-                    self.log_result("DELETE /api/vendors/{id}", True, "Successfully deleted test vendor")
+                if not missing_fields:
+                    self.log_result("GET Team by ID", True, f"Team data retrieved successfully with all required fields", team_data)
                 else:
-                    self.log_result("DELETE /api/vendors/{id}", False, f"Failed: {response.status_code}", response.text)
+                    self.log_result("GET Team by ID", False, f"Missing fields in response: {missing_fields}")
             else:
-                self.log_result("DELETE /api/vendors/{id}", False, "Failed to create vendor for deletion test")
-                
+                self.log_result("GET Team by ID", False, f"Failed to get team: {response.text}")
         except Exception as e:
-            self.log_result("DELETE /api/vendors/{id}", False, f"Error: {str(e)}")
-
-    # ============= GROUP 2: MATERIAL MANAGEMENT TESTS =============
-    
-    def test_material_management(self):
-        """Test all material CRUD operations"""
-        print("\n=== GROUP 2: MATERIAL MANAGEMENT TESTS ===")
+            self.log_result("GET Team by ID", False, f"Error getting team: {str(e)}")
         
-        # Test 1: GET /api/materials (empty list initially)
+        # Test 3: PUT /api/teams/{team_id} - Update team details
+        update_data = {
+            "name": f"Updated Test Team {uuid.uuid4().hex[:8]}",
+            "description": "Updated description for testing",
+            "is_active": True
+        }
+        
         try:
-            response = requests.get(f"{BASE_URL}/materials", headers=self.headers)
+            response = requests.put(f"{BASE_URL}/teams/{team_id}", json=update_data, headers=HEADERS)
             if response.status_code == 200:
-                materials = response.json()
-                self.log_result("GET /api/materials", True, f"Retrieved {len(materials)} materials")
+                updated_team = response.json()
+                if updated_team.get("name") == update_data["name"] and updated_team.get("description") == update_data["description"]:
+                    self.log_result("Update Team", True, "Team updated successfully", updated_team)
+                else:
+                    self.log_result("Update Team", False, "Team data not updated correctly")
             else:
-                self.log_result("GET /api/materials", False, f"Failed: {response.status_code}", response.text)
+                self.log_result("Update Team", False, f"Failed to update team: {response.text}")
         except Exception as e:
-            self.log_result("GET /api/materials", False, f"Error: {str(e)}")
+            self.log_result("Update Team", False, f"Error updating team: {str(e)}")
         
-        # Test 2: POST /api/materials - Create test materials
-        test_materials = [
-            {
-                "name": "Portland Cement",
-                "category": "cement",
-                "unit": "bags",
-                "minimum_stock": 100,
-                "hsn_code": "25232900",
-                "description": "OPC 53 Grade Cement"
-            },
-            {
-                "name": "TMT Steel Bars 12mm",
-                "category": "steel",
-                "unit": "kg",
-                "minimum_stock": 500,
-                "hsn_code": "72142000",
-                "description": "Fe 500D TMT Bars"
-            },
-            {
-                "name": "River Sand",
-                "category": "sand",
-                "unit": "cubic_feet",
-                "minimum_stock": 1000,
-                "hsn_code": "25051000",
-                "description": "Fine aggregate for construction"
-            }
-        ]
+        return True
+    
+    def test_project_team_management_apis(self):
+        """Test Project Team Management APIs"""
+        print("\n📋 PROJECT TEAM MANAGEMENT APIS")
+        print("=" * 50)
         
-        for i, material_data in enumerate(test_materials):
-            try:
-                response = requests.post(f"{BASE_URL}/materials", json=material_data, headers=self.headers)
-                if response.status_code == 200:
-                    material = response.json()
-                    self.test_data[f"material_{i+1}_id"] = material["id"]
-                    self.log_result(f"POST /api/materials (Material {i+1})", True, f"Created material: {material['name']}")
-                else:
-                    self.log_result(f"POST /api/materials (Material {i+1})", False, f"Failed: {response.status_code}", response.text)
-            except Exception as e:
-                self.log_result(f"POST /api/materials (Material {i+1})", False, f"Error: {str(e)}")
+        # First, create a test project
+        project_data = {
+            "name": f"Test Project {uuid.uuid4().hex[:8]}",
+            "description": "Test project for team management testing",
+            "status": "active",
+            "start_date": "2025-01-01T00:00:00Z",
+            "end_date": "2025-12-31T23:59:59Z",
+            "budget": 100000.0
+        }
         
-        # Test 3: GET /api/materials/{id} - Get specific material
-        if "material_1_id" in self.test_data:
-            try:
-                material_id = self.test_data["material_1_id"]
-                response = requests.get(f"{BASE_URL}/materials/{material_id}", headers=self.headers)
-                if response.status_code == 200:
-                    material = response.json()
-                    self.log_result("GET /api/materials/{id}", True, f"Retrieved material: {material['name']}")
-                else:
-                    self.log_result("GET /api/materials/{id}", False, f"Failed: {response.status_code}", response.text)
-            except Exception as e:
-                self.log_result("GET /api/materials/{id}", False, f"Error: {str(e)}")
-        
-        # Test 4: PUT /api/materials/{id} - Update material
-        if "material_1_id" in self.test_data:
-            try:
-                material_id = self.test_data["material_1_id"]
-                update_data = {
-                    "minimum_stock": 150,
-                    "description": "Updated OPC 53 Grade Cement - Premium Quality"
-                }
-                response = requests.put(f"{BASE_URL}/materials/{material_id}", json=update_data, headers=self.headers)
-                if response.status_code == 200:
-                    material = response.json()
-                    self.log_result("PUT /api/materials/{id}", True, f"Updated material minimum stock: {material['minimum_stock']}")
-                else:
-                    self.log_result("PUT /api/materials/{id}", False, f"Failed: {response.status_code}", response.text)
-            except Exception as e:
-                self.log_result("PUT /api/materials/{id}", False, f"Error: {str(e)}")
-        
-        # Test 5: DELETE /api/materials/{id} - Create and delete test material
         try:
-            delete_material_data = {
-                "name": "Test Delete Material",
-                "category": "other",
-                "unit": "pieces",
-                "minimum_stock": 10,
-                "description": "Material for deletion test"
+            response = requests.post(f"{BASE_URL}/projects", json=project_data, headers=HEADERS)
+            if response.status_code == 200 or response.status_code == 201:
+                project = response.json()
+                project_id = project.get("id")
+                self.created_resources["projects"].append(project_id)
+                self.log_result("Create Test Project", True, f"Project created with ID: {project_id}", project)
+            else:
+                self.log_result("Create Test Project", False, f"Failed to create project: {response.text}")
+                return False
+        except Exception as e:
+            self.log_result("Create Test Project", False, f"Error creating project: {str(e)}")
+            return False
+        
+        # Test 1: GET /api/projects/{id} - Verify it returns team_member_ids
+        try:
+            response = requests.get(f"{BASE_URL}/projects/{project_id}", headers=HEADERS)
+            if response.status_code == 200:
+                project_data = response.json()
+                expected_fields = ["id", "name", "team_member_ids", "task_count", "manager_phone"]
+                missing_fields = [field for field in expected_fields if field not in project_data]
+                
+                if not missing_fields:
+                    team_member_ids = project_data.get("team_member_ids", [])
+                    self.log_result("GET Project with Team Data", True, 
+                                  f"Project retrieved with team_member_ids: {len(team_member_ids)} members", project_data)
+                else:
+                    self.log_result("GET Project with Team Data", False, f"Missing fields: {missing_fields}")
+            else:
+                self.log_result("GET Project with Team Data", False, f"Failed to get project: {response.text}")
+        except Exception as e:
+            self.log_result("GET Project with Team Data", False, f"Error getting project: {str(e)}")
+        
+        # Test 2: Get active users to use as team members
+        active_users = []
+        try:
+            response = requests.get(f"{BASE_URL}/users/active", headers=HEADERS)
+            if response.status_code == 200:
+                users_data = response.json()
+                active_users = [user.get("id") for user in users_data if user.get("id")]
+                self.log_result("GET Active Users for Team", True, f"Retrieved {len(active_users)} active users")
+            else:
+                self.log_result("GET Active Users for Team", False, f"Failed to get active users: {response.text}")
+        except Exception as e:
+            self.log_result("GET Active Users for Team", False, f"Error getting active users: {str(e)}")
+        
+        # Test 3: PUT /api/projects/{id}/team - Update project team members
+        if active_users:
+            # Use first 2 active users as team members
+            team_member_ids = active_users[:2] if len(active_users) >= 2 else active_users
+            team_update_data = {
+                "team_member_ids": team_member_ids
             }
             
-            # Create material to delete
-            response = requests.post(f"{BASE_URL}/materials", json=delete_material_data, headers=self.headers)
-            if response.status_code == 200:
-                material = response.json()
-                delete_material_id = material["id"]
-                
-                # Now delete it
-                response = requests.delete(f"{BASE_URL}/materials/{delete_material_id}", headers=self.headers)
-                if response.status_code == 200:
-                    self.log_result("DELETE /api/materials/{id}", True, "Successfully deleted test material")
-                else:
-                    self.log_result("DELETE /api/materials/{id}", False, f"Failed: {response.status_code}", response.text)
-            else:
-                self.log_result("DELETE /api/materials/{id}", False, "Failed to create material for deletion test")
-                
-        except Exception as e:
-            self.log_result("DELETE /api/materials/{id}", False, f"Error: {str(e)}")
-
-    # ============= GROUP 3: SITE INVENTORY TESTS =============
-    
-    def test_site_inventory(self):
-        """Test site inventory management"""
-        print("\n=== GROUP 3: SITE INVENTORY TESTS ===")
-        
-        # Test 1: GET /api/site-inventory (empty list initially)
-        try:
-            response = requests.get(f"{BASE_URL}/site-inventory", headers=self.headers)
-            if response.status_code == 200:
-                inventory = response.json()
-                self.log_result("GET /api/site-inventory", True, f"Retrieved {len(inventory)} inventory items")
-            else:
-                self.log_result("GET /api/site-inventory", False, f"Failed: {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("GET /api/site-inventory", False, f"Error: {str(e)}")
-        
-        # Test 2: POST /api/site-inventory - Create inventory items
-        if "project_id" in self.test_data and "material_1_id" in self.test_data:
             try:
-                inventory_data = {
-                    "project_id": self.test_data["project_id"],
-                    "material_id": self.test_data["material_1_id"],
-                    "current_stock": 250,
-                    "location": "Warehouse A",
-                    "last_updated": datetime.now().isoformat()
-                }
-                
-                response = requests.post(f"{BASE_URL}/site-inventory", json=inventory_data, headers=self.headers)
+                response = requests.put(f"{BASE_URL}/projects/{project_id}/team", json=team_update_data, headers=HEADERS)
                 if response.status_code == 200:
-                    inventory = response.json()
-                    self.test_data["inventory_1_id"] = inventory["id"]
-                    self.log_result("POST /api/site-inventory", True, f"Created inventory item with stock: {inventory['current_stock']}")
-                else:
-                    self.log_result("POST /api/site-inventory", False, f"Failed: {response.status_code}", response.text)
-            except Exception as e:
-                self.log_result("POST /api/site-inventory", False, f"Error: {str(e)}")
-        
-        # Test 3: PUT /api/site-inventory/{id} - Update inventory
-        if "inventory_1_id" in self.test_data:
-            try:
-                inventory_id = self.test_data["inventory_1_id"]
-                update_data = {
-                    "current_stock": 300,
-                    "location": "Warehouse B"
-                }
-                
-                response = requests.put(f"{BASE_URL}/site-inventory/{inventory_id}", json=update_data, headers=self.headers)
-                if response.status_code == 200:
-                    inventory = response.json()
-                    self.log_result("PUT /api/site-inventory/{id}", True, f"Updated inventory stock: {inventory['current_stock']}")
-                else:
-                    self.log_result("PUT /api/site-inventory/{id}", False, f"Failed: {response.status_code}", response.text)
-            except Exception as e:
-                self.log_result("PUT /api/site-inventory/{id}", False, f"Error: {str(e)}")
-
-    # ============= GROUP 4: PURCHASE ORDERS & PAYMENT DUES TESTS =============
-    
-    def test_purchase_orders_and_payment_dues(self):
-        """Test purchase orders and payment dues calculation"""
-        print("\n=== GROUP 4: PURCHASE ORDERS & PAYMENT DUES TESTS ===")
-        
-        # Test 1: Create Purchase Orders for payment dues testing
-        if "vendor_1_id" in self.test_data and "vendor_2_id" in self.test_data and "material_1_id" in self.test_data:
-            
-            # Create PO-2025-001 for Shree Cement (₹224,200)
-            try:
-                po_data_1 = {
-                    "po_number": "PO-2025-001",
-                    "vendor_id": self.test_data["vendor_1_id"],
-                    "project_id": self.test_data["project_id"],
-                    "order_date": datetime.now().isoformat(),
-                    "expected_delivery_date": (datetime.now() + timedelta(days=7)).isoformat(),
-                    "status": "ordered",
-                    "items": [
-                        {
-                            "material_id": self.test_data["material_1_id"],
-                            "quantity": 1000,
-                            "unit_price": 220,
-                            "total_price": 220000
-                        }
-                    ],
-                    "subtotal": 220000,
-                    "tax_amount": 4200,
-                    "total_amount": 224200,
-                    "final_amount": 224200,
-                    "notes": "Urgent delivery required"
-                }
-                
-                response = requests.post(f"{BASE_URL}/purchase-orders", json=po_data_1, headers=self.headers)
-                if response.status_code == 200:
-                    po = response.json()
-                    self.test_data["po_1_id"] = po["id"]
-                    self.log_result("POST /api/purchase-orders (PO-2025-001)", True, f"Created PO: {po['po_number']} - ₹{po['final_amount']}")
-                else:
-                    self.log_result("POST /api/purchase-orders (PO-2025-001)", False, f"Failed: {response.status_code}", response.text)
-            except Exception as e:
-                self.log_result("POST /api/purchase-orders (PO-2025-001)", False, f"Error: {str(e)}")
-            
-            # Create PO-2025-002 for Modern Steel (₹337,200)
-            if "material_2_id" in self.test_data:
-                try:
-                    po_data_2 = {
-                        "po_number": "PO-2025-002",
-                        "vendor_id": self.test_data["vendor_2_id"],
-                        "project_id": self.test_data["project_id"],
-                        "order_date": datetime.now().isoformat(),
-                        "expected_delivery_date": (datetime.now() + timedelta(days=10)).isoformat(),
-                        "status": "ordered",
-                        "items": [
-                            {
-                                "material_id": self.test_data["material_2_id"],
-                                "quantity": 5000,
-                                "unit_price": 65,
-                                "total_price": 325000
-                            }
-                        ],
-                        "subtotal": 325000,
-                        "tax_amount": 12200,
-                        "total_amount": 337200,
-                        "final_amount": 337200,
-                        "notes": "Quality steel required"
-                    }
+                    updated_project = response.json()
+                    returned_team_ids = updated_project.get("team_member_ids", [])
                     
-                    response = requests.post(f"{BASE_URL}/purchase-orders", json=po_data_2, headers=self.headers)
-                    if response.status_code == 200:
-                        po = response.json()
-                        self.test_data["po_2_id"] = po["id"]
-                        self.log_result("POST /api/purchase-orders (PO-2025-002)", True, f"Created PO: {po['po_number']} - ₹{po['final_amount']}")
+                    if set(returned_team_ids) == set(team_member_ids):
+                        self.log_result("Update Project Team", True, 
+                                      f"Project team updated successfully with {len(returned_team_ids)} members", updated_project)
                     else:
-                        self.log_result("POST /api/purchase-orders (PO-2025-002)", False, f"Failed: {response.status_code}", response.text)
-                except Exception as e:
-                    self.log_result("POST /api/purchase-orders (PO-2025-002)", False, f"Error: {str(e)}")
-        
-        # Test 2: GET /api/vendors/all/payment-dues - Check payment dues calculation
-        try:
-            response = requests.get(f"{BASE_URL}/vendors/all/payment-dues", headers=self.headers)
-            if response.status_code == 200:
-                dues = response.json()
-                
-                # Verify total dues calculation
-                total_expected = 224200 + 337200  # ₹561,400
-                
-                # Check if we have dues for our test vendors
-                shree_cement_dues = 0
-                modern_steel_dues = 0
-                
-                for vendor_id, amount in dues.items():
-                    if vendor_id == self.test_data.get("vendor_1_id"):
-                        shree_cement_dues = amount
-                    elif vendor_id == self.test_data.get("vendor_2_id"):
-                        modern_steel_dues = amount
-                
-                if shree_cement_dues == 224200 and modern_steel_dues == 337200:
-                    self.log_result("GET /api/vendors/all/payment-dues", True, f"Payment dues calculated correctly: Shree Cement ₹{shree_cement_dues}, Modern Steel ₹{modern_steel_dues}")
+                        self.log_result("Update Project Team", False, 
+                                      f"Team member IDs mismatch. Expected: {team_member_ids}, Got: {returned_team_ids}")
                 else:
-                    self.log_result("GET /api/vendors/all/payment-dues", False, f"Payment dues mismatch: Expected Shree Cement ₹224,200 got ₹{shree_cement_dues}, Expected Modern Steel ₹337,200 got ₹{modern_steel_dues}")
-                    
-            else:
-                self.log_result("GET /api/vendors/all/payment-dues", False, f"Failed: {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("GET /api/vendors/all/payment-dues", False, f"Error: {str(e)}")
-
-    # ============= CRITICAL SCENARIO TESTS =============
+                    self.log_result("Update Project Team", False, f"Failed to update project team: {response.text}")
+            except Exception as e:
+                self.log_result("Update Project Team", False, f"Error updating project team: {str(e)}")
+        else:
+            self.log_result("Update Project Team", False, "No active users available for team assignment")
+        
+        return True
     
-    def test_critical_scenarios(self):
-        """Test critical edit flows and scenarios"""
-        print("\n=== CRITICAL SCENARIO TESTS ===")
+    def test_user_management_apis(self):
+        """Test User Management APIs"""
+        print("\n👥 USER MANAGEMENT APIS")
+        print("=" * 50)
         
-        # Scenario 1: Edit Vendor Flow
-        print("\n--- Scenario 1: Edit Vendor Flow ---")
+        # Test 1: GET /api/users/active - Get list of active users for project manager dropdown
         try:
-            # Step 1: GET /api/vendors - Get list
-            response = requests.get(f"{BASE_URL}/vendors", headers=self.headers)
+            response = requests.get(f"{BASE_URL}/users/active", headers=HEADERS)
             if response.status_code == 200:
-                vendors = response.json()
-                if vendors:
-                    first_vendor_id = vendors[0]["id"]
+                users_data = response.json()
+                
+                if isinstance(users_data, list):
+                    # Check if users have required fields for dropdown
+                    required_fields = ["id", "full_name", "role"]
+                    valid_users = []
                     
-                    # Step 2: GET /api/vendors/{id} - Get details
-                    response = requests.get(f"{BASE_URL}/vendors/{first_vendor_id}", headers=self.headers)
-                    if response.status_code == 200:
-                        vendor = response.json()
-                        original_phone = vendor["phone"]
-                        
-                        # Step 3: PUT /api/vendors/{id} - Update phone number
-                        new_phone = "+91-8888888888"
-                        update_data = {"phone": new_phone}
-                        response = requests.put(f"{BASE_URL}/vendors/{first_vendor_id}", json=update_data, headers=self.headers)
-                        
-                        if response.status_code == 200:
-                            # Step 4: GET /api/vendors/{id} - Verify update
-                            response = requests.get(f"{BASE_URL}/vendors/{first_vendor_id}", headers=self.headers)
-                            if response.status_code == 200:
-                                updated_vendor = response.json()
-                                if updated_vendor["phone"] == new_phone:
-                                    self.log_result("Scenario 1: Edit Vendor Flow", True, f"Successfully updated vendor phone from {original_phone} to {new_phone}")
-                                else:
-                                    self.log_result("Scenario 1: Edit Vendor Flow", False, f"Phone update failed: expected {new_phone}, got {updated_vendor['phone']}")
-                            else:
-                                self.log_result("Scenario 1: Edit Vendor Flow", False, "Failed to verify vendor update")
-                        else:
-                            self.log_result("Scenario 1: Edit Vendor Flow", False, f"Failed to update vendor: {response.status_code}")
+                    for user in users_data:
+                        missing_fields = [field for field in required_fields if field not in user]
+                        if not missing_fields:
+                            valid_users.append(user)
+                    
+                    if valid_users:
+                        self.log_result("GET Active Users", True, 
+                                      f"Retrieved {len(valid_users)} active users with required fields for dropdown", 
+                                      {"total_users": len(users_data), "valid_users": len(valid_users), "sample": valid_users[:3]})
                     else:
-                        self.log_result("Scenario 1: Edit Vendor Flow", False, "Failed to get vendor details")
+                        self.log_result("GET Active Users", False, "No users with required fields found")
                 else:
-                    self.log_result("Scenario 1: Edit Vendor Flow", False, "No vendors found for testing")
+                    self.log_result("GET Active Users", False, "Response is not a list")
             else:
-                self.log_result("Scenario 1: Edit Vendor Flow", False, "Failed to get vendors list")
+                self.log_result("GET Active Users", False, f"Failed to get active users: {response.text}")
         except Exception as e:
-            self.log_result("Scenario 1: Edit Vendor Flow", False, f"Error: {str(e)}")
+            self.log_result("GET Active Users", False, f"Error getting active users: {str(e)}")
         
-        # Scenario 2: Edit Material Flow
-        print("\n--- Scenario 2: Edit Material Flow ---")
+        # Test 2: Verify user data structure for manager selection
         try:
-            # Step 1: GET /api/materials - Get list
-            response = requests.get(f"{BASE_URL}/materials", headers=self.headers)
+            response = requests.get(f"{BASE_URL}/users/active", headers=HEADERS)
             if response.status_code == 200:
-                materials = response.json()
-                if materials:
-                    first_material_id = materials[0]["id"]
+                users_data = response.json()
+                
+                if users_data:
+                    sample_user = users_data[0]
+                    manager_fields = ["id", "full_name", "role", "email", "phone"]
+                    available_fields = [field for field in manager_fields if field in sample_user]
                     
-                    # Step 2: GET /api/materials/{id} - Get details
-                    response = requests.get(f"{BASE_URL}/materials/{first_material_id}", headers=self.headers)
-                    if response.status_code == 200:
-                        material = response.json()
-                        original_stock = material["minimum_stock"]
-                        
-                        # Step 3: PUT /api/materials/{id} - Update minimum_stock
-                        new_stock = 200
-                        update_data = {"minimum_stock": new_stock}
-                        response = requests.put(f"{BASE_URL}/materials/{first_material_id}", json=update_data, headers=self.headers)
-                        
-                        if response.status_code == 200:
-                            # Step 4: GET /api/materials/{id} - Verify update
-                            response = requests.get(f"{BASE_URL}/materials/{first_material_id}", headers=self.headers)
-                            if response.status_code == 200:
-                                updated_material = response.json()
-                                if updated_material["minimum_stock"] == new_stock:
-                                    self.log_result("Scenario 2: Edit Material Flow", True, f"Successfully updated material minimum stock from {original_stock} to {new_stock}")
-                                else:
-                                    self.log_result("Scenario 2: Edit Material Flow", False, f"Stock update failed: expected {new_stock}, got {updated_material['minimum_stock']}")
-                            else:
-                                self.log_result("Scenario 2: Edit Material Flow", False, "Failed to verify material update")
-                        else:
-                            self.log_result("Scenario 2: Edit Material Flow", False, f"Failed to update material: {response.status_code}")
-                    else:
-                        self.log_result("Scenario 2: Edit Material Flow", False, "Failed to get material details")
+                    self.log_result("User Data Structure", True, 
+                                  f"User data contains {len(available_fields)}/{len(manager_fields)} manager fields: {available_fields}",
+                                  sample_user)
                 else:
-                    self.log_result("Scenario 2: Edit Material Flow", False, "No materials found for testing")
+                    self.log_result("User Data Structure", False, "No users returned")
             else:
-                self.log_result("Scenario 2: Edit Material Flow", False, "Failed to get materials list")
+                self.log_result("User Data Structure", False, f"Failed to get users for structure check: {response.text}")
         except Exception as e:
-            self.log_result("Scenario 2: Edit Material Flow", False, f"Error: {str(e)}")
-
-    # ============= ERROR HANDLING TESTS =============
+            self.log_result("User Data Structure", False, f"Error checking user data structure: {str(e)}")
+        
+        return True
     
-    def test_error_handling(self):
-        """Test error handling with invalid data"""
-        print("\n=== ERROR HANDLING TESTS ===")
+    def cleanup_test_data(self):
+        """Clean up created test data"""
+        print("\n🧹 CLEANUP")
+        print("=" * 50)
         
-        # Test invalid vendor ID (should return 404)
-        try:
-            response = requests.get(f"{BASE_URL}/vendors/invalid_id_123", headers=self.headers)
-            if response.status_code == 404:
-                self.log_result("Invalid Vendor ID Test", True, "Correctly returned 404 for invalid vendor ID")
-            else:
-                self.log_result("Invalid Vendor ID Test", False, f"Expected 404, got {response.status_code}")
-        except Exception as e:
-            self.log_result("Invalid Vendor ID Test", False, f"Error: {str(e)}")
+        # Delete test teams
+        for team_id in self.created_resources["teams"]:
+            try:
+                response = requests.delete(f"{BASE_URL}/teams/{team_id}", headers=HEADERS)
+                if response.status_code == 200:
+                    self.log_result("Cleanup Team", True, f"Deleted team {team_id}")
+                else:
+                    self.log_result("Cleanup Team", False, f"Failed to delete team {team_id}: {response.text}")
+            except Exception as e:
+                self.log_result("Cleanup Team", False, f"Error deleting team {team_id}: {str(e)}")
         
-        # Test invalid material ID (should return 404)
-        try:
-            response = requests.get(f"{BASE_URL}/materials/invalid_id_123", headers=self.headers)
-            if response.status_code == 404:
-                self.log_result("Invalid Material ID Test", True, "Correctly returned 404 for invalid material ID")
-            else:
-                self.log_result("Invalid Material ID Test", False, f"Expected 404, got {response.status_code}")
-        except Exception as e:
-            self.log_result("Invalid Material ID Test", False, f"Error: {str(e)}")
-        
-        # Test invalid data for vendor creation (should return 400)
-        try:
-            invalid_vendor_data = {
-                "company_name": "",  # Empty name should fail
-                "contact_person": "Test Person"
-            }
-            response = requests.post(f"{BASE_URL}/vendors", json=invalid_vendor_data, headers=self.headers)
-            if response.status_code in [400, 422]:  # 400 or 422 for validation errors
-                self.log_result("Invalid Vendor Data Test", True, f"Correctly returned {response.status_code} for invalid vendor data")
-            else:
-                self.log_result("Invalid Vendor Data Test", False, f"Expected 400/422, got {response.status_code}")
-        except Exception as e:
-            self.log_result("Invalid Vendor Data Test", False, f"Error: {str(e)}")
-
+        # Delete test projects
+        for project_id in self.created_resources["projects"]:
+            try:
+                response = requests.delete(f"{BASE_URL}/projects/{project_id}", headers=HEADERS)
+                if response.status_code == 200:
+                    self.log_result("Cleanup Project", True, f"Deleted project {project_id}")
+                else:
+                    self.log_result("Cleanup Project", False, f"Failed to delete project {project_id}: {response.text}")
+            except Exception as e:
+                self.log_result("Cleanup Project", False, f"Error deleting project {project_id}: {str(e)}")
+    
     def run_all_tests(self):
-        """Run all test groups"""
-        print("🚀 Starting Comprehensive Vendor & Materials Management Backend Testing")
-        print("=" * 80)
+        """Run all backend tests"""
+        print("🚀 BACKEND API TESTING - BUG FIXES VERIFICATION")
+        print("=" * 70)
+        print("Testing Focus:")
+        print("1. Teams Management APIs (GET/PUT /api/teams/{team_id})")
+        print("2. Project Team Management APIs (GET /api/projects/{id}, PUT /api/projects/{id}/team)")
+        print("3. User Management APIs (GET /api/users/active)")
+        print("=" * 70)
         
-        # Authenticate first
+        # Authenticate
         if not self.authenticate():
             print("❌ Authentication failed. Cannot proceed with tests.")
             return False
         
-        # Create test project
-        if not self.create_test_project():
-            print("❌ Test project creation failed. Some tests may not work.")
+        # Run tests
+        success = True
+        success &= self.test_teams_management_apis()
+        success &= self.test_project_team_management_apis()
+        success &= self.test_user_management_apis()
         
-        # Run all test groups
-        self.test_vendor_management()
-        self.test_material_management()
-        self.test_site_inventory()
-        self.test_purchase_orders_and_payment_dues()
-        self.test_critical_scenarios()
-        self.test_error_handling()
+        # Cleanup
+        self.cleanup_test_data()
         
         # Print summary
         self.print_summary()
         
-        return True
+        return success
     
     def print_summary(self):
-        """Print test results summary"""
-        print("\n" + "=" * 80)
-        print("📊 TEST RESULTS SUMMARY")
-        print("=" * 80)
+        """Print test summary"""
+        print("\n📊 TEST SUMMARY")
+        print("=" * 50)
         
-        passed = sum(1 for r in self.results if "✅ PASS" in r["status"])
-        failed = sum(1 for r in self.results if "❌ FAIL" in r["status"])
-        total = len(self.results)
+        total_tests = len(self.test_results)
+        passed_tests = len([r for r in self.test_results if r["success"]])
+        failed_tests = total_tests - passed_tests
         
-        print(f"Total Tests: {total}")
-        print(f"✅ Passed: {passed}")
-        print(f"❌ Failed: {failed}")
-        print(f"Success Rate: {(passed/total*100):.1f}%")
+        print(f"Total Tests: {total_tests}")
+        print(f"Passed: {passed_tests} ✅")
+        print(f"Failed: {failed_tests} ❌")
+        print(f"Success Rate: {(passed_tests/total_tests*100):.1f}%")
         
-        if failed > 0:
-            print(f"\n❌ FAILED TESTS ({failed}):")
-            for result in self.results:
-                if "❌ FAIL" in result["status"]:
-                    print(f"   • {result['test']}: {result['message']}")
-                    if result["details"]:
-                        print(f"     Details: {result['details']}")
+        if failed_tests > 0:
+            print("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result["success"]:
+                    print(f"  - {result['test']}: {result['message']}")
         
-        print(f"\n✅ PASSED TESTS ({passed}):")
-        for result in self.results:
-            if "✅ PASS" in result["status"]:
-                print(f"   • {result['test']}: {result['message']}")
+        print("\n" + "=" * 50)
 
 if __name__ == "__main__":
     tester = BackendTester()
     success = tester.run_all_tests()
-    
-    if success:
-        print("\n🎉 Testing completed successfully!")
-    else:
-        print("\n💥 Testing failed to complete!")
-        sys.exit(1)
+    sys.exit(0 if success else 1)
