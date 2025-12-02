@@ -376,4 +376,26 @@ const styles = StyleSheet.create({
     color: '#FF6B35',
     fontWeight: '600',
   },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A202C',
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  infoCard: {
+    flexDirection: 'row',
+    backgroundColor: '#EFF6FF',
+    padding: 12,
+    borderRadius: 8,
+    gap: 10,
+    marginTop: 12,
+    marginBottom: 16,
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#1E40AF',
+    lineHeight: 18,
+  },
 });
