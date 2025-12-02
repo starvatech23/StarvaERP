@@ -176,8 +176,9 @@ export default function ProjectsScreen() {
                                   { 
                                     text: 'Call', 
                                     onPress: () => {
-                                      // In a real app, use Linking.openURL(phoneUrl)
-                                      Alert.alert('Calling', project.manager_phone);
+                                      Linking.openURL(phoneUrl).catch(err => {
+                                        Alert.alert('Error', 'Unable to make call');
+                                      });
                                     }
                                   },
                                 ]
