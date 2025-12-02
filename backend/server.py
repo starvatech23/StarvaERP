@@ -3199,7 +3199,7 @@ async def get_roles(
 async def create_role(
     role: RoleCreate,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Create a new role"""
     current_user = await get_current_user(credentials)
@@ -3226,7 +3226,7 @@ async def update_role(
     role_id: str,
     role_update: RoleUpdate,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Update a role"""
     current_user = await get_current_user(credentials)
@@ -3250,7 +3250,7 @@ async def update_role(
 async def delete_role(
     role_id: str,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Delete a role"""
     current_user = await get_current_user(credentials)
@@ -3275,7 +3275,7 @@ async def delete_role(
 async def get_role_permissions(
     role_id: str,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Get all permissions for a role"""
     current_user = await get_current_user(credentials)
@@ -3290,7 +3290,7 @@ async def get_role_permissions(
 async def create_permission(
     permission: PermissionCreate,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Create or update a permission"""
     current_user = await get_current_user(credentials)
@@ -3331,7 +3331,7 @@ async def create_permission(
 async def delete_permission(
     permission_id: str,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Delete a permission"""
     current_user = await get_current_user(credentials)
@@ -3350,7 +3350,7 @@ async def delete_permission(
 @api_router.get("/users/pending", response_model=List[UserResponse])
 async def get_pending_users(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Get all pending users waiting for approval"""
     current_user = await get_current_user(credentials)
@@ -3374,7 +3374,7 @@ async def get_pending_users(
 @api_router.get("/users/active", response_model=List[UserResponse])
 async def get_active_users(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Get all active/approved users"""
     current_user = await get_current_user(credentials)
@@ -3400,7 +3400,7 @@ async def approve_user(
     user_id: str,
     approval: UserApprovalRequest,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Approve or reject a user"""
     current_user = await get_current_user(credentials)
@@ -3444,7 +3444,7 @@ async def update_user(
     user_id: str,
     user_update: UserUpdate,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Update user details"""
     current_user = await get_current_user(credentials)
@@ -3476,7 +3476,7 @@ async def update_user(
 @api_router.get("/settings", response_model=List[SystemSettingResponse])
 async def get_settings(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Get all system settings"""
     current_user = await get_current_user(credentials)
@@ -3491,7 +3491,7 @@ async def get_settings(
 async def create_or_update_setting(
     setting: SystemSettingCreate,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    
 ):
     """Create or update a system setting"""
     current_user = await get_current_user(credentials)
