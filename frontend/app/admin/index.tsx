@@ -39,10 +39,11 @@ export default function AdminDashboard() {
 
   const loadDashboardData = async () => {
     try {
-      const [pendingRes, activeRes, rolesRes, settingsRes] = await Promise.all([
+      const [pendingRes, activeRes, rolesRes, teamsRes, settingsRes] = await Promise.all([
         userManagementAPI.getPending(),
         userManagementAPI.getActive(),
         rolesAPI.getAll(),
+        teamsAPI.getAll(),
         systemSettingsAPI.getAll(),
       ]);
 
@@ -54,6 +55,7 @@ export default function AdminDashboard() {
         pendingUsers: pendingRes.data.length,
         activeUsers: activeRes.data.length,
         totalRoles: rolesRes.data.length,
+        totalTeams: teamsRes.data.length,
         maxAdmins: maxAdminsSetting ? parseInt(maxAdminsSetting.setting_value) : 5,
       });
     } catch (error: any) {
