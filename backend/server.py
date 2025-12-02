@@ -15,7 +15,7 @@ import socketio
 from models import (
     UserCreate, UserLogin, UserResponse, Token, OTPRequest, OTPVerify,
     ProjectCreate, ProjectUpdate, ProjectResponse,
-    TaskCreate, TaskUpdate, TaskResponse,
+    TaskCreate, TaskUpdate, TaskResponse, TaskStatus,
     MaterialCreate, MaterialUpdate, MaterialResponse, MaterialCategory,
     VendorCreate, VendorUpdate, VendorResponse,
     VendorMaterialRateCreate, VendorMaterialRateUpdate, VendorMaterialRateResponse,
