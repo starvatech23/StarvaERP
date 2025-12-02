@@ -148,6 +148,7 @@ export default function RegisterEmailScreen() {
               />
             </View>
 
+            <Text style={styles.label}>Select Your Role *</Text>
             <View style={styles.pickerContainer}>
               <Ionicons
                 name="briefcase-outline"
@@ -156,16 +157,38 @@ export default function RegisterEmailScreen() {
                 style={styles.inputIcon}
               />
               <Picker
-                selectedValue={role}
-                onValueChange={setRole}
+                selectedValue={roleId}
+                onValueChange={(value) => {
+                  setRoleId(value);
+                  const selectedRole = availableRoles.find(r => r.id === value);
+                  if (selectedRole) {
+                    setRole(selectedRole.name.toLowerCase().replace(/ /g, '_'));
+                  }
+                }}
                 style={styles.picker}
+                dropdownIconColor="#1A202C"
               >
-                <Picker.Item label="Worker" value="worker" />
-                <Picker.Item label="Engineer" value="engineer" />
-                <Picker.Item label="Project Manager" value="project_manager" />
-                <Picker.Item label="Admin" value="admin" />
-                <Picker.Item label="Vendor" value="vendor" />
+                <Picker.Item label="Select your role..." value="" color="#9CA3AF" />
+                {availableRoles.length > 0 ? (
+                  availableRoles.map((r: any) => (
+                    <Picker.Item key={r.id} label={r.name} value={r.id} color="#1A202C" />
+                  ))
+                ) : (
+                  <>
+                    <Picker.Item label="Worker" value="worker" color="#1A202C" />
+                    <Picker.Item label="Engineer" value="engineer" color="#1A202C" />
+                    <Picker.Item label="Project Manager" value="project_manager" color="#1A202C" />
+                  </>
+                )}
               </Picker>
+            </View>
+
+            {/* Approval Notice */}
+            <View style={styles.infoCard}>
+              <Ionicons name="information-circle" size={20} color="#3B82F6" />
+              <Text style={styles.infoText}>
+                Your account will be reviewed by an admin. You'll have limited access until approved.
+              </Text>
             </View>
 
             <View style={styles.inputContainer}>
