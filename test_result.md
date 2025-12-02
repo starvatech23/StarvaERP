@@ -299,8 +299,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Vendor & Materials Management Backend APIs"
-    - "Materials Tab Frontend Integration"
+    - "Project Card Enhancements - Engineer Name, Call Button, Progress Bar"
   stuck_tasks: 
     - "Payment Dues Calculation Logic"
   test_all: false
