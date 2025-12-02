@@ -40,10 +40,19 @@ export default function CreateProjectScreen() {
 
   const loadManagers = async () => {
     try {
-      const response = await usersAPI.getByRole('project_manager');
+      // Fetch all active users - we'll show all approved users who can be assigned
+      const response = await userManagementAPI.getActive();
+      console.log('Users loaded for manager selection:', response.data.length);
       setManagers(response.data);
     } catch (error) {
-      console.error('Error loading managers:', error);
+      console.error('Error loading users:', error);
+      // Try fallback to old API
+      try {
+        const response = await usersAPI.getByRole('project_manager');
+        setManagers(response.data);
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+      }
     }
   };
 
