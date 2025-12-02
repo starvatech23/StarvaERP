@@ -42,7 +42,7 @@ export default function AdminDashboard() {
         userManagementAPI.getPending(),
         userManagementAPI.getActive(),
         rolesAPI.getAll(),
-        settingsAPI.getAll(),
+        systemSettingsAPI.getAll(),
       ]);
 
       const maxAdminsSetting = settingsRes.data.find(
