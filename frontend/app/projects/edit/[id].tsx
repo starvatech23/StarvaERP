@@ -73,8 +73,12 @@ export default function EditProjectScreen() {
         console.log('First manager:', response.data[0]);
       }
       setManagers(response.data);
+      
+      // Alert for debugging
+      Alert.alert('Managers Loaded', `Found ${response.data.length} project managers`);
     } catch (error) {
       console.error('Error loading managers:', error);
+      Alert.alert('Error', 'Failed to load project managers');
     }
   };
 
