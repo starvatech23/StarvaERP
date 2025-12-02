@@ -410,6 +410,36 @@ const styles = StyleSheet.create({
   pickerItem: {
     color: '#1A202C',
     fontSize: 16,
+    backgroundColor: '#FFFFFF',
+  },
+  manageTeamButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#EFF6FF',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  manageTeamContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  manageTeamText: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  manageTeamTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1E40AF',
+  },
+  manageTeamSubtitle: {
+    fontSize: 13,
+    color: '#3B82F6',
+    marginTop: 2,
   },
   photoButton: {
     width: 120,
