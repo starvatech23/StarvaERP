@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Suite for Project Enhancement Features
-Tests the enhanced project APIs with task counts and manager phone integration.
+Backend API Testing for Bug Fixes - Teams Management, Project Team Management, and User Management
+Testing Focus:
+1. Teams Management APIs (GET/PUT /api/teams/{team_id})
+2. Project Team Management APIs (GET /api/projects/{id}, PUT /api/projects/{id}/team)
+3. User Management APIs (GET /api/users/active)
 """
 
 import requests
 import json
 import sys
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from datetime import datetime
+import uuid
 
 # Configuration
 BASE_URL = "https://siteflow-11.preview.emergentagent.com/api"
