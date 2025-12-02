@@ -166,12 +166,22 @@ class UserBase(BaseModel):
     full_name: str
     role: Optional[UserRole] = None  # Keep for backward compatibility
     role_id: Optional[str] = None  # New: dynamic role reference
+    team_id: Optional[str] = None  # Team/Department reference
     address: Optional[str] = None
     profile_photo: Optional[str] = None  # base64
 
 class UserCreate(UserBase):
     password: Optional[str] = None  # For email auth
     auth_type: str  # 'email' or 'phone'
+
+class UserCreateByAdmin(BaseModel):
+    email: EmailStr
+    phone: str
+    full_name: str
+    role_id: str
+    team_id: str
+    address: Optional[str] = None
+    password: Optional[str] = None  # Optional - can be set later
 
 class UserLogin(BaseModel):
     identifier: str  # email or phone
