@@ -3466,6 +3466,10 @@ async def get_pending_users(
         if user_dict.get("role_id"):
             role = await db.roles.find_one({"_id": ObjectId(user_dict["role_id"])})
             user_dict["role_name"] = role["name"] if role else None
+        # Get team name if team_id exists
+        if user_dict.get("team_id"):
+            team = await db.teams.find_one({"_id": ObjectId(user_dict["team_id"])})
+            user_dict["team_name"] = team["name"] if team else None
         result.append(UserResponse(**user_dict))
     
     return result
