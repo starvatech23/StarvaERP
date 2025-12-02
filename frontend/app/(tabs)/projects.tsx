@@ -168,8 +168,8 @@ export default function ProjectsScreen() {
                     {project.project_manager_name && (
                       <View style={styles.managerRow}>
                         <View style={styles.managerInfo}>
-                          <Ionicons name="person" size={14} color="#718096" />
-                          <Text style={styles.detailText}>{project.project_manager_name}</Text>
+                          <Ionicons name="person" size={14} color="#1A202C" />
+                          <Text style={styles.managerText}>{project.project_manager_name}</Text>
                         </View>
                         {project.manager_phone && (
                           <TouchableOpacity
