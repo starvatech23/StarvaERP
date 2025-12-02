@@ -67,6 +67,11 @@ export default function EditProjectScreen() {
   const loadManagers = async () => {
     try {
       const response = await usersAPI.getByRole('project_manager');
+      console.log('Managers loaded:', response.data);
+      console.log('Number of managers:', response.data.length);
+      if (response.data.length > 0) {
+        console.log('First manager:', response.data[0]);
+      }
       setManagers(response.data);
     } catch (error) {
       console.error('Error loading managers:', error);
