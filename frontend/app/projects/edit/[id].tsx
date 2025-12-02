@@ -379,6 +379,10 @@ const styles = StyleSheet.create({
   picker: {
     color: '#1A202C',
   },
+  pickerItem: {
+    color: '#1A202C',
+    fontSize: 16,
+  },
   photoButton: {
     width: 120,
     height: 120,
