@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { Picker } from '@react-native-picker/picker';
+import { rolesAPI } from '../../services/api';
 
 export default function RegisterEmailScreen() {
   const router = useRouter();
@@ -26,9 +27,26 @@ export default function RegisterEmailScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('worker');
+  const [roleId, setRoleId] = useState('');
+  const [availableRoles, setAvailableRoles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    loadRoles();
+  }, []);
+
+  const loadRoles = async () => {
+    try {
+      const response = await rolesAPI.getAll(true); // Get only active roles
+      setAvailableRoles(response.data);
+    } catch (error) {
+      console.error('Error loading roles:', error);
+      // Use default roles if API fails
+      setAvailableRoles([]);
+    }
+  };
 
   const handleRegister = async () => {
     if (!fullName || !email || !password) {
