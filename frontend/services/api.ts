@@ -22,6 +22,7 @@ export const userManagementAPI = {
   approve: (userId: string, action: string, roleId?: string) => 
     api.post(`/users/${userId}/approve`, { user_id: userId, action, role_id: roleId }),
   update: (userId: string, data: any) => api.put(`/users/${userId}`, data),
+  createUser: (data: any) => api.post('/users/create', data),
 };
 
 // System Settings API (RBAC)
