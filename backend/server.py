@@ -13,7 +13,7 @@ import socketio
 
 # Import models and auth
 from models import (
-    UserCreate, UserLogin, UserResponse, Token, OTPRequest, OTPVerify,
+    UserCreate, UserLogin, UserResponse, UserUpdate, UserApprovalRequest, Token, OTPRequest, OTPVerify,
     ProjectCreate, ProjectUpdate, ProjectResponse,
     TaskCreate, TaskUpdate, TaskResponse, TaskStatus,
     MaterialCreate, MaterialUpdate, MaterialResponse, MaterialCategory,
@@ -37,7 +37,10 @@ from models import (
     WorkerCreate, WorkerUpdate, WorkerResponse,
     LaborAttendanceCreate, LaborAttendanceUpdate, LaborAttendanceResponse,
     SiteTransferCreate, SiteTransferResponse,
-    UserRole
+    UserRole, ApprovalStatus,
+    RoleCreate, RoleUpdate, RoleResponse,
+    PermissionCreate, PermissionUpdate, PermissionResponse, ModuleName,
+    SystemSettingCreate, SystemSettingUpdate, SystemSettingResponse
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
