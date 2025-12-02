@@ -51,7 +51,8 @@ class BackendTester:
             "password": "admin123",
             "full_name": "Admin User",
             "role": "admin",
-            "auth_type": "email"
+            "auth_type": "email",
+            "approval_status": "approved"
         }
         
         try:
