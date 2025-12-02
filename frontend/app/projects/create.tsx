@@ -15,9 +15,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import { projectsAPI, usersAPI, userManagementAPI } from '../../services/api';
+import ModalSelector from '../../components/ModalSelector';
 
 export default function CreateProjectScreen() {
   const router = useRouter();
