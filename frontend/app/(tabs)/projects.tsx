@@ -28,6 +28,8 @@ export default function ProjectsScreen() {
   const loadProjects = async () => {
     try {
       const response = await projectsAPI.getAll();
+      console.log('Projects loaded:', response.data);
+      console.log('First project:', JSON.stringify(response.data[0], null, 2));
       setProjects(response.data);
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to load projects');
