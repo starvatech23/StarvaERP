@@ -244,15 +244,18 @@ backend:
 
   - task: "Project APIs Enhancement - Task Count & Manager Phone"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py, /app/backend/models.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Enhanced all project endpoints to return task counts and manager phone. Modified ProjectResponse model to include manager_phone (Optional[str]) and task_count (Optional[Dict[str, int]]) with 'total' and 'completed' keys. Updated 4 endpoints: (1) GET /api/projects - fetches all projects with task counts and manager info, (2) GET /api/projects/{id} - single project with task counts, (3) POST /api/projects - creates project and returns with initial task counts (0), (4) PUT /api/projects/{id} - updates project and returns with current task counts. Task counts calculated by querying tasks collection: total tasks for project_id, completed tasks where status=COMPLETED. Manager phone fetched from users collection via project_manager_id lookup."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL PROJECT ENHANCEMENT APIS WORKING: Comprehensive testing completed with 100% success rate (7/7 tests passed). VERIFIED FEATURES: (1) GET /api/projects - Enhanced fields (manager_phone, task_count) present and valid in all project responses, (2) GET /api/projects/{id} - Single project enhanced fields working correctly, (3) POST /api/projects - Project creation returns manager_phone when project_manager_id provided and task_count with initial 0/0 values, (4) PUT /api/projects/{id} - Project updates return current task counts and manager phone, (5) Task Count Accuracy - Verified task counts match actual database records (created 5 tasks, 2 completed = 5/2 counts), (6) Manager Phone Population - Correctly populates manager_phone when project_manager_id exists and returns null when no manager assigned. All enhanced fields working as specified. Fixed minor TaskStatus import issue in server.py during testing."
 
 frontend:
   - task: "Materials Tab Main Screen"
