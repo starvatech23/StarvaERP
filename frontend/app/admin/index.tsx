@@ -22,6 +22,7 @@ export default function AdminDashboard() {
     pendingUsers: 0,
     activeUsers: 0,
     totalRoles: 0,
+    totalTeams: 0,
     maxAdmins: 5,
   });
 
