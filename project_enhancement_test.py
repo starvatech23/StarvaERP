@@ -85,13 +85,15 @@ class ProjectEnhancementTester:
     def create_test_user(self, role: str = "project_manager") -> Optional[str]:
         """Create a test user and return user ID"""
         try:
-            timestamp = int(datetime.now().timestamp())
+            import random
+            timestamp = int(datetime.now().timestamp() * 1000000)  # More unique timestamp
+            random_suffix = random.randint(1000, 9999)
             user_data = {
-                "email": f"testpm_{timestamp}@test.com",
+                "email": f"testpm_{timestamp}_{random_suffix}@test.com",
                 "password": "testpass123",
                 "full_name": f"Test Project Manager {timestamp}",
                 "role": role,
-                "phone": f"+91987654{timestamp % 10000}",
+                "phone": f"+91987654{(timestamp + random_suffix) % 10000}",
                 "auth_type": "email"
             }
             
