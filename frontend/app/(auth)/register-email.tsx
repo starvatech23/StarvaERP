@@ -77,9 +77,16 @@ export default function RegisterEmailScreen() {
         phone: phone || undefined,
         password,
         role,
+        role_id: roleId || undefined,
         auth_type: 'email',
       });
-      router.replace('/(tabs)');
+      
+      // Show success message with approval notice
+      Alert.alert(
+        'Registration Successful',
+        'Your account has been created. An admin will review your request shortly. You can log in with limited access.',
+        [{ text: 'OK', onPress: () => router.replace('/(tabs)') }]
+      );
     } catch (error: any) {
       Alert.alert('Registration Failed', error.message);
     } finally {
