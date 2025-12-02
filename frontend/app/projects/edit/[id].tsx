@@ -244,15 +244,14 @@ export default function EditProjectScreen() {
                 onValueChange={setProjectManagerId}
                 style={styles.picker}
                 dropdownIconColor="#1A202C"
-                itemStyle={styles.pickerItem}
               >
-                <Picker.Item label="Select Project Manager" value="" color="#718096" />
+                <Picker.Item label="Select Project Manager" value="" style={styles.pickerItem} />
                 {managers.map((manager: any) => (
                   <Picker.Item
                     key={manager.id}
                     label={manager.full_name}
                     value={manager.id}
-                    color="#1A202C"
+                    style={styles.pickerItem}
                   />
                 ))}
               </Picker>
@@ -267,6 +266,26 @@ export default function EditProjectScreen() {
               multiline
               numberOfLines={4}
             />
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Team Management</Text>
+            
+            <TouchableOpacity
+              style={styles.manageTeamButton}
+              onPress={() => router.push(`/projects/${id}/team` as any)}
+            >
+              <View style={styles.manageTeamContent}>
+                <Ionicons name="people" size={24} color="#3B82F6" />
+                <View style={styles.manageTeamText}>
+                  <Text style={styles.manageTeamTitle}>Manage Project Team</Text>
+                  <Text style={styles.manageTeamSubtitle}>
+                    Add or remove team members for this project
+                  </Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#718096" />
+            </TouchableOpacity>
           </View>
 
           <View style={styles.section}>
