@@ -234,13 +234,16 @@ export default function EditProjectScreen() {
                 selectedValue={projectManagerId}
                 onValueChange={setProjectManagerId}
                 style={styles.picker}
+                dropdownIconColor="#1A202C"
+                itemStyle={styles.pickerItem}
               >
-                <Picker.Item label="Select Project Manager" value="" />
+                <Picker.Item label="Select Project Manager" value="" color="#718096" />
                 {managers.map((manager: any) => (
                   <Picker.Item
                     key={manager.id}
                     label={manager.full_name}
                     value={manager.id}
+                    color="#1A202C"
                   />
                 ))}
               </Picker>
