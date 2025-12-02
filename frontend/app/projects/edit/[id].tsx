@@ -66,19 +66,19 @@ export default function EditProjectScreen() {
 
   const loadManagers = async () => {
     try {
-      const response = await usersAPI.getByRole('project_manager');
-      console.log('Managers loaded:', response.data);
-      console.log('Number of managers:', response.data.length);
-      if (response.data.length > 0) {
-        console.log('First manager:', response.data[0]);
-      }
+      // Fetch all active users - we'll show all approved users who can be assigned
+      const response = await userManagementAPI.getActive();
+      console.log('Users loaded for manager selection:', response.data.length);
       setManagers(response.data);
-      
-      // Alert for debugging
-      Alert.alert('Managers Loaded', `Found ${response.data.length} project managers`);
     } catch (error) {
-      console.error('Error loading managers:', error);
-      Alert.alert('Error', 'Failed to load project managers');
+      console.error('Error loading users:', error);
+      // Try fallback to old API
+      try {
+        const response = await usersAPI.getByRole('project_manager');
+        setManagers(response.data);
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+      }
     }
   };
 
