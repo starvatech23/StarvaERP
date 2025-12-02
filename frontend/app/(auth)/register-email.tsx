@@ -54,6 +54,11 @@ export default function RegisterEmailScreen() {
       return;
     }
 
+    if (!roleId && availableRoles.length > 0) {
+      Alert.alert('Error', 'Please select a role');
+      return;
+    }
+
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
