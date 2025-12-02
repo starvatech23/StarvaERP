@@ -15,9 +15,9 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import { projectsAPI, usersAPI, userManagementAPI } from '../../../services/api';
+import ModalSelector from '../../../components/ModalSelector';
 
 export default function EditProjectScreen() {
   const router = useRouter();
@@ -190,19 +190,18 @@ export default function EditProjectScreen() {
             />
 
             <Text style={styles.label}>Status</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={status}
-                onValueChange={setStatus}
-                style={styles.picker}
-              >
-                <Picker.Item label="Planning" value="planning" />
-                <Picker.Item label="In Progress" value="in_progress" />
-                <Picker.Item label="On Hold" value="on_hold" />
-                <Picker.Item label="Completed" value="completed" />
-                <Picker.Item label="Cancelled" value="cancelled" />
-              </Picker>
-            </View>
+            <ModalSelector
+              options={[
+                { label: 'Planning', value: 'planning' },
+                { label: 'In Progress', value: 'in_progress' },
+                { label: 'On Hold', value: 'on_hold' },
+                { label: 'Completed', value: 'completed' },
+                { label: 'Cancelled', value: 'cancelled' },
+              ]}
+              selectedValue={status}
+              onValueChange={setStatus}
+              placeholder="Select Status"
+            />
           </View>
 
           <View style={styles.section}>
@@ -238,24 +237,15 @@ export default function EditProjectScreen() {
             />
 
             <Text style={styles.label}>Project Manager</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={projectManagerId}
-                onValueChange={setProjectManagerId}
-                style={styles.picker}
-                dropdownIconColor="#1A202C"
-              >
-                <Picker.Item label="Select Project Manager" value="" style={styles.pickerItem} />
-                {managers.map((manager: any) => (
-                  <Picker.Item
-                    key={manager.id}
-                    label={manager.full_name}
-                    value={manager.id}
-                    style={styles.pickerItem}
-                  />
-                ))}
-              </Picker>
-            </View>
+            <ModalSelector
+              options={managers.map((manager: any) => ({
+                label: manager.full_name,
+                value: manager.id,
+              }))}
+              selectedValue={projectManagerId}
+              onValueChange={setProjectManagerId}
+              placeholder="Select Project Manager"
+            />
 
             <Text style={styles.label}>Description</Text>
             <TextInput
@@ -395,22 +385,6 @@ const styles = StyleSheet.create({
   textArea: {
     height: 100,
     textAlignVertical: 'top',
-  },
-  pickerContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 16,
-    overflow: 'hidden',
-  },
-  picker: {
-    color: '#1A202C',
-  },
-  pickerItem: {
-    color: '#1A202C',
-    fontSize: 16,
-    backgroundColor: '#FFFFFF',
   },
   manageTeamButton: {
     flexDirection: 'row',
