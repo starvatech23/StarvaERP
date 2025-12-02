@@ -138,6 +138,8 @@ class ProjectResponse(ProjectBase):
     id: str
     project_manager_id: Optional[str] = None
     project_manager_name: Optional[str] = None
+    manager_phone: Optional[str] = None
+    task_count: Optional[Dict[str, int]] = None
     created_at: datetime
     updated_at: datetime
 
