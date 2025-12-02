@@ -203,7 +203,7 @@ export default function CreateProjectScreen() {
                 {managers.map((manager: any) => (
                   <Picker.Item
                     key={manager.id}
-                    label={manager.name}
+                    label={manager.full_name}
                     value={manager.id}
                   />
                 ))}
