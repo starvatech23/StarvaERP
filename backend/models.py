@@ -64,6 +64,81 @@ class MeasurementType(str, Enum):
     COUNT = "count"  # Number of items
     WEIGHT = "weight"  # Kilograms
 
+# Approval Status
+class ApprovalStatus(str, Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+# Module Names for Permissions
+class ModuleName(str, Enum):
+    PROJECTS = "projects"
+    TASKS = "tasks"
+    LABOR = "labor"
+    MATERIALS = "materials"
+    VENDORS = "vendors"
+    REPORTS = "reports"
+    USERS = "users"
+
+# ============= Role Models =============
+class RoleBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    is_active: bool = True
+
+class RoleCreate(RoleBase):
+    pass
+
+class RoleUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class RoleResponse(RoleBase):
+    id: str
+    created_at: datetime
+    updated_at: datetime
+
+# ============= Permission Models =============
+class PermissionBase(BaseModel):
+    role_id: str
+    module: ModuleName
+    can_view: bool = False
+    can_create: bool = False
+    can_edit: bool = False
+    can_delete: bool = False
+
+class PermissionCreate(PermissionBase):
+    pass
+
+class PermissionUpdate(BaseModel):
+    can_view: Optional[bool] = None
+    can_create: Optional[bool] = None
+    can_edit: Optional[bool] = None
+    can_delete: Optional[bool] = None
+
+class PermissionResponse(PermissionBase):
+    id: str
+    created_at: datetime
+    updated_at: datetime
+
+# ============= System Settings Models =============
+class SystemSettingBase(BaseModel):
+    setting_key: str
+    setting_value: str
+    description: Optional[str] = None
+
+class SystemSettingCreate(SystemSettingBase):
+    pass
+
+class SystemSettingUpdate(BaseModel):
+    setting_value: Optional[str] = None
+    description: Optional[str] = None
+
+class SystemSettingResponse(SystemSettingBase):
+    id: str
+    updated_at: datetime
+
 # User Models
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None
