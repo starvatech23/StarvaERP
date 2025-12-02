@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { userManagementAPI, rolesAPI, systemSettingsAPI } from '../../services/api';
+import { userManagementAPI, rolesAPI, systemSettingsAPI, teamsAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminDashboard() {
