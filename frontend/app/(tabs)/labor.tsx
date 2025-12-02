@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { workersAPI, laborAttendanceAPI, siteTransfersAPI } from '../../services/api';
 import moment from 'moment';
 
@@ -25,6 +26,13 @@ export default function LaborScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedWorker, setSelectedWorker] = useState<any>(null);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
+
+  // Reload data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [activeTab])
+  );
 
   useEffect(() => {
     loadData();
