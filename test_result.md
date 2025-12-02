@@ -297,6 +297,42 @@ frontend:
         agent: "main"
         comment: "Enhanced project cards on dashboard with multiple features: (1) Display project engineer/manager name with person icon, (2) Call button next to engineer name that opens phone dialer using Linking.openURL(), (3) Progress bar showing task completion percentage with color coding (orange for in-progress, green when 100% complete), (4) Role-based visibility - project budget/value hidden from users with 'engineer' role. Backend changes: Updated ProjectResponse model to include manager_phone and task_count fields. Modified all project endpoints (GET /api/projects, GET /api/projects/{id}, POST /api/projects, PUT /api/projects/{id}) to fetch and populate: project manager phone number from user data, task counts (total and completed) by querying tasks collection. Frontend changes: Added Linking import for phone calls, implemented call confirmation dialog before dialing, added complete styles for managerRow, managerInfo, callButton, progressSection with responsive design. Progress calculation: completedTasks / totalTasks * 100, handles division by zero."
 
+  - task: "BugFix 1: Edit Team Page Navigation"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/admin/teams/edit/[id].tsx"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "FIXED: Created missing /app/frontend/app/admin/teams/edit/[id].tsx file. The directory existed but was empty, causing navigation failures when users tried to edit teams from /admin/teams/index.tsx. Implemented full edit screen with: (1) Load existing team data by ID, (2) Edit team name, description, and active status, (3) Update team via PUT /api/teams/{id}, (4) Proper back navigation with router.back(), (5) Loading states, error handling, and success alerts. Screen follows same design pattern as create team screen for consistency."
+
+  - task: "BugFix 2: Project Team Management Access"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/projects/edit/[id].tsx"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "FIXED: Added 'Manage Project Team' button in Edit Project screen that navigates to existing team management screen (/projects/{id}/team). Previously there was no way to access team management from edit project screen. New section added with: (1) 'Team Management' section header, (2) Large card-style button with people icon, (3) Clear description: 'Add or remove team members for this project', (4) Chevron arrow indicating navigation, (5) Blue color scheme matching project theme. Button navigates to existing /app/frontend/app/projects/[id]/team.tsx which has full team member add/remove functionality."
+
+  - task: "BugFix 3: Project Manager Dropdown Styling"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/projects/edit/[id].tsx"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "FIXED: Enhanced Project Manager Picker styling to ensure visibility of dropdown items. Applied backgroundColor: '#FFFFFF' to pickerItem style. Previously had color: '#1A202C' on individual Picker.Item components via color prop, but moved to centralized style object for consistency. This ensures dropdown items are visible with proper contrast. The managers list loads from userManagementAPI.getActive() which fetches all active/approved users."
+
 metadata:
   created_by: "main_agent"
   version: "2.1"
