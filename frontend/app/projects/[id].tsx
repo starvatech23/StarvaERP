@@ -235,6 +235,68 @@ export default function ProjectDetailsScreen() {
           />
         )}
 
+        {/* Team Card */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Team Members ({project?.team_members?.length || 0})</Text>
+            {canEdit && (
+              <TouchableOpacity
+                style={styles.addTaskButton}
+                onPress={() => router.push(`/projects/${id}/team` as any)}
+              >
+                <Ionicons name="people" size={20} color="#3B82F6" />
+                <Text style={[styles.addTaskText, { color: '#3B82F6' }]}>Manage</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {project?.team_members?.length === 0 ? (
+            <Text style={styles.emptyText}>No team members assigned</Text>
+          ) : (
+            <View style={styles.teamList}>
+              {project?.team_members?.map((member: any) => (
+                <View key={member.user_id} style={styles.teamMemberCard}>
+                  <View style={styles.teamMemberAvatar}>
+                    <Ionicons name="person" size={18} color="#3B82F6" />
+                  </View>
+                  <View style={styles.teamMemberInfo}>
+                    <Text style={styles.teamMemberName}>{member.full_name}</Text>
+                    {member.role_name && (
+                      <Text style={styles.teamMemberRole}>{member.role_name}</Text>
+                    )}
+                  </View>
+                  {member.phone && (
+                    <TouchableOpacity
+                      style={styles.teamCallButton}
+                      onPress={() => {
+                        Alert.alert(
+                          'Call Team Member',
+                          `Call ${member.full_name}?`,
+                          [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                              text: 'Call',
+                              onPress: () => {
+                                const { Linking } = require('react-native');
+                                Linking.openURL(`tel:${member.phone}`).catch(() => {
+                                  Alert.alert('Error', 'Unable to make call');
+                                });
+                              },
+                            },
+                          ]
+                        );
+                      }}
+                    >
+                      <Ionicons name="call" size={16} color="#10B981" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Tasks Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Tasks ({tasks.length})</Text>
