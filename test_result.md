@@ -242,6 +242,18 @@ backend:
         agent: "testing"
         comment: "✅ MATERIAL SPENDING REPORTS API WORKING: Endpoints are implemented and accessible. With successful PO creation and vendor management working correctly, the spending reports API should provide accurate aggregations for weekly/monthly periods and project filtering."
 
+  - task: "Project APIs Enhancement - Task Count & Manager Phone"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py, /app/backend/models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Enhanced all project endpoints to return task counts and manager phone. Modified ProjectResponse model to include manager_phone (Optional[str]) and task_count (Optional[Dict[str, int]]) with 'total' and 'completed' keys. Updated 4 endpoints: (1) GET /api/projects - fetches all projects with task counts and manager info, (2) GET /api/projects/{id} - single project with task counts, (3) POST /api/projects - creates project and returns with initial task counts (0), (4) PUT /api/projects/{id} - updates project and returns with current task counts. Task counts calculated by querying tasks collection: total tasks for project_id, completed tasks where status=COMPLETED. Manager phone fetched from users collection via project_manager_id lookup."
+
 frontend:
   - task: "Materials Tab Main Screen"
     implemented: true
