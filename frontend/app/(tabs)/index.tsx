@@ -92,12 +92,23 @@ export default function DashboardScreen() {
   const completedTasks = tasks.filter((t: any) => t.status === 'completed').length;
   const myPendingTasks = myTasks.filter((t: any) => t.status === 'pending' || t.status === 'in_progress').length;
 
+  // Build quick actions based on user role
   const quickActions = [
     { icon: 'add-circle', label: 'New Project', color: '#FF6B35', action: () => router.push('/projects/create' as any) },
     { icon: 'stats-chart', label: 'Timeline View', color: '#10B981', action: () => router.push('/dashboard/timeline' as any) },
     { icon: 'cube', label: 'Materials', color: '#8B5CF6', action: () => router.push('/(tabs)/materials' as any) },
     { icon: 'business', label: 'Projects', color: '#F59E0B', action: () => router.push('/(tabs)/projects' as any) },
   ];
+
+  // Add admin action if user is admin
+  if (user?.role === 'admin') {
+    quickActions.unshift({
+      icon: 'shield-checkmark',
+      label: 'Admin Panel',
+      color: '#DC2626',
+      action: () => router.push('/admin' as any),
+    });
+  }
 
   if (loading) {
     return (
