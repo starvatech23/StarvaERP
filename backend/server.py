@@ -417,9 +417,24 @@ async def create_project(
     project_dict["_id"] = result.inserted_id
     
     project_dict = serialize_doc(project_dict)
+    
+    # Get project manager info
     if project_dict.get("project_manager_id"):
         pm = await get_user_by_id(project_dict["project_manager_id"])
-        project_dict["project_manager_name"] = pm["full_name"] if pm else None
+        if pm:
+            project_dict["project_manager_name"] = pm["full_name"]
+            project_dict["manager_phone"] = pm.get("phone")
+    
+    # Get task counts for this project (initially 0)
+    total_tasks = await db.tasks.count_documents({"project_id": project_dict["id"]})
+    completed_tasks = await db.tasks.count_documents({
+        "project_id": project_dict["id"],
+        "status": TaskStatus.COMPLETED
+    })
+    project_dict["task_count"] = {
+        "total": total_tasks,
+        "completed": completed_tasks
+    }
     
     return ProjectResponse(**project_dict)
 
