@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for Vendor & Materials Management Module
-Tests all CRUD operations, payment dues, inventory management, and reporting endpoints
+Backend API Testing Suite for Project Enhancement Features
+Tests the enhanced project APIs with task counts and manager phone integration.
 """
 
 import requests
