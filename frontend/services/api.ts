@@ -30,6 +30,15 @@ export const systemSettingsAPI = {
   createOrUpdate: (data: any) => api.post('/settings', data),
 };
 
+// Team Management API
+export const teamsAPI = {
+  getAll: (isActive?: boolean) => api.get('/teams', { params: { is_active: isActive } }),
+  getById: (id: string) => api.get(`/teams/${id}`),
+  create: (data: any) => api.post('/teams', data),
+  update: (id: string, data: any) => api.put(`/teams/${id}`, data),
+  delete: (id: string) => api.delete(`/teams/${id}`),
+};
+
 
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
