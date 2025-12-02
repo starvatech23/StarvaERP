@@ -105,21 +105,12 @@
 user_problem_statement: |
   Building a comprehensive construction management mobile app. Current work focuses on:
   
-  Vendor & Materials Management Module (NEW - COMPREHENSIVE):
-  1. Vendor Management: Add vendor business details (name, contact, GST, PAN, bank details, payment terms)
-  2. Material Master: Material catalog with categories, units, minimum stock levels
-  3. Vendor Material Rates: Track vendor-specific rates for each material with effective dates
-  4. Site Inventory: Current stock tracking at each site with low stock alerts
-  5. Material Requirements: Future material needs per site with priority levels
-  6. Purchase Orders: Create POs with multiple items, track delivery status
-  7. Material Transactions: Track receipts, consumption, transfers, returns with auto inventory updates
-  8. Material Reports with Charts:
-     - Weekly/monthly spending reports by category, site, and vendor
-     - Pie charts for category-wise and site-wise spending distribution
-     - Bar charts for top vendor spending
-     - Low stock alerts dashboard
+  BUG FIXES (CURRENT PRIORITY):
+  1. Edit Team Navigation Bug: Users unable to navigate back from /admin/teams/edit/[id] screen - file was missing
+  2. Team Assignment Bug: No way to add team members to projects from Edit Project screen
+  3. Project Manager Assignment Bug: Project Manager dropdown not working properly in Edit Project screen
   
-  Previously completed: Labor reports with wage tracking, profile management, quotations, timeline views, and full labor management.
+  Previously completed: Vendor & Materials Management Module with full CRUD, Material Reports with Charts, Labor reports with wage tracking, profile management, quotations, timeline views, and full labor management.
 
 backend:
   - task: "Vendor Management APIs"
