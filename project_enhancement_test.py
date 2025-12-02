@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 # Configuration
 BACKEND_URL = "https://buildflow-78.preview.emergentagent.com/api"
