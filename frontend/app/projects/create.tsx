@@ -154,19 +154,18 @@ export default function CreateProjectScreen() {
             />
 
             <Text style={styles.label}>Status</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={status}
-                onValueChange={setStatus}
-                style={styles.picker}
-              >
-                <Picker.Item label="Planning" value="planning" />
-                <Picker.Item label="In Progress" value="in_progress" />
-                <Picker.Item label="On Hold" value="on_hold" />
-                <Picker.Item label="Completed" value="completed" />
-                <Picker.Item label="Cancelled" value="cancelled" />
-              </Picker>
-            </View>
+            <ModalSelector
+              options={[
+                { label: 'Planning', value: 'planning' },
+                { label: 'In Progress', value: 'in_progress' },
+                { label: 'On Hold', value: 'on_hold' },
+                { label: 'Completed', value: 'completed' },
+                { label: 'Cancelled', value: 'cancelled' },
+              ]}
+              selectedValue={status}
+              onValueChange={setStatus}
+              placeholder="Select Status"
+            />
           </View>
 
           <View style={styles.section}>
