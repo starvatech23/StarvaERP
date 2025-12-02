@@ -3171,6 +3171,356 @@ async def root():
         "status": "running"
     }
 
+# ============= Role Management Routes =============
+
+@api_router.get("/roles", response_model=List[RoleResponse])
+async def get_roles(
+    is_active: bool = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Get all roles"""
+    current_user = await get_current_user(credentials)
+    
+    # Only admin can view roles
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can view roles")
+    
+    query = {}
+    if is_active is not None:
+        query["is_active"] = is_active
+    
+    roles = await db.roles.find(query).to_list(1000)
+    return [RoleResponse(**serialize_doc(role)) for role in roles]
+
+@api_router.post("/roles", response_model=RoleResponse)
+async def create_role(
+    role: RoleCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Create a new role"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can create roles")
+    
+    # Check if role name already exists
+    existing = await db.roles.find_one({"name": role.name})
+    if existing:
+        raise HTTPException(status_code=400, detail="Role name already exists")
+    
+    role_dict = role.dict()
+    role_dict["created_at"] = datetime.utcnow()
+    role_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.roles.insert_one(role_dict)
+    role_dict["_id"] = result.inserted_id
+    
+    return RoleResponse(**serialize_doc(role_dict))
+
+@api_router.put("/roles/{role_id}", response_model=RoleResponse)
+async def update_role(
+    role_id: str,
+    role_update: RoleUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Update a role"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can update roles")
+    
+    existing = await db.roles.find_one({"_id": ObjectId(role_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    update_data = role_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.roles.update_one({"_id": ObjectId(role_id)}, {"$set": update_data})
+    
+    updated = await db.roles.find_one({"_id": ObjectId(role_id)})
+    return RoleResponse(**serialize_doc(updated))
+
+@api_router.delete("/roles/{role_id}")
+async def delete_role(
+    role_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Delete a role"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can delete roles")
+    
+    # Check if role is in use
+    users_with_role = await db.users.count_documents({"role_id": role_id})
+    if users_with_role > 0:
+        raise HTTPException(status_code=400, detail=f"Cannot delete role. {users_with_role} users are assigned to this role")
+    
+    result = await db.roles.delete_one({"_id": ObjectId(role_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    return {"message": "Role deleted successfully"}
+
+# ============= Permission Management Routes =============
+
+@api_router.get("/roles/{role_id}/permissions", response_model=List[PermissionResponse])
+async def get_role_permissions(
+    role_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Get all permissions for a role"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can view permissions")
+    
+    permissions = await db.permissions.find({"role_id": role_id}).to_list(1000)
+    return [PermissionResponse(**serialize_doc(perm)) for perm in permissions]
+
+@api_router.post("/permissions", response_model=PermissionResponse)
+async def create_permission(
+    permission: PermissionCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Create or update a permission"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can manage permissions")
+    
+    # Check if permission already exists
+    existing = await db.permissions.find_one({
+        "role_id": permission.role_id,
+        "module": permission.module
+    })
+    
+    if existing:
+        # Update existing permission
+        update_data = permission.dict()
+        update_data["updated_at"] = datetime.utcnow()
+        
+        await db.permissions.update_one(
+            {"_id": existing["_id"]},
+            {"$set": update_data}
+        )
+        
+        updated = await db.permissions.find_one({"_id": existing["_id"]})
+        return PermissionResponse(**serialize_doc(updated))
+    else:
+        # Create new permission
+        perm_dict = permission.dict()
+        perm_dict["created_at"] = datetime.utcnow()
+        perm_dict["updated_at"] = datetime.utcnow()
+        
+        result = await db.permissions.insert_one(perm_dict)
+        perm_dict["_id"] = result.inserted_id
+        
+        return PermissionResponse(**serialize_doc(perm_dict))
+
+@api_router.delete("/permissions/{permission_id}")
+async def delete_permission(
+    permission_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Delete a permission"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can delete permissions")
+    
+    result = await db.permissions.delete_one({"_id": ObjectId(permission_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Permission not found")
+    
+    return {"message": "Permission deleted successfully"}
+
+# ============= User Management & Approval Routes =============
+
+@api_router.get("/users/pending", response_model=List[UserResponse])
+async def get_pending_users(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Get all pending users waiting for approval"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can view pending users")
+    
+    users = await db.users.find({"approval_status": ApprovalStatus.PENDING}).to_list(1000)
+    
+    result = []
+    for user in users:
+        user_dict = serialize_doc(user)
+        # Get role name if role_id exists
+        if user_dict.get("role_id"):
+            role = await db.roles.find_one({"_id": ObjectId(user_dict["role_id"])})
+            user_dict["role_name"] = role["name"] if role else None
+        result.append(UserResponse(**user_dict))
+    
+    return result
+
+@api_router.get("/users/active", response_model=List[UserResponse])
+async def get_active_users(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Get all active/approved users"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can view all users")
+    
+    users = await db.users.find({"approval_status": ApprovalStatus.APPROVED}).to_list(1000)
+    
+    result = []
+    for user in users:
+        user_dict = serialize_doc(user)
+        # Get role name if role_id exists
+        if user_dict.get("role_id"):
+            role = await db.roles.find_one({"_id": ObjectId(user_dict["role_id"])})
+            user_dict["role_name"] = role["name"] if role else None
+        result.append(UserResponse(**user_dict))
+    
+    return result
+
+@api_router.post("/users/{user_id}/approve")
+async def approve_user(
+    user_id: str,
+    approval: UserApprovalRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Approve or reject a user"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can approve users")
+    
+    user = await db.users.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if approval.action == "approve":
+        update_data = {
+            "approval_status": ApprovalStatus.APPROVED,
+            "approved_by": current_user["id"],
+            "approved_at": datetime.utcnow()
+        }
+        
+        # Assign role if provided
+        if approval.role_id:
+            update_data["role_id"] = approval.role_id
+        
+        await db.users.update_one({"_id": ObjectId(user_id)}, {"$set": update_data})
+        
+        # TODO: Send notification (email/SMS) to user
+        
+        return {"message": "User approved successfully"}
+    
+    elif approval.action == "reject":
+        await db.users.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": {"approval_status": ApprovalStatus.REJECTED}}
+        )
+        return {"message": "User rejected"}
+    
+    else:
+        raise HTTPException(status_code=400, detail="Invalid action. Use 'approve' or 'reject'")
+
+@api_router.put("/users/{user_id}", response_model=UserResponse)
+async def update_user(
+    user_id: str,
+    user_update: UserUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Update user details"""
+    current_user = await get_current_user(credentials)
+    
+    # Admin or the user themselves can update
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin" and current_user["id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this user")
+    
+    existing = await db.users.find_one({"_id": ObjectId(user_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    update_data = user_update.dict(exclude_unset=True)
+    
+    await db.users.update_one({"_id": ObjectId(user_id)}, {"$set": update_data})
+    
+    updated = await db.users.find_one({"_id": ObjectId(user_id)})
+    user_dict = serialize_doc(updated)
+    
+    # Get role name
+    if user_dict.get("role_id"):
+        role = await db.roles.find_one({"_id": ObjectId(user_dict["role_id"])})
+        user_dict["role_name"] = role["name"] if role else None
+    
+    return UserResponse(**user_dict)
+
+# ============= System Settings Routes =============
+
+@api_router.get("/settings", response_model=List[SystemSettingResponse])
+async def get_settings(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Get all system settings"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can view settings")
+    
+    settings = await db.system_settings.find().to_list(1000)
+    return [SystemSettingResponse(**serialize_doc(s)) for s in settings]
+
+@api_router.post("/settings", response_model=SystemSettingResponse)
+async def create_or_update_setting(
+    setting: SystemSettingCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_db)
+):
+    """Create or update a system setting"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can manage settings")
+    
+    existing = await db.system_settings.find_one({"setting_key": setting.setting_key})
+    
+    if existing:
+        # Update
+        update_data = setting.dict()
+        update_data["updated_at"] = datetime.utcnow()
+        
+        await db.system_settings.update_one(
+            {"setting_key": setting.setting_key},
+            {"$set": update_data}
+        )
+        
+        updated = await db.system_settings.find_one({"setting_key": setting.setting_key})
+        return SystemSettingResponse(**serialize_doc(updated))
+    else:
+        # Create
+        setting_dict = setting.dict()
+        setting_dict["updated_at"] = datetime.utcnow()
+        
+        result = await db.system_settings.insert_one(setting_dict)
+        setting_dict["_id"] = result.inserted_id
+        
+        return SystemSettingResponse(**serialize_doc(setting_dict))
+
 # Include the router in the main app
 app.include_router(api_router)
 
