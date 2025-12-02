@@ -24,8 +24,8 @@ export const userManagementAPI = {
   update: (userId: string, data: any) => api.put(`/users/${userId}`, data),
 };
 
-// System Settings API
-export const settingsAPI = {
+// System Settings API (RBAC)
+export const systemSettingsAPI = {
   getAll: () => api.get('/settings'),
   createOrUpdate: (data: any) => api.post('/settings', data),
 };
