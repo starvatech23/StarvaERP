@@ -157,8 +157,12 @@ class BackendTester:
         # First, create a test project
         project_data = {
             "name": f"Test Project {uuid.uuid4().hex[:8]}",
+            "location": "Test Location",
+            "address": "123 Test Street, Test City",
+            "client_name": "Test Client",
+            "client_contact": "+91-9876543210",
             "description": "Test project for team management testing",
-            "status": "active",
+            "status": "planning",
             "start_date": "2025-01-01T00:00:00Z",
             "end_date": "2025-12-31T23:59:59Z",
             "budget": 100000.0
