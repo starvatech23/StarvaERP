@@ -130,7 +130,7 @@ class BackendTester:
                         user_id = user.get("id")
                         if user_id:
                             try:
-                                approval_data = {"approval_status": "approved"}
+                                approval_data = {"user_id": user_id, "action": "approve"}
                                 approve_response = requests.post(f"{BASE_URL}/users/{user_id}/approve", json=approval_data, headers=HEADERS)
                                 if approve_response.status_code == 200:
                                     self.log_result(f"Approve User {user.get('full_name', user_id)}", True, "User approved successfully")
