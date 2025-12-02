@@ -139,6 +139,26 @@ class SystemSettingResponse(SystemSettingBase):
     id: str
     updated_at: datetime
 
+# ============= Team/Department Models =============
+class TeamBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    is_active: bool = True
+
+class TeamCreate(TeamBase):
+    pass
+
+class TeamUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class TeamResponse(TeamBase):
+    id: str
+    created_at: datetime
+    updated_at: datetime
+    member_count: int = 0  # Number of users in this team
+
 # User Models
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None
