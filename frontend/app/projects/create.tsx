@@ -325,21 +325,6 @@ const styles = StyleSheet.create({
     height: 100,
     textAlignVertical: 'top',
   },
-  pickerContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 16,
-    overflow: 'hidden',
-  },
-  picker: {
-    color: '#1A202C',
-  },
-  pickerItem: {
-    color: '#1A202C',
-    fontSize: 16,
-  },
   photoButton: {
     width: 120,
     height: 120,
