@@ -116,55 +116,114 @@ export default function ProjectsScreen() {
           </View>
         ) : (
           <View style={styles.projectsList}>
-            {projects.map((project: any) => (
-              <TouchableOpacity
-                key={project.id}
-                style={styles.projectCard}
-                onPress={() => router.push(`/projects/${project.id}` as any)}
-              >
-                <View style={styles.projectHeader}>
-                  <View style={styles.projectTitleContainer}>
-                    <Ionicons name="business" size={20} color="#FF6B35" />
-                    <Text style={styles.projectName} numberOfLines={1}>
-                      {project.name}
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.statusBadge,
-                      { backgroundColor: getStatusColor(project.status) + '20' },
-                    ]}
-                  >
-                    <Text style={[styles.statusText, { color: getStatusColor(project.status) }]}>
-                      {getStatusLabel(project.status)}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.projectDetails}>
-                  <View style={styles.detailRow}>
-                    <Ionicons name="location" size={14} color="#718096" />
-                    <Text style={styles.detailText} numberOfLines={1}>
-                      {project.location}
-                    </Text>
-                  </View>
-                  {project.project_manager_name && (
-                    <View style={styles.detailRow}>
-                      <Ionicons name="person" size={14} color="#718096" />
-                      <Text style={styles.detailText}>{project.project_manager_name}</Text>
-                    </View>
-                  )}
-                  {project.budget && (
-                    <View style={styles.detailRow}>
-                      <Ionicons name="cash" size={14} color="#718096" />
-                      <Text style={styles.detailText}>
-                        ${project.budget.toLocaleString()}
+            {projects.map((project: any) => {
+              const completedTasks = project.task_count?.completed || 0;
+              const totalTasks = project.task_count?.total || 0;
+              const progressPercent = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+              
+              return (
+                <TouchableOpacity
+                  key={project.id}
+                  style={styles.projectCard}
+                  onPress={() => router.push(`/projects/${project.id}` as any)}
+                >
+                  <View style={styles.projectHeader}>
+                    <View style={styles.projectTitleContainer}>
+                      <Ionicons name="business" size={20} color="#FF6B35" />
+                      <Text style={styles.projectName} numberOfLines={1}>
+                        {project.name}
                       </Text>
                     </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            ))}
+                    <View
+                      style={[
+                        styles.statusBadge,
+                        { backgroundColor: getStatusColor(project.status) + '20' },
+                      ]}
+                    >
+                      <Text style={[styles.statusText, { color: getStatusColor(project.status) }]}>
+                        {getStatusLabel(project.status)}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.projectDetails}>
+                    <View style={styles.detailRow}>
+                      <Ionicons name="location" size={14} color="#718096" />
+                      <Text style={styles.detailText} numberOfLines={1}>
+                        {project.location}
+                      </Text>
+                    </View>
+                    
+                    {/* Project Manager/Engineer with Call Button */}
+                    {project.project_manager_name && (
+                      <View style={styles.managerRow}>
+                        <View style={styles.managerInfo}>
+                          <Ionicons name="person" size={14} color="#718096" />
+                          <Text style={styles.detailText}>{project.project_manager_name}</Text>
+                        </View>
+                        {project.manager_phone && (
+                          <TouchableOpacity
+                            style={styles.callButton}
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              const phoneUrl = `tel:${project.manager_phone}`;
+                              Alert.alert(
+                                'Call Engineer',
+                                `Call ${project.project_manager_name}?`,
+                                [
+                                  { text: 'Cancel', style: 'cancel' },
+                                  { 
+                                    text: 'Call', 
+                                    onPress: () => {
+                                      // In a real app, use Linking.openURL(phoneUrl)
+                                      Alert.alert('Calling', project.manager_phone);
+                                    }
+                                  },
+                                ]
+                              );
+                            }}
+                          >
+                            <Ionicons name="call" size={16} color="#10B981" />
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    )}
+                    
+                    {/* Budget - Hidden for Engineers */}
+                    {project.budget && user?.role !== 'engineer' && (
+                      <View style={styles.detailRow}>
+                        <Ionicons name="cash" size={14} color="#718096" />
+                        <Text style={styles.detailText}>
+                          ₹{project.budget.toLocaleString()}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Progress Bar */}
+                  <View style={styles.progressSection}>
+                    <View style={styles.progressHeader}>
+                      <Text style={styles.progressLabel}>Progress</Text>
+                      <Text style={styles.progressPercent}>{Math.round(progressPercent)}%</Text>
+                    </View>
+                    <View style={styles.progressBarContainer}>
+                      <View 
+                        style={[
+                          styles.progressBarFill, 
+                          { 
+                            width: `${progressPercent}%`,
+                            backgroundColor: progressPercent === 100 ? '#10B981' : '#FF6B35'
+                          }
+                        ]} 
+                      />
+                    </View>
+                    <Text style={styles.progressTasks}>
+                      {completedTasks} of {totalTasks} tasks completed
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         )}
       </ScrollView>
