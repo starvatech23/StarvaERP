@@ -64,6 +64,13 @@ export default function AdminDashboard() {
 
   const menuItems = [
     {
+      title: 'Add User',
+      icon: 'person-add-outline',
+      color: '#10B981',
+      count: null,
+      route: '/admin/users/create',
+    },
+    {
       title: 'Pending Approvals',
       icon: 'person-add',
       color: '#FF6B35',
@@ -73,21 +80,28 @@ export default function AdminDashboard() {
     {
       title: 'Active Users',
       icon: 'people',
-      color: '#10B981',
+      color: '#3B82F6',
       count: stats.activeUsers,
       route: '/admin/users/active',
     },
     {
+      title: 'Team Management',
+      icon: 'people-circle',
+      color: '#8B5CF6',
+      count: stats.totalTeams,
+      route: '/admin/teams',
+    },
+    {
       title: 'Role Management',
       icon: 'shield-checkmark',
-      color: '#3B82F6',
+      color: '#F59E0B',
       count: stats.totalRoles,
       route: '/admin/roles',
     },
     {
       title: 'System Settings',
       icon: 'settings',
-      color: '#8B5CF6',
+      color: '#6B7280',
       count: null,
       route: '/admin/settings',
     },
