@@ -511,6 +511,81 @@ async def update_project(
     
     return ProjectResponse(**project_dict)
 
+
+@api_router.put("/projects/{project_id}/team", response_model=ProjectResponse)
+async def update_project_team(
+    project_id: str,
+    team_update: ProjectTeamUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update project team members"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can manage team")
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Verify all team member IDs exist and are approved users
+    for member_id in team_update.team_member_ids:
+        member = await get_user_by_id(member_id)
+        if not member:
+            raise HTTPException(status_code=400, detail=f"User {member_id} not found")
+        if member.get("approval_status") != "approved":
+            raise HTTPException(status_code=400, detail=f"User {member['full_name']} is not approved")
+    
+    # Update team member IDs
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$set": {"team_member_ids": team_update.team_member_ids, "updated_at": datetime.utcnow()}}
+    )
+    
+    updated_project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    project_dict = serialize_doc(updated_project)
+    
+    # Get project manager info
+    if project_dict.get("project_manager_id"):
+        pm = await get_user_by_id(project_dict["project_manager_id"])
+        if pm:
+            project_dict["project_manager_name"] = pm["full_name"]
+            project_dict["manager_phone"] = pm.get("phone")
+    
+    # Get team members info
+    team_members = []
+    for member_id in project_dict.get("team_member_ids", []):
+        member = await get_user_by_id(member_id)
+        if member:
+            role_name = None
+            if member.get("role_id"):
+                role = await db.roles.find_one({"_id": ObjectId(member["role_id"])})
+                role_name = role["name"] if role else None
+            elif member.get("role"):
+                role_name = member["role"]
+            
+            team_members.append(ProjectTeamMember(
+                user_id=member["id"],
+                full_name=member["full_name"],
+                role_name=role_name,
+                phone=member.get("phone"),
+                email=member.get("email")
+            ))
+    project_dict["team_members"] = team_members
+    
+    # Get task counts
+    total_tasks = await db.tasks.count_documents({"project_id": project_dict["id"]})
+    completed_tasks = await db.tasks.count_documents({
+        "project_id": project_dict["id"],
+        "status": TaskStatus.COMPLETED
+    })
+    project_dict["task_count"] = {
+        "total": total_tasks,
+        "completed": completed_tasks
+    }
+    
+    return ProjectResponse(**project_dict)
+
 @api_router.delete("/projects/{project_id}")
 async def delete_project(
     project_id: str,
