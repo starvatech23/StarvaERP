@@ -3179,8 +3179,7 @@ async def root():
 @api_router.get("/roles", response_model=List[RoleResponse])
 async def get_roles(
     is_active: bool = None,
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = Depends(get_db)
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Get all roles"""
     current_user = await get_current_user(credentials)
