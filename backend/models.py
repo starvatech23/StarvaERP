@@ -662,7 +662,7 @@ class SiteTransferBase(BaseModel):
     from_project_id: str
     to_project_id: str
     transfer_date: datetime
-    transfer_time: datetime
+    transfer_time: Optional[datetime] = None
     hours_at_from_site: Optional[float] = None
     hours_at_to_site: Optional[float] = None
     wages_from_site: Optional[float] = None
