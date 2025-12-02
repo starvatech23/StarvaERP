@@ -279,6 +279,18 @@ frontend:
         agent: "main"
         comment: "Added 8 new API service modules: vendorsAPI (getAll, getById, create, update, delete), materialsAPI (same CRUD), vendorMaterialRatesAPI (getAll, create, update), siteInventoryAPI (getAll, create, update), materialRequirementsAPI (getAll, create, update), purchaseOrdersAPI (getAll, create, update), materialTransactionsAPI (getAll, create), materialReportsAPI (getSpendingReport with params)."
 
+  - task: "Project Card Enhancements - Engineer Name, Call Button, Progress Bar"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/(tabs)/projects.tsx, /app/backend/server.py, /app/backend/models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Enhanced project cards on dashboard with multiple features: (1) Display project engineer/manager name with person icon, (2) Call button next to engineer name that opens phone dialer using Linking.openURL(), (3) Progress bar showing task completion percentage with color coding (orange for in-progress, green when 100% complete), (4) Role-based visibility - project budget/value hidden from users with 'engineer' role. Backend changes: Updated ProjectResponse model to include manager_phone and task_count fields. Modified all project endpoints (GET /api/projects, GET /api/projects/{id}, POST /api/projects, PUT /api/projects/{id}) to fetch and populate: project manager phone number from user data, task counts (total and completed) by querying tasks collection. Frontend changes: Added Linking import for phone calls, implemented call confirmation dialog before dialing, added complete styles for managerRow, managerInfo, callButton, progressSection with responsive design. Progress calculation: completedTasks / totalTasks * 100, handles division by zero."
+
 metadata:
   created_by: "main_agent"
   version: "2.0"
