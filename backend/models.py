@@ -214,6 +214,7 @@ class ProjectBase(BaseModel):
 
 class ProjectCreate(ProjectBase):
     project_manager_id: Optional[str] = None
+    team_member_ids: List[str] = []  # List of user IDs in the project team
 
 class ProjectUpdate(BaseModel):
     name: Optional[str] = None
@@ -227,16 +228,29 @@ class ProjectUpdate(BaseModel):
     budget: Optional[float] = None
     description: Optional[str] = None
     project_manager_id: Optional[str] = None
+    team_member_ids: Optional[List[str]] = None
     photos: Optional[List[str]] = None
+
+class ProjectTeamMember(BaseModel):
+    user_id: str
+    full_name: str
+    role_name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
 
 class ProjectResponse(ProjectBase):
     id: str
     project_manager_id: Optional[str] = None
     project_manager_name: Optional[str] = None
     manager_phone: Optional[str] = None
+    team_member_ids: List[str] = []
+    team_members: List[ProjectTeamMember] = []  # Populated team member details
     task_count: Optional[Dict[str, int]] = None
     created_at: datetime
     updated_at: datetime
+
+class ProjectTeamUpdate(BaseModel):
+    team_member_ids: List[str]
 
 # Task Models
 class TaskBase(BaseModel):
