@@ -80,7 +80,11 @@ export default function FinanceMainScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/(tabs)' as any)}>
+          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Financial Management</Text>
+        <View style={{ width: 40 }} />
       </View>
 
       <ScrollView style={styles.content}>
