@@ -105,12 +105,20 @@
 user_problem_statement: |
   Building a comprehensive construction management mobile app. Current work focuses on:
   
-  BUG FIXES (CURRENT PRIORITY):
-  1. Edit Team Navigation Bug: Users unable to navigate back from /admin/teams/edit/[id] screen - file was missing
-  2. Team Assignment Bug: No way to add team members to projects from Edit Project screen
-  3. Project Manager Assignment Bug: Project Manager dropdown not working properly in Edit Project screen
+  PHASE 1: Project Management Features (COMPLETED)
+  1. Gantt Chart / Timeline View - Horizontal scrolling timeline with task bars, milestones, dependencies
+  2. Milestones Management - CRUD operations for project milestones with progress tracking
+  3. Document Management - Upload, view, filter documents by type (Contract, Blueprint, Permit, etc.)
+  4. Task Dependencies - Backend support for task dependency chains
   
-  Previously completed: Vendor & Materials Management Module with full CRUD, Material Reports with Charts, Labor reports with wage tracking, profile management, quotations, timeline views, and full labor management.
+  PHASE 2: Financial Features (IN PROGRESS)
+  1. Budget Management - Track allocated budgets by category with utilization percentage
+  2. Expense Tracking - Record expenses with receipt images, vendor details
+  3. Invoice Generation - Create invoices with line items, tax, payment tracking
+  4. Payment Recording - Record payments against invoices
+  5. Financial Reports - Budget vs Actual, spending by category, invoice status
+  
+  Previously completed: Bug fixes for Project Manager dropdown, Team management, User RBAC system, Vendor & Materials Management Module, Labor reports.
 
 backend:
   - task: "Vendor Management APIs"
