@@ -446,6 +446,14 @@ class FinancialMaterialsAPITester:
         """Test Purchase Orders APIs"""
         print("🛒 Testing Purchase Orders APIs...")
         
+        # Create test vendor and material first
+        vendor_id = self.create_test_vendor()
+        material_id = self.create_test_material()
+        
+        if not vendor_id or not material_id:
+            self.log_result("Purchase Orders Setup", False, "Failed to create test vendor or material")
+            return
+        
         # Test 1: Get Purchase Orders List (GET /api/purchase-orders)
         try:
             response = requests.get(f"{BASE_URL}/purchase-orders?project_id={project_id}", headers=self.headers)
@@ -463,30 +471,23 @@ class FinancialMaterialsAPITester:
 
         # Test 2: Create Purchase Order (POST /api/purchase-orders)
         po_data = {
-            "project_id": project_id,
-            "vendor_name": "Shree Cement Suppliers",
             "po_number": f"PO-{datetime.now().strftime('%Y%m%d')}-001",
+            "vendor_id": vendor_id,
+            "project_id": project_id,
             "order_date": datetime.now().isoformat(),
-            "expected_delivery": (datetime.now() + timedelta(days=7)).isoformat(),
+            "expected_delivery_date": (datetime.now() + timedelta(days=7)).isoformat(),
+            "total_amount": 45000.0,
+            "final_amount": 45000.0,
+            "status": "draft",
+            "notes": "Urgent requirement for foundation work",
             "items": [
                 {
-                    "material_name": "Portland Cement",
+                    "material_id": material_id,
                     "quantity": 100.0,
-                    "unit": "bags",
                     "rate": 450.0,
                     "amount": 45000.0
-                },
-                {
-                    "material_name": "TMT Steel Bars",
-                    "quantity": 50.0,
-                    "unit": "pieces",
-                    "rate": 3200.0,
-                    "amount": 160000.0
                 }
-            ],
-            "total_amount": 205000.0,
-            "status": "draft",
-            "notes": "Urgent requirement for foundation work"
+            ]
         }
         
         try:
