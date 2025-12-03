@@ -66,10 +66,13 @@ class ConstructionAPITester:
                 "name": "Test Construction Project",
                 "description": "Test project for API testing",
                 "location": "Test City, Test State",
+                "address": "123 Test Street, Test City, Test State",
+                "client_name": "Test Construction Client",
+                "client_contact": "+91-9876543210",
                 "start_date": "2024-01-01T00:00:00",
                 "end_date": "2024-12-31T23:59:59",
                 "budget": 1000000.0,
-                "status": "active"
+                "status": "planning"
             }
             
             response = requests.post(f"{self.api_url}/projects", json=project_data, headers=self.headers)
