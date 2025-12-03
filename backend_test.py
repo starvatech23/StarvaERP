@@ -192,8 +192,7 @@ class ConstructionAPITester:
                 "document_type": "contract",
                 "file_data": base64_content,
                 "file_name": "test_contract.pdf",
-                "description": "Test contract document for API testing",
-                "uploaded_by": "admin_user_id"  # This will be set by the backend from auth token
+                "description": "Test contract document for API testing"
             }
             
             response = requests.post(f"{self.api_url}/documents", json=document_data, headers=self.headers)
