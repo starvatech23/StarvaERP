@@ -364,8 +364,8 @@ async def get_projects(
                     role_name = member["role"]
                 
                 team_members.append(ProjectTeamMember(
-                    user_id=member["id"],
-                    full_name=member["full_name"],
+                    user_id=member.get("id", str(member.get("_id", ""))),
+                    full_name=member.get("full_name", ""),
                     role_name=role_name,
                     phone=member.get("phone"),
                     email=member.get("email")
