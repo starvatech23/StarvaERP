@@ -454,11 +454,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "BugFix 1: Edit Team Page Navigation"
-    - "BugFix 2: Project Team Management Access"
-    - "BugFix 3: Project Manager Dropdown Styling"
+    - "Milestones Management APIs"
+    - "Budgets Management APIs"
+    - "Invoices Management APIs"
+    - "Financial Reports API"
   stuck_tasks: 
     - "Payment Dues Calculation Logic"
+    - "Authorization Role Inconsistency (role vs role_name)"
   test_all: false
   test_priority: "high_first"
 
