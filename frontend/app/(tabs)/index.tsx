@@ -424,4 +424,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#718096',
   },
+  notificationButton: {
+    position: 'relative',
+    padding: 8,
+    marginRight: 12,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
 });
