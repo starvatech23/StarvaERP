@@ -726,7 +726,7 @@ class ConstructionAPITester:
 def main():
     """Main function to run the tests"""
     # Use the backend URL from environment
-    backend_url = "https://siteflow-11.preview.emergentagent.com"
+    backend_url = "https://constructflow-41.preview.emergentagent.com"
     
     tester = ConstructionAPITester(backend_url)
     results = tester.run_all_tests()
