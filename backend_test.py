@@ -126,6 +126,65 @@ class FinancialMaterialsAPITester:
             self.log_result("Create Test Project", False, f"Error: {str(e)}")
             return None
 
+    def create_test_vendor(self) -> str:
+        """Create a test vendor for testing"""
+        vendor_data = {
+            "company_name": "Shree Cement Suppliers",
+            "contact_person": "Rajesh Kumar",
+            "phone": "+91-9876543210",
+            "email": "rajesh@shrecement.com",
+            "address": "Industrial Area, Mumbai, Maharashtra",
+            "gst_number": "27ABCDE1234F1Z5",
+            "pan_number": "ABCDE1234F",
+            "bank_name": "State Bank of India",
+            "account_number": "1234567890",
+            "ifsc_code": "SBIN0001234",
+            "is_active": True
+        }
+        
+        try:
+            response = requests.post(f"{BASE_URL}/vendors", json=vendor_data, headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                vendor_id = data.get('id')
+                self.log_result("Create Test Vendor", True, f"Created vendor: {vendor_id}")
+                return vendor_id
+            else:
+                self.log_result("Create Test Vendor", False, f"Status: {response.status_code}", response.text)
+                return None
+                
+        except Exception as e:
+            self.log_result("Create Test Vendor", False, f"Error: {str(e)}")
+            return None
+
+    def create_test_material(self) -> str:
+        """Create a test material for testing"""
+        material_data = {
+            "name": "Portland Cement",
+            "category": "cement",
+            "unit": "bags",
+            "minimum_stock": 50.0,
+            "hsn_code": "25231000",
+            "description": "OPC 53 Grade Portland Cement"
+        }
+        
+        try:
+            response = requests.post(f"{BASE_URL}/materials", json=material_data, headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                material_id = data.get('id')
+                self.log_result("Create Test Material", True, f"Created material: {material_id}")
+                return material_id
+            else:
+                self.log_result("Create Test Material", False, f"Status: {response.status_code}", response.text)
+                return None
+                
+        except Exception as e:
+            self.log_result("Create Test Material", False, f"Error: {str(e)}")
+            return None
+
     def test_invoices_management(self, project_id: str):
         """Test Invoices Management APIs (RETEST after authorization fix)"""
         print("📄 Testing Invoices Management APIs...")
@@ -143,21 +202,20 @@ class FinancialMaterialsAPITester:
                 {
                     "description": "Concrete Foundation Work",
                     "quantity": 100.0,
-                    "rate": 1200.0,
+                    "unit_price": 1200.0,
                     "amount": 120000.0
                 },
                 {
                     "description": "Steel Structure Installation", 
                     "quantity": 50.0,
-                    "rate": 2500.0,
+                    "unit_price": 2500.0,
                     "amount": 125000.0
                 }
             ],
             "subtotal": 245000.0,
             "tax_percentage": 18.0,
             "tax_amount": 44100.0,
-            "total_amount": 289100.0,
-            "status": "draft"
+            "total_amount": 289100.0
         }
         
         try:
