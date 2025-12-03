@@ -40,18 +40,32 @@ export default function CreateProjectScreen() {
 
   const loadManagers = async () => {
     try {
+      console.log('🔍 Loading managers from API...');
       // Fetch all active users - we'll show all approved users who can be assigned
       const response = await userManagementAPI.getActive();
-      console.log('Users loaded for manager selection:', response.data.length);
-      setManagers(response.data);
-    } catch (error) {
-      console.error('Error loading users:', error);
+      console.log('✅ Users loaded:', response.data.length, 'users');
+      console.log('📋 User details:', JSON.stringify(response.data, null, 2));
+      
+      if (response.data && response.data.length > 0) {
+        setManagers(response.data);
+        Alert.alert('Success', `Loaded ${response.data.length} users for selection`);
+      } else {
+        console.warn('⚠️ No users returned from API');
+        Alert.alert('Warning', 'No users available. Please create users first.');
+      }
+    } catch (error: any) {
+      console.error('❌ Error loading users:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      Alert.alert('Error', `Failed to load users: ${error.response?.data?.detail || error.message}`);
+      
       // Try fallback to old API
       try {
+        console.log('🔄 Trying fallback API...');
         const response = await usersAPI.getByRole('project_manager');
+        console.log('✅ Fallback successful:', response.data.length);
         setManagers(response.data);
-      } catch (fallbackError) {
-        console.error('Fallback also failed:', fallbackError);
+      } catch (fallbackError: any) {
+        console.error('❌ Fallback also failed:', fallbackError);
       }
     }
   };
