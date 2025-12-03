@@ -1161,3 +1161,76 @@ class MaterialConsumptionTemplateResponse(MaterialConsumptionTemplate):
     id: str
     created_at: datetime
 
+
+# Milestone Status Enum
+class MilestoneStatus(str, Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    DELAYED = "delayed"
+
+# Project Milestone Models
+class MilestoneBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    project_id: str
+    due_date: datetime
+    status: MilestoneStatus = MilestoneStatus.PENDING
+    completion_percentage: float = 0  # 0-100
+    order: int = 0  # For ordering milestones
+
+class MilestoneCreate(MilestoneBase):
+    pass
+
+class MilestoneUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    due_date: Optional[datetime] = None
+    status: Optional[MilestoneStatus] = None
+    completion_percentage: Optional[float] = None
+    order: Optional[int] = None
+
+class MilestoneResponse(MilestoneBase):
+    id: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+# Document Type Enum
+class DocumentType(str, Enum):
+    CONTRACT = "contract"
+    BLUEPRINT = "blueprint"
+    PERMIT = "permit"
+    INVOICE = "invoice"
+    REPORT = "report"
+    PHOTO = "photo"
+    OTHER = "other"
+
+# Project Document Models
+class DocumentBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    project_id: str
+    document_type: DocumentType
+    file_data: str  # base64 encoded file or URL
+    file_name: str
+    file_size: Optional[int] = None  # in bytes
+    mime_type: Optional[str] = None
+    uploaded_by: str  # User ID
+    tags: List[str] = []  # For categorization
+
+class DocumentCreate(DocumentBase):
+    pass
+
+class DocumentUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    document_type: Optional[DocumentType] = None
+    tags: Optional[List[str]] = None
+
+class DocumentResponse(DocumentBase):
+    id: str
+    uploaded_at: datetime
+    updated_at: Optional[datetime] = None
+    uploader_name: Optional[str] = None  # Populated from user data
+
