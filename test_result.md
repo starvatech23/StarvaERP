@@ -574,15 +574,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Invoices Management APIs (retest after authorization fix)"
-    - "Budgets Management APIs (retest after authorization fix)"
-    - "Milestones Management APIs (retest after authorization fix)"
-    - "Payments Management APIs"
-    - "Financial Reports API"
-    - "Purchase Orders APIs"
-    - "Material Requirements APIs"
+    - "Payments Management APIs (backend bug fix needed)"
   stuck_tasks: 
-    - "Payment Dues Calculation Logic"
+    - "Payments Management APIs"
   test_all: false
   test_priority: "high_first"
 
