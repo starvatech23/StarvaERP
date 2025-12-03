@@ -34,7 +34,7 @@ export default function ModalSelector({
   const [searchQuery, setSearchQuery] = useState('');
 
   // Debug logging
-  React.useEffect(() => {
+  useEffect(() => {
     console.log('📊 ModalSelector - Options count:', options?.length || 0);
     if (options && options.length > 0) {
       console.log('📋 ModalSelector - First option:', options[0]);
