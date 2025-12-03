@@ -172,12 +172,8 @@ export const bulkLeadsAPI = {
   upload: (data: any[]) => api.post('/crm/leads/bulk', data),
 };
 
-// Payments API
-export const paymentsAPI = {
-  getAll: (projectId?: string) => api.get('/payments', { params: { project_id: projectId } }),
-  create: (data: any) => api.post('/payments', data),
-  update: (id: string, data: any) => api.put(`/payments/${id}`, data),
-};
+// Payments API (Old - kept for compatibility)
+// Replaced by enhanced paymentsAPI below
 
 // Expenses API (Old - kept for compatibility)
 // Replaced by enhanced expensesAPI below
