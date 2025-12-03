@@ -222,6 +222,39 @@ export const ganttAPI = {
   getProjectGantt: (projectId: string) => api.get(`/projects/${projectId}/gantt`),
 };
 
+
+// Financial APIs
+export const budgetsAPI = {
+  create: (data: any) => api.post('/budgets', data),
+  getAll: (projectId?: string) => api.get('/budgets', { params: { project_id: projectId } }),
+  update: (id: string, data: any) => api.put(`/budgets/${id}`, data),
+  delete: (id: string) => api.delete(`/budgets/${id}`),
+};
+
+export const expensesAPI = {
+  create: (data: any) => api.post('/expenses', data),
+  getAll: (projectId?: string, category?: string, startDate?: string, endDate?: string) => 
+    api.get('/expenses', { params: { project_id: projectId, category, start_date: startDate, end_date: endDate } }),
+  delete: (id: string) => api.delete(`/expenses/${id}`),
+};
+
+export const invoicesAPI = {
+  create: (data: any) => api.post('/invoices', data),
+  getAll: (projectId?: string, status?: string) => api.get('/invoices', { params: { project_id: projectId, status } }),
+  getById: (id: string) => api.get(`/invoices/${id}`),
+  update: (id: string, data: any) => api.put(`/invoices/${id}`, data),
+};
+
+export const paymentsAPI = {
+  create: (data: any) => api.post('/payments', data),
+  getAll: (invoiceId?: string) => api.get('/payments', { params: { invoice_id: invoiceId } }),
+};
+
+export const financialReportsAPI = {
+  getProjectReport: (projectId: string) => api.get(`/financial-reports/${projectId}`),
+};
+
+
 // User Management API (Admin)
 export const adminUsersAPI = {
   getAll: () => api.get('/admin/users'),
