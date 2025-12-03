@@ -4086,7 +4086,8 @@ async def delete_document(
         raise HTTPException(status_code=404, detail="Document not found")
     
     # Only uploader or admin can delete
-    if document.get("uploaded_by") != current_user.get("id") and current_user.get("role_name") != "Admin":
+    user_role = current_user.get("role") or current_user.get("role_name", "")
+    if document.get("uploaded_by") != current_user.get("id") and user_role not in ["Admin", UserRole.ADMIN]:
         raise HTTPException(status_code=403, detail="Only the uploader or admin can delete this document")
     
     result = await db.documents.delete_one({"_id": ObjectId(document_id)})
