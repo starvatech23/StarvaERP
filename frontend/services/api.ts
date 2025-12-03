@@ -198,6 +198,30 @@ export const activityAPI = {
   getAll: (limit?: number) => api.get('/activity', { params: { limit } }),
 };
 
+
+// Milestone API
+export const milestonesAPI = {
+  create: (data: any) => api.post('/milestones', data),
+  getAll: (projectId?: string) => api.get('/milestones', { params: { project_id: projectId } }),
+  getById: (id: string) => api.get(`/milestones/${id}`),
+  update: (id: string, data: any) => api.put(`/milestones/${id}`, data),
+  delete: (id: string) => api.delete(`/milestones/${id}`),
+};
+
+// Document API
+export const documentsAPI = {
+  create: (data: any) => api.post('/documents', data),
+  getAll: (projectId?: string, documentType?: string) => api.get('/documents', { params: { project_id: projectId, document_type: documentType } }),
+  getById: (id: string) => api.get(`/documents/${id}`),
+  update: (id: string, data: any) => api.put(`/documents/${id}`, data),
+  delete: (id: string) => api.delete(`/documents/${id}`),
+};
+
+// Gantt Chart API
+export const ganttAPI = {
+  getProjectGantt: (projectId: string) => api.get(`/projects/${projectId}/gantt`),
+};
+
 // User Management API (Admin)
 export const adminUsersAPI = {
   getAll: () => api.get('/admin/users'),
