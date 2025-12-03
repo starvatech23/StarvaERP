@@ -519,6 +519,13 @@ class FinancialMaterialsAPITester:
         """Test Material Requirements APIs"""
         print("🔧 Testing Material Requirements APIs...")
         
+        # Create test material if not already created
+        material_id = self.create_test_material()
+        
+        if not material_id:
+            self.log_result("Material Requirements Setup", False, "Failed to create test material")
+            return
+        
         # Test 1: Get Material Requirements List (GET /api/material-requirements)
         try:
             response = requests.get(f"{BASE_URL}/material-requirements?project_id={project_id}", headers=self.headers)
@@ -537,14 +544,12 @@ class FinancialMaterialsAPITester:
         # Test 2: Create Material Requirement (POST /api/material-requirements)
         requirement_data = {
             "project_id": project_id,
-            "material_name": "Ready Mix Concrete M25",
-            "project_name": "Financial Test Project",
+            "material_id": material_id,
             "required_quantity": 200.0,
-            "fulfilled_quantity": 0.0,
-            "unit": "cubic meters",
-            "priority": "high",
-            "fulfillment_status": "pending",
             "required_by_date": (datetime.now() + timedelta(days=14)).isoformat(),
+            "priority": "high",
+            "purpose": "Foundation slab work - Phase 1",
+            "is_fulfilled": False,
             "notes": "Required for foundation slab work - Phase 1"
         }
         
