@@ -1,0 +1,242 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { milestonesAPI } from '../../../../services/api';
+import ModalSelector from '../../../../components/ModalSelector';
+
+export default function CreateMilestoneScreen() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams();
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [dueDate, setDueDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [status, setStatus] = useState('pending');
+  const [completionPercentage, setCompletionPercentage] = useState('0');
+
+  const handleCreate = async () => {
+    if (!name.trim()) {
+      Alert.alert('Error', 'Please enter a milestone name');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await milestonesAPI.create({
+        name: name.trim(),
+        description: description.trim() || null,
+        project_id: id,
+        due_date: dueDate.toISOString(),
+        status,
+        completion_percentage: parseFloat(completionPercentage) || 0,
+        order: 0,
+      });
+
+      Alert.alert('Success', 'Milestone created successfully');
+      router.back();
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to create milestone');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Create Milestone</Text>
+          <View style={{ width: 40 }} />
+        </View>
+
+        <ScrollView style={styles.content}>
+          <View style={styles.section}>
+            <Text style={styles.label}>Milestone Name *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter milestone name"
+              value={name}
+              onChangeText={setName}
+            />
+
+            <Text style={styles.label}>Description</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Enter description"
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={4}
+            />
+
+            <Text style={styles.label}>Due Date</Text>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Ionicons name="calendar-outline" size={20} color="#718096" />
+              <Text style={styles.dateText}>{dueDate.toLocaleDateString()}</Text>
+            </TouchableOpacity>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={dueDate}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(false);
+                  if (selectedDate) setDueDate(selectedDate);
+                }}
+              />
+            )}
+
+            <Text style={styles.label}>Status</Text>
+            <ModalSelector
+              options={[
+                { label: 'Pending', value: 'pending' },
+                { label: 'In Progress', value: 'in_progress' },
+                { label: 'Completed', value: 'completed' },
+                { label: 'Delayed', value: 'delayed' },
+              ]}
+              selectedValue={status}
+              onValueChange={setStatus}
+              placeholder="Select Status"
+            />
+
+            <Text style={styles.label}>Completion Percentage</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="0-100"
+              value={completionPercentage}
+              onChangeText={setCompletionPercentage}
+              keyboardType="numeric"
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.createButton}
+            onPress={handleCreate}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.createButtonText}>Create Milestone</Text>
+            )}
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F7FAFC',
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F7FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A202C',
+  },
+  content: {
+    flex: 1,
+  },
+  section: {
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 12,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4A5568',
+    marginBottom: 8,
+    marginTop: 12,
+  },
+  input: {
+    backgroundColor: '#F7FAFC',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#1A202C',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  dateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F7FAFC',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#1A202C',
+    marginLeft: 8,
+  },
+  createButton: {
+    backgroundColor: '#8B5CF6',
+    marginHorizontal: 16,
+    marginVertical: 24,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  createButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+});
