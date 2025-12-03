@@ -129,10 +129,21 @@ export default function DashboardScreen() {
         }
       >
         <View style={styles.header}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.greeting}>Hello,</Text>
             <Text style={styles.name}>{user?.full_name || 'User'}</Text>
           </View>
+          <TouchableOpacity
+            style={styles.notificationButton}
+            onPress={() => router.push('/notifications' as any)}
+          >
+            <Ionicons name="notifications" size={24} color="#1A202C" />
+            {myPendingTasks > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.badgeText}>{myPendingTasks > 9 ? '9+' : myPendingTasks}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
           <View style={[styles.roleBadge, { backgroundColor: getRoleColor(user?.role || '') + '20' }]}>
             <Text style={[styles.roleText, { color: getRoleColor(user?.role || '') }]}>
               {getRoleLabel(user?.role || '')}
