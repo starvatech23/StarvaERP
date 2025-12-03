@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Bug Fixes - Teams Management, Project Team Management, and User Management
-Testing Focus:
-1. Teams Management APIs (GET/PUT /api/teams/{team_id})
-2. Project Team Management APIs (GET /api/projects/{id}, PUT /api/projects/{id}/team)
-3. User Management APIs (GET /api/users/active)
+Comprehensive Backend API Testing for Construction Management App
+Testing Phase 1: Project Management APIs and Phase 2: Financial APIs
 """
 
 import requests
 import json
-import sys
-from datetime import datetime
+import base64
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
 import uuid
+
+class ConstructionAPITester:
+    def __init__(self, base_url: str):
+        self.base_url = base_url.rstrip('/')
+        self.api_url = f"{self.base_url}/api"
+        self.headers = {"Content-Type": "application/json"}
+        self.auth_token = None
+        self.test_data = {}
 
 # Configuration
 BASE_URL = "https://siteflow-11.preview.emergentagent.com/api"
