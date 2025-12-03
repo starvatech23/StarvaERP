@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend API Testing for Construction Management App
-Testing Phase 1: Project Management APIs and Phase 2: Financial APIs
+Backend API Testing Script for Financial and Materials Management APIs
+Tests all APIs that support the newly created frontend screens.
+Focus: Financial APIs (Invoices, Payments, Budgets, Reports) and Materials APIs (Purchase Orders, Material Requirements)
 """
 
 import requests
@@ -11,7 +12,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 import uuid
 
-class ConstructionAPITester:
+class FinancialMaterialsAPITester:
     def __init__(self, base_url: str):
         self.base_url = base_url.rstrip('/')
         self.api_url = f"{self.base_url}/api"
