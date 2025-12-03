@@ -3864,8 +3864,9 @@ async def create_milestone(
     """Create a new milestone"""
     current_user = await get_current_user(credentials)
     
-    # Check if user has permission (Admin or Project Manager)
-    if current_user.get("role_name") not in ["Admin", "Project Manager"]:
+    # Check role - handle both role and role_name fields
+    user_role = current_user.get("role") or current_user.get("role_name", "")
+    if user_role not in ["Admin", "Project Manager", UserRole.ADMIN]:
         raise HTTPException(status_code=403, detail="Only admins and project managers can create milestones")
     
     milestone_dict = milestone.dict()
