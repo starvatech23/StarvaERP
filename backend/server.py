@@ -4144,6 +4144,471 @@ async def get_project_gantt(
     }
 
 
+
+# ============================================
+# BUDGET APIs
+# ============================================
+
+@app.post("/api/budgets")
+async def create_budget(
+    budget: BudgetCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a budget for a project"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role_name") not in ["Admin", "Project Manager"]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can create budgets")
+    
+    budget_dict = budget.dict()
+    budget_dict["created_at"] = datetime.utcnow()
+    budget_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.budgets.insert_one(budget_dict)
+    budget_dict["id"] = str(result.inserted_id)
+    budget_dict.pop("_id", None)
+    
+    # Calculate spent amount
+    budget_dict["spent_amount"] = 0
+    budget_dict["remaining_amount"] = budget_dict["allocated_amount"]
+    budget_dict["utilization_percentage"] = 0
+    
+    return budget_dict
+
+@app.get("/api/budgets")
+async def get_budgets(
+    project_id: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all budgets, optionally filtered by project"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    
+    budgets = await db.budgets.find(query).to_list(1000)
+    
+    result = []
+    for budget in budgets:
+        budget_dict = serialize_doc(budget)
+        
+        # Calculate spent amount from expenses
+        spent = await db.expenses.aggregate([
+            {
+                "$match": {
+                    "project_id": budget_dict["project_id"],
+                    "category": budget_dict["category"]
+                }
+            },
+            {
+                "$group": {
+                    "_id": None,
+                    "total": {"$sum": "$amount"}
+                }
+            }
+        ]).to_list(1)
+        
+        spent_amount = spent[0]["total"] if spent else 0
+        budget_dict["spent_amount"] = spent_amount
+        budget_dict["remaining_amount"] = budget_dict["allocated_amount"] - spent_amount
+        budget_dict["utilization_percentage"] = (spent_amount / budget_dict["allocated_amount"] * 100) if budget_dict["allocated_amount"] > 0 else 0
+        
+        result.append(budget_dict)
+    
+    return result
+
+@app.put("/api/budgets/{budget_id}")
+async def update_budget(
+    budget_id: str,
+    budget_update: BudgetUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a budget"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role_name") not in ["Admin", "Project Manager"]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can update budgets")
+    
+    update_data = {k: v for k, v in budget_update.dict(exclude_unset=True).items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.budgets.update_one({"_id": ObjectId(budget_id)}, {"$set": update_data})
+    
+    updated_budget = await db.budgets.find_one({"_id": ObjectId(budget_id)})
+    return serialize_doc(updated_budget)
+
+@app.delete("/api/budgets/{budget_id}")
+async def delete_budget(
+    budget_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a budget"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role_name") not in ["Admin", "Project Manager"]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can delete budgets")
+    
+    result = await db.budgets.delete_one({"_id": ObjectId(budget_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Budget not found")
+    
+    return {"message": "Budget deleted successfully"}
+
+# ============================================
+# EXPENSE APIs
+# ============================================
+
+@app.post("/api/expenses")
+async def create_expense(
+    expense: ExpenseCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create an expense"""
+    current_user = await get_current_user(credentials)
+    
+    expense_dict = expense.dict()
+    expense_dict["created_by"] = current_user.get("id")
+    expense_dict["created_at"] = datetime.utcnow()
+    expense_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.expenses.insert_one(expense_dict)
+    expense_dict["id"] = str(result.inserted_id)
+    expense_dict.pop("_id", None)
+    expense_dict["created_by_name"] = current_user.get("full_name")
+    
+    return expense_dict
+
+@app.get("/api/expenses")
+async def get_expenses(
+    project_id: Optional[str] = None,
+    category: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all expenses with optional filters"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if category:
+        query["category"] = category
+    if start_date and end_date:
+        query["expense_date"] = {
+            "$gte": datetime.fromisoformat(start_date.replace('Z', '+00:00')),
+            "$lte": datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+        }
+    
+    expenses = await db.expenses.find(query).sort("expense_date", -1).to_list(1000)
+    
+    result = []
+    for expense in expenses:
+        expense_dict = serialize_doc(expense)
+        
+        # Get creator name
+        if expense_dict.get("created_by"):
+            creator = await db.users.find_one({"_id": ObjectId(expense_dict["created_by"])})
+            expense_dict["created_by_name"] = creator.get("full_name") if creator else None
+        
+        result.append(expense_dict)
+    
+    return result
+
+@app.delete("/api/expenses/{expense_id}")
+async def delete_expense(
+    expense_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete an expense"""
+    current_user = await get_current_user(credentials)
+    
+    expense = await db.expenses.find_one({"_id": ObjectId(expense_id)})
+    if not expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    
+    # Only creator or admin can delete
+    if expense.get("created_by") != current_user.get("id") and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only the creator or admin can delete this expense")
+    
+    await db.expenses.delete_one({"_id": ObjectId(expense_id)})
+    return {"message": "Expense deleted successfully"}
+
+# ============================================
+# INVOICE APIs
+# ============================================
+
+@app.post("/api/invoices")
+async def create_invoice(
+    invoice: InvoiceCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create an invoice"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role_name") not in ["Admin", "Project Manager"]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can create invoices")
+    
+    invoice_dict = invoice.dict()
+    invoice_dict["status"] = InvoiceStatus.DRAFT
+    invoice_dict["paid_amount"] = 0
+    invoice_dict["balance_due"] = invoice_dict["total_amount"]
+    invoice_dict["created_by"] = current_user.get("id")
+    invoice_dict["created_at"] = datetime.utcnow()
+    invoice_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.invoices.insert_one(invoice_dict)
+    invoice_dict["id"] = str(result.inserted_id)
+    invoice_dict.pop("_id", None)
+    invoice_dict["created_by_name"] = current_user.get("full_name")
+    
+    return invoice_dict
+
+@app.get("/api/invoices")
+async def get_invoices(
+    project_id: Optional[str] = None,
+    status: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all invoices with optional filters"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if status:
+        query["status"] = status
+    
+    invoices = await db.invoices.find(query).sort("issue_date", -1).to_list(1000)
+    
+    result = []
+    for invoice in invoices:
+        invoice_dict = serialize_doc(invoice)
+        
+        # Get creator name
+        if invoice_dict.get("created_by"):
+            creator = await db.users.find_one({"_id": ObjectId(invoice_dict["created_by"])})
+            invoice_dict["created_by_name"] = creator.get("full_name") if creator else None
+        
+        # Calculate paid amount and update status
+        payments = await db.payments.aggregate([
+            {"$match": {"invoice_id": invoice_dict["id"]}},
+            {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+        ]).to_list(1)
+        
+        paid_amount = payments[0]["total"] if payments else 0
+        invoice_dict["paid_amount"] = paid_amount
+        invoice_dict["balance_due"] = invoice_dict["total_amount"] - paid_amount
+        
+        # Auto-update status
+        if paid_amount >= invoice_dict["total_amount"]:
+            invoice_dict["status"] = InvoiceStatus.PAID
+        elif datetime.utcnow() > datetime.fromisoformat(str(invoice_dict["due_date"]).replace('Z', '+00:00')) and invoice_dict["status"] != InvoiceStatus.PAID:
+            invoice_dict["status"] = InvoiceStatus.OVERDUE
+        
+        result.append(invoice_dict)
+    
+    return result
+
+@app.get("/api/invoices/{invoice_id}")
+async def get_invoice(
+    invoice_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a specific invoice"""
+    current_user = await get_current_user(credentials)
+    
+    invoice = await db.invoices.find_one({"_id": ObjectId(invoice_id)})
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    invoice_dict = serialize_doc(invoice)
+    
+    # Get payments for this invoice
+    payments = await db.payments.find({"invoice_id": invoice_id}).to_list(100)
+    invoice_dict["payments"] = [serialize_doc(p) for p in payments]
+    
+    return invoice_dict
+
+@app.put("/api/invoices/{invoice_id}")
+async def update_invoice(
+    invoice_id: str,
+    invoice_update: InvoiceUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update an invoice"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role_name") not in ["Admin", "Project Manager"]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can update invoices")
+    
+    update_data = {k: v for k, v in invoice_update.dict(exclude_unset=True).items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.invoices.update_one({"_id": ObjectId(invoice_id)}, {"$set": update_data})
+    
+    updated_invoice = await db.invoices.find_one({"_id": ObjectId(invoice_id)})
+    return serialize_doc(updated_invoice)
+
+# ============================================
+# PAYMENT APIs
+# ============================================
+
+@app.post("/api/payments")
+async def create_payment(
+    payment: PaymentCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Record a payment for an invoice"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role_name") not in ["Admin", "Project Manager", "Accountant"]:
+        raise HTTPException(status_code=403, detail="Only admins, project managers, and accountants can record payments")
+    
+    # Verify invoice exists
+    invoice = await db.invoices.find_one({"_id": ObjectId(payment.invoice_id)})
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    payment_dict = payment.dict()
+    payment_dict["recorded_by"] = current_user.get("id")
+    payment_dict["created_at"] = datetime.utcnow()
+    payment_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.payments.insert_one(payment_dict)
+    payment_dict["id"] = str(result.inserted_id)
+    payment_dict.pop("_id", None)
+    payment_dict["invoice_number"] = invoice.get("invoice_number")
+    payment_dict["client_name"] = invoice.get("client_name")
+    payment_dict["recorded_by_name"] = current_user.get("full_name")
+    
+    return payment_dict
+
+@app.get("/api/payments")
+async def get_payments(
+    invoice_id: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all payments"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if invoice_id:
+        query["invoice_id"] = invoice_id
+    
+    payments = await db.payments.find(query).sort("payment_date", -1).to_list(1000)
+    
+    result = []
+    for payment in payments:
+        payment_dict = serialize_doc(payment)
+        
+        # Get invoice details
+        invoice = await db.invoices.find_one({"_id": ObjectId(payment_dict["invoice_id"])})
+        if invoice:
+            payment_dict["invoice_number"] = invoice.get("invoice_number")
+            payment_dict["client_name"] = invoice.get("client_name")
+        
+        # Get recorder name
+        if payment_dict.get("recorded_by"):
+            recorder = await db.users.find_one({"_id": ObjectId(payment_dict["recorded_by"])})
+            payment_dict["recorded_by_name"] = recorder.get("full_name") if recorder else None
+        
+        result.append(payment_dict)
+    
+    return result
+
+# ============================================
+# FINANCIAL REPORTS APIs
+# ============================================
+
+@app.get("/api/financial-reports/{project_id}")
+async def get_financial_report(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get comprehensive financial report for a project"""
+    current_user = await get_current_user(credentials)
+    
+    # Budget vs Actual
+    budgets = await db.budgets.find({"project_id": project_id}).to_list(100)
+    budget_summary = []
+    total_allocated = 0
+    total_spent = 0
+    
+    for budget in budgets:
+        spent = await db.expenses.aggregate([
+            {
+                "$match": {
+                    "project_id": project_id,
+                    "category": budget["category"]
+                }
+            },
+            {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+        ]).to_list(1)
+        
+        spent_amount = spent[0]["total"] if spent else 0
+        total_allocated += budget["allocated_amount"]
+        total_spent += spent_amount
+        
+        budget_summary.append({
+            "category": budget["category"],
+            "allocated": budget["allocated_amount"],
+            "spent": spent_amount,
+            "remaining": budget["allocated_amount"] - spent_amount,
+            "utilization": (spent_amount / budget["allocated_amount"] * 100) if budget["allocated_amount"] > 0 else 0
+        })
+    
+    # Expenses by category
+    expenses_by_category = await db.expenses.aggregate([
+        {"$match": {"project_id": project_id}},
+        {"$group": {
+            "_id": "$category",
+            "total": {"$sum": "$amount"},
+            "count": {"$sum": 1}
+        }}
+    ]).to_list(100)
+    
+    # Invoices summary
+    invoices = await db.invoices.find({"project_id": project_id}).to_list(100)
+    invoice_summary = {
+        "total": len(invoices),
+        "draft": 0,
+        "sent": 0,
+        "paid": 0,
+        "overdue": 0,
+        "total_amount": 0,
+        "paid_amount": 0,
+        "outstanding": 0
+    }
+    
+    for invoice in invoices:
+        invoice_summary[invoice["status"]] += 1
+        invoice_summary["total_amount"] += invoice["total_amount"]
+        
+        # Get paid amount
+        payments = await db.payments.aggregate([
+            {"$match": {"invoice_id": str(invoice["_id"])}},
+            {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+        ]).to_list(1)
+        
+        paid = payments[0]["total"] if payments else 0
+        invoice_summary["paid_amount"] += paid
+    
+    invoice_summary["outstanding"] = invoice_summary["total_amount"] - invoice_summary["paid_amount"]
+    
+    return {
+        "project_id": project_id,
+        "budget_summary": budget_summary,
+        "total_budget": total_allocated,
+        "total_spent": total_spent,
+        "budget_remaining": total_allocated - total_spent,
+        "budget_utilization": (total_spent / total_allocated * 100) if total_allocated > 0 else 0,
+        "expenses_by_category": expenses_by_category,
+        "invoice_summary": invoice_summary
+    }
+
+
 # Socket.IO events
 @sio.event
 async def connect(sid, environ):
