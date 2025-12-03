@@ -466,13 +466,13 @@ class ConstructionAPITester:
                         "description": "Foundation work",
                         "quantity": 1,
                         "unit_price": 50000.0,
-                        "total": 50000.0
+                        "amount": 50000.0
                     },
                     {
                         "description": "Material supply",
                         "quantity": 2,
                         "unit_price": 25000.0,
-                        "total": 50000.0
+                        "amount": 50000.0
                     }
                 ],
                 "subtotal": 100000.0,
