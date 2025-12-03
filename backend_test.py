@@ -129,7 +129,7 @@ class FinancialMaterialsAPITester:
     def create_test_vendor(self) -> str:
         """Create a test vendor for testing"""
         vendor_data = {
-            "company_name": "Shree Cement Suppliers",
+            "business_name": "Shree Cement Suppliers",
             "contact_person": "Rajesh Kumar",
             "phone": "+91-9876543210",
             "email": "rajesh@shrecement.com",
