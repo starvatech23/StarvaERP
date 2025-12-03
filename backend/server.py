@@ -3479,11 +3479,13 @@ async def get_active_users(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     
 ):
-    """Get all active/approved users"""
+    """Get all active/approved users - accessible by Admin and Project Manager"""
     current_user = await get_current_user(credentials)
     
-    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
-        raise HTTPException(status_code=403, detail="Only admins can view all users")
+    # Allow both Admin and Project Manager to view users for project assignment
+    allowed_roles = [UserRole.ADMIN, "Admin", "Project Manager", "project_manager"]
+    if current_user.get("role") not in allowed_roles and current_user.get("role_name") not in allowed_roles:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can view all users")
     
     users = await db.users.find({"approval_status": ApprovalStatus.APPROVED}).to_list(1000)
     
