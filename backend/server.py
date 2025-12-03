@@ -3804,7 +3804,7 @@ async def create_user_by_admin(
         "team_id": user_data.team_id,
         "address": user_data.address,
         "approval_status": ApprovalStatus.APPROVED,
-        "approved_by": current_user["id"],
+        "approved_by": current_user.get("id"),
         "approved_at": datetime.utcnow(),
         "is_active": True,
         "date_joined": datetime.utcnow(),
