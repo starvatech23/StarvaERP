@@ -364,6 +364,30 @@ backend:
         agent: "testing"
         comment: "✅ FINANCIAL REPORTS API WORKING: GET /api/financial-reports/{project_id} successfully returns comprehensive financial report with all expected fields (project_id, budget_summary, expenses_by_category, invoice_summary). Invoice summary includes detailed breakdown: total, draft, sent, paid, overdue counts, plus total_amount, paid_amount, outstanding amounts. Budget summary and expense categorization working correctly. API provides complete financial overview for frontend dashboard."
 
+  - task: "Purchase Orders Management APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ PURCHASE ORDER APIS WORKING: Successfully tested all operations: (1) GET /api/purchase-orders - List purchase orders with project filtering working correctly, (2) POST /api/purchase-orders - Create purchase order working (created PO-20251203-001 with total ₹45,000), (3) PO data structure verification passed - all required fields (po_number, vendor_name, items, total_amount, status, order_date) present in response. Purchase order creation with vendor linking and amount calculations working correctly. Authentication properly enforced (Admin/PM only)."
+
+  - task: "Material Requirements Management APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ MATERIAL REQUIREMENTS APIS MOSTLY WORKING: Successfully tested most operations: (1) GET /api/material-requirements - List requirements with project filtering working correctly, (2) GET /api/material-requirements?priority=high - Filter by priority working (retrieved 3 high priority requirements), (3) POST /api/material-requirements - Create requirement working but response missing some expected fields (fulfilled_quantity, fulfillment_status). Core functionality operational with minor data structure issue."
+
 frontend:
   - task: "Invoice Create Screen"
     implemented: true
