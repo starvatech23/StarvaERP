@@ -4058,7 +4058,8 @@ async def update_document(
         raise HTTPException(status_code=404, detail="Document not found")
     
     # Only uploader or admin can update
-    if document.get("uploaded_by") != current_user.get("id") and current_user.get("role_name") != "Admin":
+    user_role = current_user.get("role") or current_user.get("role_name", "")
+    if document.get("uploaded_by") != current_user.get("id") and user_role not in ["Admin", UserRole.ADMIN]:
         raise HTTPException(status_code=403, detail="Only the uploader or admin can update this document")
     
     update_data = {k: v for k, v in document_update.dict(exclude_unset=True).items() if v is not None}
