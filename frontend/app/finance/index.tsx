@@ -122,25 +122,21 @@ export default function FinanceMainScreen() {
           ))}
         </View>
 
-        {/* Project Quick Access */}
-        <View style={styles.projectsContainer}>
-          <Text style={styles.sectionTitle}>Projects</Text>
-          {projects.slice(0, 5).map((project) => (
-            <TouchableOpacity
-              key={project.id}
-              style={styles.projectCard}
-              onPress={() => router.push(`/finance/reports/${project.id}` as any)}
-            >
-              <View style={styles.projectInfo}>
-                <Text style={styles.projectName}>{project.name}</Text>
-                <Text style={styles.projectLocation}>{project.location}</Text>
-              </View>
-              <View style={styles.projectAction}>
-                <Text style={styles.viewReportText}>View Report</Text>
-                <Ionicons name="chevron-forward" size={20} color="#3B82F6" />
-              </View>
-            </TouchableOpacity>
-          ))}
+        {/* Financial Reports */}
+        <View style={styles.modulesContainer}>
+          <TouchableOpacity
+            style={styles.moduleCard}
+            onPress={() => router.push('/finance/reports' as any)}
+          >
+            <View style={[styles.moduleIcon, { backgroundColor: '#3B82F620' }]}>
+              <Ionicons name="bar-chart" size={28} color="#3B82F6" />
+            </View>
+            <View style={styles.moduleInfo}>
+              <Text style={styles.moduleTitle}>Financial Reports</Text>
+              <Text style={styles.moduleDescription}>View comprehensive financial analysis</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#CBD5E0" />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
