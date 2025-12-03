@@ -3837,6 +3837,308 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# ============================================
+# MILESTONE APIs
+# ============================================
+
+@app.post("/api/milestones")
+async def create_milestone(
+    milestone: MilestoneCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new milestone"""
+    current_user = await get_current_user(credentials)
+    
+    # Check if user has permission (Admin or Project Manager)
+    if current_user.get("role_name") not in ["Admin", "Project Manager"]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can create milestones")
+    
+    milestone_dict = milestone.dict()
+    milestone_dict["created_at"] = datetime.utcnow()
+    milestone_dict["updated_at"] = datetime.utcnow()
+    milestone_dict["completed_at"] = None
+    
+    result = await db.milestones.insert_one(milestone_dict)
+    milestone_dict["id"] = str(result.inserted_id)
+    milestone_dict.pop("_id", None)
+    
+    return milestone_dict
+
+@app.get("/api/milestones")
+async def get_milestones(
+    project_id: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all milestones, optionally filtered by project"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    
+    milestones = await db.milestones.find(query).sort("order", 1).to_list(1000)
+    
+    result = []
+    for milestone in milestones:
+        milestone_dict = serialize_doc(milestone)
+        result.append(milestone_dict)
+    
+    return result
+
+@app.get("/api/milestones/{milestone_id}")
+async def get_milestone(
+    milestone_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a specific milestone"""
+    current_user = await get_current_user(credentials)
+    
+    milestone = await db.milestones.find_one({"_id": ObjectId(milestone_id)})
+    if not milestone:
+        raise HTTPException(status_code=404, detail="Milestone not found")
+    
+    return serialize_doc(milestone)
+
+@app.put("/api/milestones/{milestone_id}")
+async def update_milestone(
+    milestone_id: str,
+    milestone_update: MilestoneUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a milestone"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role_name") not in ["Admin", "Project Manager"]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can update milestones")
+    
+    milestone = await db.milestones.find_one({"_id": ObjectId(milestone_id)})
+    if not milestone:
+        raise HTTPException(status_code=404, detail="Milestone not found")
+    
+    update_data = {k: v for k, v in milestone_update.dict(exclude_unset=True).items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow()
+    
+    # Mark completion timestamp
+    if update_data.get("status") == MilestoneStatus.COMPLETED and milestone.get("status") != MilestoneStatus.COMPLETED:
+        update_data["completed_at"] = datetime.utcnow()
+    
+    await db.milestones.update_one(
+        {"_id": ObjectId(milestone_id)},
+        {"$set": update_data}
+    )
+    
+    updated_milestone = await db.milestones.find_one({"_id": ObjectId(milestone_id)})
+    return serialize_doc(updated_milestone)
+
+@app.delete("/api/milestones/{milestone_id}")
+async def delete_milestone(
+    milestone_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a milestone"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role_name") not in ["Admin", "Project Manager"]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can delete milestones")
+    
+    result = await db.milestones.delete_one({"_id": ObjectId(milestone_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Milestone not found")
+    
+    return {"message": "Milestone deleted successfully"}
+
+# ============================================
+# DOCUMENT APIs
+# ============================================
+
+@app.post("/api/documents")
+async def create_document(
+    document: DocumentCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Upload a new document"""
+    current_user = await get_current_user(credentials)
+    
+    document_dict = document.dict()
+    document_dict["uploaded_at"] = datetime.utcnow()
+    document_dict["updated_at"] = datetime.utcnow()
+    document_dict["uploaded_by"] = current_user.get("id")
+    
+    result = await db.documents.insert_one(document_dict)
+    document_dict["id"] = str(result.inserted_id)
+    document_dict.pop("_id", None)
+    
+    # Add uploader name
+    document_dict["uploader_name"] = current_user.get("full_name")
+    
+    return document_dict
+
+@app.get("/api/documents")
+async def get_documents(
+    project_id: Optional[str] = None,
+    document_type: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all documents, optionally filtered"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if document_type:
+        query["document_type"] = document_type
+    
+    documents = await db.documents.find(query).sort("uploaded_at", -1).to_list(1000)
+    
+    result = []
+    for doc in documents:
+        doc_dict = serialize_doc(doc)
+        
+        # Get uploader name
+        if doc_dict.get("uploaded_by"):
+            uploader = await db.users.find_one({"_id": ObjectId(doc_dict["uploaded_by"])})
+            doc_dict["uploader_name"] = uploader.get("full_name") if uploader else None
+        
+        result.append(doc_dict)
+    
+    return result
+
+@app.get("/api/documents/{document_id}")
+async def get_document(
+    document_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a specific document"""
+    current_user = await get_current_user(credentials)
+    
+    document = await db.documents.find_one({"_id": ObjectId(document_id)})
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    doc_dict = serialize_doc(document)
+    
+    # Get uploader name
+    if doc_dict.get("uploaded_by"):
+        uploader = await db.users.find_one({"_id": ObjectId(doc_dict["uploaded_by"])})
+        doc_dict["uploader_name"] = uploader.get("full_name") if uploader else None
+    
+    return doc_dict
+
+@app.put("/api/documents/{document_id}")
+async def update_document(
+    document_id: str,
+    document_update: DocumentUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update document metadata (not the file itself)"""
+    current_user = await get_current_user(credentials)
+    
+    document = await db.documents.find_one({"_id": ObjectId(document_id)})
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    # Only uploader or admin can update
+    if document.get("uploaded_by") != current_user.get("id") and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only the uploader or admin can update this document")
+    
+    update_data = {k: v for k, v in document_update.dict(exclude_unset=True).items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.documents.update_one(
+        {"_id": ObjectId(document_id)},
+        {"$set": update_data}
+    )
+    
+    updated_document = await db.documents.find_one({"_id": ObjectId(document_id)})
+    return serialize_doc(updated_document)
+
+@app.delete("/api/documents/{document_id}")
+async def delete_document(
+    document_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a document"""
+    current_user = await get_current_user(credentials)
+    
+    document = await db.documents.find_one({"_id": ObjectId(document_id)})
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    # Only uploader or admin can delete
+    if document.get("uploaded_by") != current_user.get("id") and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only the uploader or admin can delete this document")
+    
+    result = await db.documents.delete_one({"_id": ObjectId(document_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    return {"message": "Document deleted successfully"}
+
+# ============================================
+# GANTT CHART / TIMELINE APIs
+# ============================================
+
+@app.get("/api/projects/{project_id}/gantt")
+async def get_project_gantt(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get Gantt chart data for a project"""
+    current_user = await get_current_user(credentials)
+    
+    # Get all tasks for the project
+    tasks = await db.tasks.find({"project_id": project_id}).sort("planned_start_date", 1).to_list(1000)
+    
+    # Get milestones
+    milestones = await db.milestones.find({"project_id": project_id}).sort("order", 1).to_list(1000)
+    
+    gantt_tasks = []
+    for task in tasks:
+        task_dict = serialize_doc(task)
+        
+        # Get assigned users
+        assigned_users = []
+        for user_id in task_dict.get("assigned_to", []):
+            user = await db.users.find_one({"_id": ObjectId(user_id)})
+            if user:
+                assigned_users.append({
+                    "id": str(user["_id"]),
+                    "full_name": user.get("full_name")
+                })
+        
+        gantt_tasks.append({
+            "id": task_dict["id"],
+            "title": task_dict["title"],
+            "start_date": task_dict.get("planned_start_date"),
+            "end_date": task_dict.get("planned_end_date"),
+            "actual_start_date": task_dict.get("actual_start_date"),
+            "actual_end_date": task_dict.get("actual_end_date"),
+            "progress": task_dict.get("progress_percentage", 0),
+            "status": task_dict.get("status"),
+            "priority": task_dict.get("priority"),
+            "dependencies": task_dict.get("dependencies", []),
+            "assigned_to": assigned_users,
+            "parent_task_id": task_dict.get("parent_task_id")
+        })
+    
+    gantt_milestones = []
+    for milestone in milestones:
+        milestone_dict = serialize_doc(milestone)
+        gantt_milestones.append({
+            "id": milestone_dict["id"],
+            "name": milestone_dict["name"],
+            "due_date": milestone_dict.get("due_date"),
+            "status": milestone_dict.get("status"),
+            "completion_percentage": milestone_dict.get("completion_percentage", 0)
+        })
+    
+    return {
+        "tasks": gantt_tasks,
+        "milestones": gantt_milestones
+    }
+
+
 # Socket.IO events
 @sio.event
 async def connect(sid, environ):
