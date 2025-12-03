@@ -351,11 +351,9 @@ class FinancialMaterialsAPITester:
         # Test 1: Create Budget (POST /api/budgets)
         budget_data = {
             "project_id": project_id,
-            "category": "construction",
+            "category": "materials",
             "allocated_amount": 300000.0,
-            "description": "Main construction work budget allocation",
-            "period_start": datetime.now().isoformat(),
-            "period_end": (datetime.now() + timedelta(days=60)).isoformat()
+            "description": "Main construction materials budget allocation"
         }
         
         try:
