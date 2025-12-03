@@ -294,15 +294,18 @@ backend:
 
   - task: "Budgets Management APIs"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ AUTHORIZATION ISSUE: POST /api/budgets blocked by same role authorization inconsistency as milestones. Endpoint checks current_user.get('role_name') instead of current_user['role']. GET /api/budgets?project_id=X works correctly and returns proper budget data structure. API functionality is implemented correctly but authorization needs fixing."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL BUDGET APIS WORKING: Authorization issues have been FIXED! Successfully tested all operations: (1) POST /api/budgets - Create budget working correctly (created materials budget with ₹300,000), (2) GET /api/budgets - List budgets with project filtering working (retrieved 1 budget), (3) Budget data structure verification passed - all required fields (id, project_id, category, allocated_amount) present in response. Budget creation and management fully functional."
 
   - task: "Expenses Management APIs"
     implemented: true
