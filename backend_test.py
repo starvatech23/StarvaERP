@@ -99,11 +99,14 @@ class FinancialMaterialsAPITester:
         project_data = {
             "name": "Financial Test Project",
             "description": "Test project for financial and materials APIs",
+            "location": "Mumbai, Maharashtra",
+            "address": "Plot 456, Industrial Area, Mumbai, Maharashtra 400001",
+            "client_name": "Test Construction Client Ltd",
+            "client_contact": "+91-9876543210",
             "start_date": datetime.now().isoformat(),
             "end_date": (datetime.now() + timedelta(days=90)).isoformat(),
             "budget": 500000.0,
-            "status": "active",
-            "location": "Mumbai, Maharashtra"
+            "status": "planning"
         }
         
         try:
