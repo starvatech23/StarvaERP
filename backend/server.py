@@ -1304,8 +1304,17 @@ async def get_payments(
         else:
             payment_dict["project_name"] = "Unknown"
         
-        creator = await get_user_by_id(payment_dict.get("created_by")) if payment_dict.get("created_by") else None
-        payment_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        # Handle both 'recorded_by' and 'created_by' fields for backwards compatibility
+        recorder_id = payment_dict.get("recorded_by") or payment_dict.get("created_by")
+        if recorder_id:
+            creator = await get_user_by_id(recorder_id)
+            payment_dict["recorded_by_name"] = creator["full_name"] if creator else "Unknown"
+        else:
+            payment_dict["recorded_by_name"] = "Unknown"
+        
+        # Ensure required fields exist
+        if "recorded_by" not in payment_dict:
+            payment_dict["recorded_by"] = recorder_id or "unknown"
         
         result.append(PaymentResponse(**payment_dict))
     
