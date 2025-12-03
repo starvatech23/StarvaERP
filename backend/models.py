@@ -1234,3 +1234,171 @@ class DocumentResponse(DocumentBase):
     updated_at: Optional[datetime] = None
     uploader_name: Optional[str] = None  # Populated from user data
 
+
+# Budget Category Enum
+class BudgetCategory(str, Enum):
+    LABOR = "labor"
+    MATERIALS = "materials"
+    EQUIPMENT = "equipment"
+    SUBCONTRACTORS = "subcontractors"
+    PERMITS = "permits"
+    OVERHEAD = "overhead"
+    CONTINGENCY = "contingency"
+    OTHER = "other"
+
+# Project Budget Models
+class BudgetBase(BaseModel):
+    project_id: str
+    category: BudgetCategory
+    allocated_amount: float
+    description: Optional[str] = None
+    fiscal_year: Optional[int] = None
+
+class BudgetCreate(BudgetBase):
+    pass
+
+class BudgetUpdate(BaseModel):
+    category: Optional[BudgetCategory] = None
+    allocated_amount: Optional[float] = None
+    description: Optional[str] = None
+
+class BudgetResponse(BudgetBase):
+    id: str
+    spent_amount: float = 0  # Calculated from expenses
+    remaining_amount: float = 0  # allocated - spent
+    utilization_percentage: float = 0  # (spent / allocated) * 100
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+# Expense Models
+class ExpenseBase(BaseModel):
+    project_id: str
+    category: BudgetCategory
+    amount: float
+    description: str
+    expense_date: datetime
+    vendor_name: Optional[str] = None
+    receipt_image: Optional[str] = None  # base64 image
+    payment_method: Optional[str] = None  # cash, card, transfer, check
+    reference_number: Optional[str] = None
+    notes: Optional[str] = None
+
+class ExpenseCreate(ExpenseBase):
+    pass
+
+class ExpenseUpdate(BaseModel):
+    category: Optional[BudgetCategory] = None
+    amount: Optional[float] = None
+    description: Optional[str] = None
+    expense_date: Optional[datetime] = None
+    vendor_name: Optional[str] = None
+    receipt_image: Optional[str] = None
+    payment_method: Optional[str] = None
+    reference_number: Optional[str] = None
+    notes: Optional[str] = None
+
+class ExpenseResponse(ExpenseBase):
+    id: str
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+# Invoice Status Enum
+class InvoiceStatus(str, Enum):
+    DRAFT = "draft"
+    SENT = "sent"
+    PAID = "paid"
+    OVERDUE = "overdue"
+    CANCELLED = "cancelled"
+
+# Invoice Models
+class InvoiceItemBase(BaseModel):
+    description: str
+    quantity: float
+    unit_price: float
+    amount: float  # quantity * unit_price
+
+class InvoiceBase(BaseModel):
+    project_id: str
+    invoice_number: str
+    client_name: str
+    client_email: Optional[str] = None
+    client_phone: Optional[str] = None
+    client_address: Optional[str] = None
+    issue_date: datetime
+    due_date: datetime
+    items: List[InvoiceItemBase]
+    subtotal: float
+    tax_percentage: float = 0
+    tax_amount: float = 0
+    total_amount: float
+    notes: Optional[str] = None
+    terms: Optional[str] = None
+
+class InvoiceCreate(InvoiceBase):
+    pass
+
+class InvoiceUpdate(BaseModel):
+    client_name: Optional[str] = None
+    client_email: Optional[str] = None
+    client_phone: Optional[str] = None
+    client_address: Optional[str] = None
+    issue_date: Optional[datetime] = None
+    due_date: Optional[datetime] = None
+    items: Optional[List[InvoiceItemBase]] = None
+    subtotal: Optional[float] = None
+    tax_percentage: Optional[float] = None
+    tax_amount: Optional[float] = None
+    total_amount: Optional[float] = None
+    notes: Optional[str] = None
+    terms: Optional[str] = None
+    status: Optional[InvoiceStatus] = None
+
+class InvoiceResponse(InvoiceBase):
+    id: str
+    status: InvoiceStatus = InvoiceStatus.DRAFT
+    paid_amount: float = 0
+    balance_due: float = 0
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+# Payment Method Enum
+class PaymentMethod(str, Enum):
+    CASH = "cash"
+    CHECK = "check"
+    BANK_TRANSFER = "bank_transfer"
+    CREDIT_CARD = "credit_card"
+    ONLINE = "online"
+    OTHER = "other"
+
+# Payment Models
+class PaymentBase(BaseModel):
+    invoice_id: str
+    amount: float
+    payment_date: datetime
+    payment_method: PaymentMethod
+    reference_number: Optional[str] = None
+    notes: Optional[str] = None
+
+class PaymentCreate(PaymentBase):
+    pass
+
+class PaymentUpdate(BaseModel):
+    amount: Optional[float] = None
+    payment_date: Optional[datetime] = None
+    payment_method: Optional[PaymentMethod] = None
+    reference_number: Optional[str] = None
+    notes: Optional[str] = None
+
+class PaymentResponse(PaymentBase):
+    id: str
+    invoice_number: Optional[str] = None
+    client_name: Optional[str] = None
+    recorded_by: str
+    recorded_by_name: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
