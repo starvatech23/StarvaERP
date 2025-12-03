@@ -532,19 +532,21 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "2.2"
-  test_sequence: 4
+  version: "2.3"
+  test_sequence: 5
   run_ui: false
 
 test_plan:
   current_focus:
-    - "Milestones Management APIs"
-    - "Budgets Management APIs"
-    - "Invoices Management APIs"
+    - "Invoices Management APIs (retest after authorization fix)"
+    - "Budgets Management APIs (retest after authorization fix)"
+    - "Milestones Management APIs (retest after authorization fix)"
+    - "Payments Management APIs"
     - "Financial Reports API"
+    - "Purchase Orders APIs"
+    - "Material Requirements APIs"
   stuck_tasks: 
     - "Payment Dues Calculation Logic"
-    - "Authorization Role Inconsistency (role vs role_name)"
   test_all: false
   test_priority: "high_first"
 
