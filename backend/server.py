@@ -363,8 +363,17 @@ async def get_projects(
                 # Get role name if role_id exists
                 role_name = None
                 if member.get("role_id"):
-                    role = await db.roles.find_one({"_id": ObjectId(member["role_id"])})
-                    role_name = role["name"] if role else None
+                    try:
+                        # role_id can be either string or ObjectId
+                        role_id = member["role_id"]
+                        if isinstance(role_id, str):
+                            role = await db.roles.find_one({"_id": ObjectId(role_id)})
+                        else:
+                            role = await db.roles.find_one({"_id": role_id})
+                        role_name = role["name"] if role else None
+                    except Exception as e:
+                        print(f"Error getting role: {e}")
+                        role_name = None
                 elif member.get("role"):
                     role_name = member["role"]
                 
