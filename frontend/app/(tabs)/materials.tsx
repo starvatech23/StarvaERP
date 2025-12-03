@@ -270,20 +270,28 @@ export default function MaterialsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Materials & Vendors</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => {
-            if (activeTab === 'vendors') {
-              router.push('/materials/add-vendor' as any);
-            } else if (activeTab === 'materials') {
-              router.push('/materials/add-material' as any);
-            } else if (activeTab === 'inventory') {
-              router.push('/materials/add-inventory' as any);
-            }
-          }}
-        >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity 
+            style={styles.scanButton}
+            onPress={() => router.push('/materials/scan' as any)}
+          >
+            <Ionicons name="qr-code" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => {
+              if (activeTab === 'vendors') {
+                router.push('/materials/add-vendor' as any);
+              } else if (activeTab === 'materials') {
+                router.push('/materials/add-material' as any);
+              } else if (activeTab === 'inventory') {
+                router.push('/materials/add-inventory' as any);
+              }
+            }}
+          >
+            <Ionicons name="add" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.tabs}>
