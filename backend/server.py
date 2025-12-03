@@ -1283,7 +1283,10 @@ async def get_payments(
     
     query = {}
     if project_id:
-        query["project_id"] = project_id
+        # Find invoices for this project first
+        invoices = await db.invoices.find({"project_id": project_id}).to_list(1000)
+        invoice_ids = [str(inv["_id"]) for inv in invoices]
+        query["invoice_id"] = {"$in": invoice_ids}
     
     payments = await db.payments.find(query).to_list(1000)
     
@@ -1291,10 +1294,17 @@ async def get_payments(
     for payment in payments:
         payment_dict = serialize_doc(payment)
         
-        project = await db.projects.find_one({"_id": ObjectId(payment_dict["project_id"])})
-        payment_dict["project_name"] = project["name"] if project else "Unknown"
+        # Get invoice to get project info
+        invoice = await db.invoices.find_one({"_id": ObjectId(payment_dict.get("invoice_id"))}) if payment_dict.get("invoice_id") else None
+        if invoice:
+            payment_dict["invoice_number"] = invoice.get("invoice_number")
+            payment_dict["project_id"] = invoice.get("project_id")
+            project = await db.projects.find_one({"_id": ObjectId(invoice["project_id"])}) if invoice.get("project_id") else None
+            payment_dict["project_name"] = project["name"] if project else "Unknown"
+        else:
+            payment_dict["project_name"] = "Unknown"
         
-        creator = await get_user_by_id(payment_dict["created_by"])
+        creator = await get_user_by_id(payment_dict.get("created_by")) if payment_dict.get("created_by") else None
         payment_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
         
         result.append(PaymentResponse(**payment_dict))
