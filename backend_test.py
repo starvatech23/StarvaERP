@@ -104,9 +104,9 @@ class ConstructionAPITester:
             # 1. POST /api/milestones - Create milestone
             milestone_data = {
                 "project_id": project_id,
-                "title": "Foundation Complete",
+                "name": "Foundation Complete",
                 "description": "Complete foundation work including excavation and concrete pouring",
-                "target_date": "2024-03-15T00:00:00",
+                "due_date": "2024-03-15T00:00:00",
                 "status": "pending",
                 "order": 1
             }
