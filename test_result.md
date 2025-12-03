@@ -318,15 +318,18 @@ backend:
 
   - task: "Invoices Management APIs"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ AUTHORIZATION ISSUE: POST /api/invoices blocked by same role authorization inconsistency. Endpoint checks current_user.get('role_name') instead of current_user['role']. GET /api/invoices?project_id=X works correctly. Invoice creation with line items, tax calculations, and payment tracking is implemented but blocked by authorization configuration."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL INVOICE APIS WORKING: Authorization issues have been FIXED! Successfully tested all CRUD operations: (1) POST /api/invoices - Create invoice with line items working correctly (created INV-20251203-001 with total ₹289,100), (2) GET /api/invoices - List invoices with project filtering working, (3) GET /api/invoices/{id} - Get invoice details working, (4) PUT /api/invoices/{id} - Update invoice status working (updated status to 'sent'). Invoice creation with multiple line items, tax calculations, and status management all functional."
 
   - task: "Payments Management APIs"
     implemented: true
