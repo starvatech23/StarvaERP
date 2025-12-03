@@ -33,8 +33,16 @@ export default function ModalSelector({
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('📊 ModalSelector - Options count:', options?.length || 0);
+    if (options && options.length > 0) {
+      console.log('📋 ModalSelector - First option:', options[0]);
+    }
+  }, [options]);
+
   const selectedOption = options.find((opt) => opt.value === selectedValue);
-  const displayText = selectedOption ? selectedOption.label : placeholder;
+  const displayText = selectedOption ? selectedOption.label : `${placeholder} (${options.length} available)`;
 
   const filteredOptions = options.filter((option) =>
     option.label.toLowerCase().includes(searchQuery.toLowerCase())
