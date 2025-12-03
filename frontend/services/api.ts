@@ -179,12 +179,8 @@ export const paymentsAPI = {
   update: (id: string, data: any) => api.put(`/payments/${id}`, data),
 };
 
-// Expenses API
-export const expensesAPI = {
-  getAll: (projectId?: string) => api.get('/expenses', { params: { project_id: projectId } }),
-  create: (data: any) => api.post('/expenses', data),
-  update: (id: string, data: any) => api.put(`/expenses/${id}`, data),
-};
+// Expenses API (Old - kept for compatibility)
+// Replaced by enhanced expensesAPI below
 
 // Notifications API
 export const notificationsAPI = {
