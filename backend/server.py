@@ -4264,7 +4264,9 @@ async def delete_budget(
     """Delete a budget"""
     current_user = await get_current_user(credentials)
     
-    if current_user.get("role_name") not in ["Admin", "Project Manager"]:
+    # Check role - handle both role and role_name fields
+    user_role = current_user.get("role") or current_user.get("role_name", "")
+    if user_role not in ["Admin", "Project Manager", UserRole.ADMIN]:
         raise HTTPException(status_code=403, detail="Only admins and project managers can delete budgets")
     
     result = await db.budgets.delete_one({"_id": ObjectId(budget_id)})
