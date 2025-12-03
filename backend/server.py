@@ -4351,7 +4351,8 @@ async def delete_expense(
         raise HTTPException(status_code=404, detail="Expense not found")
     
     # Only creator or admin can delete
-    if expense.get("created_by") != current_user.get("id") and current_user.get("role_name") != "Admin":
+    user_role = current_user.get("role") or current_user.get("role_name", "")
+    if expense.get("created_by") != current_user.get("id") and user_role not in ["Admin", UserRole.ADMIN]:
         raise HTTPException(status_code=403, detail="Only the creator or admin can delete this expense")
     
     await db.expenses.delete_one({"_id": ObjectId(expense_id)})
