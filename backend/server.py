@@ -41,7 +41,9 @@ from models import (
     UserRole, ApprovalStatus,
     RoleCreate, RoleUpdate, RoleResponse,
     PermissionCreate, PermissionUpdate, PermissionResponse, ModuleName,
-    SystemSettingCreate, SystemSettingUpdate, SystemSettingResponse
+    SystemSettingCreate, SystemSettingUpdate, SystemSettingResponse,
+    MilestoneCreate, MilestoneUpdate, MilestoneResponse, MilestoneStatus,
+    DocumentCreate, DocumentUpdate, DocumentResponse, DocumentType
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
