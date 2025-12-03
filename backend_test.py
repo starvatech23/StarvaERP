@@ -50,7 +50,8 @@ class ConstructionAPITester:
                     data = response.json()
                     self.auth_token = data["access_token"]
                     self.headers["Authorization"] = f"Bearer {self.auth_token}"
-                    print("✅ Authentication successful (existing user)")
+                    user_role = data.get("user", {}).get("role", "unknown")
+                    print(f"✅ Authentication successful (existing user) - Role: {user_role}")
                     return True
                 else:
                     print(f"❌ Authentication failed: {response.text}")
