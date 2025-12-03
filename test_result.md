@@ -330,15 +330,18 @@ backend:
 
   - task: "Payments Management APIs"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "⚠️ DEPENDENT ON INVOICE CREATION: Payment APIs could not be tested because invoice creation is blocked by authorization issues. POST /api/payments and GET /api/payments?invoice_id=X endpoints are implemented but require valid invoice IDs. Once invoice authorization is fixed, payment APIs should be retested."
+      - working: false
+        agent: "testing"
+        comment: "❌ BACKEND BUG: POST /api/payments and GET /api/payments APIs return 500 Internal Server Error. Backend logs show KeyError: 'project_id' in get_payments function at line 1294. The payments API is incorrectly looking for project_id field but payments are linked to invoices via invoice_id. This is a backend code bug that needs fixing in server.py."
 
   - task: "Financial Reports API"
     implemented: true
