@@ -54,10 +54,22 @@ export default function GanttShareModal({ visible, projectId, onClose, onSuccess
         expires_at: expiresAt,
       });
 
+      // Debug logging
+      console.log('Full response:', JSON.stringify(response, null, 2));
+      console.log('Response data:', response.data);
+      console.log('Share URL from response:', response.data?.share_url);
+
       // Get base URL from environment variable
       const baseUrl = process.env.EXPO_PUBLIC_BACKEND_URL || 
                      'https://buildflow-79.preview.emergentagent.com';
-      const fullUrl = `${baseUrl}${response.data.share_url}`;
+      
+      // Check if share_url exists in response
+      const shareUrl = response.data?.share_url || response.data?.shareUrl || `/projects/${projectId}/gantt-share/${response.data?.token}`;
+      console.log('Final share URL:', shareUrl);
+      
+      const fullUrl = `${baseUrl}${shareUrl}`;
+      console.log('Full URL:', fullUrl);
+      
       setGeneratedLink(fullUrl);
       Alert.alert('Success', 'Share link generated successfully!');
       if (onSuccess) onSuccess();
