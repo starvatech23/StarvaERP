@@ -368,7 +368,7 @@ class ContactGanttTester:
         # Test 1: POST /api/projects/{project_id}/gantt-share - Create share link without password
         try:
             share_data = {
-                "permissions": ["view_only", "export_pdf"],
+                "permissions": ["view_only", "downloadable"],
                 "show_contacts": True,
                 "expires_at": (datetime.utcnow() + timedelta(days=30)).isoformat()
             }
