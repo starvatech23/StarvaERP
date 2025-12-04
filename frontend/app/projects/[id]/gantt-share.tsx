@@ -67,7 +67,10 @@ export default function GanttShareLinksScreen() {
   };
 
   const handleShare = async (shareUrl: string, hasPassword: boolean) => {
-    const fullUrl = `${window.location.origin}${shareUrl}`;
+    const baseUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || 
+                   process.env.EXPO_PUBLIC_BACKEND_URL || 
+                   'https://buildflow-79.preview.emergentagent.com';
+    const fullUrl = `${baseUrl}${shareUrl}`;
     try {
       await Share.share({
         message: `View Gantt Chart: ${fullUrl}${hasPassword ? '\n(Password protected)' : ''}`,
@@ -79,9 +82,16 @@ export default function GanttShareLinksScreen() {
   };
 
   const handleCopy = (shareUrl: string) => {
-    const fullUrl = `${window.location.origin}${shareUrl}`;
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+    const baseUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || 
+                   process.env.EXPO_PUBLIC_BACKEND_URL || 
+                   'https://buildflow-79.preview.emergentagent.com';
+    const fullUrl = `${baseUrl}${shareUrl}`;
+    
+    if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(fullUrl);
+      Alert.alert('Copied', 'Link copied to clipboard');
+    } else {
+      Clipboard.setString(fullUrl);
       Alert.alert('Copied', 'Link copied to clipboard');
     }
   };
