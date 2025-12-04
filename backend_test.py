@@ -608,10 +608,308 @@ class FinancialMaterialsAPITester:
         except Exception as e:
             self.log_result("GET /api/material-requirements - Filter by Priority", False, f"Error: {str(e)}")
 
+    def test_expenses_management(self, project_id: str):
+        """Test Expenses Management APIs"""
+        print("💸 Testing Expenses Management APIs...")
+        
+        # Test 1: Create Expense (POST /api/expenses)
+        expense_data = {
+            "project_id": project_id,
+            "category": "materials",
+            "amount": 25000.0,
+            "description": "Cement and steel purchase",
+            "expense_date": datetime.now().isoformat(),
+            "receipt_images": ["data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A"]
+        }
+        
+        try:
+            response = requests.post(f"{BASE_URL}/expenses", json=expense_data, headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                expense_id = data.get('id')
+                self.log_result("POST /api/expenses - Create Expense", True, 
+                               f"Created expense of ₹{data.get('amount')} for {data.get('category')}")
+            else:
+                self.log_result("POST /api/expenses - Create Expense", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("POST /api/expenses - Create Expense", False, f"Error: {str(e)}")
+
+        # Test 2: Get Expenses List (GET /api/expenses)
+        try:
+            response = requests.get(f"{BASE_URL}/expenses?project_id={project_id}", headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("GET /api/expenses - List Expenses", True, 
+                               f"Retrieved {len(data)} expenses for project")
+            else:
+                self.log_result("GET /api/expenses - List Expenses", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("GET /api/expenses - List Expenses", False, f"Error: {str(e)}")
+
+        # Test 3: Filter by category
+        try:
+            response = requests.get(f"{BASE_URL}/expenses?category=materials", headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("GET /api/expenses - Filter by Category", True, 
+                               f"Retrieved {len(data)} materials expenses")
+            else:
+                self.log_result("GET /api/expenses - Filter by Category", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("GET /api/expenses - Filter by Category", False, f"Error: {str(e)}")
+
+    def test_site_inventory_management(self, project_id: str):
+        """Test Site Inventory Management APIs"""
+        print("📦 Testing Site Inventory Management APIs...")
+        
+        # Create test material first
+        material_id = self.create_test_material()
+        
+        if not material_id:
+            self.log_result("Site Inventory Setup", False, "Failed to create test material")
+            return
+        
+        # Test 1: Get Site Inventory List (GET /api/site-inventory)
+        try:
+            response = requests.get(f"{BASE_URL}/site-inventory", headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("GET /api/site-inventory - List Inventory", True, 
+                               f"Retrieved {len(data)} inventory items")
+            else:
+                self.log_result("GET /api/site-inventory - List Inventory", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("GET /api/site-inventory - List Inventory", False, f"Error: {str(e)}")
+
+        # Test 2: Create Site Inventory Entry (POST /api/site-inventory)
+        inventory_data = {
+            "project_id": project_id,
+            "material_id": material_id,
+            "current_stock": 150.0,
+            "location": "Warehouse A - Main Storage"
+        }
+        
+        try:
+            response = requests.post(f"{BASE_URL}/site-inventory", json=inventory_data, headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                inventory_id = data.get('id')
+                self.log_result("POST /api/site-inventory - Create Inventory Entry", True, 
+                               f"Created inventory entry with stock: {data.get('current_stock')}")
+            else:
+                self.log_result("POST /api/site-inventory - Create Inventory Entry", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("POST /api/site-inventory - Create Inventory Entry", False, f"Error: {str(e)}")
+
+    def test_material_transactions_management(self, project_id: str):
+        """Test Material Transactions Management APIs"""
+        print("🔄 Testing Material Transactions Management APIs...")
+        
+        # Create test material first
+        material_id = self.create_test_material()
+        
+        if not material_id:
+            self.log_result("Material Transactions Setup", False, "Failed to create test material")
+            return
+        
+        # Test 1: Create Material Transaction (POST /api/material-transactions)
+        transaction_data = {
+            "project_id": project_id,
+            "material_id": material_id,
+            "transaction_type": "receipt",
+            "quantity": 50.0,
+            "reference_number": f"REC-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "notes": "Material received from vendor - Quality checked"
+        }
+        
+        try:
+            response = requests.post(f"{BASE_URL}/material-transactions", json=transaction_data, headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                transaction_id = data.get('id')
+                self.log_result("POST /api/material-transactions - Create Transaction", True, 
+                               f"Created {data.get('transaction_type')} transaction for {data.get('quantity')} units")
+            else:
+                self.log_result("POST /api/material-transactions - Create Transaction", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("POST /api/material-transactions - Create Transaction", False, f"Error: {str(e)}")
+
+        # Test 2: Get Material Transactions List (GET /api/material-transactions)
+        try:
+            response = requests.get(f"{BASE_URL}/material-transactions", headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("GET /api/material-transactions - List Transactions", True, 
+                               f"Retrieved {len(data)} material transactions")
+            else:
+                self.log_result("GET /api/material-transactions - List Transactions", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("GET /api/material-transactions - List Transactions", False, f"Error: {str(e)}")
+
+    def test_project_management_smoke_test(self, project_id: str):
+        """Test Project Management APIs - Smoke Test"""
+        print("🏗️ Testing Project Management APIs (Smoke Test)...")
+        
+        # Test 1: Milestones API
+        milestone_data = {
+            "project_id": project_id,
+            "title": "Foundation Work Complete",
+            "description": "Foundation excavation and concrete pouring completed",
+            "target_date": (datetime.now() + timedelta(days=30)).isoformat(),
+            "status": "pending"
+        }
+        
+        try:
+            response = requests.post(f"{BASE_URL}/milestones", json=milestone_data, headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                milestone_id = data.get('id')
+                self.log_result("POST /api/milestones - Create Milestone", True, 
+                               f"Created milestone: {data.get('title')}")
+            else:
+                self.log_result("POST /api/milestones - Create Milestone", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("POST /api/milestones - Create Milestone", False, f"Error: {str(e)}")
+
+        # Test 2: Get Milestones List
+        try:
+            response = requests.get(f"{BASE_URL}/milestones?project_id={project_id}", headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("GET /api/milestones - List Milestones", True, 
+                               f"Retrieved {len(data)} milestones")
+            else:
+                self.log_result("GET /api/milestones - List Milestones", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("GET /api/milestones - List Milestones", False, f"Error: {str(e)}")
+
+        # Test 3: Documents API
+        document_data = {
+            "project_id": project_id,
+            "document_type": "contract",
+            "title": "Main Construction Contract",
+            "file_data": "data:text/plain;base64,VGVzdCBjb250cmFjdCBkb2N1bWVudCBjb250ZW50IGZvciB0ZXN0aW5nIHB1cnBvc2Vz",
+            "file_name": "main_contract.txt"
+        }
+        
+        try:
+            response = requests.post(f"{BASE_URL}/documents", json=document_data, headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                document_id = data.get('id')
+                self.log_result("POST /api/documents - Create Document", True, 
+                               f"Created document: {data.get('title')}")
+            else:
+                self.log_result("POST /api/documents - Create Document", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("POST /api/documents - Create Document", False, f"Error: {str(e)}")
+
+        # Test 4: Get Documents List
+        try:
+            response = requests.get(f"{BASE_URL}/documents?project_id={project_id}", headers=self.headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("GET /api/documents - List Documents", True, 
+                               f"Retrieved {len(data)} documents")
+            else:
+                self.log_result("GET /api/documents - List Documents", False, 
+                               f"Status: {response.status_code}", response.text)
+                
+        except Exception as e:
+            self.log_result("GET /api/documents - List Documents", False, f"Error: {str(e)}")
+
+    def test_authorization_and_rbac(self):
+        """Test Authorization & Role-Based Access Control"""
+        print("🔐 Testing Authorization & Role-Based Access Control...")
+        
+        # Test that admin can create budgets, invoices, POs (should work)
+        if hasattr(self, 'created_resources') and self.created_resources.get('projects'):
+            project_id = self.created_resources['projects'][0]
+            
+            # Test budget creation (should work for admin)
+            budget_data = {
+                "project_id": project_id,
+                "category": "labor",
+                "allocated_amount": 200000.0,
+                "description": "Labor cost allocation for construction work"
+            }
+            
+            try:
+                response = requests.post(f"{BASE_URL}/budgets", json=budget_data, headers=self.headers)
+                
+                if response.status_code == 200:
+                    self.log_result("Authorization - Admin Budget Creation", True, 
+                                   "Admin can create budgets (correct)")
+                else:
+                    self.log_result("Authorization - Admin Budget Creation", False, 
+                                   f"Admin cannot create budgets: Status {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("Authorization - Admin Budget Creation", False, f"Error: {str(e)}")
+
+            # Test invoice creation (should work for admin)
+            invoice_data = {
+                "project_id": project_id,
+                "client_name": "Authorization Test Client",
+                "client_address": "Test Address",
+                "client_phone": "+91-9999999999",
+                "items": [{"description": "Test Item", "quantity": 1, "rate": 1000, "amount": 1000}],
+                "subtotal": 1000.0,
+                "tax_percentage": 18.0,
+                "tax_amount": 180.0,
+                "total_amount": 1180.0,
+                "due_date": (datetime.now() + timedelta(days=30)).isoformat()
+            }
+            
+            try:
+                response = requests.post(f"{BASE_URL}/invoices", json=invoice_data, headers=self.headers)
+                
+                if response.status_code == 200:
+                    self.log_result("Authorization - Admin Invoice Creation", True, 
+                                   "Admin can create invoices (correct)")
+                else:
+                    self.log_result("Authorization - Admin Invoice Creation", False, 
+                                   f"Admin cannot create invoices: Status {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("Authorization - Admin Invoice Creation", False, f"Error: {str(e)}")
+
     def run_all_tests(self):
-        """Run all API tests"""
-        print("🚀 Starting Financial and Materials Management API Testing...")
-        print("=" * 70)
+        """Run all comprehensive API tests"""
+        print("🚀 Starting COMPREHENSIVE Construction Management API Testing...")
+        print("Testing ALL modules: Financial, Materials, Project Management, Authorization")
+        print("=" * 80)
         
         # Step 1: Authenticate
         if not self.authenticate():
@@ -625,12 +923,29 @@ class FinancialMaterialsAPITester:
             return False
         
         # Step 3: Run all API tests
-        self.test_invoices_management(project_id)
-        self.test_payments_management(project_id)
+        print("\n💰 MODULE 1: FINANCIAL MANAGEMENT")
+        print("-" * 50)
         self.test_budgets_management(project_id)
+        self.test_expenses_management(project_id)
+        self.test_invoices_management(project_id)
+        self.test_payments_management(project_id)  # Critical test - known issue
         self.test_financial_reports(project_id)
+        
+        print("\n🏗️ MODULE 2: MATERIALS MANAGEMENT")
+        print("-" * 50)
+        # Vendors and Materials APIs already tested in setup
         self.test_purchase_orders(project_id)
         self.test_material_requirements(project_id)
+        self.test_site_inventory_management(project_id)
+        self.test_material_transactions_management(project_id)
+        
+        print("\n📋 MODULE 3: PROJECT MANAGEMENT (Smoke Test)")
+        print("-" * 50)
+        self.test_project_management_smoke_test(project_id)
+        
+        print("\n🔐 MODULE 4: AUTHENTICATION & AUTHORIZATION")
+        print("-" * 50)
+        self.test_authorization_and_rbac()
         
         # Step 4: Print summary
         self.print_summary()
