@@ -4323,26 +4323,23 @@ async def create_user_by_admin(
     return UserResponse(**response_dict)
 
 
-# Inject database dependency into CRM routes
-from crm_routes import crm_router as crm_router_base
+# Setup CRM routes with proper dependency injection
+from crm_routes import crm_router, get_db_dep, get_current_user_dep
 
-# Create proper dependency overrides for CRM routes
-async def get_crm_db():
+# Override CRM dependencies with actual implementations
+def get_db_override():
     return db
 
-async def get_crm_current_user(current_user: dict = Depends(get_current_user)):
+def get_current_user_override(current_user: dict = Depends(get_current_user)):
     return current_user
 
-# Update CRM router dependencies
-crm_router_final = APIRouter(prefix="/api/crm", tags=["CRM"])
-
-# Re-register all CRM routes with proper dependencies
-for route in crm_router_base.routes:
-    crm_router_final.routes.append(route)
+# Apply dependency overrides
+crm_router.dependency_overrides[get_db_dep] = get_db_override
+crm_router.dependency_overrides[get_current_user_dep] = get_current_user_override
 
 # Include the routers in the main app
 app.include_router(api_router)
-app.include_router(crm_router_final)
+app.include_router(crm_router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
