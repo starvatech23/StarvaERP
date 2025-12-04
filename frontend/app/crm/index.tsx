@@ -121,16 +121,19 @@ export default function CRMLeadsScreen() {
           <Text style={styles.headerTitle}>CRM Leads</Text>
           <Text style={styles.headerSubtitle}>{leads.length} leads</Text>
         </View>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => setViewMode(viewMode === 'list' ? 'kanban' : 'list')}
-        >
-          <Ionicons name={viewMode === 'list' ? 'grid-outline' : 'list-outline'} size={24} color="#3B82F6" />
+        <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/crm/reports')}>
+          <Ionicons name="bar-chart-outline" size={24} color="#3B82F6" />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => router.push('/crm/leads/create')}
-        >
+        <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/crm/categories')}>
+          <Ionicons name="filing-outline" size={24} color="#3B82F6" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/crm/import')}>
+          <Ionicons name="cloud-upload-outline" size={24} color="#3B82F6" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/crm/settings')}>
+          <Ionicons name="settings-outline" size={24} color="#3B82F6" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.addButton} onPress={() => router.push('/crm/leads/create')}>
           <Ionicons name="add" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
