@@ -444,6 +444,11 @@ async def get_project(
         "completed": completed_tasks
     }
     
+    # Remove gantt_share_tokens to avoid ObjectId serialization issues
+    # This field will be populated separately via the gantt-share endpoints
+    if "gantt_share_tokens" in project_dict:
+        del project_dict["gantt_share_tokens"]
+    
     return ProjectResponse(**project_dict)
 
 @api_router.post("/projects", response_model=ProjectResponse)
