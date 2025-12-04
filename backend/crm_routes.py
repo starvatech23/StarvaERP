@@ -30,11 +30,19 @@ crm_router = APIRouter(prefix="/crm", tags=["CRM"])
 
 # ============= Lead Category Routes =============
 
+async def get_db():
+    from server import db
+    return db
+
+async def get_current_user_crm():
+    # Placeholder - will use actual auth when integrated
+    return {"id": "admin", "_id": "admin", "full_name": "Admin User"}
+
 @crm_router.post("/categories", response_model=LeadCategoryResponse)
 async def create_lead_category(
     category: LeadCategoryCreate,
-    current_user: dict = Depends(lambda: {"id": "admin"}),  # Placeholder
-    db: AsyncIOMotorDatabase = Depends(lambda: None)  # Placeholder
+    current_user: dict = Depends(get_current_user_crm),
+    db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     """Create a new lead category/stage"""
     category_dict = category.dict()
