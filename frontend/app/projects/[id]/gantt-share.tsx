@@ -9,9 +9,12 @@ import {
   ActivityIndicator,
   Alert,
   Share,
+  Clipboard,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 import { ganttShareAPI } from '../../../services/api';
 import GanttShareModal from '../../../components/GanttShareModal';
 
