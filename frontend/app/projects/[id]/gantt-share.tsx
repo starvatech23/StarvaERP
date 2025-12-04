@@ -42,7 +42,7 @@ export default function GanttShareLinksScreen() {
     }
   };
 
-  const handleRevoke = (token: string) => {
+  const handleRevoke = async (token: string) => {
     Alert.alert(
       'Revoke Share Link',
       'Are you sure? This link will no longer be accessible.',
@@ -53,20 +53,11 @@ export default function GanttShareLinksScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              console.log('Revoking share token:', token);
-              const response = await ganttShareAPI.revoke(id as string, token);
-              console.log('Revoke response:', response);
-              
-              // Immediately update the state to remove the deleted share
-              setShares(prevShares => prevShares.filter(share => share.token !== token));
-              
-              Alert.alert('Success', 'Share link revoked');
-              
-              // Reload shares from server to ensure sync
+              await ganttShareAPI.revoke(id as string, token);
+              // Reload the list
               await loadShares();
+              Alert.alert('Success', 'Share link revoked');
             } catch (error: any) {
-              console.error('Error revoking share:', error);
-              console.error('Error details:', error.response?.data);
               Alert.alert('Error', error.response?.data?.detail || 'Failed to revoke share link');
             }
           },
