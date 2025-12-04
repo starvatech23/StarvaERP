@@ -606,14 +606,14 @@ class ContactGanttTester:
 def main():
     """Main test execution"""
     tester = ContactGanttTester()
-    success, contact_results, gantt_results = tester.run_all_tests()
+    success = tester.run_all_tests()
     
     if success:
         print("\n✅ Backend testing completed successfully!")
-        return contact_results, gantt_results
+        return True
     else:
         print("\n❌ Backend testing completed with critical issues!")
-        return contact_results, gantt_results
+        return False
 
 if __name__ == "__main__":
     main()
