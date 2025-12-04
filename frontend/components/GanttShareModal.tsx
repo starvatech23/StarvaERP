@@ -10,8 +10,11 @@ import {
   Switch,
   Alert,
   Share,
+  Clipboard,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 import { ganttShareAPI } from '../services/api';
 
 interface GanttShareModalProps {
