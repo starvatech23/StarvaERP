@@ -703,7 +703,7 @@ async def add_project_contact(
         "project_id": project_id,
         "contact_snapshot": contact_dict,
         "action": "created",
-        "changed_by": current_user["id"],
+        "changed_by": str(current_user["_id"]),
         "changed_at": datetime.utcnow(),
         "changes": None
     }
