@@ -280,6 +280,8 @@ class ProjectResponse(ProjectBase):
     team_member_ids: List[str] = []
     team_members: List[ProjectTeamMember] = []  # Populated team member details
     task_count: Optional[Dict[str, int]] = None
+    contacts: List[ProjectContact] = []  # Contact hierarchy
+    gantt_share_tokens: List[GanttShareToken] = []  # Active share links
     created_at: datetime
     updated_at: datetime
 
