@@ -336,9 +336,9 @@ backend:
 
   - task: "Payments Management APIs"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
@@ -348,6 +348,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ BACKEND BUG: POST /api/payments and GET /api/payments APIs return 500 Internal Server Error. Backend logs show KeyError: 'project_id' in get_payments function at line 1294. The payments API is incorrectly looking for project_id field but payments are linked to invoices via invoice_id. This is a backend code bug that needs fixing in server.py."
+      - working: true
+        agent: "testing"
+        comment: "✅ PAYMENTS API FIXED: Successfully resolved the backend bug in POST /api/payments. Issues fixed: (1) KeyError 'project_id' - Updated create_payment function to correctly get project info via invoice relationship (payment -> invoice -> project), (2) PaymentResponse validation error - Added proper 'recorded_by' field mapping from 'created_by'. Verified with test: Created payment ₹50,000 via bank_transfer successfully. GET /api/payments also working correctly. Payment creation and listing fully functional."
 
   - task: "Financial Reports API"
     implemented: true
