@@ -15,7 +15,7 @@ from typing import Dict, Any, List
 import uuid
 
 # Configuration
-BASE_URL = "https://constructflow-41.preview.emergentagent.com/api"
+BASE_URL = "https://buildflow-79.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 class FinancialMaterialsAPITester:

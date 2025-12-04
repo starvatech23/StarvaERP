@@ -17,7 +17,7 @@ index 0000000..4b4df0e
 +import uuid
 +
 +# Configuration
-+BASE_URL = "https://constructflow-41.preview.emergentagent.com/api"
++BASE_URL = "https://buildflow-79.preview.emergentagent.com/api"
 +HEADERS = {"Content-Type": "application/json"}
 +
 +class ComprehensiveAPITester:
@@ -942,7 +942,7 @@ index 0000000..d5e99b0
 +from datetime import datetime, timedelta
 +import uuid
 +
-+BASE_URL = "https://constructflow-41.preview.emergentagent.com/api"
++BASE_URL = "https://buildflow-79.preview.emergentagent.com/api"
 +HEADERS = {"Content-Type": "application/json"}
 +
 +class FinalComprehensiveTest:
@@ -3197,7 +3197,7 @@ index 6f66500..da3a7ac 100644
 ------------+from typing import Dict, Any, Optional, List
 ------------+
 ------------+# Configuration
-------------+BACKEND_URL = "https://constructflow-41.preview.emergentagent.com/api"
+------------+BACKEND_URL = "https://buildflow-79.preview.emergentagent.com/api"
 ------------+TEST_USER_EMAIL = "admin@buildflow.com"
 ------------+TEST_USER_PASSWORD = "admin123"
 ------------+
@@ -4197,7 +4197,7 @@ index 6f66500..da3a7ac 100644
 -+import json
 -+from datetime import datetime, timedelta
 -+
--+BASE_URL = "https://constructflow-41.preview.emergentagent.com/api"
+-+BASE_URL = "https://buildflow-79.preview.emergentagent.com/api"
 -+HEADERS = {"Content-Type": "application/json"}
 -+
 -+def test_payments_api():
