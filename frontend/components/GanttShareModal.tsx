@@ -86,9 +86,12 @@ export default function GanttShareModal({ visible, projectId, onClose, onSuccess
   const handleCopy = () => {
     if (!generatedLink) return;
     
-    // For web
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+    // Use React Native Clipboard
+    if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(generatedLink);
+      Alert.alert('Copied', 'Link copied to clipboard');
+    } else {
+      Clipboard.setString(generatedLink);
       Alert.alert('Copied', 'Link copied to clipboard');
     }
   };
