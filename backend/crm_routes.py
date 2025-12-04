@@ -469,3 +469,238 @@ async def list_lead_activities(
 
 # More routes will be in the next part due to length...
 # (Integration Settings, WhatsApp Templates, Bulk Operations, etc.)
+
+
+# ============= Call Initiation Route =============
+
+@crm_router.post("/leads/{lead_id}/call")
+async def initiate_call(
+    lead_id: str,
+    from_number: Optional[str] = None,
+    current_user: dict = Depends(lambda: {"id": "admin", "full_name": "Admin"}),
+    db: AsyncIOMotorDatabase = Depends(lambda: None)
+):
+    """Initiate a call to a lead"""
+    lead = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    to_number = lead.get("primary_phone")
+    if not to_number:
+        raise HTTPException(status_code=400, detail="Lead has no phone number")
+    
+    settings = await db.integration_settings.find({"provider_name": {"$in": ["twilio", "plivo"]}}).to_list(length=10)
+    telephony_service = IntegrationServiceFactory.get_active_telephony_service(settings)
+    
+    if not telephony_service:
+        return {
+            "success": True,
+            "message": "Call initiated (MOCK - No service configured)",
+            "call_sid": f"MOCK_{lead_id}",
+            "to": to_number,
+            "status": "mock"
+        }
+    
+    try:
+        call_response = await telephony_service.initiate_call(to_number=to_number, from_number=from_number)
+        activity = {
+            "lead_id": lead_id,
+            "activity_type": LeadActivityType.CALL,
+            "title": "Call initiated",
+            "description": f"Call to {to_number}",
+            "call_sid": call_response.get("call_sid"),
+            "call_outcome": CallOutcome.CONNECTED if call_response.get("success") else CallOutcome.FAILED,
+            "created_by": current_user["id"],
+            "created_at": datetime.utcnow(),
+            "metadata": call_response
+        }
+        await db.lead_activities.insert_one(activity)
+        await db.leads.update_one({"_id": ObjectId(lead_id)}, {"$set": {"last_contacted": datetime.utcnow()}})
+        return {"success": True, "message": "Call initiated", "call_sid": call_response.get("call_sid"), "to": to_number, "status": call_response.get("status")}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to initiate call: {str(e)}")
+
+
+@crm_router.post("/leads/{lead_id}/whatsapp")
+async def send_whatsapp(
+    lead_id: str,
+    template_name: Optional[str] = None,
+    message: Optional[str] = None,
+    current_user: dict = Depends(lambda: {"id": "admin", "full_name": "Admin"}),
+    db: AsyncIOMotorDatabase = Depends(lambda: None)
+):
+    """Send WhatsApp message to a lead"""
+    lead = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    if not lead.get("whatsapp_consent"):
+        raise HTTPException(status_code=400, detail="Lead has not consented to WhatsApp messages")
+    
+    to_number = lead.get("primary_phone")
+    settings = await db.integration_settings.find({"provider_name": {"$regex": "whatsapp", "$options": "i"}}).to_list(length=10)
+    whatsapp_service = IntegrationServiceFactory.get_active_whatsapp_service(settings)
+    
+    if not whatsapp_service:
+        return {"success": True, "message": "WhatsApp sent (MOCK)", "message_sid": f"MOCK_{lead_id}", "to": to_number, "status": "mock"}
+    
+    try:
+        if template_name:
+            template = await db.whatsapp_templates.find_one({"name": template_name, "is_active": True})
+            if not template:
+                raise HTTPException(status_code=404, detail="Template not found")
+            response = await whatsapp_service.send_template_message(to_number=to_number, template_name=template_name, template_variables={"name": lead.get("name", "")})
+        elif message:
+            response = await whatsapp_service.send_text_message(to_number=to_number, message=message)
+        else:
+            raise HTTPException(status_code=400, detail="Either template_name or message required")
+        
+        activity = {
+            "lead_id": lead_id,
+            "activity_type": LeadActivityType.WHATSAPP,
+            "title": "WhatsApp message sent",
+            "description": message or f"Template: {template_name}",
+            "whatsapp_message_sid": response.get("message_sid"),
+            "whatsapp_delivery_status": WhatsAppDeliveryStatus.SENT,
+            "whatsapp_template_name": template_name,
+            "created_by": current_user["id"],
+            "created_at": datetime.utcnow(),
+            "metadata": response
+        }
+        await db.lead_activities.insert_one(activity)
+        await db.leads.update_one({"_id": ObjectId(lead_id)}, {"$set": {"last_contacted": datetime.utcnow()}})
+        return {"success": True, "message": "WhatsApp message sent", "message_sid": response.get("message_sid"), "to": to_number, "status": response.get("status")}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send WhatsApp: {str(e)}")
+
+
+# ============= Integration Settings & Templates (Admin) =============
+
+@crm_router.post("/settings/integrations", response_model=IntegrationSettingsResponse)
+async def create_integration_settings(settings: IntegrationSettingsCreate, current_user: dict = Depends(lambda: {"id": "admin"}), db: AsyncIOMotorDatabase = Depends(lambda: None)):
+    settings_dict = settings.dict()
+    settings_dict["created_at"] = datetime.utcnow()
+    settings_dict["updated_at"] = datetime.utcnow()
+    if settings.default_provider:
+        await db.integration_settings.update_many({"default_provider": True}, {"$set": {"default_provider": False}})
+    result = await db.integration_settings.insert_one(settings_dict)
+    settings_dict["id"] = str(result.inserted_id)
+    del settings_dict["_id"]
+    return IntegrationSettingsResponse(**settings_dict)
+
+
+@crm_router.get("/settings/integrations", response_model=List[IntegrationSettingsResponse])
+async def list_integration_settings(provider_name: Optional[str] = None, db: AsyncIOMotorDatabase = Depends(lambda: None)):
+    query = {"provider_name": provider_name} if provider_name else {}
+    settings = await db.integration_settings.find(query).to_list(length=100)
+    result = []
+    for setting in settings:
+        setting["id"] = str(setting["_id"])
+        if setting.get("auth_token"): setting["auth_token"] = "********"
+        if setting.get("whatsapp_access_token"): setting["whatsapp_access_token"] = "********"
+        result.append(IntegrationSettingsResponse(**{k: v for k, v in setting.items() if k != "_id"}))
+    return result
+
+
+@crm_router.put("/settings/integrations/{settings_id}", response_model=IntegrationSettingsResponse)
+async def update_integration_settings(settings_id: str, settings: IntegrationSettingsUpdate, current_user: dict = Depends(lambda: {"id": "admin"}), db: AsyncIOMotorDatabase = Depends(lambda: None)):
+    update_data = {k: v for k, v in settings.dict(exclude_unset=True).items()}
+    update_data["updated_at"] = datetime.utcnow()
+    result = await db.integration_settings.find_one_and_update({"_id": ObjectId(settings_id)}, {"$set": update_data}, return_document=True)
+    if not result:
+        raise HTTPException(status_code=404, detail="Integration settings not found")
+    result["id"] = str(result["_id"])
+    return IntegrationSettingsResponse(**{k: v for k, v in result.items() if k != "_id"})
+
+
+@crm_router.post("/whatsapp-templates", response_model=WhatsAppTemplateResponse)
+async def create_whatsapp_template(template: WhatsAppTemplateCreate, current_user: dict = Depends(lambda: {"id": "admin"}), db: AsyncIOMotorDatabase = Depends(lambda: None)):
+    template_dict = template.dict()
+    template_dict["created_at"] = datetime.utcnow()
+    template_dict["updated_at"] = datetime.utcnow()
+    result = await db.whatsapp_templates.insert_one(template_dict)
+    template_dict["id"] = str(result.inserted_id)
+    del template_dict["_id"]
+    return WhatsAppTemplateResponse(**template_dict)
+
+
+@crm_router.get("/whatsapp-templates", response_model=List[WhatsAppTemplateResponse])
+async def list_whatsapp_templates(category: Optional[str] = None, include_inactive: bool = False, db: AsyncIOMotorDatabase = Depends(lambda: None)):
+    query = {}
+    if category: query["category"] = category
+    if not include_inactive: query["is_active"] = True
+    templates = await db.whatsapp_templates.find(query).to_list(length=100)
+    result = []
+    for template in templates:
+        template["id"] = str(template["_id"])
+        result.append(WhatsAppTemplateResponse(**{k: v for k, v in template.items() if k != "_id"}))
+    return result
+
+
+# ============= Bulk Operations =============
+
+@crm_router.post("/leads/bulk-update")
+async def bulk_update_leads(bulk_update: LeadBulkUpdate, current_user: dict = Depends(lambda: {"id": "admin"}), db: AsyncIOMotorDatabase = Depends(lambda: None)):
+    lead_ids = [ObjectId(lid) for lid in bulk_update.lead_ids]
+    update_data = bulk_update.update_data
+    update_data["updated_at"] = datetime.utcnow()
+    result = await db.leads.update_many({"_id": {"$in": lead_ids}}, {"$set": update_data})
+    return {"success": True, "updated_count": result.modified_count, "message": f"Updated {result.modified_count} leads"}
+
+
+@crm_router.post("/leads/bulk-move")
+async def bulk_move_leads(bulk_move: LeadBulkMove, current_user: dict = Depends(lambda: {"id": "admin"}), db: AsyncIOMotorDatabase = Depends(lambda: None)):
+    category = await db.lead_categories.find_one({"_id": ObjectId(bulk_move.target_category_id)})
+    if not category:
+        raise HTTPException(status_code=404, detail="Target category not found")
+    lead_ids = [ObjectId(lid) for lid in bulk_move.lead_ids]
+    result = await db.leads.update_many({"_id": {"$in": lead_ids}}, {"$set": {"lead_category_id": bulk_move.target_category_id, "updated_at": datetime.utcnow()}})
+    return {"success": True, "moved_count": result.modified_count, "message": f"Moved {result.modified_count} leads to {category['name']}"}
+
+
+@crm_router.post("/leads/bulk-assign")
+async def bulk_assign_leads(bulk_assign: LeadBulkAssign, current_user: dict = Depends(lambda: {"id": "admin"}), db: AsyncIOMotorDatabase = Depends(lambda: None)):
+    user = await db.users.find_one({"_id": ObjectId(bulk_assign.assigned_to)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    lead_ids = [ObjectId(lid) for lid in bulk_assign.lead_ids]
+    result = await db.leads.update_many({"_id": {"$in": lead_ids}}, {"$set": {"assigned_to": bulk_assign.assigned_to, "updated_at": datetime.utcnow()}})
+    return {"success": True, "assigned_count": result.modified_count, "message": f"Assigned {result.modified_count} leads to {user['full_name']}"}
+
+
+@crm_router.post("/leads/import", response_model=LeadImportResponse)
+async def import_leads(leads: List[LeadImportItem], default_category_id: str, current_user: dict = Depends(lambda: {"id": "admin", "full_name": "Admin"}), db: AsyncIOMotorDatabase = Depends(lambda: None)):
+    success_count, failure_count, errors, imported_lead_ids = 0, 0, [], []
+    category = await db.lead_categories.find_one({"_id": ObjectId(default_category_id)})
+    if not category:
+        raise HTTPException(status_code=404, detail="Default category not found")
+    
+    for idx, lead_item in enumerate(leads):
+        try:
+            primary_norm, primary_raw, primary_valid = normalize_phone_india(lead_item.primary_phone)
+            if not primary_valid:
+                errors.append({"row": idx + 1, "error": "Invalid phone number", "data": lead_item.dict()})
+                failure_count += 1
+                continue
+            
+            lead_dict = lead_item.dict()
+            lead_dict.update({"primary_phone": primary_norm, "primary_phone_raw": primary_raw, "lead_category_id": default_category_id, "status": LeadStatus.NEW, "priority": LeadPriority.MEDIUM, "budget_currency": Currency.INR, "created_by": current_user["id"], "created_at": datetime.utcnow(), "updated_at": datetime.utcnow(), "activities_count": 0, "whatsapp_consent": False})
+            result = await db.leads.insert_one(lead_dict)
+            imported_lead_ids.append(str(result.inserted_id))
+            success_count += 1
+        except Exception as e:
+            errors.append({"row": idx + 1, "error": str(e), "data": lead_item.dict()})
+            failure_count += 1
+    
+    return LeadImportResponse(success_count=success_count, failure_count=failure_count, errors=errors, imported_lead_ids=imported_lead_ids)
+
+
+@crm_router.get("/leads/export")
+async def export_leads(category_id: Optional[str] = None, status: Optional[LeadStatus] = None, db: AsyncIOMotorDatabase = Depends(lambda: None)):
+    query = {}
+    if category_id: query["lead_category_id"] = category_id
+    if status: query["status"] = status
+    leads = await db.leads.find(query).to_list(length=10000)
+    export_data = [{"name": l.get("name"), "primary_phone": l.get("primary_phone"), "alternate_phone": l.get("alternate_phone"), "email": l.get("email"), "city": l.get("city"), "budget": l.get("budget"), "requirement": l.get("requirement"), "status": l.get("status"), "priority": l.get("priority"), "source": l.get("source"), "created_at": l.get("created_at").isoformat() if l.get("created_at") else None, "last_contacted": l.get("last_contacted").isoformat() if l.get("last_contacted") else None} for l in leads]
+    return {"success": True, "count": len(export_data), "data": export_data}
+
