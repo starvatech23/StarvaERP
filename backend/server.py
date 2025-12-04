@@ -48,13 +48,12 @@ from models import (
     InvoiceCreate, InvoiceUpdate, InvoiceResponse, InvoiceStatus, InvoiceItemBase,
     PaymentMethod,
     ProjectContact, ProjectContactUpdate, ProjectRole, ContactType,
+    GanttShareCreate, GanttShareResponse, GanttShareToken, GanttSharePermission,
+    ContactAudit
 )
 
 # Import CRM router
 from crm_routes import crm_router
-    GanttShareCreate, GanttShareResponse, GanttShareToken, GanttSharePermission,
-    ContactAudit
-)
 from auth import (
     get_password_hash, verify_password, create_access_token,
     get_current_user, require_role, security,
