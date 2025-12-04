@@ -284,6 +284,106 @@ class ProjectResponse(ProjectBase):
 class ProjectTeamUpdate(BaseModel):
     team_member_ids: List[str]
 
+# ============= Contact Hierarchy Models =============
+class ContactType(str, Enum):
+    INTERNAL = "internal"  # Existing user account
+    EXTERNAL = "external"  # External contact
+
+class ContactMethod(str, Enum):
+    PHONE = "phone"
+    EMAIL = "email"
+    SMS = "sms"
+    WHATSAPP = "whatsapp"
+
+class ProjectRole(str, Enum):
+    PROJECT_ENGINEER = "project_engineer"
+    PROJECT_MANAGER = "project_manager"
+    PROJECT_HEAD = "project_head"
+    OPERATIONS_EXECUTIVE = "operations_executive"
+    OPERATIONS_MANAGER = "operations_manager"
+    OPERATIONS_HEAD = "operations_head"
+
+class ProjectContact(BaseModel):
+    role: ProjectRole
+    type: ContactType
+    user_id: Optional[str] = None  # If internal user
+    name: str
+    phone_mobile: str
+    phone_alternate: Optional[str] = None
+    email: EmailStr
+    office_phone: Optional[str] = None
+    preferred_contact_method: ContactMethod = ContactMethod.PHONE
+    working_hours: Optional[str] = None  # e.g., "9 AM - 6 PM IST"
+    timezone: Optional[str] = None  # e.g., "Asia/Kolkata"
+    notes: Optional[str] = None
+    is_primary: bool = False  # For roles with multiple contacts
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    created_by: Optional[str] = None
+    updated_by: Optional[str] = None
+
+class ProjectContactUpdate(BaseModel):
+    role: Optional[ProjectRole] = None
+    type: Optional[ContactType] = None
+    user_id: Optional[str] = None
+    name: Optional[str] = None
+    phone_mobile: Optional[str] = None
+    phone_alternate: Optional[str] = None
+    email: Optional[EmailStr] = None
+    office_phone: Optional[str] = None
+    preferred_contact_method: Optional[ContactMethod] = None
+    working_hours: Optional[str] = None
+    timezone: Optional[str] = None
+    notes: Optional[str] = None
+    is_primary: Optional[bool] = None
+
+# ============= Gantt Share Models =============
+class GanttSharePermission(str, Enum):
+    VIEW_ONLY = "view_only"
+    DOWNLOADABLE = "downloadable"
+    EMBEDDABLE = "embeddable"
+
+class GanttShareToken(BaseModel):
+    token: str
+    permissions: List[GanttSharePermission] = [GanttSharePermission.VIEW_ONLY]
+    show_contacts: bool = False
+    password: Optional[str] = None  # Hashed password
+    expires_at: Optional[datetime] = None
+    created_at: datetime
+    created_by: str
+    views_count: int = 0
+    downloads_count: int = 0
+    last_viewed_at: Optional[datetime] = None
+    is_active: bool = True
+
+class GanttShareCreate(BaseModel):
+    permissions: List[GanttSharePermission] = [GanttSharePermission.VIEW_ONLY]
+    show_contacts: bool = False
+    password: Optional[str] = None
+    expires_at: Optional[datetime] = None
+
+class GanttShareResponse(BaseModel):
+    token: str
+    share_url: str
+    permissions: List[GanttSharePermission]
+    show_contacts: bool
+    has_password: bool
+    expires_at: Optional[datetime] = None
+    created_at: datetime
+    views_count: int
+    downloads_count: int
+    last_viewed_at: Optional[datetime] = None
+    is_active: bool
+
+# ============= Contact Audit Models =============
+class ContactAudit(BaseModel):
+    project_id: str
+    contact_snapshot: ProjectContact
+    action: str  # "created", "updated", "deleted"
+    changed_by: str
+    changed_at: datetime
+    changes: Optional[Dict[str, Any]] = None  # What fields changed
+
 # Task Models
 class TaskBase(BaseModel):
     title: str
