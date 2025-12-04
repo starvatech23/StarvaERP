@@ -25,21 +25,7 @@ from utils import (
 )
 from services import IntegrationServiceFactory
 
-# Import database and auth from server
-import sys
-sys.path.insert(0, '/app/backend')
-
 crm_router = APIRouter(prefix="/crm", tags=["CRM"])
-
-# Helper functions for dependencies
-async def get_db():
-    from server import db
-    return db
-
-async def get_current_user_crm():
-    # Placeholder - returns admin user
-    # In production, use actual auth: Depends(get_current_user)
-    return {"id": "admin", "_id": "admin", "full_name": "Admin User"}
 
 
 # ============= Lead Category Routes =============
