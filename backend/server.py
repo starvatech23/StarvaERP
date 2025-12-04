@@ -46,7 +46,10 @@ from models import (
     DocumentCreate, DocumentUpdate, DocumentResponse, DocumentType,
     BudgetCreate, BudgetUpdate, BudgetResponse, BudgetCategory,
     InvoiceCreate, InvoiceUpdate, InvoiceResponse, InvoiceStatus, InvoiceItemBase,
-    PaymentMethod
+    PaymentMethod,
+    ProjectContact, ProjectContactUpdate, ProjectRole, ContactType,
+    GanttShareCreate, GanttShareResponse, GanttShareToken, GanttSharePermission,
+    ContactAudit
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
