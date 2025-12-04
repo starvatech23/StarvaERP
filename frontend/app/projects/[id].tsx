@@ -209,6 +209,56 @@ export default function ProjectDetailsScreen() {
           )}
         </View>
 
+        {/* Quick Actions */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Quick Actions</Text>
+          <View style={styles.quickActionsGrid}>
+            <TouchableOpacity
+              style={styles.quickActionButton}
+              onPress={() => router.push(`/projects/${id}/contacts` as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#EFF6FF' }]}>
+                <Ionicons name="people" size={24} color="#3B82F6" />
+              </View>
+              <Text style={styles.quickActionLabel}>Contacts</Text>
+              <Text style={styles.quickActionSubtext}>Manage hierarchy</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
+              onPress={() => router.push(`/projects/${id}/gantt-share` as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#F0FDF4' }]}>
+                <Ionicons name="share-social" size={24} color="#10B981" />
+              </View>
+              <Text style={styles.quickActionLabel}>Share Gantt</Text>
+              <Text style={styles.quickActionSubtext}>Generate links</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
+              onPress={() => router.push(`/projects/${id}/milestones` as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#FEF3C7' }]}>
+                <Ionicons name="flag" size={24} color="#F59E0B" />
+              </View>
+              <Text style={styles.quickActionLabel}>Milestones</Text>
+              <Text style={styles.quickActionSubtext}>Track progress</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
+              onPress={() => router.push(`/projects/${id}/documents` as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#FEE2E2' }]}>
+                <Ionicons name="documents" size={24} color="#EF4444" />
+              </View>
+              <Text style={styles.quickActionLabel}>Documents</Text>
+              <Text style={styles.quickActionSubtext}>Files & docs</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {project.photos && project.photos.length > 0 && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Photos</Text>
