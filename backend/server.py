@@ -400,6 +400,11 @@ async def get_projects(
             "completed": completed_tasks
         }
         
+        # Remove gantt_share_tokens to avoid ObjectId serialization issues
+        # This field will be populated separately via the gantt-share endpoints
+        if "gantt_share_tokens" in project_dict:
+            del project_dict["gantt_share_tokens"]
+        
         result.append(ProjectResponse(**project_dict))
     
     return result
