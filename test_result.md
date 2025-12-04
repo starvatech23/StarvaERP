@@ -391,6 +391,30 @@ backend:
         agent: "testing"
         comment: "✅ MATERIAL REQUIREMENTS APIS MOSTLY WORKING: Successfully tested most operations: (1) GET /api/material-requirements - List requirements with project filtering working correctly, (2) GET /api/material-requirements?priority=high - Filter by priority working (retrieved 3 high priority requirements), (3) POST /api/material-requirements - Create requirement working but response missing some expected fields (fulfilled_quantity, fulfillment_status). Core functionality operational with minor data structure issue."
 
+  - task: "Project Contact Hierarchy APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py, /app/backend/models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented comprehensive contact hierarchy management for projects. Added 'Architect' role to ProjectRole enum. Created 5 new endpoints: (1) GET /api/projects/{project_id}/contacts - Retrieve all contacts for a project, (2) POST /api/projects/{project_id}/contacts - Add new contact to project, (3) PUT /api/projects/{project_id}/contacts/{contact_index} - Update existing contact, (4) DELETE /api/projects/{project_id}/contacts/{contact_index} - Remove contact from project, (5) POST /api/projects/{project_id}/contacts/validate - Validate that all 7 required roles are filled (architect, project_engineer, project_manager, project_head, operations_executive, operations_manager, operations_head). Contact model includes role, type (internal/external), user_id, name, phone, email, preferred contact method, working hours, timezone, and notes. Need to test all CRUD operations and validation logic."
+
+  - task: "Gantt Chart Share Link APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py, /app/backend/models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented secure shareable Gantt chart link feature with comprehensive permissions. CRITICAL BUG FIX: Changed current_user['id'] to current_user.get('id') to prevent KeyError. Created 5 new endpoints: (1) POST /api/projects/{project_id}/gantt-share - Generate new share link with token, permissions, password protection, expiry date, (2) GET /api/projects/{project_id}/gantt-share - List all share links for a project, (3) GET /api/projects/{project_id}/gantt-share/{token} - Access Gantt data via share token, (4) PUT /api/projects/{project_id}/gantt-share/{token} - Update share link settings, (5) DELETE /api/projects/{project_id}/gantt-share/{token} - Revoke/deactivate share link. Features include: secure token generation (32 bytes urlsafe), password protection with SHA256 hashing, granular permissions (view_only, export_pdf, export_png, export_csv), expiry dates, view/download tracking, contact visibility toggle. Only Admin and Project Manager can create/manage share links. Need to test link generation, access control, password verification, permission enforcement, and export functionality."
+
 frontend:
   - task: "Invoice Create Screen"
     implemented: true
