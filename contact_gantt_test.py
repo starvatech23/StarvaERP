@@ -394,7 +394,7 @@ class ContactGanttTester:
         # Test 2: POST /api/projects/{project_id}/gantt-share - Create share link with password
         try:
             share_data_with_password = {
-                "permissions": ["view_only", "export_pdf", "export_png", "export_csv"],
+                "permissions": ["view_only", "downloadable", "embeddable"],
                 "show_contacts": False,
                 "password": "secure123",
                 "expires_at": (datetime.utcnow() + timedelta(days=7)).isoformat()
