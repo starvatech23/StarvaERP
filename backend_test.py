@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Script for Financial and Materials Management APIs
-Tests all APIs that support the newly created frontend screens.
-Focus: Financial APIs (Invoices, Payments, Budgets, Reports) and Materials APIs (Purchase Orders, Material Requirements)
+Comprehensive Backend API Testing for Construction Management Application
+Testing ALL Financial and Materials Management modules as requested in review:
+- MODULE 1: FINANCIAL MANAGEMENT (Budgets, Expenses, Invoices, Payments, Financial Reports)
+- MODULE 2: MATERIALS MANAGEMENT (Vendors, Materials, Purchase Orders, Material Requirements, Site Inventory, Material Transactions)
+- MODULE 3: PROJECT MANAGEMENT (Milestones, Documents) - Smoke Test
+- MODULE 4: AUTHENTICATION & AUTHORIZATION - Role-based access control
 """
 
 import requests
