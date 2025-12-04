@@ -1015,23 +1015,24 @@ async def list_gantt_shares(
         "is_active": True
     }).to_list(100)
     
-    # Serialize each share document properly
+    # Manually serialize each share document to avoid ObjectId issues
     result = []
     for share in shares:
-        share_dict = serialize_doc(share)
-        
-        # Convert datetime objects to ISO format strings
-        if share_dict.get("created_at"):
-            share_dict["created_at"] = share_dict["created_at"].isoformat() if hasattr(share_dict["created_at"], 'isoformat') else str(share_dict["created_at"])
-        if share_dict.get("expires_at"):
-            share_dict["expires_at"] = share_dict["expires_at"].isoformat() if hasattr(share_dict["expires_at"], 'isoformat') else str(share_dict["expires_at"])
-        if share_dict.get("last_viewed_at"):
-            share_dict["last_viewed_at"] = share_dict["last_viewed_at"].isoformat() if hasattr(share_dict["last_viewed_at"], 'isoformat') else str(share_dict["last_viewed_at"])
-        
-        # Ensure permissions is a list of strings
-        if share_dict.get("permissions"):
-            share_dict["permissions"] = [str(p) for p in share_dict["permissions"]]
-        
+        share_dict = {
+            "id": str(share["_id"]),
+            "token": share.get("token", ""),
+            "project_id": share.get("project_id", ""),
+            "permissions": share.get("permissions", []),
+            "show_contacts": share.get("show_contacts", False),
+            "has_password": bool(share.get("password")),
+            "expires_at": share.get("expires_at").isoformat() if share.get("expires_at") else None,
+            "created_at": share.get("created_at").isoformat() if share.get("created_at") else None,
+            "created_by": str(share.get("created_by", "")),
+            "views_count": share.get("views_count", 0),
+            "downloads_count": share.get("downloads_count", 0),
+            "last_viewed_at": share.get("last_viewed_at").isoformat() if share.get("last_viewed_at") else None,
+            "is_active": share.get("is_active", True)
+        }
         result.append(share_dict)
     
     return result
