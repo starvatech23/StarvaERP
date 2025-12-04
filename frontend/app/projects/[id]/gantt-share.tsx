@@ -1,0 +1,408 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  Share,
+} from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { ganttShareAPI } from '../../../services/api';
+import GanttShareModal from '../../../components/GanttShareModal';
+
+export default function GanttShareLinksScreen() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [shares, setShares] = useState<any[]>([]);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    loadShares();
+  }, []);
+
+  const loadShares = async () => {
+    setLoading(true);
+    try {
+      const response = await ganttShareAPI.list(id as string);
+      setShares(response.data || []);
+    } catch (error) {
+      console.error('Error loading shares:', error);
+      Alert.alert('Error', 'Failed to load share links');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRevoke = (token: string) => {
+    Alert.alert(
+      'Revoke Share Link',
+      'Are you sure? This link will no longer be accessible.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Revoke',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await ganttShareAPI.revoke(id as string, token);
+              Alert.alert('Success', 'Share link revoked');
+              loadShares();
+            } catch (error) {
+              console.error('Error revoking share:', error);
+              Alert.alert('Error', 'Failed to revoke share link');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleShare = async (shareUrl: string, hasPassword: boolean) => {
+    const fullUrl = `${window.location.origin}${shareUrl}`;
+    try {
+      await Share.share({
+        message: `View Gantt Chart: ${fullUrl}${hasPassword ? '\n(Password protected)' : ''}`,
+        url: fullUrl,
+      });
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
+  const handleCopy = (shareUrl: string) => {
+    const fullUrl = `${window.location.origin}${shareUrl}`;
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(fullUrl);
+      Alert.alert('Copied', 'Link copied to clipboard');
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#3B82F6" />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Share Links</Text>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setShowModal(true)}
+        >
+          <Ionicons name="add" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={styles.content}>
+        {shares.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="share-social-outline" size={64} color="#CBD5E0" />
+            <Text style={styles.emptyText}>No share links yet</Text>
+            <Text style={styles.emptySubtext}>
+              Create a shareable Gantt link for stakeholders
+            </Text>
+            <TouchableOpacity
+              style={styles.emptyButton}
+              onPress={() => setShowModal(true)}
+            >
+              <Text style={styles.emptyButtonText}>Generate Link</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          shares.map((share) => (
+            <View key={share.token} style={styles.shareCard}>
+              <View style={styles.shareHeader}>
+                <View style={{ flex: 1 }}>
+                  <View style={styles.shareHeaderRow}>
+                    <Text style={styles.shareTitle}>Share Link</Text>
+                    {share.has_password && (
+                      <Ionicons name="lock-closed" size={16} color="#F59E0B" />
+                    )}
+                  </View>
+                  <Text style={styles.shareDate}>
+                    Created {formatDate(share.created_at)}
+                  </Text>
+                </View>
+                <TouchableOpacity onPress={() => handleRevoke(share.token)}>
+                  <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.shareUrl}>
+                <Text style={styles.urlText} numberOfLines={1}>
+                  {share.share_url}
+                </Text>
+              </View>
+
+              <View style={styles.shareDetails}>
+                <View style={styles.detailItem}>
+                  <Ionicons name="eye-outline" size={16} color="#718096" />
+                  <Text style={styles.detailText}>{share.views_count} views</Text>
+                </View>
+                <View style={styles.detailItem}>
+                  <Ionicons name="download-outline" size={16} color="#718096" />
+                  <Text style={styles.detailText}>{share.downloads_count} downloads</Text>
+                </View>
+                {share.expires_at && (
+                  <View style={styles.detailItem}>
+                    <Ionicons name="time-outline" size={16} color="#718096" />
+                    <Text style={styles.detailText}>
+                      Expires {formatDate(share.expires_at)}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.permissionTags}>
+                {share.permissions.map((perm: string) => (
+                  <View key={perm} style={styles.permissionTag}>
+                    <Text style={styles.permissionText}>
+                      {perm.replace('_', ' ')}
+                    </Text>
+                  </View>
+                ))}
+                {share.show_contacts && (
+                  <View style={[styles.permissionTag, { backgroundColor: '#FEF3C7' }]}>
+                    <Text style={[styles.permissionText, { color: '#92400E' }]}>
+                      Contacts visible
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.shareActions}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleCopy(share.share_url)}
+                >
+                  <Ionicons name="copy-outline" size={18} color="#3B82F6" />
+                  <Text style={styles.actionButtonText}>Copy</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleShare(share.share_url, share.has_password)}
+                >
+                  <Ionicons name="share-outline" size={18} color="#3B82F6" />
+                  <Text style={styles.actionButtonText}>Share</Text>
+                </TouchableOpacity>
+              </View>
+
+              {share.last_viewed_at && (
+                <Text style={styles.lastViewed}>
+                  Last viewed {formatDate(share.last_viewed_at)}
+                </Text>
+              )}
+            </View>
+          ))
+        )}
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
+
+      <GanttShareModal
+        visible={showModal}
+        projectId={id as string}
+        onClose={() => setShowModal(false)}
+        onSuccess={loadShares}
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F7FAFC',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F7FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#3B82F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A202C',
+  },
+  content: {
+    flex: 1,
+    padding: 16,
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 100,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4A5568',
+    marginTop: 16,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#718096',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  emptyButton: {
+    marginTop: 24,
+    backgroundColor: '#3B82F6',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  emptyButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  shareCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  shareHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  shareHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  shareTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A202C',
+  },
+  shareDate: {
+    fontSize: 12,
+    color: '#718096',
+    marginTop: 2,
+  },
+  shareUrl: {
+    backgroundColor: '#F7FAFC',
+    borderRadius: 6,
+    padding: 10,
+    marginBottom: 12,
+  },
+  urlText: {
+    fontSize: 12,
+    color: '#3B82F6',
+    fontFamily: 'monospace',
+  },
+  shareDetails: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    marginBottom: 12,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  detailText: {
+    fontSize: 13,
+    color: '#4A5568',
+  },
+  permissionTags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  permissionTag: {
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  permissionText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#1E40AF',
+    textTransform: 'capitalize',
+  },
+  shareActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#EFF6FF',
+    paddingVertical: 10,
+    borderRadius: 6,
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3B82F6',
+  },
+  lastViewed: {
+    fontSize: 11,
+    color: '#A0AEC0',
+    marginTop: 8,
+    textAlign: 'right',
+  },
+});
