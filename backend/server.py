@@ -739,7 +739,7 @@ async def update_project_contact(
     # Update contact fields
     update_dict = contact_update.dict(exclude_unset=True)
     update_dict["updated_at"] = datetime.utcnow()
-    update_dict["updated_by"] = current_user["id"]
+    update_dict["updated_by"] = str(current_user["_id"])
     
     # If setting as primary, unset other primary contacts for this role
     if update_dict.get("is_primary"):
