@@ -42,7 +42,7 @@ export default function GanttShareLinksScreen() {
     }
   };
 
-  const handleRevoke = async (token: string) => {
+  const handleRevoke = (token: string) => {
     Alert.alert(
       'Revoke Share Link',
       'Are you sure? This link will no longer be accessible.',
@@ -54,7 +54,6 @@ export default function GanttShareLinksScreen() {
           onPress: async () => {
             try {
               await ganttShareAPI.revoke(id as string, token);
-              // Reload the list
               await loadShares();
               Alert.alert('Success', 'Share link revoked');
             } catch (error: any) {
