@@ -27,6 +27,14 @@ from services import IntegrationServiceFactory
 
 crm_router = APIRouter(prefix="/crm", tags=["CRM"])
 
+# Dependency injection - db and current_user will be provided by server.py
+# These are placeholder signatures that will be overridden
+def get_db_dep():
+    pass
+
+def get_current_user_dep():
+    pass
+
 
 # ============= Lead Category Routes =============
 
