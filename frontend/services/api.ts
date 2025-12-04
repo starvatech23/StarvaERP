@@ -326,6 +326,7 @@ export const materialRequirementsAPI = {
 // Purchase Orders API
 export const purchaseOrdersAPI = {
   getAll: (params?: any) => api.get('/purchase-orders', { params }),
+  getById: (id: string) => api.get(`/purchase-orders/${id}`),
   create: (data: any) => api.post('/purchase-orders', data),
   update: (id: string, data: any) => api.put(`/purchase-orders/${id}`, data),
 };
