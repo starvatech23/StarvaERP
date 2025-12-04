@@ -682,8 +682,8 @@ async def add_project_contact(
     contact_dict = contact.dict()
     contact_dict["created_at"] = datetime.utcnow()
     contact_dict["updated_at"] = datetime.utcnow()
-    contact_dict["created_by"] = current_user["id"]
-    contact_dict["updated_by"] = current_user["id"]
+    contact_dict["created_by"] = str(current_user["_id"])
+    contact_dict["updated_by"] = str(current_user["_id"])
     
     # If setting as primary, unset other primary contacts for this role
     if contact.is_primary:
