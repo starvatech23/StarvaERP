@@ -828,6 +828,7 @@ async def validate_required_contacts(
     filled_roles = set(c.get("role") for c in contacts)
     
     required_roles = [
+        "architect",
         "project_engineer",
         "project_manager", 
         "project_head",
