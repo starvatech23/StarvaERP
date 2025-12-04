@@ -601,7 +601,7 @@ class ContactGanttTester:
         else:
             print(f"\n🚨 CRITICAL: {success_rate:.1f}% success rate - Major issues detected")
         
-        return success_rate >= 60, contact_results, gantt_results
+        return success_rate >= 60
 
 def main():
     """Main test execution"""
