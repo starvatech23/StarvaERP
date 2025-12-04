@@ -247,6 +247,7 @@ class ProjectBase(BaseModel):
 class ProjectCreate(ProjectBase):
     project_manager_id: Optional[str] = None
     team_member_ids: List[str] = []  # List of user IDs in the project team
+    contacts: List[ProjectContact] = []  # Contact hierarchy
 
 class ProjectUpdate(BaseModel):
     name: Optional[str] = None
@@ -262,6 +263,7 @@ class ProjectUpdate(BaseModel):
     project_manager_id: Optional[str] = None
     team_member_ids: Optional[List[str]] = None
     photos: Optional[List[str]] = None
+    contacts: Optional[List[ProjectContact]] = None
 
 class ProjectTeamMember(BaseModel):
     user_id: str
