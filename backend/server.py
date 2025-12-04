@@ -917,8 +917,8 @@ async def create_gantt_share_link(
         {"$push": {"gantt_share_tokens": share_token}}
     )
     
-    # Generate share URL
-    share_url = f"/projects/{project_id}/gantt-share/{token}"
+    # Generate share URL - point to public viewer frontend route
+    share_url = f"/public-gantt/{project_id}/{token}"
     
     return GanttShareResponse(
         token=token,
