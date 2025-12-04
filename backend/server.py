@@ -1010,7 +1010,20 @@ async def list_gantt_shares(
         "is_active": True
     }).to_list(100)
     
-    return [serialize_doc(s) for s in shares]
+    # Serialize each share document properly
+    result = []
+    for share in shares:
+        share_dict = serialize_doc(share)
+        # Convert datetime objects to ISO format strings
+        if share_dict.get("created_at"):
+            share_dict["created_at"] = share_dict["created_at"].isoformat() if hasattr(share_dict["created_at"], 'isoformat') else str(share_dict["created_at"])
+        if share_dict.get("expires_at"):
+            share_dict["expires_at"] = share_dict["expires_at"].isoformat() if hasattr(share_dict["expires_at"], 'isoformat') else str(share_dict["expires_at"])
+        if share_dict.get("last_viewed_at"):
+            share_dict["last_viewed_at"] = share_dict["last_viewed_at"].isoformat() if hasattr(share_dict["last_viewed_at"], 'isoformat') else str(share_dict["last_viewed_at"])
+        result.append(share_dict)
+    
+    return result
 
 @api_router.delete("/projects/{project_id}/gantt-share/{token}")
 async def revoke_gantt_share(
