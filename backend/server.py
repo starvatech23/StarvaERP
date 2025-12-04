@@ -621,6 +621,418 @@ async def delete_project(
     
     return {"message": "Project deleted successfully"}
 
+# ============= Project Contacts Routes =============
+
+@api_router.get("/projects/{project_id}/contacts")
+async def get_project_contacts(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all contacts for a project"""
+    current_user = await get_current_user(credentials)
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    contacts = project.get("contacts", [])
+    
+    # Enrich with user details if internal contact
+    enriched_contacts = []
+    for contact in contacts:
+        contact_dict = dict(contact)
+        if contact.get("type") == "internal" and contact.get("user_id"):
+            user = await get_user_by_id(contact["user_id"])
+            if user:
+                contact_dict["user_full_name"] = user.get("full_name")
+                contact_dict["user_email"] = user.get("email")
+        enriched_contacts.append(contact_dict)
+    
+    return enriched_contacts
+
+@api_router.post("/projects/{project_id}/contacts")
+async def add_project_contact(
+    project_id: str,
+    contact: ProjectContact,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Add a contact to a project"""
+    current_user = await get_current_user(credentials)
+    
+    # Check permissions
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can add contacts")
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Validate email and phone formats
+    import re
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    phone_pattern = r'^\+?[0-9]{10,15}$'
+    
+    if not re.match(email_pattern, contact.email):
+        raise HTTPException(status_code=400, detail="Invalid email format")
+    
+    if not re.match(phone_pattern, contact.phone_mobile):
+        raise HTTPException(status_code=400, detail="Invalid phone number format")
+    
+    # Add timestamps and audit info
+    contact_dict = contact.dict()
+    contact_dict["created_at"] = datetime.utcnow()
+    contact_dict["updated_at"] = datetime.utcnow()
+    contact_dict["created_by"] = current_user["id"]
+    contact_dict["updated_by"] = current_user["id"]
+    
+    # If setting as primary, unset other primary contacts for this role
+    if contact.is_primary:
+        contacts = project.get("contacts", [])
+        for c in contacts:
+            if c.get("role") == contact.role:
+                c["is_primary"] = False
+    
+    # Add contact to project
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$push": {"contacts": contact_dict}}
+    )
+    
+    # Create audit trail
+    audit_entry = {
+        "project_id": project_id,
+        "contact_snapshot": contact_dict,
+        "action": "created",
+        "changed_by": current_user["id"],
+        "changed_at": datetime.utcnow(),
+        "changes": None
+    }
+    await db.contact_audits.insert_one(audit_entry)
+    
+    return {"message": "Contact added successfully", "contact": contact_dict}
+
+@api_router.put("/projects/{project_id}/contacts/{contact_index}")
+async def update_project_contact(
+    project_id: str,
+    contact_index: int,
+    contact_update: ProjectContactUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a specific contact in a project"""
+    current_user = await get_current_user(credentials)
+    
+    # Check permissions
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can update contacts")
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    contacts = project.get("contacts", [])
+    if contact_index < 0 or contact_index >= len(contacts):
+        raise HTTPException(status_code=404, detail="Contact not found")
+    
+    # Store old contact for audit
+    old_contact = contacts[contact_index].copy()
+    
+    # Update contact fields
+    update_dict = contact_update.dict(exclude_unset=True)
+    update_dict["updated_at"] = datetime.utcnow()
+    update_dict["updated_by"] = current_user["id"]
+    
+    # If setting as primary, unset other primary contacts for this role
+    if update_dict.get("is_primary"):
+        new_role = update_dict.get("role", contacts[contact_index].get("role"))
+        for i, c in enumerate(contacts):
+            if i != contact_index and c.get("role") == new_role:
+                c["is_primary"] = False
+    
+    contacts[contact_index].update(update_dict)
+    
+    # Update in database
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$set": {"contacts": contacts}}
+    )
+    
+    # Create audit trail
+    changes = {k: {"old": old_contact.get(k), "new": v} for k, v in update_dict.items()}
+    audit_entry = {
+        "project_id": project_id,
+        "contact_snapshot": contacts[contact_index],
+        "action": "updated",
+        "changed_by": current_user["id"],
+        "changed_at": datetime.utcnow(),
+        "changes": changes
+    }
+    await db.contact_audits.insert_one(audit_entry)
+    
+    return {"message": "Contact updated successfully", "contact": contacts[contact_index]}
+
+@api_router.delete("/projects/{project_id}/contacts/{contact_index}")
+async def delete_project_contact(
+    project_id: str,
+    contact_index: int,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a contact from a project"""
+    current_user = await get_current_user(credentials)
+    
+    # Check permissions
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can delete contacts")
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    contacts = project.get("contacts", [])
+    if contact_index < 0 or contact_index >= len(contacts):
+        raise HTTPException(status_code=404, detail="Contact not found")
+    
+    deleted_contact = contacts.pop(contact_index)
+    
+    # Update in database
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$set": {"contacts": contacts}}
+    )
+    
+    # Create audit trail
+    audit_entry = {
+        "project_id": project_id,
+        "contact_snapshot": deleted_contact,
+        "action": "deleted",
+        "changed_by": current_user["id"],
+        "changed_at": datetime.utcnow(),
+        "changes": None
+    }
+    await db.contact_audits.insert_one(audit_entry)
+    
+    return {"message": "Contact deleted successfully"}
+
+@api_router.post("/projects/{project_id}/contacts/validate")
+async def validate_required_contacts(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Validate that all required contact roles are filled"""
+    current_user = await get_current_user(credentials)
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    contacts = project.get("contacts", [])
+    filled_roles = set(c.get("role") for c in contacts)
+    
+    required_roles = [
+        "project_engineer",
+        "project_manager", 
+        "project_head",
+        "operations_executive",
+        "operations_manager",
+        "operations_head"
+    ]
+    
+    missing_roles = [role for role in required_roles if role not in filled_roles]
+    
+    if missing_roles:
+        return {
+            "valid": False,
+            "missing_roles": missing_roles,
+            "message": f"Missing required roles: {', '.join(missing_roles)}"
+        }
+    
+    return {
+        "valid": True,
+        "missing_roles": [],
+        "message": "All required roles are filled"
+    }
+
+# ============= Gantt Share Routes =============
+
+import secrets
+import hashlib
+
+@api_router.post("/projects/{project_id}/gantt-share", response_model=GanttShareResponse)
+async def create_gantt_share_link(
+    project_id: str,
+    share_data: GanttShareCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Generate a shareable Gantt link for a project"""
+    current_user = await get_current_user(credentials)
+    
+    # Check permissions
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can create share links")
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Generate secure token
+    token = secrets.token_urlsafe(32)
+    
+    # Hash password if provided
+    hashed_password = None
+    if share_data.password:
+        hashed_password = hashlib.sha256(share_data.password.encode()).hexdigest()
+    
+    # Create share token document
+    share_token = {
+        "token": token,
+        "project_id": project_id,
+        "permissions": [p.value for p in share_data.permissions],
+        "show_contacts": share_data.show_contacts,
+        "password": hashed_password,
+        "expires_at": share_data.expires_at,
+        "created_at": datetime.utcnow(),
+        "created_by": current_user["id"],
+        "views_count": 0,
+        "downloads_count": 0,
+        "last_viewed_at": None,
+        "is_active": True
+    }
+    
+    await db.gantt_share_tokens.insert_one(share_token)
+    
+    # Add token to project
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$push": {"gantt_share_tokens": share_token}}
+    )
+    
+    # Generate share URL
+    share_url = f"/projects/{project_id}/gantt-share/{token}"
+    
+    return GanttShareResponse(
+        token=token,
+        share_url=share_url,
+        permissions=share_data.permissions,
+        show_contacts=share_data.show_contacts,
+        has_password=bool(hashed_password),
+        expires_at=share_data.expires_at,
+        created_at=share_token["created_at"],
+        views_count=0,
+        downloads_count=0,
+        last_viewed_at=None,
+        is_active=True
+    )
+
+@api_router.get("/projects/{project_id}/gantt-share/{token}")
+async def access_gantt_share(
+    project_id: str,
+    token: str,
+    password: Optional[str] = None
+):
+    """Access a shared Gantt chart (public endpoint)"""
+    # Find share token
+    share_token = await db.gantt_share_tokens.find_one({
+        "token": token,
+        "project_id": project_id,
+        "is_active": True
+    })
+    
+    if not share_token:
+        raise HTTPException(status_code=404, detail="Share link not found or expired")
+    
+    # Check expiration
+    if share_token.get("expires_at") and datetime.utcnow() > share_token["expires_at"]:
+        raise HTTPException(status_code=403, detail="Share link has expired")
+    
+    # Check password if required
+    if share_token.get("password"):
+        if not password:
+            raise HTTPException(status_code=401, detail="Password required")
+        
+        hashed_input = hashlib.sha256(password.encode()).hexdigest()
+        if hashed_input != share_token["password"]:
+            raise HTTPException(status_code=403, detail="Incorrect password")
+    
+    # Update view count and last viewed
+    await db.gantt_share_tokens.update_one(
+        {"_id": share_token["_id"]},
+        {
+            "$inc": {"views_count": 1},
+            "$set": {"last_viewed_at": datetime.utcnow()}
+        }
+    )
+    
+    # Get project data
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Get milestones and tasks for Gantt chart
+    milestones = await db.milestones.find({"project_id": project_id}).to_list(100)
+    tasks = await db.tasks.find({"project_id": project_id}).to_list(1000)
+    
+    # Prepare Gantt data
+    gantt_data = {
+        "project": {
+            "id": str(project["_id"]),
+            "name": project.get("name"),
+            "start_date": project.get("start_date"),
+            "end_date": project.get("end_date"),
+            "status": project.get("status")
+        },
+        "milestones": [serialize_doc(m) for m in milestones],
+        "tasks": [serialize_doc(t) for t in tasks],
+        "permissions": share_token.get("permissions", []),
+        "show_contacts": share_token.get("show_contacts", False)
+    }
+    
+    # Include contacts if allowed
+    if share_token.get("show_contacts"):
+        gantt_data["contacts"] = project.get("contacts", [])
+    
+    return gantt_data
+
+@api_router.get("/projects/{project_id}/gantt-share")
+async def list_gantt_shares(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """List all active share links for a project"""
+    current_user = await get_current_user(credentials)
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    shares = await db.gantt_share_tokens.find({
+        "project_id": project_id,
+        "is_active": True
+    }).to_list(100)
+    
+    return [serialize_doc(s) for s in shares]
+
+@api_router.delete("/projects/{project_id}/gantt-share/{token}")
+async def revoke_gantt_share(
+    project_id: str,
+    token: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Revoke a Gantt share link"""
+    current_user = await get_current_user(credentials)
+    
+    # Check permissions
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and project managers can revoke share links")
+    
+    result = await db.gantt_share_tokens.update_one(
+        {"token": token, "project_id": project_id},
+        {"$set": {"is_active": False}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Share link not found")
+    
+    return {"message": "Share link revoked successfully"}
+
 # ============= Tasks Routes =============
 
 async def get_task_subtasks(task_id: str):
