@@ -48,6 +48,10 @@ from models import (
     InvoiceCreate, InvoiceUpdate, InvoiceResponse, InvoiceStatus, InvoiceItemBase,
     PaymentMethod,
     ProjectContact, ProjectContactUpdate, ProjectRole, ContactType,
+)
+
+# Import CRM router
+from crm_routes import crm_router
     GanttShareCreate, GanttShareResponse, GanttShareToken, GanttSharePermission,
     ContactAudit
 )
