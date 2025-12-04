@@ -1027,7 +1027,7 @@ async def list_gantt_shares(
         share_dict = {
             "id": str(share["_id"]),
             "token": token,
-            "share_url": f"/projects/{project_id}/gantt-share/{token}",  # Add share_url
+            "share_url": f"/public-gantt/{project_id}/{token}",  # Point to public viewer frontend route
             "project_id": share.get("project_id", ""),
             "permissions": share.get("permissions", []),
             "show_contacts": share.get("show_contacts", False),
