@@ -19,6 +19,7 @@ import { projectContactsAPI, usersAPI } from '../../../services/api';
 import ModalSelector from '../../../components/ModalSelector';
 
 const REQUIRED_ROLES = [
+  { key: 'architect', label: 'Architect', icon: 'hammer' },
   { key: 'project_engineer', label: 'Project Engineer', icon: 'construct' },
   { key: 'project_manager', label: 'Project Manager', icon: 'briefcase' },
   { key: 'project_head', label: 'Project Head', icon: 'ribbon' },
