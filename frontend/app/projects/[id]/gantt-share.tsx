@@ -67,8 +67,7 @@ export default function GanttShareLinksScreen() {
   };
 
   const handleShare = async (shareUrl: string, hasPassword: boolean) => {
-    const baseUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || 
-                   process.env.EXPO_PUBLIC_BACKEND_URL || 
+    const baseUrl = process.env.EXPO_PUBLIC_BACKEND_URL || 
                    'https://buildflow-79.preview.emergentagent.com';
     const fullUrl = `${baseUrl}${shareUrl}`;
     try {
@@ -82,8 +81,7 @@ export default function GanttShareLinksScreen() {
   };
 
   const handleCopy = (shareUrl: string) => {
-    const baseUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || 
-                   process.env.EXPO_PUBLIC_BACKEND_URL || 
+    const baseUrl = process.env.EXPO_PUBLIC_BACKEND_URL || 
                    'https://buildflow-79.preview.emergentagent.com';
     const fullUrl = `${baseUrl}${shareUrl}`;
     
