@@ -1023,9 +1023,11 @@ async def list_gantt_shares(
     # Manually serialize each share document to avoid ObjectId issues
     result = []
     for share in shares:
+        token = share.get("token", "")
         share_dict = {
             "id": str(share["_id"]),
-            "token": share.get("token", ""),
+            "token": token,
+            "share_url": f"/projects/{project_id}/gantt-share/{token}",  # Add share_url
             "project_id": share.get("project_id", ""),
             "permissions": share.get("permissions", []),
             "show_contacts": share.get("show_contacts", False),
