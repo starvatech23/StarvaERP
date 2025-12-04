@@ -88,11 +88,9 @@ export default function ImportLeadsScreen() {
             <Text style={styles.codeText}>name, primary_phone, alternate_phone, email, city, budget, requirement</Text>
           </View>
           <Text style={styles.instructionText}>
-            • Phone numbers must be in +91XXXXXXXXXX format{'
-'}
-            • All leads will be assigned to the selected category{'
-'}
-            • Invalid entries will be skipped with error report
+            {'\u2022'} Phone numbers must be in +91XXXXXXXXXX format{'\n'}
+            {'\u2022'} All leads will be assigned to the selected category{'\n'}
+            {'\u2022'} Invalid entries will be skipped with error report
           </Text>
         </View>
 
