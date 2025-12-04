@@ -1019,6 +1019,7 @@ async def list_gantt_shares(
     result = []
     for share in shares:
         share_dict = serialize_doc(share)
+        
         # Convert datetime objects to ISO format strings
         if share_dict.get("created_at"):
             share_dict["created_at"] = share_dict["created_at"].isoformat() if hasattr(share_dict["created_at"], 'isoformat') else str(share_dict["created_at"])
@@ -1026,6 +1027,11 @@ async def list_gantt_shares(
             share_dict["expires_at"] = share_dict["expires_at"].isoformat() if hasattr(share_dict["expires_at"], 'isoformat') else str(share_dict["expires_at"])
         if share_dict.get("last_viewed_at"):
             share_dict["last_viewed_at"] = share_dict["last_viewed_at"].isoformat() if hasattr(share_dict["last_viewed_at"], 'isoformat') else str(share_dict["last_viewed_at"])
+        
+        # Ensure permissions is a list of strings
+        if share_dict.get("permissions"):
+            share_dict["permissions"] = [str(p) for p in share_dict["permissions"]]
+        
         result.append(share_dict)
     
     return result
