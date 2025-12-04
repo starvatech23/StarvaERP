@@ -1340,8 +1340,16 @@ async def create_payment(
     
     payment_dict = serialize_doc(payment_dict)
     
-    project = await db.projects.find_one({"_id": ObjectId(payment_dict["project_id"])})
-    payment_dict["project_name"] = project["name"] if project else "Unknown"
+    # Get invoice to get project info (payments are linked to invoices, not directly to projects)
+    invoice = await db.invoices.find_one({"_id": ObjectId(payment_dict.get("invoice_id"))}) if payment_dict.get("invoice_id") else None
+    if invoice:
+        payment_dict["invoice_number"] = invoice.get("invoice_number")
+        payment_dict["project_id"] = invoice.get("project_id")
+        project = await db.projects.find_one({"_id": ObjectId(invoice["project_id"])}) if invoice.get("project_id") else None
+        payment_dict["project_name"] = project["name"] if project else "Unknown"
+    else:
+        payment_dict["project_name"] = "Unknown"
+    
     payment_dict["created_by_name"] = current_user["full_name"]
     
     # Log activity
