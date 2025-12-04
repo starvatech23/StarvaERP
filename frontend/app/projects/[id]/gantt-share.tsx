@@ -53,12 +53,21 @@ export default function GanttShareLinksScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await ganttShareAPI.revoke(id as string, token);
+              console.log('Revoking share token:', token);
+              const response = await ganttShareAPI.revoke(id as string, token);
+              console.log('Revoke response:', response);
+              
+              // Immediately update the state to remove the deleted share
+              setShares(prevShares => prevShares.filter(share => share.token !== token));
+              
               Alert.alert('Success', 'Share link revoked');
-              loadShares();
-            } catch (error) {
+              
+              // Reload shares from server to ensure sync
+              await loadShares();
+            } catch (error: any) {
               console.error('Error revoking share:', error);
-              Alert.alert('Error', 'Failed to revoke share link');
+              console.error('Error details:', error.response?.data);
+              Alert.alert('Error', error.response?.data?.detail || 'Failed to revoke share link');
             }
           },
         },
