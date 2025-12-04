@@ -316,6 +316,12 @@ export const siteInventoryAPI = {
   update: (id: string, data: any) => api.put(`/site-inventory/${id}`, data),
 };
 
+// Inventory API (alias for material scan screen)
+export const inventoryAPI = {
+  getAll: (params?: any) => api.get('/site-inventory', { params }),
+  createTransaction: (data: any) => api.post('/material-transactions', data),
+};
+
 // Material Requirements API
 export const materialRequirementsAPI = {
   getAll: (params?: any) => api.get('/material-requirements', { params }),
