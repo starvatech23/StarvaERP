@@ -242,6 +242,7 @@ class ContactMethod(str, Enum):
     WHATSAPP = "whatsapp"
 
 class ProjectRole(str, Enum):
+    ARCHITECT = "architect"
     PROJECT_ENGINEER = "project_engineer"
     PROJECT_MANAGER = "project_manager"
     PROJECT_HEAD = "project_head"
