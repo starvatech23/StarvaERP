@@ -54,7 +54,11 @@ export default function GanttShareModal({ visible, projectId, onClose, onSuccess
         expires_at: expiresAt,
       });
 
-      const fullUrl = `${window.location.origin}${response.data.share_url}`;
+      // Get base URL from environment variable
+      const baseUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || 
+                     process.env.EXPO_PUBLIC_BACKEND_URL || 
+                     'https://buildflow-79.preview.emergentagent.com';
+      const fullUrl = `${baseUrl}${response.data.share_url}`;
       setGeneratedLink(fullUrl);
       Alert.alert('Success', 'Share link generated successfully!');
       if (onSuccess) onSuccess();
