@@ -322,6 +322,24 @@ export const inventoryAPI = {
   createTransaction: (data: any) => api.post('/material-transactions', data),
 };
 
+// Project Contacts API
+export const projectContactsAPI = {
+  getAll: (projectId: string) => api.get(`/projects/${projectId}/contacts`),
+  add: (projectId: string, data: any) => api.post(`/projects/${projectId}/contacts`, data),
+  update: (projectId: string, index: number, data: any) => api.put(`/projects/${projectId}/contacts/${index}`, data),
+  delete: (projectId: string, index: number) => api.delete(`/projects/${projectId}/contacts/${index}`),
+  validate: (projectId: string) => api.post(`/projects/${projectId}/contacts/validate`),
+};
+
+// Gantt Share API
+export const ganttShareAPI = {
+  create: (projectId: string, data: any) => api.post(`/projects/${projectId}/gantt-share`, data),
+  list: (projectId: string) => api.get(`/projects/${projectId}/gantt-share`),
+  access: (projectId: string, token: string, password?: string) => 
+    api.get(`/projects/${projectId}/gantt-share/${token}`, { params: { password } }),
+  revoke: (projectId: string, token: string) => api.delete(`/projects/${projectId}/gantt-share/${token}`),
+};
+
 // Material Requirements API
 export const materialRequirementsAPI = {
   getAll: (params?: any) => api.get('/material-requirements', { params }),
