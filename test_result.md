@@ -601,9 +601,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Comprehensive testing of all Financial and Materials Management APIs completed"
+    - "Project Contact Hierarchy APIs"
+    - "Gantt Chart Share Link APIs"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
   - agent: "main"
