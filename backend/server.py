@@ -1352,6 +1352,10 @@ async def create_payment(
     
     payment_dict["created_by_name"] = current_user["full_name"]
     
+    # Ensure required fields exist for PaymentResponse
+    if "recorded_by" not in payment_dict:
+        payment_dict["recorded_by"] = payment_dict.get("created_by", str(current_user["_id"]))
+    
     # Log activity
     await log_activity(
         db, current_user["_id"], "payment_added",
