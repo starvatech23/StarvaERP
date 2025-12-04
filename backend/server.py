@@ -882,6 +882,7 @@ async def create_gantt_share_link(
         hashed_password = hashlib.sha256(share_data.password.encode()).hexdigest()
     
     # Create share token document
+    user_id = current_user.get("id") or current_user.get("_id") or str(current_user.get("_id"))
     share_token = {
         "token": token,
         "project_id": project_id,
@@ -890,7 +891,7 @@ async def create_gantt_share_link(
         "password": hashed_password,
         "expires_at": share_data.expires_at,
         "created_at": datetime.utcnow(),
-        "created_by": current_user["id"],
+        "created_by": user_id,
         "views_count": 0,
         "downloads_count": 0,
         "last_viewed_at": None,
