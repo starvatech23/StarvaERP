@@ -1696,6 +1696,7 @@ class FunnelUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     is_active: Optional[bool] = None
+    category_ids: Optional[List[str]] = None
     stages: Optional[List[FunnelStageBase]] = None
     custom_field_ids: Optional[List[str]] = None
     assigned_to_users: Optional[List[str]] = None
