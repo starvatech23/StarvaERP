@@ -138,7 +138,36 @@ export const scheduleAPI = {
   delete: (id: string) => api.delete(`/schedules/${id}`),
 };
 
-// CRM APIs - Will be rebuilt in Phase 2
+// CRM APIs - Phase 2 Rebuild
+export const crmLeadsAPI = {
+  getAll: (params?: any) => api.get('/crm/leads', { params }),
+  getById: (id: string) => api.get(`/crm/leads/${id}`),
+  create: (data: any) => api.post('/crm/leads', data),
+  update: (id: string, data: any) => api.put(`/crm/leads/${id}`, data),
+  delete: (id: string) => api.delete(`/crm/leads/${id}`),
+  bulkUpdate: (data: any) => api.post('/crm/leads/bulk-update', data),
+  bulkAssign: (data: any) => api.post('/crm/leads/bulk-assign', data),
+  importLeads: (leads: any[], categoryId: string) => api.post(`/crm/leads/import?default_category_id=${categoryId}`, leads),
+};
+
+export const crmActivitiesAPI = {
+  getByLead: (leadId: string) => api.get(`/crm/leads/${leadId}/activities`),
+  create: (leadId: string, data: any) => api.post(`/crm/leads/${leadId}/activities`, data),
+  logCall: (leadId: string, data: any) => api.post(`/crm/leads/${leadId}/call`, data),
+  sendWhatsApp: (leadId: string, data: any) => api.post(`/crm/leads/${leadId}/whatsapp`, data),
+};
+
+export const crmCategoriesAPI = {
+  getAll: () => api.get('/crm/categories'),
+  create: (data: any) => api.post('/crm/categories', data),
+  update: (id: string, data: any) => api.put(`/crm/categories/${id}`, data),
+  reorder: (data: any[]) => api.put('/crm/categories/reorder', data),
+};
+
+export const crmConfigAPI = {
+  get: () => api.get('/crm/config'),
+  update: (data: any) => api.put('/crm/config', data),
+};
 
 // Payments API (Old - kept for compatibility)
 // Replaced by enhanced paymentsAPI below
