@@ -302,8 +302,8 @@ const getStatusColor = (status) => {
   return colors[status] || '#6B7280';
 };
 
-const getPriorityColor = (priority: string) => {
-  const colors: any = {
+const getPriorityColor = (priority) => {
+  const colors = {
     urgent: '#EF4444',
     high: '#F59E0B',
     medium: '#3B82F6',
