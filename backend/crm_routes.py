@@ -47,7 +47,7 @@ async def get_current_user_crm():
 @crm_router.post("/categories", response_model=LeadCategoryResponse)
 async def create_lead_category(
     category: LeadCategoryCreate,
-    current_user: dict = Depends(get_current_user_dep),
+    current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Create a new lead category/stage"""
@@ -91,7 +91,7 @@ async def list_lead_categories(
 async def update_lead_category(
     category_id: str,
     category: LeadCategoryUpdate,
-    current_user: dict = Depends(get_current_user_dep),
+    current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Update a lead category"""
@@ -118,7 +118,7 @@ async def update_lead_category(
 @crm_router.delete("/categories/{category_id}")
 async def delete_lead_category(
     category_id: str,
-    current_user: dict = Depends(get_current_user_dep),
+    current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Delete a lead category (only if no leads assigned)"""
@@ -146,7 +146,7 @@ async def delete_lead_category(
 @crm_router.post("/leads", response_model=LeadResponse)
 async def create_lead(
     lead: LeadCreate,
-    current_user: dict = Depends(get_current_user_dep),
+    current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Create a new lead with phone normalization"""
@@ -354,7 +354,7 @@ async def get_lead(
 async def update_lead(
     lead_id: str,
     lead: LeadUpdate,
-    current_user: dict = Depends(get_current_user_dep),
+    current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Update a lead"""
@@ -405,7 +405,7 @@ async def update_lead(
 @crm_router.delete("/leads/{lead_id}")
 async def delete_lead(
     lead_id: str,
-    current_user: dict = Depends(get_current_user_dep),
+    current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Delete a lead"""
@@ -425,7 +425,7 @@ async def delete_lead(
 async def create_lead_activity(
     lead_id: str,
     activity: LeadActivityCreate,
-    current_user: dict = Depends(get_current_user_dep),
+    current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Create a new activity for a lead"""
@@ -491,7 +491,7 @@ async def list_lead_activities(
 async def initiate_call(
     lead_id: str,
     from_number: Optional[str] = None,
-    current_user: dict = Depends(get_current_user_dep),
+    current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Initiate a call to a lead"""
@@ -540,7 +540,7 @@ async def send_whatsapp(
     lead_id: str,
     template_name: Optional[str] = None,
     message: Optional[str] = None,
-    current_user: dict = Depends(get_current_user_dep),
+    current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Send WhatsApp message to a lead"""
@@ -591,7 +591,7 @@ async def send_whatsapp(
 # ============= Integration Settings & Templates (Admin) =============
 
 @crm_router.post("/settings/integrations", response_model=IntegrationSettingsResponse)
-async def create_integration_settings(settings: IntegrationSettingsCreate, current_user: dict = Depends(get_current_user_dep), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def create_integration_settings(settings: IntegrationSettingsCreate, current_user: dict = Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     settings_dict = settings.dict()
     settings_dict["created_at"] = datetime.utcnow()
     settings_dict["updated_at"] = datetime.utcnow()
@@ -617,7 +617,7 @@ async def list_integration_settings(provider_name: Optional[str] = None, db: Asy
 
 
 @crm_router.put("/settings/integrations/{settings_id}", response_model=IntegrationSettingsResponse)
-async def update_integration_settings(settings_id: str, settings: IntegrationSettingsUpdate, current_user: dict = Depends(get_current_user_dep), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def update_integration_settings(settings_id: str, settings: IntegrationSettingsUpdate, current_user: dict = Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     update_data = {k: v for k, v in settings.dict(exclude_unset=True).items()}
     update_data["updated_at"] = datetime.utcnow()
     result = await db.integration_settings.find_one_and_update({"_id": ObjectId(settings_id)}, {"$set": update_data}, return_document=True)
@@ -628,7 +628,7 @@ async def update_integration_settings(settings_id: str, settings: IntegrationSet
 
 
 @crm_router.post("/whatsapp-templates", response_model=WhatsAppTemplateResponse)
-async def create_whatsapp_template(template: WhatsAppTemplateCreate, current_user: dict = Depends(get_current_user_dep), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def create_whatsapp_template(template: WhatsAppTemplateCreate, current_user: dict = Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     template_dict = template.dict()
     template_dict["created_at"] = datetime.utcnow()
     template_dict["updated_at"] = datetime.utcnow()
@@ -654,7 +654,7 @@ async def list_whatsapp_templates(category: Optional[str] = None, include_inacti
 # ============= Bulk Operations =============
 
 @crm_router.post("/leads/bulk-update")
-async def bulk_update_leads(bulk_update: LeadBulkUpdate, current_user: dict = Depends(get_current_user_dep), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def bulk_update_leads(bulk_update: LeadBulkUpdate, current_user: dict = Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     lead_ids = [ObjectId(lid) for lid in bulk_update.lead_ids]
     update_data = bulk_update.update_data
     update_data["updated_at"] = datetime.utcnow()
@@ -663,7 +663,7 @@ async def bulk_update_leads(bulk_update: LeadBulkUpdate, current_user: dict = De
 
 
 @crm_router.post("/leads/bulk-move")
-async def bulk_move_leads(bulk_move: LeadBulkMove, current_user: dict = Depends(get_current_user_dep), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def bulk_move_leads(bulk_move: LeadBulkMove, current_user: dict = Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     category = await db.lead_categories.find_one({"_id": ObjectId(bulk_move.target_category_id)})
     if not category:
         raise HTTPException(status_code=404, detail="Target category not found")
@@ -673,7 +673,7 @@ async def bulk_move_leads(bulk_move: LeadBulkMove, current_user: dict = Depends(
 
 
 @crm_router.post("/leads/bulk-assign")
-async def bulk_assign_leads(bulk_assign: LeadBulkAssign, current_user: dict = Depends(get_current_user_dep), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def bulk_assign_leads(bulk_assign: LeadBulkAssign, current_user: dict = Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     user = await db.users.find_one({"_id": ObjectId(bulk_assign.assigned_to)})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -683,7 +683,7 @@ async def bulk_assign_leads(bulk_assign: LeadBulkAssign, current_user: dict = De
 
 
 @crm_router.post("/leads/import", response_model=LeadImportResponse)
-async def import_leads(leads: List[LeadImportItem], default_category_id: str, current_user: dict = Depends(get_current_user_dep), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def import_leads(leads: List[LeadImportItem], default_category_id: str, current_user: dict = Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     success_count, failure_count, errors, imported_lead_ids = 0, 0, [], []
     category = await db.lead_categories.find_one({"_id": ObjectId(default_category_id)})
     if not category:
