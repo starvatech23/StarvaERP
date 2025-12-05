@@ -289,8 +289,8 @@ export default function LeadDetailScreen() {
   );
 }
 
-const getStatusColor = (status: string) => {
-  const colors: any = {
+const getStatusColor = (status) => {
+  const colors = {
     new: '#3B82F6',
     contacted: '#8B5CF6',
     qualified: '#F59E0B',
