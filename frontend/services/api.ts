@@ -169,6 +169,48 @@ export const crmConfigAPI = {
   update: (data: any) => api.put('/crm/config', data),
 };
 
+// CRM Dashboard Stats
+export const crmDashboardAPI = {
+  getStats: () => api.get('/crm/dashboard/stats'),
+};
+
+// Custom Fields
+export const crmCustomFieldsAPI = {
+  getAll: () => api.get('/crm/custom-fields'),
+  create: (data: any) => api.post('/crm/custom-fields', data),
+  update: (id: string, data: any) => api.put(`/crm/custom-fields/${id}`, data),
+  delete: (id: string) => api.delete(`/crm/custom-fields/${id}`),
+};
+
+// Funnels
+export const crmFunnelsAPI = {
+  getAll: () => api.get('/crm/funnels'),
+  getById: (id: string) => api.get(`/crm/funnels/${id}`),
+  create: (data: any) => api.post('/crm/funnels', data),
+  update: (id: string, data: any) => api.put(`/crm/funnels/${id}`, data),
+  delete: (id: string) => api.delete(`/crm/funnels/${id}`),
+  clone: (id: string, newName: string) => api.post(`/crm/funnels/${id}/clone?new_name=${encodeURIComponent(newName)}`),
+  getAnalytics: (id: string) => api.get(`/crm/funnels/${id}/analytics`),
+};
+
+// Permission Matrix
+export const crmPermissionsAPI = {
+  getMatrix: () => api.get('/crm/permissions/matrix'),
+};
+
+// Lead Import/Export
+export const crmImportExportAPI = {
+  exportLeads: (filter: any) => api.post('/crm/leads/export', filter),
+  importLeads: (importRequest: any, leadsData: any[]) => 
+    api.post('/crm/leads/import', leadsData, { params: importRequest }),
+};
+
+// System Labels
+export const crmSystemLabelsAPI = {
+  get: () => api.get('/crm/system-labels'),
+  update: (labels: any[]) => api.put('/crm/system-labels', labels),
+};
+
 // Payments API (Old - kept for compatibility)
 // Replaced by enhanced paymentsAPI below
 
