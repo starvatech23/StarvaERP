@@ -624,7 +624,7 @@ async def send_whatsapp(
 # ============= Integration Settings & Templates (Admin) =============
 
 @crm_router.post("/settings/integrations", response_model=IntegrationSettingsResponse)
-async def create_integration_settings(settings: IntegrationSettingsCreate, current_user: dict = Depends(get_current_user_optional), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def create_integration_settings(settings: IntegrationSettingsCreate, db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     settings_dict = settings.dict()
     settings_dict["created_at"] = datetime.utcnow()
     settings_dict["updated_at"] = datetime.utcnow()
@@ -650,7 +650,7 @@ async def list_integration_settings(provider_name: Optional[str] = None, db: Asy
 
 
 @crm_router.put("/settings/integrations/{settings_id}", response_model=IntegrationSettingsResponse)
-async def update_integration_settings(settings_id: str, settings: IntegrationSettingsUpdate, current_user: dict = Depends(get_current_user_optional), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def update_integration_settings(settings_id: str, settings: IntegrationSettingsUpdate, db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     update_data = {k: v for k, v in settings.dict(exclude_unset=True).items()}
     update_data["updated_at"] = datetime.utcnow()
     result = await db.crm_integration_settings.find_one_and_update({"_id": ObjectId(settings_id)}, {"$set": update_data}, return_document=True)
@@ -661,7 +661,7 @@ async def update_integration_settings(settings_id: str, settings: IntegrationSet
 
 
 @crm_router.post("/whatsapp-templates", response_model=WhatsAppTemplateResponse)
-async def create_whatsapp_template(template: WhatsAppTemplateCreate, current_user: dict = Depends(get_current_user_optional), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def create_whatsapp_template(template: WhatsAppTemplateCreate, db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     template_dict = template.dict()
     template_dict["created_at"] = datetime.utcnow()
     template_dict["updated_at"] = datetime.utcnow()
@@ -687,7 +687,7 @@ async def list_whatsapp_templates(category: Optional[str] = None, include_inacti
 # ============= Bulk Operations =============
 
 @crm_router.post("/leads/bulk-update")
-async def bulk_update_leads(bulk_update: LeadBulkUpdate, current_user: dict = Depends(get_current_user_optional), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def bulk_update_leads(bulk_update: LeadBulkUpdate, db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     lead_ids = [ObjectId(lid) for lid in bulk_update.lead_ids]
     update_data = bulk_update.update_data
     update_data["updated_at"] = datetime.utcnow()
@@ -696,7 +696,7 @@ async def bulk_update_leads(bulk_update: LeadBulkUpdate, current_user: dict = De
 
 
 @crm_router.post("/leads/bulk-move")
-async def bulk_move_leads(bulk_move: LeadBulkMove, current_user: dict = Depends(get_current_user_optional), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def bulk_move_leads(bulk_move: LeadBulkMove, db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     category = await db.crm_lead_categories.find_one({"_id": ObjectId(bulk_move.target_category_id)})
     if not category:
         raise HTTPException(status_code=404, detail="Target category not found")
@@ -706,7 +706,7 @@ async def bulk_move_leads(bulk_move: LeadBulkMove, current_user: dict = Depends(
 
 
 @crm_router.post("/leads/bulk-assign")
-async def bulk_assign_leads(bulk_assign: LeadBulkAssign, current_user: dict = Depends(get_current_user_optional), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def bulk_assign_leads(bulk_assign: LeadBulkAssign, db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     user = await db.users.find_one({"_id": ObjectId(bulk_assign.assigned_to)})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -716,7 +716,7 @@ async def bulk_assign_leads(bulk_assign: LeadBulkAssign, current_user: dict = De
 
 
 @crm_router.post("/leads/import", response_model=LeadImportResponse)
-async def import_leads(leads: List[LeadImportItem], default_category_id: str, current_user: dict = Depends(get_current_user_optional), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
+async def import_leads(leads: List[LeadImportItem], default_category_id: str, db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     success_count, failure_count, errors, imported_lead_ids = 0, 0, [], []
     category = await db.crm_lead_categories.find_one({"_id": ObjectId(default_category_id)})
     if not category:
