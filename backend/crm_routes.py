@@ -178,11 +178,10 @@ async def delete_lead_category(
 @crm_router.post("/leads", response_model=LeadResponse)
 async def create_lead(
     lead: LeadCreate,
+    current_user: dict = Depends(get_current_user_optional),
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Create a new lead with phone normalization"""
-    # Hardcode admin user for CRM testing
-    current_user = {"id": "admin", "_id": "admin", "full_name": "Admin User", "role": "admin"}
     # Normalize phone numbers
     primary_norm, primary_raw, primary_valid = normalize_phone_india(lead.primary_phone)
     if not primary_valid:
