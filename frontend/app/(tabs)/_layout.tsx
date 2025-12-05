@@ -54,17 +54,6 @@ export default function TabsLayout() {
           }}
         />
       )}
-      {canAccessCRM && (
-        <Tabs.Screen
-          name="crm"
-          options={{
-            title: 'CRM',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="people" size={size} color={color} />
-            ),
-          }}
-        />
-      )}
       {(canAccessProjects || user?.role === 'admin') && (
         <Tabs.Screen
           name="labor"
