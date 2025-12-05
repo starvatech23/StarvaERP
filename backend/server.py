@@ -5944,14 +5944,6 @@ async def get_permission_matrix(
             ]
         ),
         RolePermissions(
-            role=UserRole.SUPERVISOR,
-            permissions=[
-                CRMPermission.VIEW_LEADS,
-                CRMPermission.CREATE_LEADS,
-                CRMPermission.EDIT_LEADS,
-            ]
-        ),
-        RolePermissions(
             role=UserRole.WORKER,
             permissions=[]
         ),
