@@ -264,6 +264,17 @@ const styles = StyleSheet.create({
   funnelHeader: { marginBottom: 16 },
   funnelName: { fontSize: 18, fontWeight: '700', color: '#1A202C' },
   funnelDescription: { fontSize: 14, color: '#718096', marginTop: 4 },
+  categoriesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 6,
+  },
+  categoriesText: {
+    fontSize: 13,
+    color: '#718096',
+    fontWeight: '500',
+  },
   statsRow: { flexDirection: 'row', gap: 16, marginBottom: 16 },
   statItem: { flex: 1, alignItems: 'center', backgroundColor: '#F7FAFC', padding: 12, borderRadius: 8 },
   statValue: { fontSize: 20, fontWeight: '700', color: '#1A202C', marginTop: 4 },
