@@ -62,7 +62,7 @@ async def create_lead_category(
     category_dict["updated_at"] = datetime.utcnow()
     category_dict["lead_count"] = 0
     
-    result = await db.lead_categories.insert_one(category_dict)
+    result = await db.crm_lead_categories.insert_one(category_dict)
     category_dict["id"] = str(result.inserted_id)
     del category_dict["_id"]
     
@@ -76,12 +76,12 @@ async def list_lead_categories(
 ):
     """List all lead categories"""
     query = {} if include_inactive else {"is_active": True}
-    categories = await db.lead_categories.find(query).sort("order", 1).to_list(length=100)
+    categories = await db.crm_lead_categories.find(query).sort("order", 1).to_list(length=100)
     
     result = []
     for cat in categories:
         # Count leads in this category
-        lead_count = await db.leads.count_documents({"lead_category_id": str(cat["_id"])})
+        lead_count = await db.crm_leads.count_documents({"lead_category_id": str(cat["_id"])})
         
         cat_dict = {
             "id": str(cat["_id"]),
@@ -104,7 +104,7 @@ async def update_lead_category(
     update_data = {k: v for k, v in category.dict(exclude_unset=True).items()}
     update_data["updated_at"] = datetime.utcnow()
     
-    result = await db.lead_categories.find_one_and_update(
+    result = await db.crm_lead_categories.find_one_and_update(
         {"_id": ObjectId(category_id)},
         {"$set": update_data},
         return_document=True
@@ -113,7 +113,7 @@ async def update_lead_category(
     if not result:
         raise HTTPException(status_code=404, detail="Category not found")
     
-    lead_count = await db.leads.count_documents({"lead_category_id": category_id})
+    lead_count = await db.crm_leads.count_documents({"lead_category_id": category_id})
     result["id"] = str(result["_id"])
     result["lead_count"] = lead_count
     del result["_id"]
@@ -128,7 +128,7 @@ async def delete_lead_category(
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Delete a lead category (only if no leads assigned)"""
-    category = await db.lead_categories.find_one({"_id": ObjectId(category_id)})
+    category = await db.crm_lead_categories.find_one({"_id": ObjectId(category_id)})
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
     
@@ -136,14 +136,14 @@ async def delete_lead_category(
         raise HTTPException(status_code=400, detail="Cannot delete system category")
     
     # Check if any leads are in this category
-    lead_count = await db.leads.count_documents({"lead_category_id": category_id})
+    lead_count = await db.crm_leads.count_documents({"lead_category_id": category_id})
     if lead_count > 0:
         raise HTTPException(
             status_code=400,
             detail=f"Cannot delete category with {lead_count} leads. Move or delete leads first."
         )
     
-    await db.lead_categories.delete_one({"_id": ObjectId(category_id)})
+    await db.crm_lead_categories.delete_one({"_id": ObjectId(category_id)})
     return {"message": "Category deleted successfully"}
 
 
@@ -181,18 +181,18 @@ async def create_lead(
     lead_dict["activities_count"] = 0
     lead_dict["last_activity"] = None
     
-    result = await db.leads.insert_one(lead_dict)
+    result = await db.crm_leads.insert_one(lead_dict)
     lead_id = str(result.inserted_id)
     
     # Send WhatsApp welcome message if consent given
     if lead.whatsapp_consent and lead_dict["primary_phone"]:
         # Get WhatsApp service
-        settings = await db.integration_settings.find({"provider_name": {"$regex": "whatsapp", "$options": "i"}}).to_list(length=10)
+        settings = await db.crm_integration_settings.find({"provider_name": {"$regex": "whatsapp", "$options": "i"}}).to_list(length=10)
         whatsapp_service = IntegrationServiceFactory.get_active_whatsapp_service(settings)
         
         if whatsapp_service:
             # Get welcome template
-            template = await db.whatsapp_templates.find_one({"category": "welcome", "is_active": True})
+            template = await db.crm_whatsapp_templates.find_one({"category": "welcome", "is_active": True})
             if template:
                 try:
                     # Send WhatsApp message
@@ -214,7 +214,7 @@ async def create_lead(
                         "created_by": current_user["id"],
                         "created_at": datetime.utcnow()
                     }
-                    await db.lead_activities.insert_one(activity)
+                    await db.crm_lead_activities.insert_one(activity)
                 except Exception as e:
                     # Log failure but don't fail lead creation
                     print(f"Failed to send WhatsApp: {e}")
@@ -224,7 +224,7 @@ async def create_lead(
     lead_dict["created_by_name"] = current_user.get("full_name")
     
     # Get category name
-    category = await db.lead_categories.find_one({"_id": ObjectId(lead.lead_category_id)})
+    category = await db.crm_lead_categories.find_one({"_id": ObjectId(lead.lead_category_id)})
     lead_dict["category_name"] = category["name"] if category else None
     
     # Get assigned user name
@@ -280,13 +280,13 @@ async def list_leads(
             {"city": {"$regex": search, "$options": "i"}}
         ]
     
-    leads = await db.leads.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(length=limit)
+    leads = await db.crm_leads.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(length=limit)
     
     result = []
     for lead in leads:
         # Get category name
         if lead.get("lead_category_id"):
-            category = await db.lead_categories.find_one({"_id": ObjectId(lead["lead_category_id"])})
+            category = await db.crm_lead_categories.find_one({"_id": ObjectId(lead["lead_category_id"])})
             lead["category_name"] = category["name"] if category else None
         
         # Get assigned user name
@@ -300,11 +300,11 @@ async def list_leads(
             lead["created_by_name"] = user["full_name"] if user else None
         
         # Count activities
-        activities_count = await db.lead_activities.count_documents({"lead_id": str(lead["_id"])})
+        activities_count = await db.crm_lead_activities.count_documents({"lead_id": str(lead["_id"])})
         lead["activities_count"] = activities_count
         
         # Get last activity
-        last_activity = await db.lead_activities.find_one(
+        last_activity = await db.crm_lead_activities.find_one(
             {"lead_id": str(lead["_id"])},
             sort=[("created_at", -1)]
         )
@@ -322,13 +322,13 @@ async def get_lead(
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Get a single lead by ID"""
-    lead = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    lead = await db.crm_leads.find_one({"_id": ObjectId(lead_id)})
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
     
     # Get category name
     if lead.get("lead_category_id"):
-        category = await db.lead_categories.find_one({"_id": ObjectId(lead["lead_category_id"])})
+        category = await db.crm_lead_categories.find_one({"_id": ObjectId(lead["lead_category_id"])})
         lead["category_name"] = category["name"] if category else None
     
     # Get assigned user name
@@ -342,11 +342,11 @@ async def get_lead(
         lead["created_by_name"] = user["full_name"] if user else None
     
     # Count activities
-    activities_count = await db.lead_activities.count_documents({"lead_id": lead_id})
+    activities_count = await db.crm_lead_activities.count_documents({"lead_id": lead_id})
     lead["activities_count"] = activities_count
     
     # Get last activity
-    last_activity = await db.lead_activities.find_one(
+    last_activity = await db.crm_lead_activities.find_one(
         {"lead_id": lead_id},
         sort=[("created_at", -1)]
     )
@@ -364,7 +364,7 @@ async def update_lead(
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Update a lead"""
-    existing_lead = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    existing_lead = await db.crm_leads.find_one({"_id": ObjectId(lead_id)})
     if not existing_lead:
         raise HTTPException(status_code=404, detail="Lead not found")
     
@@ -397,9 +397,9 @@ async def update_lead(
             "created_by": current_user["id"],
             "created_at": datetime.utcnow()
         }
-        await db.lead_activities.insert_one(activity)
+        await db.crm_lead_activities.insert_one(activity)
     
-    result = await db.leads.find_one_and_update(
+    result = await db.crm_leads.find_one_and_update(
         {"_id": ObjectId(lead_id)},
         {"$set": update_data},
         return_document=True
@@ -415,12 +415,12 @@ async def delete_lead(
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Delete a lead"""
-    result = await db.leads.delete_one({"_id": ObjectId(lead_id)})
+    result = await db.crm_leads.delete_one({"_id": ObjectId(lead_id)})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Lead not found")
     
     # Delete associated activities
-    await db.lead_activities.delete_many({"lead_id": lead_id})
+    await db.crm_lead_activities.delete_many({"lead_id": lead_id})
     
     return {"message": "Lead deleted successfully"}
 
@@ -436,7 +436,7 @@ async def create_lead_activity(
 ):
     """Create a new activity for a lead"""
     # Verify lead exists
-    lead = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    lead = await db.crm_leads.find_one({"_id": ObjectId(lead_id)})
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
     
@@ -444,11 +444,11 @@ async def create_lead_activity(
     activity_dict["created_by"] = current_user["id"]
     activity_dict["created_at"] = datetime.utcnow()
     
-    result = await db.lead_activities.insert_one(activity_dict)
+    result = await db.crm_lead_activities.insert_one(activity_dict)
     
     # Update lead's last_contacted if it's a contact activity
     if activity.activity_type in [LeadActivityType.CALL, LeadActivityType.WHATSAPP, LeadActivityType.EMAIL]:
-        await db.leads.update_one(
+        await db.crm_leads.update_one(
             {"_id": ObjectId(lead_id)},
             {"$set": {"last_contacted": datetime.utcnow()}}
         )
@@ -472,7 +472,7 @@ async def list_lead_activities(
     if activity_type:
         query["activity_type"] = activity_type
     
-    activities = await db.lead_activities.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(length=limit)
+    activities = await db.crm_lead_activities.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(length=limit)
     
     result = []
     for activity in activities:
@@ -501,7 +501,7 @@ async def initiate_call(
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Initiate a call to a lead"""
-    lead = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    lead = await db.crm_leads.find_one({"_id": ObjectId(lead_id)})
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
     
@@ -509,7 +509,7 @@ async def initiate_call(
     if not to_number:
         raise HTTPException(status_code=400, detail="Lead has no phone number")
     
-    settings = await db.integration_settings.find({"provider_name": {"$in": ["twilio", "plivo"]}}).to_list(length=10)
+    settings = await db.crm_integration_settings.find({"provider_name": {"$in": ["twilio", "plivo"]}}).to_list(length=10)
     telephony_service = IntegrationServiceFactory.get_active_telephony_service(settings)
     
     if not telephony_service:
@@ -534,8 +534,8 @@ async def initiate_call(
             "created_at": datetime.utcnow(),
             "metadata": call_response
         }
-        await db.lead_activities.insert_one(activity)
-        await db.leads.update_one({"_id": ObjectId(lead_id)}, {"$set": {"last_contacted": datetime.utcnow()}})
+        await db.crm_lead_activities.insert_one(activity)
+        await db.crm_leads.update_one({"_id": ObjectId(lead_id)}, {"$set": {"last_contacted": datetime.utcnow()}})
         return {"success": True, "message": "Call initiated", "call_sid": call_response.get("call_sid"), "to": to_number, "status": call_response.get("status")}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to initiate call: {str(e)}")
@@ -550,7 +550,7 @@ async def send_whatsapp(
     db: AsyncIOMotorDatabase = Depends(get_db_dep)
 ):
     """Send WhatsApp message to a lead"""
-    lead = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    lead = await db.crm_leads.find_one({"_id": ObjectId(lead_id)})
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
     
@@ -558,7 +558,7 @@ async def send_whatsapp(
         raise HTTPException(status_code=400, detail="Lead has not consented to WhatsApp messages")
     
     to_number = lead.get("primary_phone")
-    settings = await db.integration_settings.find({"provider_name": {"$regex": "whatsapp", "$options": "i"}}).to_list(length=10)
+    settings = await db.crm_integration_settings.find({"provider_name": {"$regex": "whatsapp", "$options": "i"}}).to_list(length=10)
     whatsapp_service = IntegrationServiceFactory.get_active_whatsapp_service(settings)
     
     if not whatsapp_service:
@@ -566,7 +566,7 @@ async def send_whatsapp(
     
     try:
         if template_name:
-            template = await db.whatsapp_templates.find_one({"name": template_name, "is_active": True})
+            template = await db.crm_whatsapp_templates.find_one({"name": template_name, "is_active": True})
             if not template:
                 raise HTTPException(status_code=404, detail="Template not found")
             response = await whatsapp_service.send_template_message(to_number=to_number, template_name=template_name, template_variables={"name": lead.get("name", "")})
@@ -587,8 +587,8 @@ async def send_whatsapp(
             "created_at": datetime.utcnow(),
             "metadata": response
         }
-        await db.lead_activities.insert_one(activity)
-        await db.leads.update_one({"_id": ObjectId(lead_id)}, {"$set": {"last_contacted": datetime.utcnow()}})
+        await db.crm_lead_activities.insert_one(activity)
+        await db.crm_leads.update_one({"_id": ObjectId(lead_id)}, {"$set": {"last_contacted": datetime.utcnow()}})
         return {"success": True, "message": "WhatsApp message sent", "message_sid": response.get("message_sid"), "to": to_number, "status": response.get("status")}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to send WhatsApp: {str(e)}")
@@ -602,8 +602,8 @@ async def create_integration_settings(settings: IntegrationSettingsCreate, curre
     settings_dict["created_at"] = datetime.utcnow()
     settings_dict["updated_at"] = datetime.utcnow()
     if settings.default_provider:
-        await db.integration_settings.update_many({"default_provider": True}, {"$set": {"default_provider": False}})
-    result = await db.integration_settings.insert_one(settings_dict)
+        await db.crm_integration_settings.update_many({"default_provider": True}, {"$set": {"default_provider": False}})
+    result = await db.crm_integration_settings.insert_one(settings_dict)
     settings_dict["id"] = str(result.inserted_id)
     del settings_dict["_id"]
     return IntegrationSettingsResponse(**settings_dict)
@@ -612,7 +612,7 @@ async def create_integration_settings(settings: IntegrationSettingsCreate, curre
 @crm_router.get("/settings/integrations", response_model=List[IntegrationSettingsResponse])
 async def list_integration_settings(provider_name: Optional[str] = None, db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     query = {"provider_name": provider_name} if provider_name else {}
-    settings = await db.integration_settings.find(query).to_list(length=100)
+    settings = await db.crm_integration_settings.find(query).to_list(length=100)
     result = []
     for setting in settings:
         setting["id"] = str(setting["_id"])
@@ -626,7 +626,7 @@ async def list_integration_settings(provider_name: Optional[str] = None, db: Asy
 async def update_integration_settings(settings_id: str, settings: IntegrationSettingsUpdate, current_user: dict = Depends(get_current_user_optional), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     update_data = {k: v for k, v in settings.dict(exclude_unset=True).items()}
     update_data["updated_at"] = datetime.utcnow()
-    result = await db.integration_settings.find_one_and_update({"_id": ObjectId(settings_id)}, {"$set": update_data}, return_document=True)
+    result = await db.crm_integration_settings.find_one_and_update({"_id": ObjectId(settings_id)}, {"$set": update_data}, return_document=True)
     if not result:
         raise HTTPException(status_code=404, detail="Integration settings not found")
     result["id"] = str(result["_id"])
@@ -638,7 +638,7 @@ async def create_whatsapp_template(template: WhatsAppTemplateCreate, current_use
     template_dict = template.dict()
     template_dict["created_at"] = datetime.utcnow()
     template_dict["updated_at"] = datetime.utcnow()
-    result = await db.whatsapp_templates.insert_one(template_dict)
+    result = await db.crm_whatsapp_templates.insert_one(template_dict)
     template_dict["id"] = str(result.inserted_id)
     del template_dict["_id"]
     return WhatsAppTemplateResponse(**template_dict)
@@ -649,7 +649,7 @@ async def list_whatsapp_templates(category: Optional[str] = None, include_inacti
     query = {}
     if category: query["category"] = category
     if not include_inactive: query["is_active"] = True
-    templates = await db.whatsapp_templates.find(query).to_list(length=100)
+    templates = await db.crm_whatsapp_templates.find(query).to_list(length=100)
     result = []
     for template in templates:
         template["id"] = str(template["_id"])
@@ -664,17 +664,17 @@ async def bulk_update_leads(bulk_update: LeadBulkUpdate, current_user: dict = De
     lead_ids = [ObjectId(lid) for lid in bulk_update.lead_ids]
     update_data = bulk_update.update_data
     update_data["updated_at"] = datetime.utcnow()
-    result = await db.leads.update_many({"_id": {"$in": lead_ids}}, {"$set": update_data})
+    result = await db.crm_leads.update_many({"_id": {"$in": lead_ids}}, {"$set": update_data})
     return {"success": True, "updated_count": result.modified_count, "message": f"Updated {result.modified_count} leads"}
 
 
 @crm_router.post("/leads/bulk-move")
 async def bulk_move_leads(bulk_move: LeadBulkMove, current_user: dict = Depends(get_current_user_optional), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
-    category = await db.lead_categories.find_one({"_id": ObjectId(bulk_move.target_category_id)})
+    category = await db.crm_lead_categories.find_one({"_id": ObjectId(bulk_move.target_category_id)})
     if not category:
         raise HTTPException(status_code=404, detail="Target category not found")
     lead_ids = [ObjectId(lid) for lid in bulk_move.lead_ids]
-    result = await db.leads.update_many({"_id": {"$in": lead_ids}}, {"$set": {"lead_category_id": bulk_move.target_category_id, "updated_at": datetime.utcnow()}})
+    result = await db.crm_leads.update_many({"_id": {"$in": lead_ids}}, {"$set": {"lead_category_id": bulk_move.target_category_id, "updated_at": datetime.utcnow()}})
     return {"success": True, "moved_count": result.modified_count, "message": f"Moved {result.modified_count} leads to {category['name']}"}
 
 
@@ -684,14 +684,14 @@ async def bulk_assign_leads(bulk_assign: LeadBulkAssign, current_user: dict = De
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     lead_ids = [ObjectId(lid) for lid in bulk_assign.lead_ids]
-    result = await db.leads.update_many({"_id": {"$in": lead_ids}}, {"$set": {"assigned_to": bulk_assign.assigned_to, "updated_at": datetime.utcnow()}})
+    result = await db.crm_leads.update_many({"_id": {"$in": lead_ids}}, {"$set": {"assigned_to": bulk_assign.assigned_to, "updated_at": datetime.utcnow()}})
     return {"success": True, "assigned_count": result.modified_count, "message": f"Assigned {result.modified_count} leads to {user['full_name']}"}
 
 
 @crm_router.post("/leads/import", response_model=LeadImportResponse)
 async def import_leads(leads: List[LeadImportItem], default_category_id: str, current_user: dict = Depends(get_current_user_optional), db: AsyncIOMotorDatabase = Depends(get_db_dep)):
     success_count, failure_count, errors, imported_lead_ids = 0, 0, [], []
-    category = await db.lead_categories.find_one({"_id": ObjectId(default_category_id)})
+    category = await db.crm_lead_categories.find_one({"_id": ObjectId(default_category_id)})
     if not category:
         raise HTTPException(status_code=404, detail="Default category not found")
     
@@ -705,7 +705,7 @@ async def import_leads(leads: List[LeadImportItem], default_category_id: str, cu
             
             lead_dict = lead_item.dict()
             lead_dict.update({"primary_phone": primary_norm, "primary_phone_raw": primary_raw, "lead_category_id": default_category_id, "status": LeadStatus.NEW, "priority": LeadPriority.MEDIUM, "budget_currency": Currency.INR, "created_by": current_user["id"], "created_at": datetime.utcnow(), "updated_at": datetime.utcnow(), "activities_count": 0, "whatsapp_consent": False})
-            result = await db.leads.insert_one(lead_dict)
+            result = await db.crm_leads.insert_one(lead_dict)
             imported_lead_ids.append(str(result.inserted_id))
             success_count += 1
         except Exception as e:
@@ -720,7 +720,7 @@ async def export_leads(category_id: Optional[str] = None, status: Optional[LeadS
     query = {}
     if category_id: query["lead_category_id"] = category_id
     if status: query["status"] = status
-    leads = await db.leads.find(query).to_list(length=10000)
+    leads = await db.crm_leads.find(query).to_list(length=10000)
     export_data = [{"name": l.get("name"), "primary_phone": l.get("primary_phone"), "alternate_phone": l.get("alternate_phone"), "email": l.get("email"), "city": l.get("city"), "budget": l.get("budget"), "requirement": l.get("requirement"), "status": l.get("status"), "priority": l.get("priority"), "source": l.get("source"), "created_at": l.get("created_at").isoformat() if l.get("created_at") else None, "last_contacted": l.get("last_contacted").isoformat() if l.get("last_contacted") else None} for l in leads]
     return {"success": True, "count": len(export_data), "data": export_data}
 
