@@ -682,15 +682,18 @@ backend:
 
   - task: "CRM Lead CRUD APIs"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented 5 lead endpoints: GET /api/crm/leads (list with filtering by category/status/assigned_to/source/priority/search), POST /api/crm/leads (create with auto-WhatsApp option), GET /api/crm/leads/{id} (get single), PUT /api/crm/leads/{id} (update with field audit logging), DELETE /api/crm/leads/{id} (soft delete - admin only). All use proper authentication (Admin/PM only)."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL LEAD CRUD APIS WORKING (6/6 tests passed): POST /api/crm/leads (✅ creates leads with proper validation), GET /api/crm/leads (✅ lists leads with filtering by status/priority), GET /api/crm/leads/{id} (✅ retrieves single lead), PUT /api/crm/leads/{id} (✅ updates leads with field audit logging), DELETE /api/crm/leads/{id} (✅ soft deletes leads). All filtering options working correctly. Authentication properly enforced (Admin/PM only)."
 
   - task: "CRM Lead Activity Timeline APIs"
     implemented: true
