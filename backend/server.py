@@ -4039,8 +4039,7 @@ async def create_user_by_admin(
     return UserResponse(**response_dict)
 
 
-# Include the routers in the main app
-app.include_router(api_router)
+# Router will be included after all routes are defined
 
 app.add_middleware(
     CORSMiddleware,
