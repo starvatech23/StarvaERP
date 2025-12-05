@@ -33,10 +33,10 @@ def get_db_dep():
     import server
     return server.db
 
-# Optional auth for CRM (fallback to admin if no auth)
-async def get_current_user_optional():
-    # For CRM module, return admin user (bypass auth for MVP)
-    # In production, replace with: await get_current_user()
+# No auth for CRM (open access for MVP)
+def get_current_user_optional():
+    # Return admin user directly (no auth check)
+    # In production, use: Depends(get_current_user)
     return {"id": "admin", "_id": "admin", "full_name": "Admin User", "role": "admin"}
 
 
