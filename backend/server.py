@@ -5499,6 +5499,9 @@ async def update_crm_config(
     return await get_crm_config(credentials)
 
 
+# Include the routers in the main app (after all routes are defined)
+app.include_router(api_router)
+
 # Socket.IO events
 @sio.event
 async def connect(sid, environ):
