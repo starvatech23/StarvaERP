@@ -16,6 +16,13 @@ export default function CRMScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => router.push('/')}
+        >
+          <Ionicons name="home" size={24} color="#FF6B35" />
+          <Text style={styles.backButtonText}>Dashboard</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>CRM</Text>
         <Text style={styles.headerSubtitle}>Lead Management System</Text>
       </View>
