@@ -61,7 +61,11 @@ from models import (
     CRMPermission, RolePermissions, PermissionMatrixResponse,
     LeadExportRequest, LeadImportSource, LeadImportRequest, MetaLeadImportConfig,
     SystemLabel, SystemLabelUpdate, SystemLabelsResponse,
-    CRMDashboardStats
+    CRMDashboardStats,
+    # Phase 4: Move Lead to Project
+    BankTransactionCreate, BankTransactionResponse,
+    MoveLeadToProjectRequest, MoveLeadToProjectResponse,
+    AuditActionType, AuditLogCreate, AuditLogResponse, AuditLogFilter
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
