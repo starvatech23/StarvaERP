@@ -611,35 +611,7 @@ class NotificationResponse(NotificationBase):
     id: str
     created_at: datetime
 
-# Activity Log Models
-class ActivityType(str, Enum):
-    PROJECT_CREATED = "project_created"
-    PROJECT_UPDATED = "project_updated"
-    TASK_CREATED = "task_created"
-    TASK_UPDATED = "task_updated"
-    PAYMENT_ADDED = "payment_added"
-    EXPENSE_ADDED = "expense_added"
-    LEAD_CREATED = "lead_created"
-    LEAD_UPDATED = "lead_updated"
-    USER_JOINED = "user_joined"
-    OTHER = "other"
-
-class ActivityLogBase(BaseModel):
-    user_id: str
-    activity_type: ActivityType
-    description: str
-    reference_id: Optional[str] = None
-    reference_type: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
-
-class ActivityLogCreate(ActivityLogBase):
-    pass
-
-class ActivityLogResponse(ActivityLogBase):
-    id: str
-    user_name: str
-    user_role: str
-    created_at: datetime
+# Removed Activity Log Models - will be rebuilt if needed
 
 # User Management Models
 class UserRoleUpdate(BaseModel):
