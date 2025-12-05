@@ -312,8 +312,8 @@ const getPriorityColor = (priority) => {
   return colors[priority] || '#6B7280';
 };
 
-const getActivityIcon = (type: string) => {
-  const icons: any = {
+const getActivityIcon = (type) => {
+  const icons = {
     call: 'call',
     whatsapp: 'logo-whatsapp',
     email: 'mail',
