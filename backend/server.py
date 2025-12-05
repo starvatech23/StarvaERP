@@ -51,9 +51,6 @@ from models import (
     GanttShareCreate, GanttShareResponse, GanttShareToken, GanttSharePermission,
     ContactAudit
 )
-
-# Import CRM router
-from crm_routes import crm_router
 from auth import (
     get_password_hash, verify_password, create_access_token,
     get_current_user, require_role, security,
