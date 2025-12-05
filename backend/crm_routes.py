@@ -33,10 +33,20 @@ def get_db_dep():
     import server
     return server.db
 
-# No auth for CRM (open access for MVP)
-def get_current_user_optional():
-    # Return admin user directly (no auth check)
-    # In production, use: Depends(get_current_user)
+# Optional auth for CRM - allows access without token
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from typing import Optional as OptionalType
+
+security_optional = HTTPBearer(auto_error=False)
+
+async def get_current_user_optional(credentials: OptionalType[HTTPAuthorizationCredentials] = Depends(security_optional)):
+    if credentials:
+        # If token provided, validate it
+        try:
+            return await get_current_user(credentials)
+        except:
+            pass
+    # No token or invalid token - return admin user for CRM testing
     return {"id": "admin", "_id": "admin", "full_name": "Admin User", "role": "admin"}
 
 
