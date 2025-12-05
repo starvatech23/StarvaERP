@@ -1619,3 +1619,184 @@ class CRMConfigResponse(CRMConfigBase):
     updated_by_name: Optional[str] = None
     updated_at: datetime
 
+
+# ============= Custom Fields System =============
+
+class CustomFieldType(str, Enum):
+    TEXT = "text"
+    NUMBER = "number"
+    EMAIL = "email"
+    PHONE = "phone"
+    DATE = "date"
+    DROPDOWN = "dropdown"
+    CHECKBOX = "checkbox"
+    TEXTAREA = "textarea"
+
+class CustomFieldBase(BaseModel):
+    field_name: str
+    field_label: str
+    field_type: CustomFieldType
+    is_required: bool = False
+    validation_rules: Optional[Dict[str, Any]] = None
+    dropdown_options: Optional[List[str]] = None
+    default_value: Optional[str] = None
+    visible_to_roles: List[UserRole] = [UserRole.ADMIN, UserRole.PROJECT_MANAGER]
+    is_active: bool = True
+    order: int = 0
+
+class CustomFieldCreate(CustomFieldBase):
+    pass
+
+class CustomFieldUpdate(BaseModel):
+    field_label: Optional[str] = None
+    is_required: Optional[bool] = None
+    validation_rules: Optional[Dict[str, Any]] = None
+    dropdown_options: Optional[List[str]] = None
+    default_value: Optional[str] = None
+    visible_to_roles: Optional[List[UserRole]] = None
+    is_active: Optional[bool] = None
+    order: Optional[int] = None
+
+class CustomFieldResponse(CustomFieldBase):
+    id: str
+    created_at: datetime
+    updated_at: datetime
+
+# ============= Funnel System =============
+
+class FunnelStageBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    color: str = "#6B7280"
+    order: int
+    default_probability: float = 0.5  # 0.0 to 1.0
+    expected_duration_days: Optional[int] = None
+
+class FunnelBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    is_active: bool = True
+    stages: List[FunnelStageBase]
+    custom_field_ids: List[str] = []
+    assigned_to_users: List[str] = []
+    assigned_to_teams: List[str] = []
+    assigned_to_project_types: List[str] = []
+    automation_rules: Optional[Dict[str, Any]] = None
+
+class FunnelCreate(FunnelBase):
+    pass
+
+class FunnelUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    is_active: Optional[bool] = None
+    stages: Optional[List[FunnelStageBase]] = None
+    custom_field_ids: Optional[List[str]] = None
+    assigned_to_users: Optional[List[str]] = None
+    assigned_to_teams: Optional[List[str]] = None
+    assigned_to_project_types: Optional[List[str]] = None
+    automation_rules: Optional[Dict[str, Any]] = None
+
+class FunnelResponse(FunnelBase):
+    id: str
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    lead_count: int = 0
+    conversion_rate: float = 0.0
+
+class FunnelStageStats(BaseModel):
+    stage_name: str
+    stage_order: int
+    lead_count: int
+    avg_duration_days: Optional[float] = None
+    conversion_rate: float = 0.0
+
+class FunnelAnalytics(BaseModel):
+    funnel_id: str
+    funnel_name: str
+    total_leads: int
+    stage_stats: List[FunnelStageStats]
+    overall_conversion_rate: float
+
+# ============= Permission Matrix =============
+
+class CRMPermission(str, Enum):
+    VIEW_LEADS = "view_leads"
+    CREATE_LEADS = "create_leads"
+    EDIT_LEADS = "edit_leads"
+    DELETE_LEADS = "delete_leads"
+    MOVE_TO_PROJECT = "move_to_project"
+    BYPASS_REQUIRED_FIELDS = "bypass_required_fields"
+    MANAGE_FUNNELS = "manage_funnels"
+    MANAGE_CUSTOM_FIELDS = "manage_custom_fields"
+    ACCESS_CRM_SETTINGS = "access_crm_settings"
+    VIEW_ANALYTICS = "view_analytics"
+    EXPORT_LEADS = "export_leads"
+    IMPORT_LEADS = "import_leads"
+
+class RolePermissions(BaseModel):
+    role: UserRole
+    permissions: List[CRMPermission]
+
+class PermissionMatrixResponse(BaseModel):
+    matrix: List[RolePermissions]
+
+# ============= Lead Import/Export =============
+
+class LeadExportRequest(BaseModel):
+    filter_by_category: Optional[str] = None
+    filter_by_status: Optional[LeadStatus] = None
+    filter_by_funnel: Optional[str] = None
+    format: str = "csv"  # csv or json
+
+class LeadImportSource(str, Enum):
+    CSV = "csv"
+    META = "meta"
+    EXCEL = "excel"
+
+class MetaLeadImportConfig(BaseModel):
+    access_token: str
+    form_id: str
+    since_date: Optional[datetime] = None
+
+class LeadImportRequest(BaseModel):
+    source: LeadImportSource
+    default_funnel_id: Optional[str] = None
+    default_category_id: Optional[str] = None
+    meta_config: Optional[MetaLeadImportConfig] = None
+
+# ============= System Labels =============
+
+class SystemLabel(str, Enum):
+    LEAD = "lead"
+    LEADS = "leads"
+    CATEGORY = "category"
+    CATEGORIES = "categories"
+    FUNNEL = "funnel"
+    FUNNELS = "funnels"
+    STATUS = "status"
+    PRIORITY = "priority"
+    SOURCE = "source"
+
+class SystemLabelUpdate(BaseModel):
+    label_key: SystemLabel
+    custom_value: str
+
+class SystemLabelsResponse(BaseModel):
+    labels: Dict[str, str]
+
+# ============= Dashboard Stats =============
+
+class CRMDashboardStats(BaseModel):
+    total_leads: int
+    leads_by_stage: Dict[str, int]
+    leads_by_status: Dict[str, int]
+    leads_by_priority: Dict[str, int]
+    new_leads_this_week: int
+    new_leads_this_month: int
+    conversion_rate: float
+    avg_lead_value: float
+    top_sources: List[Dict[str, Any]]
+
