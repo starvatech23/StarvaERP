@@ -1681,6 +1681,7 @@ class FunnelBase(BaseModel):
     name: str
     description: Optional[str] = None
     is_active: bool = True
+    category_ids: List[str] = []  # Link funnels to specific lead categories
     stages: List[FunnelStageBase]
     custom_field_ids: List[str] = []
     assigned_to_users: List[str] = []
