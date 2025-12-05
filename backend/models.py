@@ -30,13 +30,7 @@ class TaskPriority(str, Enum):
     HIGH = "high"
     URGENT = "urgent"
 
-class LeadStatus(str, Enum):
-    NEW = "new"
-    CONTACTED = "contacted"
-    QUALIFIED = "qualified"
-    PROPOSAL = "proposal"
-    WON = "won"
-    LOST = "lost"
+# Removed old CRM LeadStatus enum - will be rebuilt
 
 # Construction Work Type Enum
 class ConstructionWorkType(str, Enum):
