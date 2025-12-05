@@ -5507,6 +5507,641 @@ async def update_crm_config(
     return await get_crm_config(credentials)
 
 
+
+# ============= Dashboard Stats Route =============
+
+@api_router.get("/crm/dashboard/stats", response_model=CRMDashboardStats)
+async def get_crm_dashboard_stats(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get CRM dashboard statistics"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    # Total leads
+    total_leads = await db.leads.count_documents({"is_deleted": {"$ne": True}})
+    
+    # Leads by stage (category)
+    leads_by_stage = {}
+    categories = await db.lead_categories.find({"is_active": True}).to_list(100)
+    for cat in categories:
+        count = await db.leads.count_documents({"category_id": str(cat["_id"]), "is_deleted": {"$ne": True}})
+        leads_by_stage[cat["name"]] = count
+    
+    # Leads by status
+    leads_by_status = {}
+    for status in LeadStatus:
+        count = await db.leads.count_documents({"status": status, "is_deleted": {"$ne": True}})
+        leads_by_status[status.value] = count
+    
+    # Leads by priority
+    leads_by_priority = {}
+    for priority in LeadPriority:
+        count = await db.leads.count_documents({"priority": priority, "is_deleted": {"$ne": True}})
+        leads_by_priority[priority.value] = count
+    
+    # New leads this week/month
+    now = datetime.utcnow()
+    week_ago = now - timedelta(days=7)
+    month_ago = now - timedelta(days=30)
+    
+    new_leads_this_week = await db.leads.count_documents({
+        "created_at": {"$gte": week_ago},
+        "is_deleted": {"$ne": True}
+    })
+    new_leads_this_month = await db.leads.count_documents({
+        "created_at": {"$gte": month_ago},
+        "is_deleted": {"$ne": True}
+    })
+    
+    # Conversion rate (won / total)
+    won_count = await db.leads.count_documents({"status": LeadStatus.WON, "is_deleted": {"$ne": True}})
+    conversion_rate = (won_count / total_leads * 100) if total_leads > 0 else 0.0
+    
+    # Average lead value
+    pipeline = [
+        {"$match": {"is_deleted": {"$ne": True}, "budget": {"$ne": None}}},
+        {"$group": {"_id": None, "avg_value": {"$avg": "$budget"}}}
+    ]
+    result = await db.leads.aggregate(pipeline).to_list(1)
+    avg_lead_value = result[0]["avg_value"] if result else 0.0
+    
+    # Top sources
+    pipeline = [
+        {"$match": {"is_deleted": {"$ne": True}}},
+        {"$group": {"_id": "$source", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 5}
+    ]
+    top_sources = await db.leads.aggregate(pipeline).to_list(5)
+    top_sources_list = [{"source": item["_id"], "count": item["count"]} for item in top_sources]
+    
+    return CRMDashboardStats(
+        total_leads=total_leads,
+        leads_by_stage=leads_by_stage,
+        leads_by_status=leads_by_status,
+        leads_by_priority=leads_by_priority,
+        new_leads_this_week=new_leads_this_week,
+        new_leads_this_month=new_leads_this_month,
+        conversion_rate=conversion_rate,
+        avg_lead_value=avg_lead_value,
+        top_sources=top_sources_list
+    )
+
+# ============= Custom Fields Routes =============
+
+@api_router.get("/crm/custom-fields", response_model=List[CustomFieldResponse])
+async def get_custom_fields(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all custom fields"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    fields = await db.custom_fields.find({"is_active": True}).sort("order", 1).to_list(100)
+    return [CustomFieldResponse(**serialize_doc(field)) for field in fields]
+
+@api_router.post("/crm/custom-fields", response_model=CustomFieldResponse)
+async def create_custom_field(
+    field: CustomFieldCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a custom field (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can create custom fields")
+    
+    field_dict = field.dict()
+    field_dict["created_at"] = datetime.utcnow()
+    field_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.custom_fields.insert_one(field_dict)
+    field_dict["_id"] = result.inserted_id
+    
+    return CustomFieldResponse(**serialize_doc(field_dict))
+
+@api_router.put("/crm/custom-fields/{field_id}", response_model=CustomFieldResponse)
+async def update_custom_field(
+    field_id: str,
+    field_update: CustomFieldUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a custom field (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can update custom fields")
+    
+    existing = await db.custom_fields.find_one({"_id": ObjectId(field_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Custom field not found")
+    
+    update_data = field_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.custom_fields.update_one(
+        {"_id": ObjectId(field_id)},
+        {"$set": update_data}
+    )
+    
+    updated_field = await db.custom_fields.find_one({"_id": ObjectId(field_id)})
+    return CustomFieldResponse(**serialize_doc(updated_field))
+
+@api_router.delete("/crm/custom-fields/{field_id}")
+async def delete_custom_field(
+    field_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a custom field (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can delete custom fields")
+    
+    await db.custom_fields.update_one(
+        {"_id": ObjectId(field_id)},
+        {"$set": {"is_active": False, "updated_at": datetime.utcnow()}}
+    )
+    
+    return {"message": "Custom field deleted successfully"}
+
+# ============= Funnel Management Routes =============
+
+@api_router.get("/crm/funnels", response_model=List[FunnelResponse])
+async def get_funnels(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all funnels"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    funnels = await db.funnels.find({"is_active": True}).to_list(100)
+    
+    result = []
+    for funnel in funnels:
+        funnel_dict = serialize_doc(funnel)
+        
+        # Get creator info
+        creator = await get_user_by_id(funnel_dict["created_by"])
+        funnel_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        
+        # Count leads in this funnel
+        lead_count = await db.leads.count_documents({"funnel_id": funnel_dict["id"], "is_deleted": {"$ne": True}})
+        funnel_dict["lead_count"] = lead_count
+        
+        # Calculate conversion rate
+        won_count = await db.leads.count_documents({"funnel_id": funnel_dict["id"], "status": LeadStatus.WON, "is_deleted": {"$ne": True}})
+        funnel_dict["conversion_rate"] = (won_count / lead_count * 100) if lead_count > 0 else 0.0
+        
+        result.append(FunnelResponse(**funnel_dict))
+    
+    return result
+
+@api_router.post("/crm/funnels", response_model=FunnelResponse)
+async def create_funnel(
+    funnel: FunnelCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new funnel (Admin/Manager)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and managers can create funnels")
+    
+    funnel_dict = funnel.dict()
+    funnel_dict["created_by"] = str(current_user["_id"])
+    funnel_dict["created_at"] = datetime.utcnow()
+    funnel_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.funnels.insert_one(funnel_dict)
+    funnel_dict["_id"] = result.inserted_id
+    
+    funnel_dict = serialize_doc(funnel_dict)
+    funnel_dict["created_by_name"] = current_user["full_name"]
+    funnel_dict["lead_count"] = 0
+    funnel_dict["conversion_rate"] = 0.0
+    
+    return FunnelResponse(**funnel_dict)
+
+@api_router.get("/crm/funnels/{funnel_id}", response_model=FunnelResponse)
+async def get_funnel(
+    funnel_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a single funnel"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    funnel = await db.funnels.find_one({"_id": ObjectId(funnel_id), "is_active": True})
+    if not funnel:
+        raise HTTPException(status_code=404, detail="Funnel not found")
+    
+    funnel_dict = serialize_doc(funnel)
+    
+    creator = await get_user_by_id(funnel_dict["created_by"])
+    funnel_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+    
+    lead_count = await db.leads.count_documents({"funnel_id": funnel_dict["id"], "is_deleted": {"$ne": True}})
+    funnel_dict["lead_count"] = lead_count
+    
+    won_count = await db.leads.count_documents({"funnel_id": funnel_dict["id"], "status": LeadStatus.WON, "is_deleted": {"$ne": True}})
+    funnel_dict["conversion_rate"] = (won_count / lead_count * 100) if lead_count > 0 else 0.0
+    
+    return FunnelResponse(**funnel_dict)
+
+@api_router.put("/crm/funnels/{funnel_id}", response_model=FunnelResponse)
+async def update_funnel(
+    funnel_id: str,
+    funnel_update: FunnelUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a funnel (Admin/Manager)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and managers can update funnels")
+    
+    existing = await db.funnels.find_one({"_id": ObjectId(funnel_id), "is_active": True})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Funnel not found")
+    
+    update_data = funnel_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.funnels.update_one(
+        {"_id": ObjectId(funnel_id)},
+        {"$set": update_data}
+    )
+    
+    return await get_funnel(funnel_id, credentials)
+
+@api_router.delete("/crm/funnels/{funnel_id}")
+async def delete_funnel(
+    funnel_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a funnel (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can delete funnels")
+    
+    await db.funnels.update_one(
+        {"_id": ObjectId(funnel_id)},
+        {"$set": {"is_active": False, "updated_at": datetime.utcnow()}}
+    )
+    
+    return {"message": "Funnel deleted successfully"}
+
+@api_router.post("/crm/funnels/{funnel_id}/clone", response_model=FunnelResponse)
+async def clone_funnel(
+    funnel_id: str,
+    new_name: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Clone an existing funnel"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and managers can clone funnels")
+    
+    existing = await db.funnels.find_one({"_id": ObjectId(funnel_id), "is_active": True})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Funnel not found")
+    
+    # Clone funnel
+    cloned = dict(existing)
+    del cloned["_id"]
+    cloned["name"] = new_name
+    cloned["created_by"] = str(current_user["_id"])
+    cloned["created_at"] = datetime.utcnow()
+    cloned["updated_at"] = datetime.utcnow()
+    
+    result = await db.funnels.insert_one(cloned)
+    cloned["_id"] = result.inserted_id
+    
+    cloned_dict = serialize_doc(cloned)
+    cloned_dict["created_by_name"] = current_user["full_name"]
+    cloned_dict["lead_count"] = 0
+    cloned_dict["conversion_rate"] = 0.0
+    
+    return FunnelResponse(**cloned_dict)
+
+@api_router.get("/crm/funnels/{funnel_id}/analytics", response_model=FunnelAnalytics)
+async def get_funnel_analytics(
+    funnel_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get funnel analytics with stage statistics"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    funnel = await db.funnels.find_one({"_id": ObjectId(funnel_id), "is_active": True})
+    if not funnel:
+        raise HTTPException(status_code=404, detail="Funnel not found")
+    
+    total_leads = await db.leads.count_documents({"funnel_id": funnel_id, "is_deleted": {"$ne": True}})
+    
+    stage_stats = []
+    for stage in funnel.get("stages", []):
+        # Count leads in this stage (using funnel_stage field)
+        stage_leads = await db.leads.count_documents({
+            "funnel_id": funnel_id,
+            "funnel_stage": stage["name"],
+            "is_deleted": {"$ne": True}
+        })
+        
+        # Calculate average duration (mock for now)
+        avg_duration = None
+        if stage.get("expected_duration_days"):
+            avg_duration = float(stage["expected_duration_days"])
+        
+        # Calculate stage conversion rate
+        conversion_rate = (stage_leads / total_leads * 100) if total_leads > 0 else 0.0
+        
+        stage_stats.append(FunnelStageStats(
+            stage_name=stage["name"],
+            stage_order=stage["order"],
+            lead_count=stage_leads,
+            avg_duration_days=avg_duration,
+            conversion_rate=conversion_rate
+        ))
+    
+    # Overall conversion rate
+    won_count = await db.leads.count_documents({"funnel_id": funnel_id, "status": LeadStatus.WON, "is_deleted": {"$ne": True}})
+    overall_conversion_rate = (won_count / total_leads * 100) if total_leads > 0 else 0.0
+    
+    return FunnelAnalytics(
+        funnel_id=funnel_id,
+        funnel_name=funnel["name"],
+        total_leads=total_leads,
+        stage_stats=stage_stats,
+        overall_conversion_rate=overall_conversion_rate
+    )
+
+# ============= Permission Matrix Routes =============
+
+@api_router.get("/crm/permissions/matrix", response_model=PermissionMatrixResponse)
+async def get_permission_matrix(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get CRM permission matrix for all roles"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can view permission matrix")
+    
+    # Define default permission matrix
+    matrix = [
+        RolePermissions(
+            role=UserRole.ADMIN,
+            permissions=[
+                CRMPermission.VIEW_LEADS,
+                CRMPermission.CREATE_LEADS,
+                CRMPermission.EDIT_LEADS,
+                CRMPermission.DELETE_LEADS,
+                CRMPermission.MOVE_TO_PROJECT,
+                CRMPermission.BYPASS_REQUIRED_FIELDS,
+                CRMPermission.MANAGE_FUNNELS,
+                CRMPermission.MANAGE_CUSTOM_FIELDS,
+                CRMPermission.ACCESS_CRM_SETTINGS,
+                CRMPermission.VIEW_ANALYTICS,
+                CRMPermission.EXPORT_LEADS,
+                CRMPermission.IMPORT_LEADS,
+            ]
+        ),
+        RolePermissions(
+            role=UserRole.PROJECT_MANAGER,
+            permissions=[
+                CRMPermission.VIEW_LEADS,
+                CRMPermission.CREATE_LEADS,
+                CRMPermission.EDIT_LEADS,
+                CRMPermission.MOVE_TO_PROJECT,
+                CRMPermission.MANAGE_FUNNELS,
+                CRMPermission.ACCESS_CRM_SETTINGS,
+                CRMPermission.VIEW_ANALYTICS,
+                CRMPermission.EXPORT_LEADS,
+                CRMPermission.IMPORT_LEADS,
+            ]
+        ),
+        RolePermissions(
+            role=UserRole.SUPERVISOR,
+            permissions=[
+                CRMPermission.VIEW_LEADS,
+                CRMPermission.CREATE_LEADS,
+                CRMPermission.EDIT_LEADS,
+            ]
+        ),
+        RolePermissions(
+            role=UserRole.WORKER,
+            permissions=[]
+        ),
+        RolePermissions(
+            role=UserRole.VENDOR,
+            permissions=[]
+        ),
+    ]
+    
+    return PermissionMatrixResponse(matrix=matrix)
+
+# ============= Lead Import/Export Routes =============
+
+@api_router.post("/crm/leads/export")
+async def export_leads(
+    export_request: LeadExportRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Export leads to CSV or JSON"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    # Build query
+    query = {"is_deleted": {"$ne": True}}
+    if export_request.filter_by_category:
+        query["category_id"] = export_request.filter_by_category
+    if export_request.filter_by_status:
+        query["status"] = export_request.filter_by_status
+    if export_request.filter_by_funnel:
+        query["funnel_id"] = export_request.filter_by_funnel
+    
+    leads = await db.leads.find(query).to_list(10000)
+    
+    if export_request.format == "csv":
+        import csv
+        import io
+        
+        output = io.StringIO()
+        if leads:
+            fieldnames = ["name", "primary_phone", "email", "city", "budget", "status", "priority", "source", "created_at"]
+            writer = csv.DictWriter(output, fieldnames=fieldnames)
+            writer.writeheader()
+            
+            for lead in leads:
+                writer.writerow({
+                    "name": lead.get("name", ""),
+                    "primary_phone": lead.get("primary_phone", ""),
+                    "email": lead.get("email", ""),
+                    "city": lead.get("city", ""),
+                    "budget": lead.get("budget", ""),
+                    "status": lead.get("status", ""),
+                    "priority": lead.get("priority", ""),
+                    "source": lead.get("source", ""),
+                    "created_at": lead.get("created_at", "").isoformat() if lead.get("created_at") else "",
+                })
+        
+        return {"format": "csv", "data": output.getvalue(), "count": len(leads)}
+    else:
+        # JSON format
+        leads_json = [serialize_doc(lead) for lead in leads]
+        return {"format": "json", "data": leads_json, "count": len(leads)}
+
+@api_router.post("/crm/leads/import", response_model=LeadImportResponse)
+async def import_leads(
+    import_request: LeadImportRequest,
+    leads_data: List[Dict[str, Any]],
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Import leads from CSV, Excel, or Meta"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    successful = 0
+    failed = 0
+    errors = []
+    
+    for idx, lead_data in enumerate(leads_data):
+        try:
+            # Validate required fields
+            if not lead_data.get("name") or not lead_data.get("primary_phone"):
+                errors.append(f"Row {idx + 1}: Missing required fields (name or phone)")
+                failed += 1
+                continue
+            
+            # Prepare lead document
+            lead_dict = {
+                "name": lead_data.get("name"),
+                "primary_phone": lead_data.get("primary_phone"),
+                "alternate_phone": lead_data.get("alternate_phone"),
+                "email": lead_data.get("email"),
+                "city": lead_data.get("city"),
+                "state": lead_data.get("state"),
+                "budget": lead_data.get("budget"),
+                "budget_currency": lead_data.get("budget_currency", "INR"),
+                "requirement": lead_data.get("requirement"),
+                "status": LeadStatus.NEW,
+                "priority": LeadPriority.MEDIUM,
+                "source": lead_data.get("source", LeadSource.OTHER),
+                "tags": lead_data.get("tags", []),
+                "created_by": str(current_user["_id"]),
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+                "is_deleted": False,
+            }
+            
+            # Set category or funnel
+            if import_request.default_category_id:
+                lead_dict["category_id"] = import_request.default_category_id
+            if import_request.default_funnel_id:
+                lead_dict["funnel_id"] = import_request.default_funnel_id
+            
+            await db.leads.insert_one(lead_dict)
+            successful += 1
+            
+        except Exception as e:
+            failed += 1
+            errors.append(f"Row {idx + 1}: {str(e)}")
+    
+    return LeadImportResponse(
+        total=len(leads_data),
+        successful=successful,
+        failed=failed,
+        errors=errors[:10]  # Limit to first 10 errors
+    )
+
+# ============= System Labels Routes =============
+
+@api_router.get("/crm/system-labels", response_model=SystemLabelsResponse)
+async def get_system_labels(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get customizable system labels"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    # Get custom labels from config or use defaults
+    config = await db.crm_config.find_one({})
+    custom_labels = config.get("system_labels", {}) if config else {}
+    
+    # Default labels
+    default_labels = {
+        SystemLabel.LEAD: "Lead",
+        SystemLabel.LEADS: "Leads",
+        SystemLabel.CATEGORY: "Category",
+        SystemLabel.CATEGORIES: "Categories",
+        SystemLabel.FUNNEL: "Funnel",
+        SystemLabel.FUNNELS: "Funnels",
+        SystemLabel.STATUS: "Status",
+        SystemLabel.PRIORITY: "Priority",
+        SystemLabel.SOURCE: "Source",
+    }
+    
+    # Merge custom labels with defaults
+    labels = {k.value: custom_labels.get(k.value, v) for k, v in default_labels.items()}
+    
+    return SystemLabelsResponse(labels=labels)
+
+@api_router.put("/crm/system-labels")
+async def update_system_labels(
+    label_updates: List[SystemLabelUpdate],
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update system labels (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can update system labels")
+    
+    # Get existing config
+    config = await db.crm_config.find_one({})
+    system_labels = config.get("system_labels", {}) if config else {}
+    
+    # Update labels
+    for label_update in label_updates:
+        system_labels[label_update.label_key.value] = label_update.custom_value
+    
+    # Save to config
+    if config:
+        await db.crm_config.update_one(
+            {"_id": config["_id"]},
+            {"$set": {"system_labels": system_labels, "updated_at": datetime.utcnow()}}
+        )
+    else:
+        await db.crm_config.insert_one({
+            "system_labels": system_labels,
+            "updated_by": str(current_user["_id"]),
+            "updated_at": datetime.utcnow()
+        })
+    
+    return {"message": "System labels updated successfully"}
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
