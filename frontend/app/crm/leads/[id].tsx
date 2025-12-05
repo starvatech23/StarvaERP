@@ -58,7 +58,7 @@ export default function LeadDetailScreen() {
             onPress: async () => {
               await Linking.openURL(`tel:${lead.primary_phone}`);
               // Log call activity
-              await crmActivitiesAPI.logCall(id as string, {
+              await crmActivitiesAPI.logCall(String(id), {
                 duration: 0,
                 outcome: 'connected',
                 notes: 'Called from mobile app',
