@@ -287,7 +287,7 @@ export default function ImportExportScreen() {
               {exporting ? (
                 <ActivityIndicator size="small" color="#F59E0B" />
               ) : (
-                <Ionicons name="chevron-forward" size="24} color="#CBD5E0" />
+                <Ionicons name="chevron-forward" size={24} color="#CBD5E0" />
               )}
             </TouchableOpacity>
           </View>
