@@ -14,7 +14,7 @@ import uuid
 # Configuration
 BASE_URL = "https://build-stack.preview.emergentagent.com/api"
 ADMIN_CREDENTIALS = {
-    "identifier": "admin@buildstack.com",
+    "identifier": "admin@test.com",
     "password": "admin123",
     "auth_type": "email"
 }
