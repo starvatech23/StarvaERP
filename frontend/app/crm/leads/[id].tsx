@@ -260,7 +260,7 @@ export default function LeadDetailScreen() {
           {activities.length === 0 ? (
             <Text style={styles.emptyText}>No activities yet</Text>
           ) : (
-            activities.map((activity: any, index) => (
+            activities.map((activity, index) => (
               <View key={activity.id} style={styles.activityItem}>
                 <View style={styles.activityIcon}>
                   <Ionicons
