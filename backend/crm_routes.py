@@ -41,9 +41,25 @@ security_optional = HTTPBearer(auto_error=False)
 
 async def get_current_user_optional(credentials: OptionalType[HTTPAuthorizationCredentials] = Depends(security_optional)):
     if credentials:
-        # If token provided, validate it
+        # If token provided, validate it manually
         try:
-            return await get_current_user(credentials)
+            from auth import decode_token
+            from bson import ObjectId
+            import server
+            
+            token = credentials.credentials
+            payload = decode_token(token)
+            user_id = payload.get("sub")
+            
+            if user_id:
+                user = await server.db.users.find_one({"_id": ObjectId(user_id)})
+                if user:
+                    return {
+                        "id": str(user["_id"]),
+                        "_id": str(user["_id"]),
+                        "full_name": user.get("full_name", "User"),
+                        "role": user.get("role", "user")
+                    }
         except:
             pass
     # No token or invalid token - return admin user for CRM testing
