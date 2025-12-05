@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend API Testing for Construction Management Application
-Testing ALL Financial and Materials Management modules as requested in review:
-- MODULE 1: FINANCIAL MANAGEMENT (Budgets, Expenses, Invoices, Payments, Financial Reports)
-- MODULE 2: MATERIALS MANAGEMENT (Vendors, Materials, Purchase Orders, Material Requirements, Site Inventory, Material Transactions)
-- MODULE 3: PROJECT MANAGEMENT (Milestones, Documents) - Smoke Test
-- MODULE 4: AUTHENTICATION & AUTHORIZATION - Role-based access control
+Comprehensive Backend API Testing for CRM Lead Management Module
+Tests all 18 CRM endpoints with proper authentication and data validation
 """
 
 import requests
 import json
+import sys
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 import uuid
 
 # Configuration
 BASE_URL = "https://build-stack.preview.emergentagent.com/api"
-HEADERS = {"Content-Type": "application/json"}
+ADMIN_CREDENTIALS = {
+    "identifier": "admin@buildstack.com",
+    "password": "admin123",
+    "auth_type": "email"
+}
 
-class FinancialMaterialsAPITester:
+class CRMTester:
     def __init__(self):
         self.auth_token = None
         self.headers = HEADERS.copy()
