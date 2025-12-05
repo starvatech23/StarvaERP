@@ -48,6 +48,18 @@ export default function CreateFunnelScreen() {
     try {
       const res = await crmCategoriesAPI.getAll();
       setCategories(res.data);
+      
+      // Show alert if no categories exist
+      if (res.data.length === 0) {
+        Alert.alert(
+          'No Categories Found',
+          'You need to create at least one category before creating a funnel. Would you like to go to Categories now?',
+          [
+            { text: 'Cancel', style: 'cancel', onPress: () => router.back() },
+            { text: 'Go to Categories', onPress: () => router.push('/crm/categories' as any) }
+          ]
+        );
+      }
     } catch (error) {
       console.error('Error loading categories:', error);
     }
