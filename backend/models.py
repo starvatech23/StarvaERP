@@ -1711,6 +1711,8 @@ class FunnelResponse(FunnelBase):
     created_at: datetime
     updated_at: datetime
     lead_count: int = 0
+    category_names: List[str] = []  # Names of linked categories
+    conversion_rate: float = 0.0
     conversion_rate: float = 0.0
 
 class FunnelStageStats(BaseModel):
