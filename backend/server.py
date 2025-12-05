@@ -31,7 +31,6 @@ from models import (
     PaymentCreate, PaymentUpdate, PaymentResponse,
     ExpenseCreate, ExpenseUpdate, ExpenseResponse,
     NotificationCreate, NotificationResponse,
-    ActivityLogCreate, ActivityLogResponse,
     UserRoleUpdate, UserStatusUpdate, UserManagementResponse,
     WorkerCreate, WorkerUpdate, WorkerResponse,
     LaborAttendanceCreate, LaborAttendanceUpdate, LaborAttendanceResponse,
