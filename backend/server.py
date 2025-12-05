@@ -195,22 +195,9 @@ async def login(credentials: UserLogin):
         if not user:
             raise HTTPException(status_code=401, detail="Invalid email or password")
         
-        # Debug logging
         password_hash = user.get("password_hash", "")
-        print(f"DEBUG: User found: {user.get('email')}")
-        print(f"DEBUG: Has password_hash: {'password_hash' in user}")
-        print(f"DEBUG: Hash length: {len(password_hash)}")
-        print(f"DEBUG: Hash value: {password_hash[:30]}...")
-        print(f"DEBUG: Testing password: {credentials.password[:3]}...")
-        
-        verification_result = verify_password(credentials.password, password_hash)
-        print(f"DEBUG: Verification result: {verification_result}")
-        
-        if not verification_result:
-            print(f"DEBUG: Password verification FAILED - will return 401")
+        if not verify_password(credentials.password, password_hash):
             raise HTTPException(status_code=401, detail="Invalid email or password")
-        
-        print(f"DEBUG: Password verification SUCCESS!")
     
     elif credentials.auth_type == "phone":
         # Phone login (after OTP verification)
