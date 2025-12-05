@@ -11,7 +11,8 @@ MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
 
 async def init_crm_data():
     client = AsyncIOMotorClient(MONGO_URL)
-    db = client.construction_db
+    db_name = os.getenv('DB_NAME', 'construction_db')
+    db = client[db_name]
     
     # Check if categories already exist
     existing_count = await db.lead_categories.count_documents({})
