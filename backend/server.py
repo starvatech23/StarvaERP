@@ -1748,34 +1748,6 @@ async def mark_all_notifications_read(
     
     return {"message": "All notifications marked as read"}
 
-# ============= Activity Log Routes =============
-
-@api_router.get("/activity", response_model=List[ActivityLogResponse])
-async def get_activity_log(
-    limit: int = 50,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-):
-    """Get activity log"""
-    current_user = await get_current_user(credentials)
-    
-    activities = await db.activity_logs.find().sort("created_at", -1).limit(limit).to_list(limit)
-    
-    result = []
-    for activity in activities:
-        activity_dict = serialize_doc(activity)
-        
-        user = await get_user_by_id(activity_dict["user_id"])
-        if user:
-            activity_dict["user_name"] = user["full_name"]
-            activity_dict["user_role"] = user["role"]
-        else:
-            activity_dict["user_name"] = "Unknown"
-            activity_dict["user_role"] = "unknown"
-        
-        result.append(ActivityLogResponse(**activity_dict))
-    
-    return result
-
 # ============= User Management Routes =============
 
 @api_router.get("/admin/users", response_model=List[UserManagementResponse])
