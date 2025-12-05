@@ -211,6 +211,17 @@ export const crmSystemLabelsAPI = {
   update: (labels: any[]) => api.put('/crm/system-labels', labels),
 };
 
+// Phase 4: Move Lead to Project & Audit Logs
+export const crmMoveToProjectAPI = {
+  moveLeadToProject: (data: any) => api.post('/crm/leads/move-to-project', data),
+  checkEligibility: (leadId: string) => api.get(`/crm/leads/${leadId}/can-convert`),
+};
+
+export const crmAuditLogsAPI = {
+  getAll: (params?: any) => api.get('/crm/audit-logs', { params }),
+  export: (filter: any) => api.post('/crm/audit-logs/export', filter),
+};
+
 // Payments API (Old - kept for compatibility)
 // Replaced by enhanced paymentsAPI below
 
