@@ -326,8 +326,8 @@ const getActivityIcon = (type) => {
   return icons[type] || 'ellipse';
 };
 
-const getActivityColor = (type: string) => {
-  const colors: any = {
+const getActivityColor = (type) => {
+  const colors = {
     call: '#3B82F6',
     whatsapp: '#10B981',
     email: '#F59E0B',
