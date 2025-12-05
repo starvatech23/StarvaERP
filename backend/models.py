@@ -1772,6 +1772,100 @@ class LeadImportRequest(BaseModel):
     default_category_id: Optional[str] = None
     meta_config: Optional[MetaLeadImportConfig] = None
 
+
+# ============= Move Lead to Project with Bank Transaction =============
+
+class BankTransactionBase(BaseModel):
+    bank_name: str
+    account_number: str  # Will be masked in responses
+    transaction_id: str
+    amount: float
+    transaction_date: datetime
+    receipt_attachment: Optional[str] = None  # Base64 or file path
+    notes: Optional[str] = None
+
+class BankTransactionCreate(BankTransactionBase):
+    pass
+
+class BankTransactionResponse(BankTransactionBase):
+    id: str
+    account_number_masked: str
+    created_at: datetime
+
+class MoveLeadToProjectRequest(BaseModel):
+    lead_id: str
+    project_name: str
+    project_description: Optional[str] = None
+    bank_transaction: Optional[BankTransactionCreate] = None
+    bypass_transaction: bool = False
+    bypass_reason: Optional[str] = None
+    copy_fields: List[str] = ["name", "primary_phone", "email", "city", "budget", "requirement"]
+
+class MoveLeadToProjectResponse(BaseModel):
+    success: bool
+    project_id: str
+    project_name: str
+    transaction_id: Optional[str] = None
+    bypassed: bool = False
+    message: str
+
+# ============= Audit Logging for Financial Actions =============
+
+class AuditActionType(str, Enum):
+    LEAD_TO_PROJECT = "lead_to_project"
+    BANK_TRANSACTION = "bank_transaction"
+    BYPASS_REQUIRED_FIELD = "bypass_required_field"
+    PROJECT_CREATED = "project_created"
+    FINANCIAL_ENTRY = "financial_entry"
+    FIELD_MODIFIED = "field_modified"
+    PERMISSION_OVERRIDE = "permission_override"
+
+class AuditLogBase(BaseModel):
+    action_type: AuditActionType
+    action_description: str
+    entity_type: str  # "lead", "project", "transaction", etc.
+    entity_id: str
+    user_id: str
+    user_role: str
+    old_data: Optional[Dict[str, Any]] = None
+    new_data: Optional[Dict[str, Any]] = None
+    ip_address: Optional[str] = None
+    bypass_reason: Optional[str] = None
+    is_financial_action: bool = False
+    is_reversible: bool = True
+
+class AuditLogCreate(AuditLogBase):
+    pass
+
+class AuditLogResponse(AuditLogBase):
+    id: str
+    user_name: str
+    created_at: datetime
+
+class AuditLogFilter(BaseModel):
+    action_type: Optional[AuditActionType] = None
+    entity_type: Optional[str] = None
+    entity_id: Optional[str] = None
+    user_id: Optional[str] = None
+    is_financial_action: Optional[bool] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+
+# ============= Project Creation from Lead =============
+
+class ProjectFromLeadBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    budget: Optional[float] = None
+    location: Optional[str] = None
+    client_name: Optional[str] = None
+    client_phone: Optional[str] = None
+    client_email: Optional[str] = None
+    source_lead_id: str
+    initial_payment: Optional[float] = None
+
 # ============= System Labels =============
 
 class SystemLabel(str, Enum):
