@@ -18,7 +18,7 @@ import { crmLeadsAPI, crmActivitiesAPI } from '../../../services/api';
 export default function LeadDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const [lead, setLead] = useState<any>(null);
+  const [lead, setLead] = useState(null);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
