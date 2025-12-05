@@ -1484,6 +1484,11 @@ class LeadBase(BaseModel):
     last_contacted: Optional[datetime] = None
     next_follow_up: Optional[datetime] = None
     notes: Optional[str] = None
+    # Funnel support
+    funnel_id: Optional[str] = None  # Reference to Funnel
+    funnel_stage: Optional[str] = None  # Current stage in funnel
+    # Custom fields
+    custom_fields: Optional[Dict[str, Any]] = {}
 
 class LeadCreate(LeadBase):
     send_whatsapp: bool = False  # Auto-send WhatsApp on creation
