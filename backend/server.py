@@ -5748,6 +5748,18 @@ async def create_funnel(
     funnel_dict["lead_count"] = 0
     funnel_dict["conversion_rate"] = 0.0
     
+    # Get category names
+    category_names = []
+    if funnel_dict.get("category_ids"):
+        for cat_id in funnel_dict["category_ids"]:
+            try:
+                category = await db.lead_categories.find_one({"_id": ObjectId(cat_id)})
+                if category:
+                    category_names.append(category["name"])
+            except:
+                pass
+    funnel_dict["category_names"] = category_names
+    
     return FunnelResponse(**funnel_dict)
 
 @api_router.get("/crm/funnels/{funnel_id}", response_model=FunnelResponse)
