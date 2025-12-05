@@ -80,7 +80,15 @@ export default function LeadsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Leads</Text>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.push('/')}
+          >
+            <Ionicons name="home" size={20} color="#FF6B35" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Leads</Text>
+        </View>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/crm/leads/create' as any)}
