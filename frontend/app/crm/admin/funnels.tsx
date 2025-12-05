@@ -139,6 +139,14 @@ export default function FunnelsScreen() {
                   {funnel.description && (
                     <Text style={styles.funnelDescription}>{funnel.description}</Text>
                   )}
+                  {funnel.category_names && funnel.category_names.length > 0 && (
+                    <View style={styles.categoriesRow}>
+                      <Ionicons name="pricetags" size={14} color="#718096" />
+                      <Text style={styles.categoriesText}>
+                        {funnel.category_names.join(', ')}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               </View>
 
