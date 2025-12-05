@@ -108,4 +108,15 @@ const styles = StyleSheet.create({
     color: '#718096',
     marginTop: 4,
   },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FF6B35',
+  },
 });
