@@ -32,8 +32,8 @@ export default function LeadDetailScreen() {
   const loadData = async () => {
     try {
       const [leadRes, activitiesRes] = await Promise.all([
-        crmLeadsAPI.getById(id as string),
-        crmActivitiesAPI.getByLead(id as string),
+        crmLeadsAPI.getById(String(id)),
+        crmActivitiesAPI.getByLead(String(id)),
       ]);
       setLead(leadRes.data);
       setActivities(activitiesRes.data);
