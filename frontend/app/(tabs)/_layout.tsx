@@ -5,7 +5,6 @@ import { useAuth } from '../../context/AuthContext';
 export default function TabsLayout() {
   const { user } = useAuth();
 
-  const canAccessCRM = user?.role === 'admin' || user?.role === 'project_manager';
   const canAccessProjects = user?.role !== 'vendor';
   const isWorker = user?.role === 'worker';
 
