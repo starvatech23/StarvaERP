@@ -697,51 +697,63 @@ backend:
 
   - task: "CRM Lead Activity Timeline APIs"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented 2 activity endpoints: GET /api/crm/leads/{id}/activities (get timeline), POST /api/crm/leads/{id}/activities (add activity). Activities include calls, WhatsApp, emails, meetings, notes, site visits. Updates last_contacted on calls/meetings."
+      - working: false
+        agent: "testing"
+        comment: "❌ PARTIAL WORKING (1/2 endpoints): GET /api/crm/leads/{id}/activities (✅ retrieves activity timeline correctly), POST /api/crm/leads/{id}/activities (❌ 422 validation error - missing required fields: lead_id, activity_type, title). Activity creation model validation needs fixing."
 
   - task: "CRM Mock Integration APIs"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented 2 mock endpoints: POST /api/crm/leads/{id}/call (log call with duration/outcome), POST /api/crm/leads/{id}/whatsapp (send mock WhatsApp). Both create activity log entries and update last_contacted timestamp."
+      - working: false
+        agent: "testing"
+        comment: "❌ PARTIAL WORKING (1/2 endpoints): POST /api/crm/leads/{id}/call (✅ logs call activities correctly), POST /api/crm/leads/{id}/whatsapp (❌ 400 error - 'Lead has not consented to WhatsApp messages'). WhatsApp consent validation is working but blocks testing."
 
   - task: "CRM Bulk Operations APIs"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented 3 bulk endpoints: POST /api/crm/leads/bulk-update (update multiple leads), POST /api/crm/leads/bulk-assign (assign to user), POST /api/crm/leads/import (CSV/Excel import with error tracking)."
+      - working: false
+        agent: "testing"
+        comment: "❌ PARTIAL WORKING (2/3 endpoints): POST /api/crm/leads/bulk-update (✅ updates multiple leads), POST /api/crm/leads/bulk-assign (✅ assigns leads to users), POST /api/crm/leads/import (❌ 422 validation error - missing default_category_id query param and expects list format). Import endpoint needs API signature fix."
 
   - task: "CRM Configuration APIs"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented 2 config endpoints: GET /api/crm/config (get config - admin only), PUT /api/crm/config (update config - admin only). Config includes WhatsApp settings, telephony settings, auto-assignment rules. Creates default config if none exists."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL CONFIG APIS WORKING (2/2 endpoints): GET /api/crm/config (✅ retrieves CRM configuration), PUT /api/crm/config (✅ updates configuration with admin auth). WhatsApp settings, telephony settings, and auto-assignment rules all configurable. Authentication properly enforced (Admin only)."
 
 frontend:
   - task: "CRM Lead List Screen"
