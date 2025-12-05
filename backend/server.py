@@ -4841,8 +4841,9 @@ async def get_financial_report(
 
 # Helper function to get category with lead count
 async def get_category_with_count(category_doc):
+    category_id = str(category_doc["_id"])
     category_dict = serialize_doc(category_doc)
-    lead_count = await db.leads.count_documents({"category_id": str(category_doc["_id"]), "is_deleted": {"$ne": True}})
+    lead_count = await db.leads.count_documents({"category_id": category_id, "is_deleted": {"$ne": True}})
     category_dict["lead_count"] = lead_count
     return LeadCategoryResponse(**category_dict)
 
