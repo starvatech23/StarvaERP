@@ -5700,6 +5700,18 @@ async def get_funnels(
         creator = await get_user_by_id(funnel_dict["created_by"])
         funnel_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
         
+        # Get category names
+        category_names = []
+        if funnel_dict.get("category_ids"):
+            for cat_id in funnel_dict["category_ids"]:
+                try:
+                    category = await db.lead_categories.find_one({"_id": ObjectId(cat_id)})
+                    if category:
+                        category_names.append(category["name"])
+                except:
+                    pass
+        funnel_dict["category_names"] = category_names
+        
         # Count leads in this funnel
         lead_count = await db.leads.count_documents({"funnel_id": funnel_dict["id"], "is_deleted": {"$ne": True}})
         funnel_dict["lead_count"] = lead_count
