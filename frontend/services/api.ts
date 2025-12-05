@@ -138,39 +138,7 @@ export const scheduleAPI = {
   delete: (id: string) => api.delete(`/schedules/${id}`),
 };
 
-// CRM Leads API
-export const leadsAPI = {
-  getAll: () => api.get('/crm/leads'),
-  getById: (id: string) => api.get(`/crm/leads/${id}`),
-  create: (data: any) => api.post('/crm/leads', data),
-  update: (id: string, data: any) => api.put(`/crm/leads/${id}`, data),
-  delete: (id: string) => api.delete(`/crm/leads/${id}`),
-};
-
-// CRM Quotations API
-export const quotationsAPI = {
-  getAll: (leadId?: string) => api.get('/crm/quotations', { params: { lead_id: leadId } }),
-  getById: (id: string) => api.get(`/crm/quotations/${id}`),
-  create: (data: any) => api.post('/crm/quotations', data),
-  update: (id: string, data: any) => api.put(`/crm/quotations/${id}`, data),
-  delete: (id: string) => api.delete(`/crm/quotations/${id}`),
-};
-
-// Company Settings API
-export const settingsAPI = {
-  getCompany: () => api.get('/settings/company'),
-  updateCompany: (data: any) => api.put('/settings/company', data),
-};
-
-// Profile API
-export const profileAPI = {
-  update: (data: any) => api.put('/profile', data),
-};
-
-// Bulk Leads Upload API
-export const bulkLeadsAPI = {
-  upload: (data: any[]) => api.post('/crm/leads/bulk', data),
-};
+// CRM APIs - Will be rebuilt in Phase 2
 
 // Payments API (Old - kept for compatibility)
 // Replaced by enhanced paymentsAPI below
