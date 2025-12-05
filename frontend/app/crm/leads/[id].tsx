@@ -29,7 +29,7 @@ export default function LeadDetailScreen() {
     }
   }, [id, loadData]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [leadRes, activitiesRes] = await Promise.all([
         crmLeadsAPI.getById(String(id)),
@@ -44,7 +44,7 @@ export default function LeadDetailScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [id]);
 
   const handleCall = () => {
     if (lead?.primary_phone) {
