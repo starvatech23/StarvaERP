@@ -108,7 +108,7 @@ export default function FunnelsScreen() {
         </View>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => Alert.alert('Coming Soon', 'Funnel builder UI will be available soon')}
+          onPress={() => router.push('/crm/admin/create-funnel' as any)}
         >
           <Ionicons name="add" size={24} color="#FFFFFF" />
         </TouchableOpacity>
