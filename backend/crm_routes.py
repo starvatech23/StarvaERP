@@ -24,16 +24,14 @@ from utils import (
     format_currency, process_template, calculate_time_ago
 )
 from services import IntegrationServiceFactory
+from auth import get_current_user
 
 crm_router = APIRouter(prefix="/crm", tags=["CRM"])
 
-# Dependency injection - db and current_user will be provided by server.py
-# These are placeholder signatures that will be overridden
+# Database dependency - import at runtime to avoid circular import
 def get_db_dep():
-    pass
-
-def get_current_user_dep():
-    pass
+    import server
+    return server.db
 
 
 # ============= Lead Category Routes =============
