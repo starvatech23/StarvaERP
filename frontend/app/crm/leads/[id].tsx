@@ -27,7 +27,7 @@ export default function LeadDetailScreen() {
     if (id) {
       loadData();
     }
-  }, [id]);
+  }, [id, loadData]);
 
   const loadData = async () => {
     try {
