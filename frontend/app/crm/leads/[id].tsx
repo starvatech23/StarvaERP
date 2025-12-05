@@ -23,12 +23,6 @@ export default function LeadDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    if (id) {
-      loadData();
-    }
-  }, [id, loadData]);
-
   const loadData = useCallback(async () => {
     try {
       const [leadRes, activitiesRes] = await Promise.all([
@@ -45,6 +39,12 @@ export default function LeadDetailScreen() {
       setRefreshing(false);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      loadData();
+    }
+  }, [id, loadData]);
 
   const handleCall = () => {
     if (lead?.primary_phone) {
