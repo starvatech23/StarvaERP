@@ -6146,6 +6146,337 @@ async def update_system_labels(
     return {"message": "System labels updated successfully"}
 
 
+# ============= Audit Logging Routes =============
+
+async def create_audit_log(
+    action_type: AuditActionType,
+    description: str,
+    entity_type: str,
+    entity_id: str,
+    user: dict,
+    old_data: Any = None,
+    new_data: Any = None,
+    bypass_reason: str = None,
+    is_financial: bool = False
+):
+    """Helper function to create audit log entries"""
+    audit_entry = {
+        "action_type": action_type,
+        "action_description": description,
+        "entity_type": entity_type,
+        "entity_id": entity_id,
+        "user_id": str(user["_id"]),
+        "user_role": user["role"],
+        "old_data": old_data,
+        "new_data": new_data,
+        "bypass_reason": bypass_reason,
+        "is_financial_action": is_financial,
+        "is_reversible": not is_financial,  # Financial actions not reversible
+        "created_at": datetime.utcnow()
+    }
+    result = await db.audit_logs.insert_one(audit_entry)
+    return str(result.inserted_id)
+
+@api_router.get("/crm/audit-logs", response_model=List[AuditLogResponse])
+async def get_audit_logs(
+    action_type: Optional[AuditActionType] = None,
+    entity_type: Optional[str] = None,
+    entity_id: Optional[str] = None,
+    user_id: Optional[str] = None,
+    is_financial_action: Optional[bool] = None,
+    limit: int = 100,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get audit logs with filtering (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can view audit logs")
+    
+    query = {}
+    if action_type:
+        query["action_type"] = action_type
+    if entity_type:
+        query["entity_type"] = entity_type
+    if entity_id:
+        query["entity_id"] = entity_id
+    if user_id:
+        query["user_id"] = user_id
+    if is_financial_action is not None:
+        query["is_financial_action"] = is_financial_action
+    
+    logs = await db.audit_logs.find(query).sort("created_at", -1).limit(limit).to_list(limit)
+    
+    result = []
+    for log in logs:
+        log_dict = serialize_doc(log)
+        
+        # Get user name
+        user = await get_user_by_id(log_dict["user_id"])
+        log_dict["user_name"] = user["full_name"] if user else "Unknown"
+        
+        result.append(AuditLogResponse(**log_dict))
+    
+    return result
+
+@api_router.post("/crm/audit-logs/export")
+async def export_audit_logs(
+    filter: AuditLogFilter,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Export audit logs to CSV (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can export audit logs")
+    
+    query = {}
+    if filter.action_type:
+        query["action_type"] = filter.action_type
+    if filter.entity_type:
+        query["entity_type"] = filter.entity_type
+    if filter.entity_id:
+        query["entity_id"] = filter.entity_id
+    if filter.user_id:
+        query["user_id"] = filter.user_id
+    if filter.is_financial_action is not None:
+        query["is_financial_action"] = filter.is_financial_action
+    if filter.start_date:
+        query["created_at"] = {"$gte": filter.start_date}
+    if filter.end_date:
+        query.setdefault("created_at", {})["$lte"] = filter.end_date
+    
+    logs = await db.audit_logs.find(query).sort("created_at", -1).to_list(10000)
+    
+    import csv
+    import io
+    
+    output = io.StringIO()
+    if logs:
+        fieldnames = ["created_at", "action_type", "action_description", "entity_type", "entity_id", "user_id", "user_role", "bypass_reason"]
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
+        writer.writeheader()
+        
+        for log in logs:
+            writer.writerow({
+                "created_at": log.get("created_at", "").isoformat() if log.get("created_at") else "",
+                "action_type": log.get("action_type", ""),
+                "action_description": log.get("action_description", ""),
+                "entity_type": log.get("entity_type", ""),
+                "entity_id": log.get("entity_id", ""),
+                "user_id": log.get("user_id", ""),
+                "user_role": log.get("user_role", ""),
+                "bypass_reason": log.get("bypass_reason", ""),
+            })
+    
+    return {"format": "csv", "data": output.getvalue(), "count": len(logs)}
+
+# ============= Move Lead to Project Routes =============
+
+@api_router.post("/crm/leads/move-to-project", response_model=MoveLeadToProjectResponse)
+async def move_lead_to_project(
+    request: MoveLeadToProjectRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Move a lead to a project with mandatory bank transaction (or admin bypass)"""
+    current_user = await get_current_user(credentials)
+    
+    # Check permission
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can move leads to projects")
+    
+    # Get lead
+    lead = await db.leads.find_one({"_id": ObjectId(request.lead_id), "is_deleted": {"$ne": True}})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    # Validate bank transaction requirement
+    if not request.bypass_transaction and not request.bank_transaction:
+        raise HTTPException(
+            status_code=400,
+            detail="Bank transaction details are required. Only admins can bypass this requirement."
+        )
+    
+    # Validate bypass permission
+    if request.bypass_transaction:
+        if current_user["role"] != UserRole.ADMIN:
+            raise HTTPException(
+                status_code=403,
+                detail="Only admins can bypass the bank transaction requirement"
+            )
+        if not request.bypass_reason:
+            raise HTTPException(
+                status_code=400,
+                detail="Bypass reason is required when skipping bank transaction"
+            )
+    
+    # Validate bank transaction if provided
+    if request.bank_transaction:
+        if request.bank_transaction.amount <= 0:
+            raise HTTPException(status_code=400, detail="Transaction amount must be positive")
+        if request.bank_transaction.transaction_date > datetime.utcnow():
+            raise HTTPException(status_code=400, detail="Transaction date cannot be in the future")
+    
+    # Create project from lead
+    project_data = {
+        "name": request.project_name,
+        "description": request.project_description or lead.get("requirement", ""),
+        "start_date": datetime.utcnow(),
+        "status": "planning",
+        "created_by": str(current_user["_id"]),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "source_lead_id": request.lead_id,
+    }
+    
+    # Copy lead fields to project
+    if "name" in request.copy_fields and lead.get("name"):
+        project_data["client_name"] = lead["name"]
+    if "primary_phone" in request.copy_fields and lead.get("primary_phone"):
+        project_data["client_phone"] = lead["primary_phone"]
+    if "email" in request.copy_fields and lead.get("email"):
+        project_data["client_email"] = lead["email"]
+    if "city" in request.copy_fields and lead.get("city"):
+        project_data["location"] = lead["city"]
+    if "budget" in request.copy_fields and lead.get("budget"):
+        project_data["budget"] = lead["budget"]
+    
+    # Insert project
+    project_result = await db.projects.insert_one(project_data)
+    project_id = str(project_result.inserted_id)
+    
+    # Handle bank transaction
+    transaction_id = None
+    if request.bank_transaction:
+        # Mask account number
+        account_number = request.bank_transaction.account_number
+        masked_account = account_number[:2] + "*" * (len(account_number) - 4) + account_number[-2:]
+        
+        # Create bank transaction record
+        transaction_data = request.bank_transaction.dict()
+        transaction_data["project_id"] = project_id
+        transaction_data["lead_id"] = request.lead_id
+        transaction_data["account_number_masked"] = masked_account
+        transaction_data["recorded_by"] = str(current_user["_id"])
+        transaction_data["created_at"] = datetime.utcnow()
+        
+        trans_result = await db.bank_transactions.insert_one(transaction_data)
+        transaction_id = str(trans_result.inserted_id)
+        
+        # Create audit log for bank transaction
+        await create_audit_log(
+            action_type=AuditActionType.BANK_TRANSACTION,
+            description=f"Bank transaction recorded: {request.bank_transaction.bank_name} - {transaction_data['amount']}",
+            entity_type="transaction",
+            entity_id=transaction_id,
+            user=current_user,
+            new_data={
+                "bank_name": request.bank_transaction.bank_name,
+                "amount": request.bank_transaction.amount,
+                "transaction_id": request.bank_transaction.transaction_id,
+                "project_id": project_id
+            },
+            is_financial=True
+        )
+    
+    # Create audit log for lead to project move
+    await create_audit_log(
+        action_type=AuditActionType.LEAD_TO_PROJECT,
+        description=f"Lead '{lead.get('name')}' moved to project '{request.project_name}'",
+        entity_type="lead",
+        entity_id=request.lead_id,
+        user=current_user,
+        old_data={"status": lead.get("status")},
+        new_data={"status": "converted", "project_id": project_id},
+        bypass_reason=request.bypass_reason if request.bypass_transaction else None,
+        is_financial=True
+    )
+    
+    # If bypassed, create separate audit log
+    if request.bypass_transaction:
+        await create_audit_log(
+            action_type=AuditActionType.BYPASS_REQUIRED_FIELD,
+            description=f"Admin bypassed bank transaction requirement. Reason: {request.bypass_reason}",
+            entity_type="project",
+            entity_id=project_id,
+            user=current_user,
+            bypass_reason=request.bypass_reason,
+            is_financial=True
+        )
+    
+    # Update lead status
+    await db.leads.update_one(
+        {"_id": ObjectId(request.lead_id)},
+        {"$set": {
+            "status": LeadStatus.WON,
+            "converted_to_project_id": project_id,
+            "conversion_date": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    
+    # Create activity log
+    activity = {
+        "lead_id": request.lead_id,
+        "activity_type": LeadActivityType.STATUS_CHANGE,
+        "title": "Converted to Project",
+        "description": f"Lead converted to project: {request.project_name}",
+        "performed_by": str(current_user["_id"]),
+        "created_at": datetime.utcnow()
+    }
+    await db.lead_activities.insert_one(activity)
+    
+    return MoveLeadToProjectResponse(
+        success=True,
+        project_id=project_id,
+        project_name=request.project_name,
+        transaction_id=transaction_id,
+        bypassed=request.bypass_transaction,
+        message=f"Lead successfully converted to project{' (bank transaction bypassed)' if request.bypass_transaction else ''}"
+    )
+
+@api_router.get("/crm/leads/{lead_id}/can-convert")
+async def check_lead_conversion_eligibility(
+    lead_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Check if a lead can be converted to a project"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    lead = await db.leads.find_one({"_id": ObjectId(lead_id), "is_deleted": {"$ne": True}})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    # Check if already converted
+    if lead.get("converted_to_project_id"):
+        return {
+            "can_convert": False,
+            "reason": "Lead has already been converted to a project",
+            "existing_project_id": lead.get("converted_to_project_id")
+        }
+    
+    # Check lead status
+    if lead.get("status") == LeadStatus.LOST:
+        return {
+            "can_convert": False,
+            "reason": "Cannot convert a lost lead to a project"
+        }
+    
+    # Check user permissions
+    can_bypass = current_user["role"] == UserRole.ADMIN
+    
+    return {
+        "can_convert": True,
+        "can_bypass_transaction": can_bypass,
+        "lead_name": lead.get("name"),
+        "lead_budget": lead.get("budget"),
+        "lead_status": lead.get("status")
+    }
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
