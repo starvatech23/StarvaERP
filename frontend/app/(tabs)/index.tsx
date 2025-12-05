@@ -95,7 +95,6 @@ export default function DashboardScreen() {
   // Build quick actions based on user role
   const quickActions = [
     { icon: 'add-circle', label: 'New Project', color: '#FF6B35', action: () => router.push('/projects/create' as any) },
-    { icon: 'people', label: 'CRM Leads', color: '#3B82F6', action: () => router.push('/crm' as any) },
     { icon: 'stats-chart', label: 'Analytics', color: '#6366F1', action: () => router.push('/analytics' as any) },
     { icon: 'wallet', label: 'Finance', color: '#10B981', action: () => router.push('/finance' as any) },
     { icon: 'cube', label: 'Materials', color: '#8B5CF6', action: () => router.push('/(tabs)/materials' as any) },
