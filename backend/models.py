@@ -1368,3 +1368,254 @@ class PaymentResponse(PaymentBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
+
+# ============= CRM Lead Management Models (Phase 2 - Clean Rebuild) =============
+
+# Lead Status Enum
+class LeadStatus(str, Enum):
+    NEW = "new"
+    CONTACTED = "contacted"
+    QUALIFIED = "qualified"
+    PROPOSAL = "proposal"
+    NEGOTIATION = "negotiation"
+    WON = "won"
+    LOST = "lost"
+    ON_HOLD = "on_hold"
+
+# Lead Priority Enum
+class LeadPriority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    URGENT = "urgent"
+
+# Lead Source Enum
+class LeadSource(str, Enum):
+    WEBSITE = "website"
+    REFERRAL = "referral"
+    SOCIAL_MEDIA = "social_media"
+    COLD_CALL = "cold_call"
+    WALK_IN = "walk_in"
+    ADVERTISEMENT = "advertisement"
+    PARTNER = "partner"
+    OTHER = "other"
+
+# Lead Activity Type Enum
+class LeadActivityType(str, Enum):
+    CALL = "call"
+    WHATSAPP = "whatsapp"
+    EMAIL = "email"
+    MEETING = "meeting"
+    NOTE = "note"
+    SITE_VISIT = "site_visit"
+    STATUS_CHANGE = "status_change"
+    FIELD_UPDATE = "field_update"
+
+# Call Outcome Enum
+class CallOutcome(str, Enum):
+    CONNECTED = "connected"
+    BUSY = "busy"
+    NO_ANSWER = "no_answer"
+    FAILED = "failed"
+    VOICEMAIL = "voicemail"
+    CALLBACK_REQUESTED = "callback_requested"
+
+# WhatsApp Status Enum
+class WhatsAppStatus(str, Enum):
+    PENDING = "pending"
+    SENT = "sent"
+    DELIVERED = "delivered"
+    READ = "read"
+    FAILED = "failed"
+
+# Currency Enum
+class Currency(str, Enum):
+    INR = "INR"
+    USD = "USD"
+    EUR = "EUR"
+    GBP = "GBP"
+
+# ============= Lead Category (Custom Funnel Stages) =============
+
+class LeadCategoryBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    color: str = "#6B7280"  # Hex color for UI
+    order: int = 0
+    is_active: bool = True
+    is_system: bool = False  # System categories can't be deleted
+
+class LeadCategoryCreate(LeadCategoryBase):
+    pass
+
+class LeadCategoryUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    color: Optional[str] = None
+    order: Optional[int] = None
+    is_active: Optional[bool] = None
+
+class LeadCategoryResponse(LeadCategoryBase):
+    id: str
+    created_at: datetime
+    updated_at: datetime
+    lead_count: int = 0  # Number of leads in this category
+
+# ============= Lead Model =============
+
+class LeadBase(BaseModel):
+    name: str  # Lead/Client name
+    primary_phone: str
+    alternate_phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    budget: Optional[float] = None
+    budget_currency: Currency = Currency.INR
+    requirement: Optional[str] = None  # Project requirements/description
+    category_id: str  # Reference to LeadCategory
+    status: LeadStatus = LeadStatus.NEW
+    assigned_to: Optional[str] = None  # User ID
+    source: LeadSource = LeadSource.OTHER
+    priority: LeadPriority = LeadPriority.MEDIUM
+    tags: List[str] = []
+    whatsapp_consent: bool = False  # Consent for WhatsApp messages
+    whatsapp_opt_in_date: Optional[datetime] = None
+    last_contacted: Optional[datetime] = None
+    next_follow_up: Optional[datetime] = None
+    notes: Optional[str] = None
+
+class LeadCreate(LeadBase):
+    send_whatsapp: bool = False  # Auto-send WhatsApp on creation
+
+class LeadUpdate(BaseModel):
+    name: Optional[str] = None
+    primary_phone: Optional[str] = None
+    alternate_phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    budget: Optional[float] = None
+    budget_currency: Optional[Currency] = None
+    requirement: Optional[str] = None
+    category_id: Optional[str] = None
+    status: Optional[LeadStatus] = None
+    assigned_to: Optional[str] = None
+    source: Optional[LeadSource] = None
+    priority: Optional[LeadPriority] = None
+    tags: Optional[List[str]] = None
+    whatsapp_consent: Optional[bool] = None
+    last_contacted: Optional[datetime] = None
+    next_follow_up: Optional[datetime] = None
+    notes: Optional[str] = None
+
+class LeadResponse(LeadBase):
+    id: str
+    assigned_to_name: Optional[str] = None
+    category_name: Optional[str] = None
+    category_color: Optional[str] = None
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    last_activity: Optional[datetime] = None
+    activities_count: int = 0
+
+# ============= Lead Activity Model (Timeline) =============
+
+class LeadActivityBase(BaseModel):
+    lead_id: str
+    activity_type: LeadActivityType
+    title: str
+    description: Optional[str] = None
+    # Call specific fields
+    call_duration: Optional[int] = None  # seconds
+    call_outcome: Optional[CallOutcome] = None
+    # WhatsApp specific fields
+    whatsapp_message_id: Optional[str] = None
+    whatsapp_status: Optional[WhatsAppStatus] = None
+    whatsapp_message: Optional[str] = None
+    # Meeting specific fields
+    meeting_date: Optional[datetime] = None
+    meeting_location: Optional[str] = None
+    meeting_attendees: Optional[List[str]] = None
+
+class LeadActivityCreate(LeadActivityBase):
+    pass
+
+class LeadActivityResponse(LeadActivityBase):
+    id: str
+    performed_by: str
+    performed_by_name: Optional[str] = None
+    created_at: datetime
+
+# ============= Lead Field Audit (Field-Level Change Tracking) =============
+
+class LeadFieldAuditBase(BaseModel):
+    lead_id: str
+    field_name: str
+    old_value: Optional[str] = None
+    new_value: Optional[str] = None
+
+class LeadFieldAuditResponse(LeadFieldAuditBase):
+    id: str
+    changed_by: str
+    changed_by_name: Optional[str] = None
+    changed_at: datetime
+
+# ============= Bulk Operations =============
+
+class LeadBulkUpdate(BaseModel):
+    lead_ids: List[str]
+    updates: Dict[str, Any]
+
+class LeadBulkAssign(BaseModel):
+    lead_ids: List[str]
+    assigned_to: str
+
+class LeadImportItem(BaseModel):
+    name: str
+    primary_phone: str
+    alternate_phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    city: Optional[str] = None
+    budget: Optional[float] = None
+    requirement: Optional[str] = None
+    source: LeadSource = LeadSource.OTHER
+    tags: Optional[List[str]] = []
+
+class LeadImportResponse(BaseModel):
+    total: int
+    successful: int
+    failed: int
+    errors: List[str] = []
+
+# ============= CRM Configuration =============
+
+class CRMConfigBase(BaseModel):
+    # WhatsApp Mock Settings
+    whatsapp_enabled: bool = False
+    whatsapp_api_key: Optional[str] = None
+    whatsapp_template_on_create: Optional[str] = "Hello {name}, thank you for your interest! We'll get back to you soon."
+    # Telephony Mock Settings
+    telephony_enabled: bool = False
+    telephony_provider: Optional[str] = "mock"
+    # Auto-assignment Settings
+    auto_assign_enabled: bool = False
+    auto_assign_strategy: str = "round_robin"  # or "least_assigned"
+
+class CRMConfigUpdate(BaseModel):
+    whatsapp_enabled: Optional[bool] = None
+    whatsapp_api_key: Optional[str] = None
+    whatsapp_template_on_create: Optional[str] = None
+    telephony_enabled: Optional[bool] = None
+    telephony_provider: Optional[str] = None
+    auto_assign_enabled: Optional[bool] = None
+    auto_assign_strategy: Optional[str] = None
+
+class CRMConfigResponse(CRMConfigBase):
+    id: str
+    updated_by: str
+    updated_by_name: Optional[str] = None
+    updated_at: datetime
+
