@@ -811,16 +811,13 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "CRM Lead Categories APIs"
-    - "CRM Lead CRUD APIs"
+  current_focus: []
+  stuck_tasks:
     - "CRM Lead Activity Timeline APIs"
-    - "CRM Mock Integration APIs"
+    - "CRM Mock Integration APIs" 
     - "CRM Bulk Operations APIs"
-    - "CRM Configuration APIs"
-  stuck_tasks: []
-  test_all: true
-  test_priority: "sequential"
+  test_all: false
+  test_priority: "high_first"
 
 agent_communication:
 agent_communication:
