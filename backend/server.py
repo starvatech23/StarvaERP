@@ -192,7 +192,18 @@ async def login(credentials: UserLogin):
     if credentials.auth_type == "email":
         # Email login
         user = await db.users.find_one({"email": credentials.identifier})
-        if not user or not verify_password(credentials.password, user.get("password_hash", "")):
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+        # Debug logging
+        password_hash = user.get("password_hash", "")
+        print(f"DEBUG: User found: {user.get('email')}")
+        print(f"DEBUG: Has password_hash: {'password_hash' in user}")
+        print(f"DEBUG: Hash length: {len(password_hash)}")
+        print(f"DEBUG: Testing password: {credentials.password[:3]}...")
+        
+        if not verify_password(credentials.password, password_hash):
+            print(f"DEBUG: Password verification FAILED")
             raise HTTPException(status_code=401, detail="Invalid email or password")
     
     elif credentials.auth_type == "phone":
