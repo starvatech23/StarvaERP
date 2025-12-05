@@ -752,7 +752,7 @@ index 687a1b5..aa7c976 100644
 ------+from typing import Dict, Any, List, Optional
 ------+
 ------+# Configuration
-------+BASE_URL = "https://build-stack.preview.emergentagent.com/api"
+------+BASE_URL = "https://crmconstruct.preview.emergentagent.com/api"
 ------+TEST_USER_EMAIL = "admin@test.com"
 ------+TEST_USER_PASSWORD = "admin123"
 ------+
@@ -1384,7 +1384,7 @@ index 687a1b5..aa7c976 100644
 -------+import uuid
 -------+
 -------+# Configuration
--------+BASE_URL = "https://build-stack.preview.emergentagent.com/api"
+-------+BASE_URL = "https://crmconstruct.preview.emergentagent.com/api"
 -------+HEADERS = {"Content-Type": "application/json"}
 -------+
 -------+class ComprehensiveAPITester:
@@ -2309,7 +2309,7 @@ index 687a1b5..aa7c976 100644
 -------+from datetime import datetime, timedelta
 -------+import uuid
 -------+
--------+BASE_URL = "https://build-stack.preview.emergentagent.com/api"
+-------+BASE_URL = "https://crmconstruct.preview.emergentagent.com/api"
 -------+HEADERS = {"Content-Type": "application/json"}
 -------+
 -------+class FinalComprehensiveTest:
@@ -4564,7 +4564,7 @@ index 687a1b5..aa7c976 100644
 -------------------+from typing import Dict, Any, Optional, List
 -------------------+
 -------------------+# Configuration
--------------------+BACKEND_URL = "https://build-stack.preview.emergentagent.com/api"
+-------------------+BACKEND_URL = "https://crmconstruct.preview.emergentagent.com/api"
 -------------------+TEST_USER_EMAIL = "admin@buildflow.com"
 -------------------+TEST_USER_PASSWORD = "admin123"
 -------------------+
@@ -5564,7 +5564,7 @@ index 687a1b5..aa7c976 100644
 --------+import json
 --------+from datetime import datetime, timedelta
 --------+
---------+BASE_URL = "https://build-stack.preview.emergentagent.com/api"
+--------+BASE_URL = "https://crmconstruct.preview.emergentagent.com/api"
 --------+HEADERS = {"Content-Type": "application/json"}
 --------+
 --------+def test_payments_api():

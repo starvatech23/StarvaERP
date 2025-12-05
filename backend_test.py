@@ -12,7 +12,7 @@ from typing import Dict, Any, List
 import uuid
 
 # Configuration
-BASE_URL = "https://build-stack.preview.emergentagent.com/api"
+BASE_URL = "https://crmconstruct.preview.emergentagent.com/api"
 ADMIN_CREDENTIALS = {
     "identifier": "admin@test.com",
     "password": "admin123",
