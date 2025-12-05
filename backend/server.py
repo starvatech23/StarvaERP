@@ -4322,7 +4322,6 @@ async def create_user_by_admin(
 
 # Include the routers in the main app
 app.include_router(api_router)
-app.include_router(crm_router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
