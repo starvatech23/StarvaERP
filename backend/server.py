@@ -27,7 +27,7 @@ from models import (
     MaterialTransactionCreate, MaterialTransactionResponse, TransactionType,
     AttendanceCreate, AttendanceCheckout, AttendanceResponse,
     WorkScheduleCreate, WorkScheduleUpdate, WorkScheduleResponse,
-    CompanySettingsUpdate, UserProfileUpdate,
+    UserProfileUpdate,
     PaymentCreate, PaymentUpdate, PaymentResponse,
     ExpenseCreate, ExpenseUpdate, ExpenseResponse,
     NotificationCreate, NotificationResponse,
