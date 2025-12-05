@@ -15,8 +15,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import BackToHome from '../../components/BackToHome';
-import { crmCategoriesAPI } from '../../services/api';
+import BackToHome from '../../../components/BackToHome';
+import { crmCategoriesAPI } from '../../../services/api';
 
 export default function CategoriesScreen() {
   const router = useRouter();
