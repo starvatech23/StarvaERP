@@ -54,7 +54,14 @@ from models import (
     LeadActivityCreate, LeadActivityResponse,
     LeadFieldAuditResponse,
     LeadBulkUpdate, LeadBulkAssign, LeadImportItem, LeadImportResponse,
-    CRMConfigUpdate, CRMConfigResponse
+    CRMConfigUpdate, CRMConfigResponse,
+    # Custom Fields & Funnels
+    CustomFieldType, CustomFieldCreate, CustomFieldUpdate, CustomFieldResponse,
+    FunnelCreate, FunnelUpdate, FunnelResponse, FunnelAnalytics, FunnelStageStats,
+    CRMPermission, RolePermissions, PermissionMatrixResponse,
+    LeadExportRequest, LeadImportSource, LeadImportRequest, MetaLeadImportConfig,
+    SystemLabel, SystemLabelUpdate, SystemLabelsResponse,
+    CRMDashboardStats
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
