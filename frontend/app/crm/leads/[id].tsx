@@ -159,6 +159,24 @@ export default function LeadDetailScreen() {
           )}
         </View>
 
+        {/* Move to Project Button */}
+        {!lead.converted_to_project_id && (
+          <TouchableOpacity
+            style={styles.moveToProjectButton}
+            onPress={() => router.push(`/crm/leads/${id}/move-to-project` as any)}
+          >
+            <Ionicons name="arrow-forward-circle" size={20} color="#FFFFFF" />
+            <Text style={styles.moveToProjectText}>Convert to Project</Text>
+          </TouchableOpacity>
+        )}
+
+        {lead.converted_to_project_id && (
+          <View style={styles.convertedBanner}>
+            <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+            <Text style={styles.convertedText}>Converted to Project</Text>
+          </View>
+        )}
+
         {/* Lead Info Card */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Contact Information</Text>
