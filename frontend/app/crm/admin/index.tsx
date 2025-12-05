@@ -33,22 +33,15 @@ export default function AdminPanelScreen() {
       icon: 'pricetag',
       title: 'System Labels',
       description: 'Customize UI terminology',
-      route: '/crm/admin/labels' as any,
+      route: '/crm/admin/labels-settings' as any,
       color: '#F59E0B',
     },
     {
-      icon: 'cloud-download',
-      title: 'Import Leads',
-      description: 'Import from CSV/Excel/Meta',
-      route: '/crm/admin/import' as any,
+      icon: 'swap-horizontal',
+      title: 'Import & Export',
+      description: 'Import from CSV/Meta, export to CSV/JSON',
+      route: '/crm/admin/import-export' as any,
       color: '#EC4899',
-    },
-    {
-      icon: 'cloud-upload',
-      title: 'Export Leads',
-      description: 'Export leads to CSV/JSON',
-      route: '/crm/admin/export' as any,
-      color: '#6366F1',
     },
   ];
 
