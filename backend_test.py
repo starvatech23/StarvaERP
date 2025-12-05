@@ -69,8 +69,26 @@ class CRMTester:
                     self.log_result("Authentication", False, f"User role is {user_data.get('role')}, need admin")
                     return False
             else:
-                self.log_result("Authentication", False, f"Login failed: {response.status_code} - {response.text}")
-                return False
+                # Try to register admin user if login fails
+                register_data = {
+                    "email": "admin@test.com",
+                    "password": "admin123",
+                    "full_name": "Admin User",
+                    "role": "admin",
+                    "auth_type": "email"
+                }
+                
+                reg_response = self.session.post(f"{BASE_URL}/auth/register", json=register_data)
+                
+                if reg_response.status_code == 200:
+                    data = reg_response.json()
+                    self.auth_token = data.get("access_token")
+                    self.session.headers.update({"Authorization": f"Bearer {self.auth_token}"})
+                    self.log_result("Authentication", True, f"Registered and logged in as admin user")
+                    return True
+                else:
+                    self.log_result("Authentication", False, f"Login failed: {response.status_code}, Register failed: {reg_response.status_code}")
+                    return False
                 
         except Exception as e:
             self.log_result("Authentication", False, f"Authentication error: {str(e)}")
