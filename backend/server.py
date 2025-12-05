@@ -4837,6 +4837,669 @@ async def get_financial_report(
     }
 
 
+
+# ============= CRM Lead Management Routes =============
+
+# Helper function to get category with lead count
+async def get_category_with_count(category_doc):
+    category_dict = serialize_doc(category_doc)
+    lead_count = await db.leads.count_documents({"category_id": str(category_doc["_id"]), "is_deleted": {"$ne": True}})
+    category_dict["lead_count"] = lead_count
+    return LeadCategoryResponse(**category_dict)
+
+# Helper function to send mock WhatsApp
+async def send_mock_whatsapp(lead_id: str, lead_name: str, message: str, performed_by: str):
+    """Mock WhatsApp send - creates activity log"""
+    activity = {
+        "lead_id": lead_id,
+        "activity_type": LeadActivityType.WHATSAPP,
+        "title": "WhatsApp Message Sent",
+        "description": f"Sent: {message}",
+        "whatsapp_message_id": f"mock_wa_{ObjectId()}",
+        "whatsapp_status": WhatsAppStatus.SENT,
+        "whatsapp_message": message,
+        "performed_by": performed_by,
+        "created_at": datetime.utcnow()
+    }
+    result = await db.lead_activities.insert_one(activity)
+    return str(result.inserted_id)
+
+# ============= Lead Category Routes =============
+
+@api_router.get("/crm/categories", response_model=List[LeadCategoryResponse])
+async def get_lead_categories(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all lead categories with lead counts"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can access CRM")
+    
+    categories = await db.lead_categories.find({"is_active": True}).sort("order", 1).to_list(100)
+    
+    result = []
+    for cat in categories:
+        result.append(await get_category_with_count(cat))
+    
+    return result
+
+@api_router.post("/crm/categories", response_model=LeadCategoryResponse)
+async def create_lead_category(
+    category: LeadCategoryCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new lead category (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can create categories")
+    
+    cat_dict = category.dict()
+    cat_dict["created_at"] = datetime.utcnow()
+    cat_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.lead_categories.insert_one(cat_dict)
+    cat_dict["_id"] = result.inserted_id
+    
+    return await get_category_with_count(cat_dict)
+
+@api_router.put("/crm/categories/{category_id}", response_model=LeadCategoryResponse)
+async def update_lead_category(
+    category_id: str,
+    category_update: LeadCategoryUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a lead category (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can update categories")
+    
+    existing = await db.lead_categories.find_one({"_id": ObjectId(category_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    if existing.get("is_system") and category_update.name:
+        raise HTTPException(status_code=400, detail="Cannot rename system categories")
+    
+    update_data = category_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.lead_categories.update_one(
+        {"_id": ObjectId(category_id)},
+        {"$set": update_data}
+    )
+    
+    updated_cat = await db.lead_categories.find_one({"_id": ObjectId(category_id)})
+    return await get_category_with_count(updated_cat)
+
+@api_router.put("/crm/categories/reorder")
+async def reorder_categories(
+    reorder_data: List[dict],
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Reorder categories (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can reorder categories")
+    
+    for item in reorder_data:
+        await db.lead_categories.update_one(
+            {"_id": ObjectId(item["id"])},
+            {"$set": {"order": item["order"], "updated_at": datetime.utcnow()}}
+        )
+    
+    return {"message": "Categories reordered successfully"}
+
+# ============= Lead CRUD Routes =============
+
+@api_router.get("/crm/leads", response_model=List[LeadResponse])
+async def get_leads(
+    category_id: str = None,
+    status: LeadStatus = None,
+    assigned_to: str = None,
+    source: LeadSource = None,
+    priority: LeadPriority = None,
+    search: str = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all leads with filtering"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can access CRM")
+    
+    query = {"is_deleted": {"$ne": True}}
+    
+    if category_id:
+        query["category_id"] = category_id
+    if status:
+        query["status"] = status
+    if assigned_to:
+        query["assigned_to"] = assigned_to
+    if source:
+        query["source"] = source
+    if priority:
+        query["priority"] = priority
+    if search:
+        query["$or"] = [
+            {"name": {"$regex": search, "$options": "i"}},
+            {"primary_phone": {"$regex": search, "$options": "i"}},
+            {"email": {"$regex": search, "$options": "i"}}
+        ]
+    
+    leads = await db.leads.find(query).sort("created_at", -1).to_list(1000)
+    
+    result = []
+    for lead in leads:
+        lead_dict = serialize_doc(lead)
+        
+        # Get category info
+        if lead_dict.get("category_id"):
+            category = await db.lead_categories.find_one({"_id": ObjectId(lead_dict["category_id"])})
+            if category:
+                lead_dict["category_name"] = category["name"]
+                lead_dict["category_color"] = category.get("color", "#6B7280")
+        
+        # Get assigned user info
+        if lead_dict.get("assigned_to"):
+            assignee = await get_user_by_id(lead_dict["assigned_to"])
+            lead_dict["assigned_to_name"] = assignee["full_name"] if assignee else None
+        
+        # Get created by info
+        creator = await get_user_by_id(lead_dict["created_by"])
+        lead_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        
+        # Get activity stats
+        activities_count = await db.lead_activities.count_documents({"lead_id": lead_dict["id"]})
+        lead_dict["activities_count"] = activities_count
+        
+        last_activity = await db.lead_activities.find_one(
+            {"lead_id": lead_dict["id"]},
+            sort=[("created_at", -1)]
+        )
+        lead_dict["last_activity"] = last_activity["created_at"] if last_activity else None
+        
+        result.append(LeadResponse(**lead_dict))
+    
+    return result
+
+@api_router.post("/crm/leads", response_model=LeadResponse)
+async def create_lead(
+    lead: LeadCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new lead"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can create leads")
+    
+    # Check if category exists
+    category = await db.lead_categories.find_one({"_id": ObjectId(lead.category_id)})
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    lead_dict = lead.dict(exclude={"send_whatsapp"})
+    lead_dict["created_by"] = str(current_user["_id"])
+    lead_dict["created_at"] = datetime.utcnow()
+    lead_dict["updated_at"] = datetime.utcnow()
+    lead_dict["is_deleted"] = False
+    
+    if lead.whatsapp_consent and not lead_dict.get("whatsapp_opt_in_date"):
+        lead_dict["whatsapp_opt_in_date"] = datetime.utcnow()
+    
+    result = await db.leads.insert_one(lead_dict)
+    lead_dict["_id"] = result.inserted_id
+    lead_id = str(result.inserted_id)
+    
+    # Send WhatsApp if enabled and requested
+    if lead.send_whatsapp and lead.whatsapp_consent:
+        config = await db.crm_config.find_one({})
+        if config and config.get("whatsapp_enabled"):
+            template = config.get("whatsapp_template_on_create", "Hello {name}, thank you for your interest!")
+            message = template.replace("{name}", lead.name)
+            await send_mock_whatsapp(lead_id, lead.name, message, str(current_user["_id"]))
+    
+    # Create initial activity log
+    activity = {
+        "lead_id": lead_id,
+        "activity_type": LeadActivityType.NOTE,
+        "title": "Lead Created",
+        "description": f"Lead created by {current_user['full_name']}",
+        "performed_by": str(current_user["_id"]),
+        "created_at": datetime.utcnow()
+    }
+    await db.lead_activities.insert_one(activity)
+    
+    # Prepare response
+    lead_dict = serialize_doc(lead_dict)
+    lead_dict["category_name"] = category["name"]
+    lead_dict["category_color"] = category.get("color", "#6B7280")
+    lead_dict["created_by_name"] = current_user["full_name"]
+    lead_dict["activities_count"] = 1
+    lead_dict["last_activity"] = datetime.utcnow()
+    
+    if lead_dict.get("assigned_to"):
+        assignee = await get_user_by_id(lead_dict["assigned_to"])
+        lead_dict["assigned_to_name"] = assignee["full_name"] if assignee else None
+    
+    return LeadResponse(**lead_dict)
+
+@api_router.get("/crm/leads/{lead_id}", response_model=LeadResponse)
+async def get_lead(
+    lead_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a single lead by ID"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can access CRM")
+    
+    lead = await db.leads.find_one({"_id": ObjectId(lead_id), "is_deleted": {"$ne": True}})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    lead_dict = serialize_doc(lead)
+    
+    # Get category info
+    if lead_dict.get("category_id"):
+        category = await db.lead_categories.find_one({"_id": ObjectId(lead_dict["category_id"])})
+        if category:
+            lead_dict["category_name"] = category["name"]
+            lead_dict["category_color"] = category.get("color", "#6B7280")
+    
+    # Get assigned user info
+    if lead_dict.get("assigned_to"):
+        assignee = await get_user_by_id(lead_dict["assigned_to"])
+        lead_dict["assigned_to_name"] = assignee["full_name"] if assignee else None
+    
+    # Get created by info
+    creator = await get_user_by_id(lead_dict["created_by"])
+    lead_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+    
+    # Get activity stats
+    activities_count = await db.lead_activities.count_documents({"lead_id": lead_dict["id"]})
+    lead_dict["activities_count"] = activities_count
+    
+    last_activity = await db.lead_activities.find_one(
+        {"lead_id": lead_dict["id"]},
+        sort=[("created_at", -1)]
+    )
+    lead_dict["last_activity"] = last_activity["created_at"] if last_activity else None
+    
+    return LeadResponse(**lead_dict)
+
+@api_router.put("/crm/leads/{lead_id}", response_model=LeadResponse)
+async def update_lead(
+    lead_id: str,
+    lead_update: LeadUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a lead with field audit logging"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can update leads")
+    
+    existing = await db.leads.find_one({"_id": ObjectId(lead_id), "is_deleted": {"$ne": True}})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    update_data = lead_update.dict(exclude_unset=True)
+    
+    # Create field audit logs
+    for field_name, new_value in update_data.items():
+        old_value = existing.get(field_name)
+        if old_value != new_value:
+            audit = {
+                "lead_id": lead_id,
+                "field_name": field_name,
+                "old_value": str(old_value) if old_value else None,
+                "new_value": str(new_value) if new_value else None,
+                "changed_by": str(current_user["_id"]),
+                "changed_at": datetime.utcnow()
+            }
+            await db.lead_field_audits.insert_one(audit)
+            
+            # Create activity for status change
+            if field_name == "status":
+                activity = {
+                    "lead_id": lead_id,
+                    "activity_type": LeadActivityType.STATUS_CHANGE,
+                    "title": "Status Changed",
+                    "description": f"Status changed from {old_value} to {new_value}",
+                    "performed_by": str(current_user["_id"]),
+                    "created_at": datetime.utcnow()
+                }
+                await db.lead_activities.insert_one(activity)
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.leads.update_one(
+        {"_id": ObjectId(lead_id)},
+        {"$set": update_data}
+    )
+    
+    # Return updated lead
+    return await get_lead(lead_id, credentials)
+
+@api_router.delete("/crm/leads/{lead_id}")
+async def delete_lead(
+    lead_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Soft delete a lead (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can delete leads")
+    
+    existing = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    await db.leads.update_one(
+        {"_id": ObjectId(lead_id)},
+        {"$set": {"is_deleted": True, "updated_at": datetime.utcnow()}}
+    )
+    
+    return {"message": "Lead deleted successfully"}
+
+# ============= Lead Activity Routes =============
+
+@api_router.get("/crm/leads/{lead_id}/activities", response_model=List[LeadActivityResponse])
+async def get_lead_activities(
+    lead_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get activity timeline for a lead"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can access CRM")
+    
+    activities = await db.lead_activities.find({"lead_id": lead_id}).sort("created_at", -1).to_list(1000)
+    
+    result = []
+    for activity in activities:
+        activity_dict = serialize_doc(activity)
+        
+        # Get performed by user info
+        user = await get_user_by_id(activity_dict["performed_by"])
+        activity_dict["performed_by_name"] = user["full_name"] if user else "Unknown"
+        
+        result.append(LeadActivityResponse(**activity_dict))
+    
+    return result
+
+@api_router.post("/crm/leads/{lead_id}/activities", response_model=LeadActivityResponse)
+async def create_lead_activity(
+    lead_id: str,
+    activity: LeadActivityCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Add an activity to a lead's timeline"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins and PMs can add activities")
+    
+    # Check if lead exists
+    lead = await db.leads.find_one({"_id": ObjectId(lead_id), "is_deleted": {"$ne": True}})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    activity_dict = activity.dict()
+    activity_dict["performed_by"] = str(current_user["_id"])
+    activity_dict["created_at"] = datetime.utcnow()
+    
+    result = await db.lead_activities.insert_one(activity_dict)
+    activity_dict["_id"] = result.inserted_id
+    
+    # Update lead's last_contacted if it's a call or meeting
+    if activity.activity_type in [LeadActivityType.CALL, LeadActivityType.MEETING]:
+        await db.leads.update_one(
+            {"_id": ObjectId(lead_id)},
+            {"$set": {"last_contacted": datetime.utcnow()}}
+        )
+    
+    activity_dict = serialize_doc(activity_dict)
+    activity_dict["performed_by_name"] = current_user["full_name"]
+    
+    return LeadActivityResponse(**activity_dict)
+
+# ============= Mock Integration Routes =============
+
+@api_router.post("/crm/leads/{lead_id}/call")
+async def log_call(
+    lead_id: str,
+    call_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Log a mock call activity"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    lead = await db.leads.find_one({"_id": ObjectId(lead_id), "is_deleted": {"$ne": True}})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    activity = {
+        "lead_id": lead_id,
+        "activity_type": LeadActivityType.CALL,
+        "title": f"Call - {call_data.get('outcome', 'completed')}",
+        "description": call_data.get('notes', ''),
+        "call_duration": call_data.get('duration', 0),
+        "call_outcome": call_data.get('outcome', 'connected'),
+        "performed_by": str(current_user["_id"]),
+        "created_at": datetime.utcnow()
+    }
+    
+    result = await db.lead_activities.insert_one(activity)
+    
+    # Update last_contacted
+    await db.leads.update_one(
+        {"_id": ObjectId(lead_id)},
+        {"$set": {"last_contacted": datetime.utcnow()}}
+    )
+    
+    return {"message": "Call logged successfully", "activity_id": str(result.inserted_id)}
+
+@api_router.post("/crm/leads/{lead_id}/whatsapp")
+async def send_whatsapp(
+    lead_id: str,
+    whatsapp_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Send a mock WhatsApp message"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    lead = await db.leads.find_one({"_id": ObjectId(lead_id), "is_deleted": {"$ne": True}})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    if not lead.get("whatsapp_consent"):
+        raise HTTPException(status_code=400, detail="Lead has not consented to WhatsApp messages")
+    
+    message = whatsapp_data.get("message", "")
+    activity_id = await send_mock_whatsapp(lead_id, lead["name"], message, str(current_user["_id"]))
+    
+    # Update last_contacted
+    await db.leads.update_one(
+        {"_id": ObjectId(lead_id)},
+        {"$set": {"last_contacted": datetime.utcnow()}}
+    )
+    
+    return {"message": "WhatsApp message sent (mock)", "activity_id": activity_id}
+
+# ============= Bulk Operations Routes =============
+
+@api_router.post("/crm/leads/bulk-update")
+async def bulk_update_leads(
+    bulk_data: LeadBulkUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Bulk update multiple leads"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    updates = bulk_data.updates
+    updates["updated_at"] = datetime.utcnow()
+    
+    result = await db.leads.update_many(
+        {"_id": {"$in": [ObjectId(lid) for lid in bulk_data.lead_ids]}, "is_deleted": {"$ne": True}},
+        {"$set": updates}
+    )
+    
+    return {"message": f"Updated {result.modified_count} leads"}
+
+@api_router.post("/crm/leads/bulk-assign")
+async def bulk_assign_leads(
+    bulk_data: LeadBulkAssign,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Bulk assign leads to a user"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    # Check if assigned user exists
+    assignee = await get_user_by_id(bulk_data.assigned_to)
+    if not assignee:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    result = await db.leads.update_many(
+        {"_id": {"$in": [ObjectId(lid) for lid in bulk_data.lead_ids]}, "is_deleted": {"$ne": True}},
+        {"$set": {"assigned_to": bulk_data.assigned_to, "updated_at": datetime.utcnow()}}
+    )
+    
+    return {"message": f"Assigned {result.modified_count} leads to {assignee['full_name']}"}
+
+@api_router.post("/crm/leads/import", response_model=LeadImportResponse)
+async def import_leads(
+    leads: List[LeadImportItem],
+    default_category_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Bulk import leads from CSV/Excel"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    # Check if category exists
+    category = await db.lead_categories.find_one({"_id": ObjectId(default_category_id)})
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    successful = 0
+    failed = 0
+    errors = []
+    
+    for idx, lead_item in enumerate(leads):
+        try:
+            lead_dict = lead_item.dict()
+            lead_dict["category_id"] = default_category_id
+            lead_dict["status"] = LeadStatus.NEW
+            lead_dict["priority"] = LeadPriority.MEDIUM
+            lead_dict["created_by"] = str(current_user["_id"])
+            lead_dict["created_at"] = datetime.utcnow()
+            lead_dict["updated_at"] = datetime.utcnow()
+            lead_dict["is_deleted"] = False
+            
+            await db.leads.insert_one(lead_dict)
+            successful += 1
+        except Exception as e:
+            failed += 1
+            errors.append(f"Row {idx + 1}: {str(e)}")
+    
+    return LeadImportResponse(
+        total=len(leads),
+        successful=successful,
+        failed=failed,
+        errors=errors
+    )
+
+# ============= CRM Configuration Routes =============
+
+@api_router.get("/crm/config", response_model=CRMConfigResponse)
+async def get_crm_config(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get CRM configuration"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can access CRM config")
+    
+    config = await db.crm_config.find_one({})
+    
+    if not config:
+        # Create default config
+        default_config = {
+            "whatsapp_enabled": False,
+            "whatsapp_api_key": None,
+            "whatsapp_template_on_create": "Hello {name}, thank you for your interest! We'll get back to you soon.",
+            "telephony_enabled": False,
+            "telephony_provider": "mock",
+            "auto_assign_enabled": False,
+            "auto_assign_strategy": "round_robin",
+            "updated_by": str(current_user["_id"]),
+            "updated_at": datetime.utcnow()
+        }
+        result = await db.crm_config.insert_one(default_config)
+        default_config["_id"] = result.inserted_id
+        config = default_config
+    
+    config_dict = serialize_doc(config)
+    
+    # Get updated by user info
+    user = await get_user_by_id(config_dict["updated_by"])
+    config_dict["updated_by_name"] = user["full_name"] if user else "Unknown"
+    
+    return CRMConfigResponse(**config_dict)
+
+@api_router.put("/crm/config", response_model=CRMConfigResponse)
+async def update_crm_config(
+    config_update: CRMConfigUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update CRM configuration (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can update CRM config")
+    
+    existing = await db.crm_config.find_one({})
+    
+    update_data = config_update.dict(exclude_unset=True)
+    update_data["updated_by"] = str(current_user["_id"])
+    update_data["updated_at"] = datetime.utcnow()
+    
+    if existing:
+        await db.crm_config.update_one(
+            {"_id": existing["_id"]},
+            {"$set": update_data}
+        )
+    else:
+        result = await db.crm_config.insert_one(update_data)
+        update_data["_id"] = result.inserted_id
+    
+    return await get_crm_config(credentials)
+
+
 # Socket.IO events
 @sio.event
 async def connect(sid, environ):
