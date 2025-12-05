@@ -170,7 +170,9 @@ export default function CreateFunnelScreen() {
         { text: 'OK', onPress: () => router.back() }
       ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create funnel');
+      console.error('Funnel creation error:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Failed to create funnel';
+      Alert.alert('Error', errorMessage);
     } finally {
       setSaving(false);
     }
