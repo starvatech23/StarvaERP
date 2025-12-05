@@ -207,17 +207,17 @@ class CRMTester:
             new_lead = {
                 "name": f"John Doe {uuid.uuid4().hex[:8]}",
                 "email": f"john.doe.{uuid.uuid4().hex[:8]}@example.com",
-                "phone": f"+91987654{uuid.uuid4().hex[:4]}",
-                "company": "ABC Construction Ltd",
+                "primary_phone": f"+91987654{uuid.uuid4().hex[:4]}",
+                "city": "Mumbai",
+                "state": "Maharashtra",
                 "category_id": category_id,
                 "status": "new",
                 "priority": "medium",
                 "source": "website",
                 "budget": 500000.0,
-                "project_type": "residential",
-                "location": "Mumbai, Maharashtra",
-                "notes": "Interested in 3BHK apartment construction",
-                "send_welcome_whatsapp": True
+                "requirement": "Interested in 3BHK apartment construction",
+                "notes": "Initial inquiry for residential construction",
+                "send_whatsapp": True
             }
             
             response = self.session.post(f"{BASE_URL}/crm/leads", json=new_lead)
