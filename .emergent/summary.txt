@@ -1,84 +1,78 @@
 <analysis>
-The trajectory documents the work of an AI engineer building a full-stack construction management application. The process began with completing the UI for Financials (Phase 2) and Materials (Phase 3) modules, which involved creating numerous frontend screens (, , , etc.) and restarting services. A significant portion of the work involved debugging, such as fixing a  in the payments API by correcting the logic in  and resolving navigation issues by adding a Finance module link to the main dashboard in .
+The trajectory chronicles an AI engineer's work on a full-stack construction management application. The initial phase involved verifying and testing a new Architect role and a fix for a Gantt chart sharing feature. A series of user-reported bugs on the Gantt chart link led to a lengthy and complex debugging process. The engineer systematically identified and fixed multiple issues, including the use of web-only APIs in React Native (), incorrect environment variable access ( vs. ), backend  serialization errors, and the backend returning incorrect API--based URLs instead of public frontend URLs.
 
-Subsequently, the engineer implemented mobile-specific features like photo uploads () and QR code scanning (), creating new components and screens (, ). The scope then expanded to include advanced reporting, an analytics dashboard, and a notification system.
-
-The most recent and substantial task was implementing a detailed Project Contact Hierarchy and a shareable Gantt chart link feature. This involved major backend changes to  to define new data structures (, ) and adding corresponding API endpoints in . The frontend was updated with new screens (, ) and navigation buttons. The last actions were to fix a bug in the Gantt link generation logic in  and add a new Architect role to the contact hierarchy as requested by the user.
+Following this, the engineer was tasked with a major new feature: a comprehensive CRM Lead module. The implementation involved creating numerous backend models, API endpoints in a separate  file, and frontend screens. However, this effort was plagued by a persistent and difficult-to-diagnose  error on all CRM POST/PUT/DELETE requests, despite numerous attempts to fix circular dependencies and implement an optional authentication scheme. After many failed attempts and significant credit consumption, the user, frustrated with the lack of progress, directed the engineer to completely delete the faulty CRM implementation and rebuild it from scratch following a detailed new specification. The trajectory ends with the engineer having just started this removal process.
 
 The user's primary language is English. The next agent must respond in English.
 </analysis>
 
 <product_requirements>
-The objective is to build a comprehensive, cross-platform construction management mobile application.
+The primary goal is to build a comprehensive, cross-platform construction management application.
 
-**Core Functionality:**
-The application must manage projects, users, and finances, governed by a robust Role-Based Access Control (RBAC) system.
+**Completed Core Features:**
+*   Project, User, and Financial Management (Budgets, Invoices, Payments).
+*   Materials & Procurement (Inventory, Purchase Orders).
+*   Mobile-specific features like photo uploads and QR code scanning.
+*   A secure, shareable Gantt chart link feature, including a public-facing viewer page.
+*   A detailed Project Contact Hierarchy with specific roles.
 
-**Implemented Features:**
-*   **User & Project Management:** Full CRUD operations for projects, users, teams, and roles, including a user approval workflow.
-*   **Financials Module:** Frontend and backend for managing budgets, expenses, invoices, and payments.
-*   **Materials & Procurement:** Frontend and backend for inventory, vendors, and purchase orders.
-*   **Mobile-Specific Features:** Photo upload for expense receipts and QR code scanning for material tracking.
-*   **Reporting & Analytics:** A dedicated analytics dashboard and a notification center.
-*   **Contact Hierarchy & Gantt Sharing:** Each project now supports a detailed contact hierarchy with specific mandatory roles. A secure, shareable link for the project's Gantt chart can be generated, with options for exporting to PDF/PNG/CSV.
-
-**Recent Additions & Fixes:**
-*   A new Architect role has been added to the project contact hierarchy.
-*   A bug preventing the generation of Gantt share links has been fixed.
+**New High-Priority Requirement: CRM Lead Module (Rebuild)**
+A production-ready CRM module needs to be built from scratch after a failed initial attempt. Key features include:
+*   **Inline-Editable Lead Cards:** Allow editing of fields like name, phone, email, budget, status, etc., directly from a list/board view.
+*   **Contact Actions:** Click-to-call ( URI) and WhatsApp integration.
+*   **Automated WhatsApp Messaging:** Send templated messages on lead creation.
+*   **Lead Funnel Management:** Custom, re-orderable lead categories/stages.
+*   **Activity Timeline:** Log all interactions (calls, messages, notes).
+*   **Permissions & Auditing:** Granular RBAC and field-level audit logs.
+*   The implementation must use mock integrations for telephony/WhatsApp, configurable via an admin panel.
 </product_requirements>
 
 <key_technical_concepts>
-- **Backend:** FastAPI (Python) using Beanie ODM for MongoDB.
+- **Backend:** FastAPI (Python) with Beanie ODM for MongoDB.
 - **Frontend:** React Native with Expo.
+- **State Management & API:** Zustand/Redux-Toolkit, Axios for API calls.
 - **Routing:** File-based routing via .
-- **API Communication:** A centralized  instance in .
-- **Mobile Features:**  for photo uploads and  for QR code scanning.
-- **UI:** Standard React Native components and custom components like  and .
+- **Authentication:** JWT-based with Role-Based Access Control (RBAC).
+- **Code Structure:** Monorepo with  and  directories.
 </key_technical_concepts>
 
 <code_architecture>
-The application uses a monorepo structure with distinct  and  directories.
+The application follows a monorepo structure, separating the backend and frontend concerns.
 
 
 
--   ****
-    -   **Importance:** Defines all database schemas using Pydantic and Beanie. It is the single source of truth for the application's data structure.
-    -   **Summary of changes:** This file was heavily modified to support the new Contact Hierarchy and Gantt Share features. New models like , , and  were added. Most recently,  was added to the  enum to fulfill a user request.
+-   ****:
+    -   **Importance**: The main FastAPI application file. It initializes the app, includes all API routers, and contains the core endpoints for projects, auth, and financials.
+    -   **Summary of changes**: This file was heavily modified during the Gantt chart debugging to fix  serialization errors and to generate correct, public-facing URLs for share links. Most recently, the  import and  call were being removed.
 
--   ****
-    -   **Importance:** Contains all FastAPI endpoints that power the application. It handles business logic, authentication, and data manipulation.
-    -   **Summary of changes:** New API endpoints were added to manage project contacts () and Gantt share links (). A critical bug was fixed in the Gantt share link generation logic where  was incorrectly used instead of , causing the feature to fail. Several authorization checks were also standardized.
+-   ****:
+    -   **Importance**: The screen for managing and viewing generated Gantt share links for a project.
+    -   **Summary of changes**: This file was frequently edited to fix bugs. Changes included replacing  with , fixing the delete/revoke functionality, and ensuring the correct share URL was displayed.
 
--   ****
-    -   **Importance:** This is the new frontend screen for managing the contact hierarchy for a specific project.
-    -   **Summary of changes:** Created from scratch to allow users with appropriate permissions to view, add, and edit contacts for mandatory roles. It was recently updated to include Architect in its list of required roles to match the backend change.
+-   ****:
+    -   **Importance**: This is the public-facing screen created to display a shared Gantt chart to users who have the link, resolving the unmatched error issue.
+    -   **Summary of changes**: This file was newly created to solve the problem of users trying to access an API endpoint directly in their browser.
 
--   ****
-    -   **Importance:** The main detail screen for a single project. It acts as a hub for navigating to other project-specific features.
-    -   **Summary of changes:** Action buttons for Contacts and Share Gantt were added to the UI, making the new features accessible to the user. This involved adding JSX for the buttons and  definitions for a new .
+-   **, **:
+    -   **Importance**: These files constituted the entire first attempt at building the CRM module. They contained all the backend API endpoints and frontend UI screens for the feature.
+    -   **Summary of changes**: These files were created and then deleted at the end of the trajectory, as per the user's request to rebuild the module from scratch due to persistent, unresolvable authentication errors.
 
--   ****
-    -   **Importance:** Centralizes all API call definitions, providing a typed interface for the frontend to interact with the backend.
-    -   **Summary of changes:** New service objects,  and , were added to provide methods for fetching and updating project contacts and managing shareable Gantt links.
 </code_architecture>
 
 <pending_tasks>
-- Update the backend validation endpoint to include the newly added Architect role in the project contact hierarchy checks.
-- Conduct comprehensive end-to-end testing of the Contact Hierarchy and Gantt Share features, including the new Architect role and the bug fix for link generation.
+- The primary and only pending task is to execute the user's detailed plan for a complete, clean rebuild of the CRM Lead Module. This includes removing all remnants of the old implementation and starting fresh with new models, services, routers, and tests, ensuring the previous  error is resolved.
 </pending_tasks>
 
 <current_work>
-The AI engineer was actively addressing two issues reported by the user: the Gantt chart share link was not generating, and a new Architect position was needed for the project contact hierarchy.
+The AI engineer was in the process of executing a scorched earth removal of the failed CRM module, as explicitly instructed by the user. The previous implementation was plagued by a persistent  error on POST requests that could not be resolved.
 
-To resolve this, the following actions were taken:
-1.  **Backend Model Update:** The  enum in  was updated to include the Architect role.
-    
-2.  **Backend Bug Fix:** A  in the Gantt share link generation endpoint in  was fixed by changing the dictionary access method from  to the safer .
-3.  **Frontend Update:** The  screen was modified to include Architect in the list of required roles, ensuring the frontend form reflects the new requirement.
+The immediate actions taken were:
+1.  **File Deletion:** All files related to the CRM module in both the  (, , ) and  ( directory and its contents) were deleted.
+2.  **Code Cleanup:** The engineer began editing the main  file to remove any references to the deleted CRM code.
 
-The immediate work concluded after these edits. The backend service was reloading to apply the changes. The next logical step, which was about to be performed, was to update the corresponding backend validation logic to enforce the new Architect role requirement.
+The trajectory ended just after the engineer used a  command to remove the  lines related to the CRM from  and was about to remove the  line. The backend service was in a broken state due to these missing imports, which was the expected intermediate state during this cleanup process.
 </current_work>
 
 <optional_next_step>
-Update the backend validation endpoint in  to ensure the newly added Architect role is included in the project creation/update validation logic.
+Complete the removal of the old CRM module by deleting the  line from  and restarting services to ensure the application runs correctly without any CRM code. Then, begin the clean rebuild.
 </optional_next_step>
