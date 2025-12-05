@@ -46,7 +46,15 @@ from models import (
     PaymentMethod,
     ProjectContact, ProjectContactUpdate, ProjectRole, ContactType,
     GanttShareCreate, GanttShareResponse, GanttShareToken, GanttSharePermission,
-    ContactAudit
+    ContactAudit,
+    # CRM Models
+    LeadStatus, LeadPriority, LeadSource, LeadActivityType, CallOutcome, WhatsAppStatus, Currency,
+    LeadCategoryCreate, LeadCategoryUpdate, LeadCategoryResponse,
+    LeadCreate, LeadUpdate, LeadResponse,
+    LeadActivityCreate, LeadActivityResponse,
+    LeadFieldAuditResponse,
+    LeadBulkUpdate, LeadBulkAssign, LeadImportItem, LeadImportResponse,
+    CRMConfigUpdate, CRMConfigResponse
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
