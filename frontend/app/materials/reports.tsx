@@ -16,6 +16,7 @@ import { materialReportsAPI, projectsAPI, siteInventoryAPI } from '../../service
 import { Picker } from '@react-native-picker/picker';
 import moment from 'moment';
 import { PieChart, BarChart } from 'react-native-chart-kit';
+import Colors from '../../constants/Colors';
 
 const screenWidth = Dimensions.get('window').width;
 
