@@ -6823,8 +6823,15 @@ async def get_client_portal_data(
     project_id: str,
     authorization: str = Header(None)
 ):
-    """Get project data for client portal (public access)"""
+    """Get project data for client portal (requires auth)"""
     try:
+        # Verify token if provided
+        if authorization and authorization.startswith("Bearer "):
+            token = authorization.replace("Bearer ", "")
+            await verify_client_token(token)
+        else:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        
         project = await db.projects.find_one({"_id": ObjectId(project_id)})
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
