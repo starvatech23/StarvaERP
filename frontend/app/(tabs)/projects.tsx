@@ -141,7 +141,7 @@ export default function ProjectsScreen() {
                 >
                   <View style={styles.projectHeader}>
                     <View style={styles.projectTitleContainer}>
-                      <Ionicons name="business" size={20} color="#FF6B35" />
+                      <Ionicons name="business" size={20} color={Colors.primary} />
                       <Text style={styles.projectName} numberOfLines={1}>
                         {project.name}
                       </Text>
