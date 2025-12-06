@@ -22,13 +22,13 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://crmconstruct.pre
 export default function ClientPortalScreen() {
   const { projectId } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
-  const [project, setProject] = useState<Project | null>(null);
-  const [milestones, setMilestones] = useState<Milestone[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [project, setProject] = useState(null);
+  const [milestones, setMilestones] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [conversationId, setConversationId] = useState(null);
   const [hasChat, setHasChat] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'timeline' | 'chat'>('timeline');
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('timeline');
   
   // Chat states
   const [newMessage, setNewMessage] = useState('');
