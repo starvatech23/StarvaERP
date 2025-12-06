@@ -232,10 +232,11 @@ export default function MaterialReportsScreen() {
             selectedValue={selectedProject}
             onValueChange={(value) => setSelectedProject(value)}
             style={styles.picker}
+            dropdownIconColor={Colors.textPrimary}
           >
-            <Picker.Item label="All Sites" value="all" />
+            <Picker.Item label="All Sites" value="all" color={Colors.textPrimary} />
             {projects.map((project) => (
-              <Picker.Item key={project.id} label={project.name} value={project.id} />
+              <Picker.Item key={project.id} label={project.name} value={project.id} color={Colors.textPrimary} />
             ))}
           </Picker>
         </View>
