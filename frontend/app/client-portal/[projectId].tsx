@@ -57,7 +57,7 @@ export default function ClientPortalScreen() {
       if (data.has_chat && data.conversation_id) {
         await loadMessages(data.conversation_id);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error loading portal data:', err);
       setError(err.response?.data?.detail || 'Failed to load project data');
     } finally {
