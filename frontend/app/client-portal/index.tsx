@@ -50,12 +50,12 @@ export default function ClientPortalIndexScreen() {
             text: 'OK',
             onPress: () => {
               router.push({
-                pathname: `/client-portal/${projectId.trim()}` as any,
+                pathname: `/client-portal/${projectId.trim()}`,
                 params: {
                   token: data.access_token,
                   clientName: data.client_name
                 }
-              });
+              } as any);
             }
           }
         ]);
