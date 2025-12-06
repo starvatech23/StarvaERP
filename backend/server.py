@@ -6751,6 +6751,127 @@ async def get_user_conversations(
     return result
 
 
+# ============= Client Portal Endpoints =============
+
+@api_router.get("/client-portal/{project_id}")
+async def get_client_portal_data(project_id: str):
+    """Get project data for client portal (public access)"""
+    try:
+        project = await db.projects.find_one({"_id": ObjectId(project_id)})
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Get timeline/milestones for Gantt chart
+        milestones = await db.milestones.find(
+            {"project_id": project_id}
+        ).sort("order", 1).to_list(length=100)
+        
+        # Get conversation if exists
+        conversation = await db.conversations.find_one({"project_id": project_id})
+        conversation_id = str(conversation["_id"]) if conversation else None
+        
+        # Serialize project data
+        project_dict = serialize_doc(project)
+        milestones_list = [serialize_doc(m) for m in milestones]
+        
+        return {
+            "project": project_dict,
+            "milestones": milestones_list,
+            "conversation_id": conversation_id,
+            "has_chat": conversation_id is not None
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/client-portal/conversation/{conversation_id}/messages")
+async def get_client_messages(
+    conversation_id: str,
+    skip: int = 0,
+    limit: int = 50
+):
+    """Get messages for client portal (simplified auth)"""
+    try:
+        conversation = await db.conversations.find_one({"_id": ObjectId(conversation_id)})
+        if not conversation:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+        
+        # Get messages
+        messages = await db.messages.find(
+            {"conversation_id": conversation_id}
+        ).sort("created_at", 1).skip(skip).limit(limit).to_list(length=limit)
+        
+        result = []
+        for msg in messages:
+            msg_dict = serialize_doc(msg)
+            msg_dict["sender_id"] = str(msg_dict.get("sender_id", ""))
+            msg_dict["read_by"] = [str(rb) for rb in msg_dict.get("read_by", [])]
+            result.append(msg_dict)
+        
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/client-portal/conversation/{conversation_id}/messages")
+async def send_client_message(
+    conversation_id: str,
+    message: MessageCreate,
+    client_name: str = "Client",
+    client_id: str = "client_user"
+):
+    """Send message from client portal"""
+    try:
+        conversation = await db.conversations.find_one({"_id": ObjectId(conversation_id)})
+        if not conversation:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+        
+        # Create message
+        msg_doc = {
+            "conversation_id": conversation_id,
+            "sender_id": client_id,
+            "sender_name": client_name,
+            "sender_role": "client",
+            "content": message.content,
+            "attachments": [att.dict() for att in message.attachments],
+            "is_read": False,
+            "read_by": [client_id],
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        result = await db.messages.insert_one(msg_doc)
+        msg_doc["_id"] = result.inserted_id
+        
+        # Update conversation
+        unread_counts = conversation.get("unread_count", {})
+        for participant_id in conversation["participants"]:
+            if participant_id != client_id:
+                pid_str = str(participant_id)
+                unread_counts[pid_str] = unread_counts.get(pid_str, 0) + 1
+        
+        await db.conversations.update_one(
+            {"_id": ObjectId(conversation_id)},
+            {
+                "$set": {
+                    "last_message": message.content[:100],
+                    "last_message_at": datetime.utcnow(),
+                    "last_message_sender": client_name,
+                    "unread_count": unread_counts,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        msg_dict = serialize_doc(msg_doc)
+        msg_dict["sender_id"] = str(msg_dict.get("sender_id", ""))
+        msg_dict["read_by"] = [str(rb) for rb in msg_dict.get("read_by", [])]
+        
+        return msg_dict
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
