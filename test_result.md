@@ -899,11 +899,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Client Portal Link in ProjectResponse Model"
-    - "Project APIs Return Client Portal Link"
     - "Display Client Portal Link on Project Cards"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
