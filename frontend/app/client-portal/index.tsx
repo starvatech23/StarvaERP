@@ -14,14 +14,60 @@ import { Ionicons } from '@expo/vector-icons';
 export default function ClientPortalIndexScreen() {
   const [projectId, setProjectId] = useState('');
 
-  const handleAccessPortal = () => {
+  const [mobile, setMobile] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleAccessPortal = async () => {
     if (!projectId.trim()) {
-      Alert.alert('Error', 'Please enter a valid Project ID');
+      Alert.alert('Required', 'Please enter your Project ID');
       return;
     }
-
-    // Navigate to the client portal for this project
-    router.push(`/client-portal/${projectId.trim()}`);
+    
+    if (!mobile.trim()) {
+      Alert.alert('Required', 'Please enter your mobile number');
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      
+      const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://crmconstruct.preview.emergentagent.com';
+      const response = await fetch(`${API_URL}/api/client-portal/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          project_id: projectId.trim(),
+          mobile: mobile.trim()
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Store token and navigate
+        Alert.alert('Success', `Welcome ${data.client_name}!`, [
+          {
+            text: 'OK',
+            onPress: () => {
+              router.push({
+                pathname: `/client-portal/${projectId.trim()}` as any,
+                params: {
+                  token: data.access_token,
+                  clientName: data.client_name
+                }
+              });
+            }
+          }
+        ]);
+      } else {
+        Alert.alert('Login Failed', data.detail || 'Invalid credentials. Please check your Project ID and mobile number.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Failed to connect. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
