@@ -6657,7 +6657,9 @@ async def send_message(
     unread_counts = conversation.get("unread_count", {})
     for participant_id in conversation["participants"]:
         if participant_id != current_user["_id"]:
-            unread_counts[participant_id] = unread_counts.get(participant_id, 0) + 1
+            # Ensure participant_id is string for dict key
+            pid_str = str(participant_id)
+            unread_counts[pid_str] = unread_counts.get(pid_str, 0) + 1
     
     await db.conversations.update_one(
         {"_id": ObjectId(conversation_id)},
