@@ -140,7 +140,7 @@ export default function ClientPortalScreen() {
     });
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'completed':
         return '#10B981';
