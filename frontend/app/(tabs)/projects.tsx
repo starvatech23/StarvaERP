@@ -225,7 +225,7 @@ export default function ProjectsScreen() {
                           styles.progressBarFill, 
                           { 
                             width: `${progressPercent}%`,
-                            backgroundColor: progressPercent === 100 ? '#10B981' : '#FF6B35'
+                            backgroundColor: progressPercent === 100 ? Colors.success : Colors.primary
                           }
                         ]} 
                       />
