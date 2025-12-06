@@ -120,9 +120,10 @@ export default function AddInventoryScreen() {
                   selectedValue={formData.project_id}
                   onValueChange={(value) => setFormData({ ...formData, project_id: value })}
                   style={styles.picker}
+                  dropdownIconColor={Colors.textPrimary}
                 >
                   {projects.map((project) => (
-                    <Picker.Item key={project.id} label={project.name} value={project.id} />
+                    <Picker.Item key={project.id} label={project.name} value={project.id} color={Colors.textPrimary} />
                   ))}
                 </Picker>
               </View>
