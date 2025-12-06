@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   picker: {
-    color: '#1A202C',
+    color: Colors.textPrimary,
   },
   infoCard: {
     backgroundColor: '#F0F9FF',
