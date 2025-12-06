@@ -65,7 +65,9 @@ from models import (
     # Phase 4: Move Lead to Project
     BankTransactionCreate, BankTransactionResponse,
     MoveLeadToProjectRequest, MoveLeadToProjectResponse,
-    AuditActionType, AuditLogCreate, AuditLogResponse, AuditLogFilter
+    AuditActionType, AuditLogCreate, AuditLogResponse, AuditLogFilter,
+    # Chat/Messaging Models
+    ConversationCreate, ConversationResponse, MessageCreate, MessageResponse, MessageAttachment
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
