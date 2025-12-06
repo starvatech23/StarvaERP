@@ -1,24 +1,24 @@
 // Global color scheme
 export const Colors = {
-  // Primary colors - Grey and Yellow theme
-  primary: '#FDB913', // Yellow
-  primaryLight: '#FEE8A0', // Light yellow
-  primaryDark: '#E5A50A', // Dark yellow
+  // Primary colors - Blue and Yellow theme
+  primary: '#3B82F6', // Blue
+  primaryLight: '#93C5FD', // Light blue
+  primaryDark: '#1E40AF', // Dark blue
   
-  // Secondary colors - Grey tones
-  secondary: '#6B7280', // Medium grey
-  secondaryLight: '#9CA3AF', // Light grey
-  secondaryDark: '#4B5563', // Dark grey
+  // Secondary colors - Yellow accent
+  secondary: '#FDB913', // Yellow
+  secondaryLight: '#FEE8A0', // Light yellow
+  secondaryDark: '#E5A50A', // Dark yellow
   
-  // Neutral colors
-  background: '#F7FAFC',
-  surface: '#FFFFFF',
-  border: '#E2E8F0',
+  // Neutral colors - Dark grey background
+  background: '#1F2937', // Dark grey background
+  surface: '#374151', // Medium grey for cards
+  border: '#4B5563', // Grey border
   
-  // Text colors
-  textPrimary: '#1A202C',
-  textSecondary: '#718096',
-  textTertiary: '#A0AEC0',
+  // Text colors - Light for dark background
+  textPrimary: '#F9FAFB', // Almost white
+  textSecondary: '#D1D5DB', // Light grey
+  textTertiary: '#9CA3AF', // Medium grey
   
   // Status colors
   success: '#10B981',
