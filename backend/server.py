@@ -10,6 +10,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 from bson import ObjectId
 import socketio
+import uuid
 
 # Import models and auth
 from models import (
