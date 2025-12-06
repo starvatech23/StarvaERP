@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: Colors.textPrimary,
     flex: 1,
   },
   statusBadge: {
