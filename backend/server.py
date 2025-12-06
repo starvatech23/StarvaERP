@@ -542,6 +542,12 @@ async def update_project(
     update_data = project_update.dict(exclude_unset=True)
     update_data["updated_at"] = datetime.utcnow()
     
+    # Generate client portal link if status is being changed to active/confirmed
+    if "status" in update_data and update_data["status"] in ["active", "confirmed", "in_progress"]:
+        if not existing.get("client_portal_link"):
+            client_portal_link = generate_client_portal_link(project_id)
+            update_data["client_portal_link"] = client_portal_link
+    
     await db.projects.update_one(
         {"_id": ObjectId(project_id)},
         {"$set": update_data}
