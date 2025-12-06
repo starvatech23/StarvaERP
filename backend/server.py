@@ -516,6 +516,13 @@ async def create_project(
     
     return ProjectResponse(**project_dict)
 
+def generate_client_portal_link(project_id: str, base_url: str = None) -> str:
+    """Generate a client portal access link for a project"""
+    if not base_url:
+        base_url = "https://crmconstruct.preview.emergentagent.com"
+    return f"{base_url}/client-portal/?projectId={project_id}"
+
+
 @api_router.put("/projects/{project_id}", response_model=ProjectResponse)
 async def update_project(
     project_id: str,
