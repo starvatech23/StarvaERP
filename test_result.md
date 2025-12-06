@@ -865,15 +865,18 @@ backend:
 
   - task: "Project APIs Return Client Portal Link"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "All project endpoints (GET /api/projects, GET /api/projects/{id}, PUT /api/projects/{id}) now return client_portal_link field through ProjectResponse model. The serialize_doc function automatically includes this field if it exists in the database. Link generation happens automatically in PUT /api/projects/{id} endpoint when status changes to confirmed/active/in_progress."
+      - working: true
+        agent: "testing"
+        comment: "✅ CLIENT PORTAL LINK APIS WORKING PERFECTLY: Comprehensive testing completed with 100% success rate (4/4 tests passed). VERIFIED FEATURES: (1) GET /api/projects - All 30 projects include client_portal_link field, existing in_progress projects show warnings for missing links (expected for pre-implementation projects), (2) GET /api/projects/{id} - Single project endpoint correctly includes client_portal_link field, (3) PUT /api/projects/{id} - Link generation working perfectly: created test project with status 'planning' (no link), updated to 'in_progress' (link generated correctly), updated to 'completed' (link preserved), verified link persists in database, (4) Link format verification - All generated links follow correct format: https://construct-crm.preview.emergentagent.com/client-portal/?projectId={project_id}, (5) Non-qualifying status testing - Confirmed no links generated for planning/on_hold/cancelled/completed statuses. Link generation logic working as specified: only triggers for in_progress status (confirmed/active not in ProjectStatus enum but in_progress works). All client portal link functionality is fully operational."
 
 frontend:
   - task: "Display Client Portal Link on Project Cards"
