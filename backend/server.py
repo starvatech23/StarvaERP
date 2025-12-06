@@ -6554,16 +6554,16 @@ async def get_or_create_conversation(
     conv_doc = {
         "project_id": project_id,
         "project_name": project.get("name", "Unnamed Project"),
-        "participants": participants,
+        "participants": participants,  # Already strings now
         "participant_names": participant_names,
         "last_message": None,
         "last_message_at": None,
         "last_message_sender": None,
-        "unread_count": {str(p): 0 for p in participants},  # Convert to strings
+        "unread_count": {p: 0 for p in participants},  # Already strings
         "is_active": True,
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
-        "created_by": current_user["_id"]
+        "created_by": str(current_user["_id"])  # Ensure string
     }
     
     result = await db.conversations.insert_one(conv_doc)
