@@ -6644,13 +6644,13 @@ async def send_message(
     # Create message
     msg_doc = {
         "conversation_id": conversation_id,
-        "sender_id": current_user["_id"],
+        "sender_id": str(current_user["_id"]),
         "sender_name": current_user["full_name"],
         "sender_role": current_user.get("role", "unknown"),
         "content": message.content,
         "attachments": [att.dict() for att in message.attachments],
         "is_read": False,
-        "read_by": [current_user["_id"]],  # Sender has read it
+        "read_by": [str(current_user["_id"])],  # Sender has read it
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
     }
