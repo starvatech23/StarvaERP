@@ -96,6 +96,20 @@ export default function ClientPortalIndexScreen() {
           <Text style={styles.inputHint}>
             Your project ID was provided by your project manager
           </Text>
+          
+          <Text style={styles.inputLabel}>Mobile Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your mobile number"
+            value={mobile}
+            onChangeText={setMobile}
+            keyboardType="phone-pad"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <Text style={styles.inputHint}>
+            Enter the mobile number associated with your project
+          </Text>
         </View>
 
         {/* Access Button */}
