@@ -26,6 +26,7 @@
     "expo-barcode-scanner": "^13.0.1",
     "expo-blur": "~14.1.5",
     "expo-camera": "^17.0.9",
+    "expo-clipboard": "^8.0.8",
     "expo-constants": "~17.1.7",
     "expo-document-picker": "^14.0.7",
     "expo-file-system": "^19.0.19",
