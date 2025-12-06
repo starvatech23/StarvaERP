@@ -850,15 +850,18 @@ user_problem_statement: |
 backend:
   - task: "Client Portal Link in ProjectResponse Model"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/models.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added client_portal_link field to ProjectResponse model. This field is Optional[str] and will be automatically populated by the backend when a project's status changes to 'confirmed', 'active', or 'in_progress'. The generate_client_portal_link function in server.py already creates the link and stores it in the database."
+      - working: true
+        agent: "testing"
+        comment: "✅ CLIENT PORTAL LINK MODEL WORKING: Successfully verified that ProjectResponse model includes client_portal_link field. All project endpoints (GET /api/projects, GET /api/projects/{id}) correctly return the client_portal_link field in responses. Field is properly typed as Optional[str] and appears in all project responses even when null."
 
   - task: "Project APIs Return Client Portal Link"
     implemented: true
