@@ -247,9 +247,9 @@ export default function ProjectsScreen() {
                         </Text>
                         <TouchableOpacity
                           style={styles.copyButton}
-                          onPress={(e) => {
+                          onPress={async (e) => {
                             e.stopPropagation();
-                            // Copy to clipboard functionality
+                            await Clipboard.setStringAsync(project.client_portal_link);
                             Alert.alert(
                               'Link Copied',
                               'Client portal link has been copied to clipboard',
