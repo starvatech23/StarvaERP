@@ -75,7 +75,7 @@ export default function ProjectsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       </SafeAreaView>
     );
