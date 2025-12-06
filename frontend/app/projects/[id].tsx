@@ -127,6 +127,12 @@ export default function ProjectDetailsScreen() {
         <View style={styles.headerActions}>
           <TouchableOpacity
             style={styles.iconButton}
+            onPress={() => router.push(`/projects/${id}/chat` as any)}
+          >
+            <Ionicons name="chatbubbles" size={20} color="#FF6B35" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconButton}
             onPress={() => router.push(`/projects/timeline/${id}` as any)}
           >
             <Ionicons name="stats-chart" size={20} color="#FF6B35" />
