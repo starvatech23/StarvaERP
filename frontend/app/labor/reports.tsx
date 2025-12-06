@@ -16,6 +16,7 @@ import { workersAPI, laborAttendanceAPI, projectsAPI } from '../../services/api'
 import { Picker } from '@react-native-picker/picker';
 import moment from 'moment';
 import { PieChart } from 'react-native-chart-kit';
+import Colors from '../../constants/Colors';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -205,7 +206,7 @@ export default function LaborReportsScreen() {
       name: site.projectName.length > 15 ? site.projectName.substring(0, 15) + '...' : site.projectName,
       population: site.totalWages,
       color: colors[index % colors.length],
-      legendFontColor: '#1A202C',
+      legendFontColor: Colors.textPrimary,
       legendFontSize: 12,
     }));
   };
@@ -217,21 +218,21 @@ export default function LaborReportsScreen() {
         name: 'Present',
         population: stats.daysPresent,
         color: '#10B981',
-        legendFontColor: '#1A202C',
+        legendFontColor: Colors.textPrimary,
         legendFontSize: 12,
       },
       {
         name: 'Absent',
         population: stats.daysAbsent,
         color: '#EF4444',
-        legendFontColor: '#1A202C',
+        legendFontColor: Colors.textPrimary,
         legendFontSize: 12,
       },
       {
         name: 'Overtime',
         population: stats.overtimeRecords,
         color: '#F59E0B',
-        legendFontColor: '#1A202C',
+        legendFontColor: Colors.textPrimary,
         legendFontSize: 12,
       },
     ];
@@ -247,7 +248,7 @@ export default function LaborReportsScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#FF6B35" style={styles.loader} />
+        <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
       </SafeAreaView>
     );
   }
@@ -261,14 +262,14 @@ export default function LaborReportsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Labour Reports</Text>
         <TouchableOpacity
           style={styles.exportButton}
           onPress={() => Alert.alert('Export', 'Export functionality coming soon')}
         >
-          <Ionicons name="download-outline" size={20} color="#FF6B35" />
+          <Ionicons name="download-outline" size={20} color={Colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -296,7 +297,7 @@ export default function LaborReportsScreen() {
         {/* Date Navigation */}
         <View style={styles.dateNav}>
           <TouchableOpacity style={styles.navButton} onPress={() => changePeriod(-1)}>
-            <Ionicons name="chevron-back" size={20} color="#FF6B35" />
+            <Ionicons name="chevron-back" size={20} color={Colors.primary} />
           </TouchableOpacity>
           <Text style={styles.dateText}>
             {period === 'weekly'
@@ -311,7 +312,7 @@ export default function LaborReportsScreen() {
             <Ionicons
               name="chevron-forward"
               size={20}
-              color={endDate.isAfter(moment(), 'day') ? '#CBD5E0' : '#FF6B35'}
+              color={endDate.isAfter(moment(), 'day') ? Colors.border : Colors.primary}
             />
           </TouchableOpacity>
         </View>
@@ -322,10 +323,11 @@ export default function LaborReportsScreen() {
             selectedValue={selectedProject}
             onValueChange={(value) => setSelectedProject(value)}
             style={styles.picker}
+            dropdownIconColor={Colors.textPrimary}
           >
-            <Picker.Item label="All Sites" value="all" />
+            <Picker.Item label="All Sites" value="all" color={Colors.textPrimary} />
             {projects.map((project) => (
-              <Picker.Item key={project.id} label={project.name} value={project.id} />
+              <Picker.Item key={project.id} label={project.name} value={project.id} color={Colors.textPrimary} />
             ))}
           </Picker>
         </View>
@@ -378,7 +380,7 @@ export default function LaborReportsScreen() {
         {attendance.length > 0 && (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="stats-chart" size={20} color="#FF6B35" />
+              <Ionicons name="stats-chart" size={20} color={Colors.primary} />
               <Text style={styles.cardTitle}>Attendance Distribution</Text>
               <TouchableOpacity
                 style={styles.chartToggle}
@@ -387,7 +389,7 @@ export default function LaborReportsScreen() {
                 <Ionicons
                   name={showAttendanceChart ? 'list' : 'pie-chart'}
                   size={20}
-                  color="#FF6B35"
+                  color={Colors.primary}
                 />
               </TouchableOpacity>
             </View>
@@ -430,7 +432,7 @@ export default function LaborReportsScreen() {
         {/* Site-wise Wages */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Ionicons name="location" size={20} color="#FF6B35" />
+            <Ionicons name="location" size={20} color={Colors.primary} />
             <Text style={styles.cardTitle}>Site-wise Wages</Text>
             <TouchableOpacity
               style={styles.chartToggle}
@@ -439,7 +441,7 @@ export default function LaborReportsScreen() {
               <Ionicons
                 name={showSiteChart ? 'list' : 'pie-chart'}
                 size={20}
-                color="#FF6B35"
+                color={Colors.primary}
               />
             </TouchableOpacity>
           </View>
@@ -482,7 +484,7 @@ export default function LaborReportsScreen() {
         {/* Individual Worker Wages */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Ionicons name="person" size={20} color="#FF6B35" />
+            <Ionicons name="person" size={20} color={Colors.primary} />
             <Text style={styles.cardTitle}>Individual Labourer Wages</Text>
           </View>
           {workerWages.length === 0 ? (
@@ -511,7 +513,7 @@ export default function LaborReportsScreen() {
                     <Text style={styles.workerStatText}>A: {worker.daysAbsent}</Text>
                   </View>
                   <View style={styles.workerStat}>
-                    <Ionicons name="time-outline" size={14} color="#718096" />
+                    <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
                     <Text style={styles.workerStatText}>{worker.totalHours}h</Text>
                   </View>
                 </View>
@@ -529,7 +531,7 @@ export default function LaborReportsScreen() {
         {/* Advance Payments Section */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Ionicons name="wallet" size={20} color="#FF6B35" />
+            <Ionicons name="wallet" size={20} color={Colors.primary} />
             <Text style={styles.cardTitle}>Advance Payments</Text>
           </View>
           <View style={styles.advanceNotice}>
@@ -550,7 +552,7 @@ export default function LaborReportsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: Colors.background,
   },
   loader: {
     flex: 1,
@@ -560,9 +562,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     padding: 8,
@@ -570,21 +572,21 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: Colors.textPrimary,
   },
   exportButton: {
     padding: 8,
   },
   controls: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 16,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: Colors.border,
   },
   periodToggle: {
     flexDirection: 'row',
-    backgroundColor: '#F7FAFC',
+    backgroundColor: Colors.background,
     borderRadius: 8,
     padding: 4,
   },
@@ -595,12 +597,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   toggleButtonActive: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: Colors.primary,
   },
   toggleText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: Colors.textSecondary,
   },
   toggleTextActive: {
     color: '#FFFFFF',
@@ -616,34 +618,34 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: Colors.textPrimary,
   },
   pickerContainer: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: Colors.background,
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
-    color: '#1A202C',
+    color: Colors.textPrimary,
   },
   scrollContent: {
     padding: 16,
   },
   statsCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 2,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: Colors.textPrimary,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -655,7 +657,7 @@ const styles = StyleSheet.create({
   statBox: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: '#F7FAFC',
+    backgroundColor: Colors.background,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -663,13 +665,13 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: Colors.textPrimary,
     marginTop: 8,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: '#718096',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   miniStats: {
@@ -682,20 +684,20 @@ const styles = StyleSheet.create({
   },
   miniStatLabel: {
     fontSize: 14,
-    color: '#718096',
+    color: Colors.textSecondary,
   },
   miniStatValue: {
     fontSize: 16,
     fontWeight: '700',
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -707,7 +709,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#718096',
+    color: Colors.textSecondary,
     textAlign: 'center',
     paddingVertical: 20,
   },
@@ -716,7 +718,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: Colors.border,
   },
   listItemLeft: {
     flex: 1,
@@ -724,7 +726,7 @@ const styles = StyleSheet.create({
   listItemTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   listItemMeta: {
@@ -733,7 +735,7 @@ const styles = StyleSheet.create({
   },
   listItemMetaText: {
     fontSize: 12,
-    color: '#718096',
+    color: Colors.textSecondary,
   },
   listItemRight: {
     alignItems: 'flex-end',
@@ -746,10 +748,10 @@ const styles = StyleSheet.create({
   },
   listItemSubtext: {
     fontSize: 11,
-    color: '#718096',
+    color: Colors.textSecondary,
   },
   workerItem: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: Colors.background,
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
@@ -766,12 +768,12 @@ const styles = StyleSheet.create({
   workerName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   workerSkill: {
     fontSize: 12,
-    color: '#718096',
+    color: Colors.textSecondary,
     textTransform: 'capitalize',
   },
   workerWage: {
@@ -796,7 +798,7 @@ const styles = StyleSheet.create({
   },
   workerStatText: {
     fontSize: 12,
-    color: '#718096',
+    color: Colors.textSecondary,
   },
   workerItemFooter: {
     flexDirection: 'row',
@@ -805,7 +807,7 @@ const styles = StyleSheet.create({
   },
   workerRateText: {
     fontSize: 12,
-    color: '#718096',
+    color: Colors.textSecondary,
   },
   payButton: {
     backgroundColor: '#10B981',
@@ -820,7 +822,7 @@ const styles = StyleSheet.create({
   },
   advanceNotice: {
     flexDirection: 'row',
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#1E3A5F',
     padding: 12,
     borderRadius: 8,
     gap: 12,
@@ -829,11 +831,11 @@ const styles = StyleSheet.create({
   advanceNoticeText: {
     flex: 1,
     fontSize: 13,
-    color: '#1E40AF',
+    color: '#93C5FD',
     lineHeight: 18,
   },
   comingSoonButton: {
-    backgroundColor: '#E2E8F0',
+    backgroundColor: Colors.border,
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -841,7 +843,7 @@ const styles = StyleSheet.create({
   comingSoonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: Colors.textSecondary,
   },
   chartToggle: {
     marginLeft: 'auto',
@@ -867,11 +869,11 @@ const styles = StyleSheet.create({
   },
   attendanceStatLabel: {
     fontSize: 12,
-    color: '#718096',
+    color: Colors.textSecondary,
   },
   attendanceStatValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: Colors.textPrimary,
   },
 });
