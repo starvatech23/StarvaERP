@@ -131,7 +131,7 @@ export default function ClientPortalScreen() {
     });
   };
 
-  const formatMessageTime = (dateString: string) => {
+  const formatMessageTime = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleTimeString('en-US', {
