@@ -31,7 +31,7 @@ index b0a98e0..e69de29 100644
 -+def generate_client_portal_link(project_id: str, base_url: str = None) -> str:
 -+    """Generate a client portal access link for a project"""
 -+    if not base_url:
--+        base_url = "https://crmconstruct.preview.emergentagent.com"
+-+        base_url = "https://construct-crm.preview.emergentagent.com"
 -+    return f"{base_url}/client-portal/?projectId={project_id}"
 -+
 -+
@@ -73,7 +73,7 @@ index b0a98e0..e69de29 100644
 --+    try {
 --+      setIsLoading(true);
 --+      
---+      const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://crmconstruct.preview.emergentagent.com';
+--+      const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://construct-crm.preview.emergentagent.com';
 --+      const response = await fetch(`${API_URL}/api/client-portal/login`, {
 --+        method: 'POST',
 --+        headers: { 'Content-Type': 'application/json' },
@@ -331,7 +331,7 @@ index b0a98e0..e69de29 100644
 ----+import { Ionicons } from '@expo/vector-icons';
 ----+import axios from 'axios';
 ----+
-----+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://crmconstruct.preview.emergentagent.com';
+----+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://construct-crm.preview.emergentagent.com';
 ----+
 ----+export default function ClientPortalScreen() {
 ----+  const { projectId } = useLocalSearchParams();
@@ -2523,7 +2523,7 @@ index b0a98e0..e69de29 100644
 ----------------+from typing import Dict, Any, List, Optional
 ----------------+
 ----------------+# Configuration
-----------------+BASE_URL = "https://crmconstruct.preview.emergentagent.com/api"
+----------------+BASE_URL = "https://construct-crm.preview.emergentagent.com/api"
 ----------------+TEST_USER_EMAIL = "admin@test.com"
 ----------------+TEST_USER_PASSWORD = "admin123"
 ----------------+
@@ -3155,7 +3155,7 @@ index b0a98e0..e69de29 100644
 -----------------+import uuid
 -----------------+
 -----------------+# Configuration
------------------+BASE_URL = "https://crmconstruct.preview.emergentagent.com/api"
+-----------------+BASE_URL = "https://construct-crm.preview.emergentagent.com/api"
 -----------------+HEADERS = {"Content-Type": "application/json"}
 -----------------+
 -----------------+class ComprehensiveAPITester:
@@ -4080,7 +4080,7 @@ index b0a98e0..e69de29 100644
 -----------------+from datetime import datetime, timedelta
 -----------------+import uuid
 -----------------+
------------------+BASE_URL = "https://crmconstruct.preview.emergentagent.com/api"
+-----------------+BASE_URL = "https://construct-crm.preview.emergentagent.com/api"
 -----------------+HEADERS = {"Content-Type": "application/json"}
 -----------------+
 -----------------+class FinalComprehensiveTest:
@@ -6335,7 +6335,7 @@ index b0a98e0..e69de29 100644
 -----------------------------+from typing import Dict, Any, Optional, List
 -----------------------------+
 -----------------------------+# Configuration
------------------------------+BACKEND_URL = "https://crmconstruct.preview.emergentagent.com/api"
+-----------------------------+BACKEND_URL = "https://construct-crm.preview.emergentagent.com/api"
 -----------------------------+TEST_USER_EMAIL = "admin@buildflow.com"
 -----------------------------+TEST_USER_PASSWORD = "admin123"
 -----------------------------+
@@ -7335,7 +7335,7 @@ index b0a98e0..e69de29 100644
 ------------------+import json
 ------------------+from datetime import datetime, timedelta
 ------------------+
-------------------+BASE_URL = "https://crmconstruct.preview.emergentagent.com/api"
+------------------+BASE_URL = "https://construct-crm.preview.emergentagent.com/api"
 ------------------+HEADERS = {"Content-Type": "application/json"}
 ------------------+
 ------------------+def test_payments_api():
