@@ -76,7 +76,7 @@ export default function ClientPortalScreen() {
       setTimeout(() => {
         messagesScrollRef.current?.scrollToEnd({ animated: true });
       }, 100);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error loading messages:', err);
     }
   };
