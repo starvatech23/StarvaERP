@@ -6588,7 +6588,7 @@ async def get_messages(
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
-    if current_user["_id"] not in conversation["participants"]:
+    if str(current_user["_id"]) not in conversation["participants"]:
         raise HTTPException(status_code=403, detail="Not a participant in this conversation")
     
     # Get messages
@@ -6636,7 +6636,7 @@ async def send_message(
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
-    if current_user["_id"] not in conversation["participants"]:
+    if str(current_user["_id"]) not in conversation["participants"]:
         raise HTTPException(status_code=403, detail="Not a participant in this conversation")
     
     # Create message
