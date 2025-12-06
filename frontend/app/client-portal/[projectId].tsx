@@ -108,7 +108,7 @@ export default function ClientPortalScreen() {
       setTimeout(() => {
         messagesScrollRef.current?.scrollToEnd({ animated: true });
       }, 100);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error sending message:', err);
       Alert.alert('Error', 'Failed to send message. Please try again.');
     } finally {
