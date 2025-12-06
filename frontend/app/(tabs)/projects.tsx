@@ -235,7 +235,7 @@ export default function ProjectsScreen() {
                   </View>
 
                   {/* Client Portal Link - Only show for confirmed projects */}
-                  {project.client_portal_link && (
+                  {project.client_portal_link && typeof project.client_portal_link === 'string' && project.client_portal_link.trim() && (
                     <View style={styles.clientLinkSection}>
                       <View style={styles.clientLinkHeader}>
                         <Ionicons name="link" size={16} color="#3B82F6" />
@@ -243,13 +243,13 @@ export default function ProjectsScreen() {
                       </View>
                       <View style={styles.clientLinkRow}>
                         <Text style={styles.clientLinkText} numberOfLines={1}>
-                          {project.client_portal_link}
+                          {String(project.client_portal_link)}
                         </Text>
                         <TouchableOpacity
                           style={styles.copyButton}
                           onPress={async (e) => {
                             e.stopPropagation();
-                            await Clipboard.setStringAsync(project.client_portal_link);
+                            await Clipboard.setStringAsync(String(project.client_portal_link));
                             Alert.alert(
                               'Link Copied',
                               'Client portal link has been copied to clipboard',
