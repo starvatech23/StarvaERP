@@ -198,6 +198,23 @@ export const crmPermissionsAPI = {
   getMatrix: () => api.get('/crm/permissions/matrix'),
 };
 
+// Chat/Messaging API
+export const chatAPI = {
+  getOrCreateConversation: (projectId: string) => api.get(`/projects/${projectId}/conversation`),
+  getMessages: (conversationId: string, skip: number = 0, limit: number = 50) => 
+    api.get(`/conversations/${conversationId}/messages?skip=${skip}&limit=${limit}`),
+  sendMessage: (conversationId: string, data: any) => 
+    api.post(`/conversations/${conversationId}/messages`, data),
+  uploadAttachment: (file: any) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/messages/upload-attachment', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  getUserConversations: () => api.get('/conversations'),
+};
+
 // Lead Import/Export
 export const crmImportExportAPI = {
   exportLeads: (filter: any) => api.post('/crm/leads/export', filter),
