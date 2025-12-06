@@ -118,8 +118,14 @@ export default function ClientPortalIndexScreen() {
           onPress={handleAccessPortal}
           disabled={!projectId.trim() || !mobile.trim() || isLoading}
         >
-          <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-          <Text style={styles.accessButtonText}>Access Portal</Text>
+          {isLoading ? (
+            <Text style={styles.accessButtonText}>Logging in...</Text>
+          ) : (
+            <>
+              <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+              <Text style={styles.accessButtonText}>Access Portal</Text>
+            </>
+          )}
         </TouchableOpacity>
 
         {/* Demo Section */}
