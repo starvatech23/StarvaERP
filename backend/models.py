@@ -1829,7 +1829,8 @@ class MessageBase(BaseModel):
 class MessageCreate(MessageBase):
     pass
 
-class Message(Document, MessageBase):
+class Message(MessageBase):
+    id: str
     conversation_id: str
     sender_id: str
     sender_name: str
@@ -1838,9 +1839,6 @@ class Message(Document, MessageBase):
     read_by: List[str] = []  # List of user IDs who have read the message
     created_at: datetime
     updated_at: datetime
-    
-    class Settings:
-        name = "messages"
 
 class MessageResponse(MessageBase):
     id: str
