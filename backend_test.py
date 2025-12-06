@@ -254,9 +254,9 @@ class BackendTester:
             
             project_id = project["id"]
             
-            # Test 1: Update status to "confirmed" - should generate link
-            print_info("Testing status change to 'confirmed'")
-            update_data = {"status": "confirmed"}
+            # Test 1: Update status to "in_progress" - should generate link
+            print_info("Testing status change to 'in_progress'")
+            update_data = {"status": "in_progress"}
             response = requests.put(f"{API_BASE}/projects/{project_id}", json=update_data, headers=self.get_headers())
             
             if response.status_code != 200:
