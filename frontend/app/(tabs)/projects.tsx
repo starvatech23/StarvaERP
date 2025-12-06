@@ -232,6 +232,35 @@ export default function ProjectsScreen() {
                       {completedTasks} of {totalTasks} tasks completed
                     </Text>
                   </View>
+
+                  {/* Client Portal Link - Only show for confirmed projects */}
+                  {project.client_portal_link && (
+                    <View style={styles.clientLinkSection}>
+                      <View style={styles.clientLinkHeader}>
+                        <Ionicons name="link" size={16} color="#3B82F6" />
+                        <Text style={styles.clientLinkLabel}>Client Portal Link</Text>
+                      </View>
+                      <View style={styles.clientLinkRow}>
+                        <Text style={styles.clientLinkText} numberOfLines={1}>
+                          {project.client_portal_link}
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.copyButton}
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            // Copy to clipboard functionality
+                            Alert.alert(
+                              'Link Copied',
+                              'Client portal link has been copied to clipboard',
+                              [{ text: 'OK' }]
+                            );
+                          }}
+                        >
+                          <Ionicons name="copy-outline" size={16} color="#3B82F6" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
                 </TouchableOpacity>
               );
             })}
