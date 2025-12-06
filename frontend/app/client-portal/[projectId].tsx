@@ -19,32 +19,32 @@ import axios from 'axios';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://crmconstruct.preview.emergentagent.com';
 
-interface Message {
+type Message = {
   id: string;
   content: string;
   sender_name: string;
   sender_role: string;
   created_at: string;
   attachments?: any[];
-}
+};
 
-interface Project {
+type Project = {
   id: string;
   name: string;
   start_date?: string;
   end_date?: string;
   status?: string;
   description?: string;
-}
+};
 
-interface Milestone {
+type Milestone = {
   id: string;
   name: string;
   description?: string;
   due_date?: string;
   status?: string;
   progress?: number;
-}
+};
 
 export default function ClientPortalScreen() {
   const { projectId } = useLocalSearchParams();
