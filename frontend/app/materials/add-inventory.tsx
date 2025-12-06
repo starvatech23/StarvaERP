@@ -17,6 +17,7 @@ import { useRouter } from 'expo-router';
 import { siteInventoryAPI, projectsAPI, materialsAPI } from '../../services/api';
 import { Picker } from '@react-native-picker/picker';
 import moment from 'moment';
+import Colors from '../../constants/Colors';
 
 export default function AddInventoryScreen() {
   const router = useRouter();
