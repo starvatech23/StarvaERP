@@ -36,8 +36,8 @@ export default function ClientPortalScreen() {
   const [clientName, setClientName] = useState('Client');
   const [refreshing, setRefreshing] = useState(false);
   
-  const scrollViewRef = useRef<ScrollView>(null);
-  const messagesScrollRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef(null);
+  const messagesScrollRef = useRef(null);
 
   useEffect(() => {
     loadPortalData();
