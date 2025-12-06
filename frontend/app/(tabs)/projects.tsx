@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   managerText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#1A202C',
+    color: Colors.textPrimary,
     flex: 1,
   },
   callButton: {
