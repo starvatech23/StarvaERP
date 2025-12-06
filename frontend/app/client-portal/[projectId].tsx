@@ -122,7 +122,7 @@ export default function ClientPortalScreen() {
     setRefreshing(false);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
