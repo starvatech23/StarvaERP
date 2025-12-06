@@ -114,9 +114,9 @@ export default function ClientPortalIndexScreen() {
 
         {/* Access Button */}
         <TouchableOpacity
-          style={[styles.accessButton, !projectId.trim() && styles.accessButtonDisabled]}
+          style={[styles.accessButton, (!projectId.trim() || !mobile.trim() || isLoading) && styles.accessButtonDisabled]}
           onPress={handleAccessPortal}
-          disabled={!projectId.trim()}
+          disabled={!projectId.trim() || !mobile.trim() || isLoading}
         >
           <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
           <Text style={styles.accessButtonText}>Access Portal</Text>
