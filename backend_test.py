@@ -284,7 +284,7 @@ class BackendTester:
             print_info("Testing that link is not regenerated on subsequent updates")
             original_link = updated_project["client_portal_link"]
             
-            update_data = {"status": "active"}
+            update_data = {"status": "completed"}
             response = requests.put(f"{API_BASE}/projects/{project_id}", json=update_data, headers=self.get_headers())
             
             if response.status_code != 200:
