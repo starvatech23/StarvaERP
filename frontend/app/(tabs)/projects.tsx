@@ -242,7 +242,7 @@ export default function ProjectsScreen() {
                   {project.client_portal_link && typeof project.client_portal_link === 'string' && project.client_portal_link.trim() && (
                     <View style={styles.clientLinkSection}>
                       <View style={styles.clientLinkHeader}>
-                        <Ionicons name="link" size={16} color="#3B82F6" />
+                        <Ionicons name="link" size={16} color={Colors.secondary} />
                         <Text style={styles.clientLinkLabel}>Client Portal Link</Text>
                       </View>
                       <View style={styles.clientLinkRow}>
@@ -261,7 +261,7 @@ export default function ProjectsScreen() {
                             );
                           }}
                         >
-                          <Ionicons name="copy-outline" size={16} color="#3B82F6" />
+                          <Ionicons name="copy-outline" size={16} color={Colors.textPrimary} />
                         </TouchableOpacity>
                       </View>
                     </View>
