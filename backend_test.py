@@ -288,7 +288,7 @@ class BackendTester:
             response = requests.put(f"{API_BASE}/projects/{project_id}", json=update_data, headers=self.get_headers())
             
             if response.status_code != 200:
-                print_error(f"Failed to update project status to active: {response.status_code} - {response.text}")
+                print_error(f"Failed to update project status to completed: {response.status_code} - {response.text}")
                 self.failed_tests += 1
                 return False
             
