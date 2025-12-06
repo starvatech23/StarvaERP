@@ -45,16 +45,13 @@ ADMIN_CREDENTIALS = {
     "auth_type": "email"
 }
 
-class CRMTester:
+class BackendTester:
     def __init__(self):
-        self.session = requests.Session()
         self.auth_token = None
-        self.test_results = []
-        self.created_resources = {
-            "categories": [],
-            "leads": [],
-            "activities": []
-        }
+        self.test_project_id = None
+        self.passed_tests = 0
+        self.failed_tests = 0
+        self.total_tests = 0
         
     def log_result(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
         """Log test result"""
