@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   progressPercent: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#FF6B35',
+    color: Colors.primary,
   },
   progressBarContainer: {
     height: 8,
