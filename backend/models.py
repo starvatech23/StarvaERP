@@ -1860,7 +1860,8 @@ class ConversationBase(BaseModel):
 class ConversationCreate(ConversationBase):
     pass
 
-class Conversation(Document, ConversationBase):
+class Conversation(ConversationBase):
+    id: str
     last_message: Optional[str] = None
     last_message_at: Optional[datetime] = None
     last_message_sender: Optional[str] = None
@@ -1869,9 +1870,6 @@ class Conversation(Document, ConversationBase):
     created_at: datetime
     updated_at: datetime
     created_by: str
-    
-    class Settings:
-        name = "conversations"
 
 class ConversationResponse(ConversationBase):
     id: str
