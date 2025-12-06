@@ -213,7 +213,9 @@ class BackendTester:
                 "start_date": "2024-01-01T00:00:00Z",
                 "end_date": "2024-12-31T23:59:59Z",
                 "budget": 100000.0,
-                "address": "Test Address, Test City"
+                "address": "Test Address, Test City",
+                "location": "Test Location",
+                "client_name": "Test Client"
             }
             
             response = requests.post(f"{API_BASE}/projects", json=project_data, headers=self.get_headers())
