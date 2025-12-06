@@ -65,7 +65,7 @@ export default function ClientPortalScreen() {
     }
   };
 
-  const loadMessages = async (convId: string) => {
+  const loadMessages = async (convId) => {
     try {
       const response = await axios.get(
         `${API_URL}/api/client-portal/conversation/${convId}/messages?limit=50`
