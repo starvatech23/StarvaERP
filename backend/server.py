@@ -6497,6 +6497,245 @@ async def check_lead_conversion_eligibility(
     }
 
 
+# ============= Chat/Messaging Endpoints =============
+
+@api_router.get("/projects/{project_id}/conversation", response_model=ConversationResponse)
+async def get_or_create_conversation(
+    project_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get or create a conversation for a project"""
+    # Check if project exists
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Check if conversation already exists
+    existing_conv = await db.conversations.find_one({"project_id": project_id})
+    
+    if existing_conv:
+        conv_dict = serialize_doc(existing_conv)
+        message_count = await db.messages.count_documents({"conversation_id": conv_dict["id"]})
+        conv_dict["message_count"] = message_count
+        return ConversationResponse(**conv_dict)
+    
+    # Create new conversation
+    # Get all project participants
+    participants = []
+    participant_names = []
+    
+    # Add project owner
+    if project.get("owner_id"):
+        participants.append(project["owner_id"])
+        owner = await db.users.find_one({"_id": ObjectId(project["owner_id"])})
+        if owner:
+            participant_names.append(owner.get("full_name", owner.get("name", "Unknown")))
+    
+    # Add manager
+    if project.get("manager_id"):
+        if project["manager_id"] not in participants:
+            participants.append(project["manager_id"])
+            manager = await db.users.find_one({"_id": ObjectId(project["manager_id"])})
+            if manager:
+                participant_names.append(manager.get("full_name", manager.get("name", "Unknown")))
+    
+    # Add current user if not already in
+    if current_user["_id"] not in participants:
+        participants.append(current_user["_id"])
+        participant_names.append(current_user["full_name"])
+    
+    conv_doc = {
+        "project_id": project_id,
+        "project_name": project.get("name", "Unnamed Project"),
+        "participants": participants,
+        "participant_names": participant_names,
+        "last_message": None,
+        "last_message_at": None,
+        "last_message_sender": None,
+        "unread_count": {p: 0 for p in participants},
+        "is_active": True,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "created_by": current_user["_id"]
+    }
+    
+    result = await db.conversations.insert_one(conv_doc)
+    conv_doc["_id"] = result.inserted_id
+    
+    conv_dict = serialize_doc(conv_doc)
+    conv_dict["message_count"] = 0
+    
+    return ConversationResponse(**conv_dict)
+
+
+@api_router.get("/conversations/{conversation_id}/messages", response_model=List[MessageResponse])
+async def get_messages(
+    conversation_id: str,
+    skip: int = 0,
+    limit: int = 50,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get messages for a conversation"""
+    # Verify user is participant
+    conversation = await db.conversations.find_one({"_id": ObjectId(conversation_id)})
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    if current_user["_id"] not in conversation["participants"]:
+        raise HTTPException(status_code=403, detail="Not a participant in this conversation")
+    
+    # Get messages
+    messages = await db.messages.find(
+        {"conversation_id": conversation_id}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(length=limit)
+    
+    # Mark messages as read
+    message_ids = [msg["_id"] for msg in messages]
+    await db.messages.update_many(
+        {
+            "_id": {"$in": message_ids},
+            "sender_id": {"$ne": current_user["_id"]},
+            "read_by": {"$ne": current_user["_id"]}
+        },
+        {
+            "$addToSet": {"read_by": current_user["_id"]},
+            "$set": {"is_read": True}
+        }
+    )
+    
+    # Reset unread count for current user
+    await db.conversations.update_one(
+        {"_id": ObjectId(conversation_id)},
+        {"$set": {f"unread_count.{current_user['_id']}": 0}}
+    )
+    
+    result = []
+    for msg in reversed(messages):  # Reverse to show oldest first
+        msg_dict = serialize_doc(msg)
+        result.append(MessageResponse(**msg_dict))
+    
+    return result
+
+
+@api_router.post("/conversations/{conversation_id}/messages", response_model=MessageResponse)
+async def send_message(
+    conversation_id: str,
+    message: MessageCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Send a message in a conversation"""
+    # Verify conversation and participation
+    conversation = await db.conversations.find_one({"_id": ObjectId(conversation_id)})
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    if current_user["_id"] not in conversation["participants"]:
+        raise HTTPException(status_code=403, detail="Not a participant in this conversation")
+    
+    # Create message
+    msg_doc = {
+        "conversation_id": conversation_id,
+        "sender_id": current_user["_id"],
+        "sender_name": current_user["full_name"],
+        "sender_role": current_user.get("role", "unknown"),
+        "content": message.content,
+        "attachments": [att.dict() for att in message.attachments],
+        "is_read": False,
+        "read_by": [current_user["_id"]],  # Sender has read it
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    result = await db.messages.insert_one(msg_doc)
+    msg_doc["_id"] = result.inserted_id
+    
+    # Update conversation
+    unread_counts = conversation.get("unread_count", {})
+    for participant_id in conversation["participants"]:
+        if participant_id != current_user["_id"]:
+            unread_counts[participant_id] = unread_counts.get(participant_id, 0) + 1
+    
+    await db.conversations.update_one(
+        {"_id": ObjectId(conversation_id)},
+        {
+            "$set": {
+                "last_message": message.content[:100],
+                "last_message_at": datetime.utcnow(),
+                "last_message_sender": current_user["full_name"],
+                "unread_count": unread_counts,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    msg_dict = serialize_doc(msg_doc)
+    return MessageResponse(**msg_dict)
+
+
+@api_router.post("/messages/upload-attachment")
+async def upload_message_attachment(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Upload a file attachment for messages"""
+    try:
+        # Create uploads directory if not exists
+        upload_dir = Path("/app/backend/uploads/chat")
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate unique filename
+        file_ext = Path(file.filename).suffix
+        unique_filename = f"{uuid.uuid4()}{file_ext}"
+        file_path = upload_dir / unique_filename
+        
+        # Save file
+        content = await file.read()
+        with open(file_path, "wb") as f:
+            f.write(content)
+        
+        # Determine file type
+        file_type = "document"
+        if file.content_type:
+            if file.content_type.startswith("image/"):
+                file_type = "image"
+            elif file.content_type.startswith("video/"):
+                file_type = "video"
+            elif file.content_type.startswith("audio/"):
+                file_type = "audio"
+        
+        attachment = {
+            "file_name": file.filename,
+            "file_url": f"/uploads/chat/{unique_filename}",
+            "file_type": file_type,
+            "file_size": len(content),
+            "uploaded_at": datetime.utcnow().isoformat()
+        }
+        
+        return attachment
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
+
+
+@api_router.get("/conversations", response_model=List[ConversationResponse])
+async def get_user_conversations(
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all conversations for the current user"""
+    conversations = await db.conversations.find(
+        {"participants": current_user["_id"], "is_active": True}
+    ).sort("last_message_at", -1).to_list(length=100)
+    
+    result = []
+    for conv in conversations:
+        conv_dict = serialize_doc(conv)
+        message_count = await db.messages.count_documents({"conversation_id": conv_dict["id"]})
+        conv_dict["message_count"] = message_count
+        result.append(ConversationResponse(**conv_dict))
+    
+    return result
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
