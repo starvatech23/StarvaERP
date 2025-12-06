@@ -6556,7 +6556,7 @@ async def get_or_create_conversation(
         "last_message": None,
         "last_message_at": None,
         "last_message_sender": None,
-        "unread_count": {p: 0 for p in participants},
+        "unread_count": {str(p): 0 for p in participants},  # Convert to strings
         "is_active": True,
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
