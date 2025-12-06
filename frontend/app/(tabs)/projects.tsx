@@ -130,7 +130,10 @@ export default function ProjectsScreen() {
               console.log(`Project ${project.name}:`, {
                 has_manager_id: !!project.project_manager_id,
                 manager_name: project.project_manager_name,
-                manager_phone: project.manager_phone
+                manager_phone: project.manager_phone,
+                client_portal_link: project.client_portal_link,
+                has_client_portal_link: !!project.client_portal_link,
+                status: project.status
               });
               
               return (
