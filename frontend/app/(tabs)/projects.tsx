@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: Colors.border,
   },
   progressHeader: {
     flexDirection: 'row',
