@@ -6732,7 +6732,7 @@ async def get_user_conversations(
 ):
     """Get all conversations for the current user"""
     conversations = await db.conversations.find(
-        {"participants": current_user["_id"], "is_active": True}
+        {"participants": str(current_user["_id"]), "is_active": True}
     ).sort("last_message_at", -1).to_list(length=100)
     
     result = []
