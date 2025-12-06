@@ -98,12 +98,12 @@ export default function ProjectsScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF6B35" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
         }
       >
         {projects.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="business-outline" size={64} color="#CBD5E0" />
+            <Ionicons name="business-outline" size={64} color={Colors.secondaryLight} />
             <Text style={styles.emptyTitle}>No Projects Yet</Text>
             <Text style={styles.emptyText}>
               {canCreateProject
