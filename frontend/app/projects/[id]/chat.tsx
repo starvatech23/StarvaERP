@@ -75,23 +75,28 @@ export default function ProjectChatScreen() {
     // Poll every 3 seconds for new messages
     pollingInterval.current = setInterval(async () => {
       try {
-        const res = await chatAPI.getMessages(conversationId, 0, 10);
-        const newMsgs = res.data;
+        const res = await chatAPI.getMessages(conversationId, 0, 50);
+        const newMsgs = res.data || [];
         
-        if (newMsgs.length > 0 && messages.length > 0) {
-          const lastKnownMsgId = messages[messages.length - 1]?.id;
-          const hasNewMessages = newMsgs.some((msg: any) => msg.id !== lastKnownMsgId);
-          
-          if (hasNewMessages) {
-            setMessages(newMsgs);
-            scrollToBottom();
-          }
-        } else if (newMsgs.length > 0 && messages.length === 0) {
+        // Only update if we have different message count or new message IDs
+        if (newMsgs.length !== messages.length) {
           setMessages(newMsgs);
-          scrollToBottom();
+          setTimeout(() => scrollToBottom(), 100);
+        } else if (newMsgs.length > 0 && messages.length > 0) {
+          // Check if last message is different
+          const lastNewMsg = newMsgs[newMsgs.length - 1];
+          const lastCurrentMsg = messages[messages.length - 1];
+          if (lastNewMsg?.id !== lastCurrentMsg?.id) {
+            setMessages(newMsgs);
+            setTimeout(() => scrollToBottom(), 100);
+          }
         }
-      } catch (error) {
-        console.error('Polling error:', error);
+      } catch (error: any) {
+        // Silently fail on polling errors to avoid spamming console
+        // Only log if it's not a network issue
+        if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+          console.log('Polling update skipped');
+        }
       }
     }, 3000);
   };
