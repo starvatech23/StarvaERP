@@ -6519,6 +6519,8 @@ async def get_or_create_conversation(
     
     if existing_conv:
         conv_dict = serialize_doc(existing_conv)
+        # Ensure participants are strings for compatibility
+        conv_dict["participants"] = [str(p) for p in conv_dict.get("participants", [])]
         message_count = await db.messages.count_documents({"conversation_id": conv_dict["id"]})
         conv_dict["message_count"] = message_count
         return ConversationResponse(**conv_dict)
