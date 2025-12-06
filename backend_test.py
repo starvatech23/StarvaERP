@@ -1,18 +1,44 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend API Testing for CRM Lead Management Module
-Tests all 18 CRM endpoints with proper authentication and data validation
+Backend API Testing for Client Portal Link Feature
+Tests the client portal link functionality in project management APIs
 """
 
 import requests
 import json
 import sys
-from datetime import datetime, timedelta
-from typing import Dict, Any, List
-import uuid
+from datetime import datetime
+import os
 
-# Configuration
-BASE_URL = "https://construct-crm.preview.emergentagent.com/api"
+# Get backend URL from environment
+BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://construct-crm.preview.emergentagent.com')
+API_BASE = f"{BACKEND_URL}/api"
+
+class Colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+
+def print_success(message):
+    print(f"{Colors.GREEN}✅ {message}{Colors.ENDC}")
+
+def print_error(message):
+    print(f"{Colors.RED}❌ {message}{Colors.ENDC}")
+
+def print_warning(message):
+    print(f"{Colors.YELLOW}⚠️ {message}{Colors.ENDC}")
+
+def print_info(message):
+    print(f"{Colors.BLUE}ℹ️ {message}{Colors.ENDC}")
+
+def print_header(message):
+    print(f"\n{Colors.BOLD}{Colors.BLUE}{'='*60}{Colors.ENDC}")
+    print(f"{Colors.BOLD}{Colors.BLUE}{message}{Colors.ENDC}")
+    print(f"{Colors.BOLD}{Colors.BLUE}{'='*60}{Colors.ENDC}")
+
 ADMIN_CREDENTIALS = {
     "identifier": "admin@test.com",
     "password": "admin123",
