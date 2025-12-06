@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 13,
-    color: '#718096',
+    color: Colors.textSecondary,
     flex: 1,
   },
   managerRow: {
