@@ -452,14 +452,14 @@ const styles = StyleSheet.create({
   },
   progressTasks: {
     fontSize: 11,
-    color: '#718096',
+    color: Colors.textSecondary,
     marginTop: 6,
   },
   clientLinkSection: {
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: Colors.border,
   },
   clientLinkHeader: {
     flexDirection: 'row',
