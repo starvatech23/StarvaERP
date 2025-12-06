@@ -820,9 +820,87 @@ test_plan:
   test_priority: "high_first"
 
 agent_communication:
-agent_communication:
   - agent: "main"
     message: "✅ CRM Backend Implementation Complete - Created 18 API endpoints with proper authentication, field audit logging, mock integrations, and database initialization. All endpoints use consistent auth pattern (Depends(security) + current_user['role'] check). Ready for comprehensive backend testing. Frontend screens not yet implemented."
   - agent: "testing"
     message: "✅ CRM BACKEND TESTING COMPLETE - Comprehensive testing of all 18 CRM endpoints completed with 77.3% success rate (17/22 tests passed). CRITICAL BUG FIXED: Moved app.include_router() after all CRM routes to ensure proper registration. WORKING MODULES: ✅ Lead Categories APIs (3/4 endpoints working), ✅ Lead CRUD APIs (6/6 endpoints working perfectly), ✅ Configuration APIs (2/2 endpoints working). PARTIAL WORKING: Activity Timeline APIs (1/2), Mock Integration APIs (1/2), Bulk Operations APIs (2/3). REMAINING ISSUES: 5 minor validation/consent issues that don't block core CRM functionality. Core lead management, categories, and configuration are fully operational."
+
+#====================================================================================================
+# Client Portal Link Feature - Testing Data
+#====================================================================================================
+
+user_problem_statement: |
+  Phase: Client Portal Link Display on Project Cards
+  
+  Building on the existing client portal authentication system, this feature ensures that:
+  - Client portal links are automatically generated when a project status changes to "Confirmed"
+  - The generated link is displayed on the project card in the main projects dashboard
+  - Users can easily copy the link to share with clients
+  
+  Backend Implementation:
+  - Link generation function already exists (generate_client_portal_link)
+  - Project update endpoint automatically creates link on status change
+  - Need to expose client_portal_link through ProjectResponse model
+  
+  Frontend Implementation:
+  - Display client portal link on project cards
+  - Add copy-to-clipboard functionality using expo-clipboard
+  - Link only shows for projects that have been confirmed
+
+backend:
+  - task: "Client Portal Link in ProjectResponse Model"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added client_portal_link field to ProjectResponse model. This field is Optional[str] and will be automatically populated by the backend when a project's status changes to 'confirmed', 'active', or 'in_progress'. The generate_client_portal_link function in server.py already creates the link and stores it in the database."
+
+  - task: "Project APIs Return Client Portal Link"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "All project endpoints (GET /api/projects, GET /api/projects/{id}, PUT /api/projects/{id}) now return client_portal_link field through ProjectResponse model. The serialize_doc function automatically includes this field if it exists in the database. Link generation happens automatically in PUT /api/projects/{id} endpoint when status changes to confirmed/active/in_progress."
+
+frontend:
+  - task: "Display Client Portal Link on Project Cards"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/(tabs)/projects.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added client portal link section to project cards in projects dashboard. Features: (1) Link section only displays when project.client_portal_link exists (confirmed projects), (2) Visual design includes link icon and 'Client Portal Link' label in blue theme, (3) Link text displayed in monospace font with ellipsis for long URLs, (4) Copy button with icon that copies link to clipboard using expo-clipboard, (5) Success alert shown when link is copied, (6) Section styled consistently with existing card sections (border-top separator). Installed expo-clipboard package for clipboard functionality."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Client Portal Link in ProjectResponse Model"
+    - "Project APIs Return Client Portal Link"
+    - "Display Client Portal Link on Project Cards"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "✅ CLIENT PORTAL LINK FEATURE IMPLEMENTED - Completed full implementation of client portal link display feature. BACKEND CHANGES: (1) Added client_portal_link field to ProjectResponse model in models.py as Optional[str], (2) Verified existing link generation logic in server.py - generate_client_portal_link function creates links and PUT /api/projects/{id} automatically stores them when status changes to confirmed/active/in_progress. FRONTEND CHANGES: (1) Installed expo-clipboard package for clipboard functionality, (2) Updated projects.tsx to display client portal link section on project cards when link exists, (3) Added copy-to-clipboard button with success alert, (4) Styled link section with blue theme, monospace font for URL, and proper spacing. READY FOR TESTING: Need to test backend API responses include client_portal_link field and frontend clipboard functionality works correctly. Both backend and expo services have been restarted."
 
