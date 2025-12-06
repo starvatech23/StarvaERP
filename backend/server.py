@@ -6524,28 +6524,31 @@ async def get_or_create_conversation(
         return ConversationResponse(**conv_dict)
     
     # Create new conversation
-    # Get all project participants
+    # Get all project participants (ensure all IDs are strings)
     participants = []
     participant_names = []
     
     # Add project owner
     if project.get("owner_id"):
-        participants.append(project["owner_id"])
+        owner_id = str(project["owner_id"])
+        participants.append(owner_id)
         owner = await db.users.find_one({"_id": ObjectId(project["owner_id"])})
         if owner:
             participant_names.append(owner.get("full_name", owner.get("name", "Unknown")))
     
     # Add manager
     if project.get("manager_id"):
-        if project["manager_id"] not in participants:
-            participants.append(project["manager_id"])
+        manager_id = str(project["manager_id"])
+        if manager_id not in participants:
+            participants.append(manager_id)
             manager = await db.users.find_one({"_id": ObjectId(project["manager_id"])})
             if manager:
                 participant_names.append(manager.get("full_name", manager.get("name", "Unknown")))
     
     # Add current user if not already in
-    if current_user["_id"] not in participants:
-        participants.append(current_user["_id"])
+    current_user_id = str(current_user["_id"])
+    if current_user_id not in participants:
+        participants.append(current_user_id)
         participant_names.append(current_user["full_name"])
     
     conv_doc = {
