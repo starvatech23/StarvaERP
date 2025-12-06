@@ -268,7 +268,7 @@ class BackendTester:
             
             # Verify client_portal_link was generated
             if not updated_project.get("client_portal_link"):
-                print_error("client_portal_link was not generated when status changed to 'confirmed'")
+                print_error("client_portal_link was not generated when status changed to 'in_progress'")
                 self.failed_tests += 1
                 return False
             
