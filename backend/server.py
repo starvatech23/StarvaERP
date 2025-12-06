@@ -6600,14 +6600,15 @@ async def get_messages(
     
     # Mark messages as read
     message_ids = [msg["_id"] for msg in messages]
+    current_user_id_str = str(current_user["_id"])
     await db.messages.update_many(
         {
             "_id": {"$in": message_ids},
-            "sender_id": {"$ne": current_user["_id"]},
-            "read_by": {"$ne": current_user["_id"]}
+            "sender_id": {"$ne": current_user_id_str},
+            "read_by": {"$ne": current_user_id_str}
         },
         {
-            "$addToSet": {"read_by": current_user["_id"]},
+            "$addToSet": {"read_by": current_user_id_str},
             "$set": {"is_read": True}
         }
     )
@@ -6615,12 +6616,15 @@ async def get_messages(
     # Reset unread count for current user
     await db.conversations.update_one(
         {"_id": ObjectId(conversation_id)},
-        {"$set": {f"unread_count.{current_user['_id']}": 0}}
+        {"$set": {f"unread_count.{current_user_id_str}": 0}}
     )
     
     result = []
     for msg in reversed(messages):  # Reverse to show oldest first
         msg_dict = serialize_doc(msg)
+        # Ensure sender_id and read_by are strings for compatibility
+        msg_dict["sender_id"] = str(msg_dict.get("sender_id", ""))
+        msg_dict["read_by"] = [str(rb) for rb in msg_dict.get("read_by", [])]
         result.append(MessageResponse(**msg_dict))
     
     return result
