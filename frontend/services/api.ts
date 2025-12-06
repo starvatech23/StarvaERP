@@ -215,6 +215,15 @@ export const chatAPI = {
   getUserConversations: () => api.get('/conversations'),
 };
 
+// Client Portal API (No auth required)
+export const clientPortalAPI = {
+  getPortalData: (projectId: string) => api.get(`/client-portal/${projectId}`),
+  getMessages: (conversationId: string, skip: number = 0, limit: number = 50) => 
+    api.get(`/client-portal/conversation/${conversationId}/messages?skip=${skip}&limit=${limit}`),
+  sendMessage: (conversationId: string, data: any, clientName: string = 'Client') => 
+    api.post(`/client-portal/conversation/${conversationId}/messages?client_name=${clientName}`, data),
+};
+
 // Lead Import/Export
 export const crmImportExportAPI = {
   exportLeads: (filter: any) => api.post('/crm/leads/export', filter),
