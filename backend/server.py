@@ -6753,8 +6753,76 @@ async def get_user_conversations(
 
 # ============= Client Portal Endpoints =============
 
+@api_router.post("/client-portal/login")
+async def client_portal_login(credentials: dict):
+    """Authenticate client using project ID and mobile number"""
+    try:
+        project_id = credentials.get("project_id")
+        mobile = credentials.get("mobile")
+        
+        if not project_id or not mobile:
+            raise HTTPException(status_code=400, detail="Project ID and mobile number required")
+        
+        # Find project
+        project = await db.projects.find_one({"_id": ObjectId(project_id)})
+        if not project:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        # Check if mobile matches client_phone or owner's phone
+        client_phone = project.get("client_phone", "").replace(" ", "").replace("-", "").replace("+", "")
+        input_mobile = mobile.replace(" ", "").replace("-", "").replace("+", "")
+        
+        # Also check owner's phone if client_phone doesn't match
+        if client_phone != input_mobile:
+            # Try to get owner's phone
+            owner_id = project.get("owner_id")
+            if owner_id:
+                owner = await db.users.find_one({"_id": ObjectId(owner_id)})
+                if owner:
+                    owner_phone = owner.get("phone", "").replace(" ", "").replace("-", "").replace("+", "")
+                    if owner_phone != input_mobile:
+                        raise HTTPException(status_code=401, detail="Invalid credentials")
+            else:
+                raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        # Create a simple token (project_id:mobile)
+        import base64
+        token = base64.b64encode(f"{project_id}:{mobile}".encode()).decode()
+        
+        return {
+            "access_token": token,
+            "project_id": project_id,
+            "project_name": project.get("name", ""),
+            "client_name": project.get("client_name", "Client")
+        }
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def verify_client_token(token: str):
+    """Verify client portal token"""
+    try:
+        import base64
+        decoded = base64.b64decode(token).decode()
+        project_id, mobile = decoded.split(":")
+        
+        # Verify project exists
+        project = await db.projects.find_one({"_id": ObjectId(project_id)})
+        if not project:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        return {"project_id": project_id, "mobile": mobile}
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
 @api_router.get("/client-portal/{project_id}")
-async def get_client_portal_data(project_id: str):
+async def get_client_portal_data(
+    project_id: str,
+    authorization: str = Header(None)
+):
     """Get project data for client portal (public access)"""
     try:
         project = await db.projects.find_one({"_id": ObjectId(project_id)})
