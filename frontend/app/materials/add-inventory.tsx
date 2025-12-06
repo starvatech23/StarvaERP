@@ -136,12 +136,14 @@ export default function AddInventoryScreen() {
                   selectedValue={formData.material_id}
                   onValueChange={(value) => setFormData({ ...formData, material_id: value })}
                   style={styles.picker}
+                  dropdownIconColor={Colors.textPrimary}
                 >
                   {materials.map((material) => (
                     <Picker.Item
                       key={material.id}
                       label={`${material.name} (${material.unit})`}
                       value={material.id}
+                      color={Colors.textPrimary}
                     />
                   ))}
                 </Picker>
