@@ -16,6 +16,7 @@ import { useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { projectsAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import Colors from '../../constants/Colors';
 
 export default function ProjectsScreen() {
   const router = useRouter();
