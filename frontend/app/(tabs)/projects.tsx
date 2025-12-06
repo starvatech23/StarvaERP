@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as Clipboard from 'expo-clipboard';
 import { projectsAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
