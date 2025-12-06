@@ -55,7 +55,7 @@ export default function ClientPortalIndexScreen() {
                   token: data.access_token,
                   clientName: data.client_name
                 }
-              } as any);
+              });
             }
           }
         ]);
