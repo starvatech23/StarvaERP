@@ -1813,6 +1813,79 @@ class MoveLeadToProjectResponse(BaseModel):
     bypassed: bool = False
     message: str
 
+# ============= Chat/Messaging Models =============
+
+class MessageAttachment(BaseModel):
+    file_name: str
+    file_url: str
+    file_type: str  # image, document, video, etc.
+    file_size: int  # in bytes
+    uploaded_at: datetime
+
+class MessageBase(BaseModel):
+    content: str
+    attachments: List[MessageAttachment] = []
+
+class MessageCreate(MessageBase):
+    pass
+
+class Message(Document, MessageBase):
+    conversation_id: str
+    sender_id: str
+    sender_name: str
+    sender_role: str
+    is_read: bool = False
+    read_by: List[str] = []  # List of user IDs who have read the message
+    created_at: datetime
+    updated_at: datetime
+    
+    class Settings:
+        name = "messages"
+
+class MessageResponse(MessageBase):
+    id: str
+    conversation_id: str
+    sender_id: str
+    sender_name: str
+    sender_role: str
+    is_read: bool
+    read_by: List[str]
+    created_at: datetime
+    updated_at: datetime
+
+class ConversationBase(BaseModel):
+    project_id: str
+    project_name: str
+    participants: List[str]  # List of user IDs
+    participant_names: List[str] = []  # List of user names for display
+
+class ConversationCreate(ConversationBase):
+    pass
+
+class Conversation(Document, ConversationBase):
+    last_message: Optional[str] = None
+    last_message_at: Optional[datetime] = None
+    last_message_sender: Optional[str] = None
+    unread_count: Dict[str, int] = {}  # user_id -> count
+    is_active: bool = True
+    created_at: datetime
+    updated_at: datetime
+    created_by: str
+    
+    class Settings:
+        name = "conversations"
+
+class ConversationResponse(ConversationBase):
+    id: str
+    last_message: Optional[str]
+    last_message_at: Optional[datetime]
+    last_message_sender: Optional[str]
+    unread_count: Dict[str, int]
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    message_count: int = 0
+
 # ============= Audit Logging for Financial Actions =============
 
 class AuditActionType(str, Enum):
