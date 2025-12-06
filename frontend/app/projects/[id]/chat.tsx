@@ -120,10 +120,14 @@ export default function ProjectChatScreen() {
       
       setNewMessage('');
       setAttachments([]);
+      
+      // Reload messages after sending
       await loadMessages(conversation.id);
+      
     } catch (error: any) {
-      Alert.alert('Error', 'Failed to send message');
-      console.error('Send error:', error);
+      const errorMsg = error?.response?.data?.detail || error?.message || 'Failed to send message';
+      Alert.alert('Error', errorMsg);
+      console.error('Send error:', error?.response?.data || error);
     } finally {
       setSending(false);
     }
