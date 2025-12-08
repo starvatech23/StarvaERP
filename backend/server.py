@@ -7118,6 +7118,264 @@ async def send_client_message(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ============= Data Export/Import Routes (Admin Only) =============
+
+@api_router.get("/admin/export/template/{data_type}")
+async def download_template(
+    data_type: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Download CSV template for data import (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        csv_content = generate_csv_template(data_type)
+        
+        from fastapi.responses import Response
+        return Response(
+            content=csv_content,
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename={data_type}_template.csv"
+            }
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.get("/admin/export/{data_type}")
+async def export_data(
+    data_type: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Export data to CSV (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        # Get data based on type
+        if data_type == "leads":
+            data = await db.leads.find({"is_deleted": {"$ne": True}}).to_list(10000)
+            fields = EXPORT_TEMPLATES["leads"]["fields"]
+        
+        elif data_type == "projects":
+            data = await db.projects.find({}).to_list(10000)
+            fields = EXPORT_TEMPLATES["projects"]["fields"]
+        
+        elif data_type == "vendors":
+            data = await db.vendors.find({}).to_list(10000)
+            fields = EXPORT_TEMPLATES["vendors"]["fields"]
+        
+        elif data_type == "materials":
+            data = await db.materials.find({}).to_list(10000)
+            fields = EXPORT_TEMPLATES["materials"]["fields"]
+        
+        elif data_type == "workers":
+            data = await db.workers.find({}).to_list(10000)
+            fields = EXPORT_TEMPLATES["workers"]["fields"]
+        
+        else:
+            raise HTTPException(status_code=400, detail=f"Unknown data type: {data_type}")
+        
+        # Convert to serializable format
+        data_list = [serialize_doc(doc) for doc in data]
+        
+        # Generate CSV
+        csv_content = export_data_to_csv(data_list, fields)
+        
+        from fastapi.responses import Response
+        return Response(
+            content=csv_content,
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename={data_type}_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+            }
+        )
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/admin/import/{data_type}")
+async def import_data(
+    data_type: str,
+    file: UploadFile = File(...),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Import data from CSV (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        # Read file content
+        content = await file.read()
+        file_content = content.decode('utf-8')
+        
+        # Parse CSV
+        parsed_data = parse_csv_import(file_content, data_type)
+        
+        # Validate data
+        errors = validate_import_data(parsed_data, data_type)
+        if errors:
+            return {
+                "success": False,
+                "message": "Validation failed",
+                "errors": errors[:10],  # Return first 10 errors
+                "total_errors": len(errors)
+            }
+        
+        # Import data based on type
+        imported_count = 0
+        skipped_count = 0
+        error_rows = []
+        
+        for row in parsed_data:
+            try:
+                # Remove import tracking field
+                row_num = row.pop("_import_row", 0)
+                
+                # Add metadata
+                row["created_at"] = datetime.utcnow()
+                row["updated_at"] = datetime.utcnow()
+                row["created_by"] = str(current_user["_id"])
+                
+                if data_type == "leads":
+                    row["is_deleted"] = False
+                    # Check for duplicates
+                    existing = await db.leads.find_one({
+                        "primary_phone": row.get("primary_phone"),
+                        "is_deleted": {"$ne": True}
+                    })
+                    if existing:
+                        skipped_count += 1
+                        continue
+                    
+                    await db.leads.insert_one(row)
+                
+                elif data_type == "projects":
+                    # Check for duplicates
+                    existing = await db.projects.find_one({"name": row.get("name")})
+                    if existing:
+                        skipped_count += 1
+                        continue
+                    
+                    row["team_member_ids"] = []
+                    await db.projects.insert_one(row)
+                
+                elif data_type == "vendors":
+                    # Check for duplicates
+                    existing = await db.vendors.find_one({"name": row.get("name")})
+                    if existing:
+                        skipped_count += 1
+                        continue
+                    
+                    await db.vendors.insert_one(row)
+                
+                elif data_type == "materials":
+                    # Check for duplicates
+                    existing = await db.materials.find_one({"name": row.get("name")})
+                    if existing:
+                        skipped_count += 1
+                        continue
+                    
+                    row["stock_level"] = 0
+                    await db.materials.insert_one(row)
+                
+                elif data_type == "workers":
+                    # Check for duplicates
+                    existing = await db.workers.find_one({"phone": row.get("phone")})
+                    if existing:
+                        skipped_count += 1
+                        continue
+                    
+                    await db.workers.insert_one(row)
+                
+                imported_count += 1
+            
+            except Exception as e:
+                error_rows.append(f"Row {row_num}: {str(e)}")
+        
+        return {
+            "success": True,
+            "message": f"Import completed",
+            "imported": imported_count,
+            "skipped": skipped_count,
+            "errors": error_rows if error_rows else None
+        }
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/admin/export/list")
+async def get_export_options(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get list of available export/import options (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user["role"] != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Get counts for each data type
+    counts = {}
+    
+    try:
+        counts["leads"] = await db.leads.count_documents({"is_deleted": {"$ne": True}})
+        counts["projects"] = await db.projects.count_documents({})
+        counts["vendors"] = await db.vendors.count_documents({})
+        counts["materials"] = await db.materials.count_documents({})
+        counts["workers"] = await db.workers.count_documents({})
+    except:
+        pass
+    
+    return {
+        "data_types": [
+            {
+                "id": "leads",
+                "name": "Leads",
+                "description": "CRM leads with contact information",
+                "count": counts.get("leads", 0),
+                "fields": len(EXPORT_TEMPLATES["leads"]["fields"])
+            },
+            {
+                "id": "projects",
+                "name": "Projects",
+                "description": "Construction projects",
+                "count": counts.get("projects", 0),
+                "fields": len(EXPORT_TEMPLATES["projects"]["fields"])
+            },
+            {
+                "id": "vendors",
+                "name": "Vendors",
+                "description": "Vendor/supplier information",
+                "count": counts.get("vendors", 0),
+                "fields": len(EXPORT_TEMPLATES["vendors"]["fields"])
+            },
+            {
+                "id": "materials",
+                "name": "Materials",
+                "description": "Construction materials inventory",
+                "count": counts.get("materials", 0),
+                "fields": len(EXPORT_TEMPLATES["materials"]["fields"])
+            },
+            {
+                "id": "workers",
+                "name": "Workers",
+                "description": "Labour/worker information",
+                "count": counts.get("workers", 0),
+                "fields": len(EXPORT_TEMPLATES["workers"]["fields"])
+            }
+        ]
+    }
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
