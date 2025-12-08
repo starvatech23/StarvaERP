@@ -5157,11 +5157,11 @@ async def create_lead(
     lead: LeadCreate,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    """Create a new lead"""
+    """Create a new lead - CRM role-based access"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
-        raise HTTPException(status_code=403, detail="Only admins and PMs can create leads")
+    # Require CRM access (Admin, CRM Manager, or CRM User can create)
+    require_crm_access(current_user)
     
     # Check if category exists
     category = await db.lead_categories.find_one({"_id": ObjectId(lead.category_id)})
