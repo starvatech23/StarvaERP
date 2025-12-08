@@ -5094,11 +5094,16 @@ async def get_leads(
     
     query = {"is_deleted": {"$ne": True}}
     
+    # CRM Users can only see leads assigned to them
+    if current_user["role"] == UserRole.CRM_USER:
+        query["assigned_to"] = str(current_user["_id"])
+    
     if category_id:
         query["category_id"] = category_id
     if status:
         query["status"] = status
-    if assigned_to:
+    if assigned_to and is_crm_manager(current_user):
+        # Only managers can filter by assigned_to
         query["assigned_to"] = assigned_to
     if source:
         query["source"] = source
