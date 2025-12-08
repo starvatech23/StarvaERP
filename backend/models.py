@@ -1628,6 +1628,39 @@ class CRMConfigResponse(CRMConfigBase):
     updated_at: datetime
 
 
+# ============= CRM Audit Log =============
+
+class CRMAuditAction(str, Enum):
+    CREATE = "create"
+    READ = "read"
+    UPDATE = "update"
+    DELETE = "delete"
+    ASSIGN = "assign"
+    STATUS_CHANGE = "status_change"
+    EXPORT = "export"
+    BULK_UPDATE = "bulk_update"
+    ACCESS_DENIED = "access_denied"
+
+class CRMAuditLogBase(BaseModel):
+    user_id: str
+    user_name: str
+    user_role: str
+    action: CRMAuditAction
+    resource_type: str  # "lead", "contact", "project", etc.
+    resource_id: Optional[str] = None
+    details: Optional[Dict[str, Any]] = None
+    success: bool = True
+    error_message: Optional[str] = None
+    ip_address: Optional[str] = None
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+class CRMAuditLogCreate(CRMAuditLogBase):
+    pass
+
+class CRMAuditLogResponse(CRMAuditLogBase):
+    id: str
+
+
 # ============= Custom Fields System =============
 
 class CustomFieldType(str, Enum):
