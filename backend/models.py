@@ -381,6 +381,7 @@ class ProjectResponse(ProjectBase):
     contacts: List[ProjectContact] = []  # Contact hierarchy
     gantt_share_tokens: List[GanttShareToken] = []  # Active share links
     client_portal_link: Optional[str] = None  # Client portal access link
+    address: Optional[str] = None  # Make address optional
     created_at: datetime
     updated_at: datetime
 
