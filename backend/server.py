@@ -129,6 +129,86 @@ async def get_user_by_id(user_id: str):
     except:
         return None
 
+# ============= CRM Permission System =============
+
+def is_crm_manager(user: dict) -> bool:
+    """Check if user has CRM Manager role"""
+    role = user.get('role')
+    return role in [UserRole.ADMIN, UserRole.CRM_MANAGER]
+
+def is_crm_user(user: dict) -> bool:
+    """Check if user has CRM User role or higher"""
+    role = user.get('role')
+    return role in [UserRole.ADMIN, UserRole.CRM_MANAGER, UserRole.CRM_USER]
+
+def can_delete_lead(user: dict) -> bool:
+    """Check if user can delete leads"""
+    return is_crm_manager(user)
+
+def can_reassign_lead(user: dict) -> bool:
+    """Check if user can reassign leads"""
+    return is_crm_manager(user)
+
+def can_update_lead(user: dict, lead: dict) -> bool:
+    """Check if user can update a specific lead"""
+    if is_crm_manager(user):
+        return True
+    # CRM Users can only update leads assigned to them
+    if is_crm_user(user):
+        return str(lead.get('assigned_to')) == user.get('_id')
+    return False
+
+def can_change_lead_owner(user: dict) -> bool:
+    """Check if user can change lead ownership"""
+    return is_crm_manager(user)
+
+async def log_crm_audit(
+    user: dict,
+    action: CRMAuditAction,
+    resource_type: str,
+    resource_id: Optional[str] = None,
+    details: Optional[Dict[str, Any]] = None,
+    success: bool = True,
+    error_message: Optional[str] = None,
+    ip_address: Optional[str] = None
+):
+    """Log CRM audit trail"""
+    try:
+        audit_log = CRMAuditLogCreate(
+            user_id=str(user.get('_id')),
+            user_name=user.get('full_name', user.get('email')),
+            user_role=user.get('role'),
+            action=action,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            details=details,
+            success=success,
+            error_message=error_message,
+            ip_address=ip_address
+        )
+        await db.crm_audit_logs.insert_one(audit_log.dict())
+    except Exception as e:
+        # Don't fail the request if audit logging fails
+        logging.error(f"Failed to log CRM audit: {str(e)}")
+
+def require_crm_manager(current_user: dict):
+    """Dependency to require CRM Manager role"""
+    if not is_crm_manager(current_user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This action requires CRM Manager role"
+        )
+    return current_user
+
+def require_crm_access(current_user: dict):
+    """Dependency to require any CRM access"""
+    if not is_crm_user(current_user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This action requires CRM access"
+        )
+    return current_user
+
 # ============= Authentication Routes =============
 
 @api_router.post("/auth/register", response_model=Token)
