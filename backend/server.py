@@ -5375,6 +5375,15 @@ async def delete_lead(
         {"$set": {"is_deleted": True, "updated_at": datetime.utcnow()}}
     )
     
+    # Log audit trail
+    await log_crm_audit(
+        user=current_user,
+        action=CRMAuditAction.DELETE,
+        resource_type="lead",
+        resource_id=lead_id,
+        details={"lead_name": existing.get("name")}
+    )
+    
     return {"message": "Lead deleted successfully"}
 
 # ============= Lead Activity Routes =============
