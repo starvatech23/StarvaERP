@@ -5274,15 +5274,27 @@ async def update_lead(
     lead_update: LeadUpdate,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    """Update a lead with field audit logging"""
+    """Update a lead with field audit logging - CRM role-based access"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
-        raise HTTPException(status_code=403, detail="Only admins and PMs can update leads")
+    # Require CRM access
+    require_crm_access(current_user)
     
     existing = await db.leads.find_one({"_id": ObjectId(lead_id), "is_deleted": {"$ne": True}})
     if not existing:
         raise HTTPException(status_code=404, detail="Lead not found")
+    
+    # Check if user can update this lead
+    if not can_update_lead(current_user, existing):
+        await log_crm_audit(
+            user=current_user,
+            action=CRMAuditAction.ACCESS_DENIED,
+            resource_type="lead",
+            resource_id=lead_id,
+            success=False,
+            error_message="User not authorized to update this lead"
+        )
+        raise HTTPException(status_code=403, detail="You can only update leads assigned to you")
     
     update_data = lead_update.dict(exclude_unset=True)
     
