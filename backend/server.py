@@ -5351,11 +5351,20 @@ async def delete_lead(
     lead_id: str,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    """Soft delete a lead (Admin only)"""
+    """Soft delete a lead - CRM Manager only"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Only admins can delete leads")
+    # Only CRM Managers can delete leads
+    if not can_delete_lead(current_user):
+        await log_crm_audit(
+            user=current_user,
+            action=CRMAuditAction.ACCESS_DENIED,
+            resource_type="lead",
+            resource_id=lead_id,
+            success=False,
+            error_message="Only CRM Managers can delete leads"
+        )
+        raise HTTPException(status_code=403, detail="Only CRM Managers can delete leads")
     
     existing = await db.leads.find_one({"_id": ObjectId(lead_id)})
     if not existing:
