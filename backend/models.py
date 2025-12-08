@@ -10,6 +10,8 @@ class UserRole(str, Enum):
     ENGINEER = "engineer"
     WORKER = "worker"
     VENDOR = "vendor"
+    CRM_MANAGER = "crm_manager"
+    CRM_USER = "crm_user"
 
 class ProjectStatus(str, Enum):
     PLANNING = "planning"
