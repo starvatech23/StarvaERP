@@ -5212,6 +5212,15 @@ async def create_lead(
         assignee = await get_user_by_id(lead_dict["assigned_to"])
         lead_dict["assigned_to_name"] = assignee["full_name"] if assignee else None
     
+    # Log audit trail
+    await log_crm_audit(
+        user=current_user,
+        action=CRMAuditAction.CREATE,
+        resource_type="lead",
+        resource_id=lead_id,
+        details={"name": lead.name, "category_id": lead.category_id, "status": lead.status}
+    )
+    
     return LeadResponse(**lead_dict)
 
 @api_router.get("/crm/leads/{lead_id}", response_model=LeadResponse)
