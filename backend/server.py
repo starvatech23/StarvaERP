@@ -77,6 +77,10 @@ from auth import (
     get_current_user, require_role, security,
     generate_otp, send_otp_mock, verify_otp_mock
 )
+from data_export_import import (
+    generate_csv_template, export_data_to_csv, parse_csv_import,
+    validate_import_data, EXPORT_TEMPLATES
+)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
