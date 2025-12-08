@@ -5298,6 +5298,18 @@ async def update_lead(
     
     update_data = lead_update.dict(exclude_unset=True)
     
+    # Check if CRM User is trying to change ownership
+    if "assigned_to" in update_data and not can_reassign_lead(current_user):
+        await log_crm_audit(
+            user=current_user,
+            action=CRMAuditAction.ACCESS_DENIED,
+            resource_type="lead",
+            resource_id=lead_id,
+            success=False,
+            error_message="CRM User cannot reassign leads"
+        )
+        raise HTTPException(status_code=403, detail="You don't have permission to reassign leads")
+    
     # Create field audit logs
     for field_name, new_value in update_data.items():
         old_value = existing.get(field_name)
