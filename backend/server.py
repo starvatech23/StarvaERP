@@ -57,6 +57,7 @@ from models import (
     LeadFieldAuditResponse,
     LeadBulkUpdate, LeadBulkAssign, LeadImportItem, LeadImportResponse,
     CRMConfigUpdate, CRMConfigResponse,
+    CRMAuditAction, CRMAuditLogCreate, CRMAuditLogResponse,
     # Custom Fields & Funnels
     CustomFieldType, CustomFieldCreate, CustomFieldUpdate, CustomFieldResponse,
     FunnelCreate, FunnelUpdate, FunnelResponse, FunnelAnalytics, FunnelStageStats,
