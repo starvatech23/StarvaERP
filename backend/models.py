@@ -205,6 +205,7 @@ class UserResponse(UserBase):
     team_name: Optional[str] = None  # Populated from team_id
     date_joined: datetime
     last_login: Optional[datetime] = None
+    crm_permissions: Optional[Dict[str, bool]] = None  # CRM permissions for frontend
 
 class UserApprovalRequest(BaseModel):
     user_id: str
