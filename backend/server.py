@@ -382,20 +382,29 @@ async def verify_otp(request: OTPVerify):
 
 @api_router.get("/auth/me", response_model=UserResponse)
 async def get_current_user_info(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Get current user information"""
-    user = await get_current_user(credentials)
-    return UserResponse(
-        id=str(user["_id"]),
-        email=user.get("email"),
-        phone=user.get("phone"),
-        full_name=user["full_name"],
-        role=user["role"],
-        address=user.get("address"),
-        profile_photo=user.get("profile_photo"),
-        is_active=user["is_active"],
-        date_joined=user["date_joined"],
-        last_login=user.get("last_login")
-    )
+    """Get current logged-in user info with CRM permissions"""
+    try:
+        current_user = await get_current_user(credentials)
+        user_dict = serialize_doc(current_user)
+        
+        # Get team info if user is in a team
+        if user_dict.get("team_id"):
+            team = await db.teams.find_one({"_id": ObjectId(user_dict["team_id"])})
+            if team:
+                user_dict["team_name"] = team["name"]
+        
+        # Add CRM permissions info for frontend
+        user_dict["crm_permissions"] = {
+            "is_crm_manager": is_crm_manager(current_user),
+            "is_crm_user": is_crm_user(current_user),
+            "can_delete_leads": can_delete_lead(current_user),
+            "can_reassign_leads": can_reassign_lead(current_user),
+            "can_view_all_leads": is_crm_manager(current_user)
+        }
+        
+        return UserResponse(**user_dict)
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
 # ============= User Management Routes =============
 
