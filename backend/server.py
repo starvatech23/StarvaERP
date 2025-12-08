@@ -5078,11 +5078,19 @@ async def get_leads(
     search: str = None,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    """Get all leads with filtering"""
+    """Get all leads with filtering - CRM role-based access"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
-        raise HTTPException(status_code=403, detail="Only admins and PMs can access CRM")
+    # Require CRM access (Admin, CRM Manager, or CRM User)
+    require_crm_access(current_user)
+    
+    # Log audit trail
+    await log_crm_audit(
+        user=current_user,
+        action=CRMAuditAction.READ,
+        resource_type="leads",
+        details={"filters": {"category_id": category_id, "status": status, "search": search}}
+    )
     
     query = {"is_deleted": {"$ne": True}}
     
