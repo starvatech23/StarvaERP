@@ -158,7 +158,7 @@ export default function MoveToProjectScreen() {
       <SafeAreaView style={styles.container}>
         <BackToHome />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.secondary" />
+          <ActivityIndicator size="large" color=Colors.secondary />
         </View>
       </SafeAreaView>
     );
@@ -170,7 +170,7 @@ export default function MoveToProjectScreen() {
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Convert to Project</Text>
@@ -254,7 +254,7 @@ export default function MoveToProjectScreen() {
               <Text style={styles.sectionTitle}>Bank Transaction Details</Text>
               
               <View style={styles.infoCard}>
-                <Ionicons name="information-circle" size={20} color="Colors.primary" />
+                <Ionicons name="information-circle" size={20} color=Colors.primary />
                 <Text style={styles.infoText}>
                   All bank transaction fields are mandatory to proceed
                 </Text>
@@ -327,10 +327,10 @@ export default function MoveToProjectScreen() {
             disabled={submitting}
           >
             {submitting ? (
-              <ActivityIndicator color="Colors.surface" />
+              <ActivityIndicator color=Colors.surface />
             ) : (
               <>
-                <Ionicons name="arrow-forward-circle" size={20} color="Colors.surface" />
+                <Ionicons name="arrow-forward-circle" size={20} color=Colors.surface />
                 <Text style={styles.submitButtonText}>Convert to Project</Text>
               </>
             )}
@@ -350,13 +350,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: { width: 40 },
   headerTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary },
-  headerSubtitle: { fontSize: 14, color: 'Colors.textSecondary, marginTop: 2 },
+  headerSubtitle: { fontSize: 14, color: Colors.textSecondary, marginTop: 2 },
   content: { flex: 1, padding: 16 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   bypassCard: {
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   infoCard: {
@@ -402,14 +402,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   textArea: {
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     flexDirection: 'row',
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
   },
   submitButtonDisabled: { opacity: 0.5 },
   submitButtonText: {
-    color: 'Colors.surface,
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },

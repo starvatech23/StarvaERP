@@ -65,7 +65,7 @@ export default function PublicGanttScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.primary" />
+          <ActivityIndicator size="large" color=Colors.primary />
           <Text style={styles.loadingText}>Loading Gantt Chart...</Text>
         </View>
       </SafeAreaView>
@@ -91,7 +91,7 @@ export default function PublicGanttScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Ionicons name="calendar-outline" size={24} color="Colors.primary" />
+        <Ionicons name="calendar-outline" size={24} color=Colors.primary />
         <Text style={styles.headerTitle}>Gantt Chart</Text>
       </View>
 
@@ -159,7 +159,7 @@ export default function PublicGanttScreen() {
         {tasks.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
-              <Ionicons name="list" size={18} color="Colors.primary" /> Tasks
+              <Ionicons name="list" size={18} color=Colors.primary /> Tasks
             </Text>
             {tasks.map((task: any, index: number) => (
               <View key={task.id || index} style={styles.taskCard}>
@@ -210,22 +210,22 @@ export default function PublicGanttScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
     gap: 12,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -251,15 +251,15 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   errorText: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   projectCard: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   projectDates: {
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   milestoneName: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     flex: 1,
   },
   milestoneFooter: {
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
   },
   dueDate: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   progressBar: {
     width: 60,
     height: 6,
-    backgroundColor: 'Colors.border,
+    backgroundColor: Colors.border,
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     color: '#10B981',
   },
   taskCard: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     flex: 1,
   },
   taskDates: {
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   },
   taskDate: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   description: {
     fontSize: 13,
@@ -417,6 +417,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
 });

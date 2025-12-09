@@ -65,7 +65,7 @@ export default function EditProfileScreen() {
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+              <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Edit Profile</Text>
             <View style={styles.placeholder} />
@@ -74,7 +74,7 @@ export default function EditProfileScreen() {
           {/* Profile Photo Section */}
           <View style={styles.photoSection}>
             <View style={styles.avatar}>
-              <Ionicons name="person" size={48} color="Colors.secondary" />
+              <Ionicons name="person" size={48} color=Colors.secondary />
             </View>
             <TouchableOpacity style={styles.changePhotoButton}>
               <Text style={styles.changePhotoText}>Change Photo</Text>
@@ -133,7 +133,7 @@ export default function EditProfileScreen() {
             </View>
 
             <View style={styles.roleInfo}>
-              <Ionicons name="information-circle" size={20} color="Colors.textSecondary" />
+              <Ionicons name="information-circle" size={20} color=Colors.textSecondary />
               <Text style={styles.roleInfoText}>
                 Role: <Text style={styles.roleValue}>{user?.role || 'N/A'}</Text>
               </Text>
@@ -149,7 +149,7 @@ export default function EditProfileScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="Colors.surface" />
+              <ActivityIndicator color=Colors.surface />
             ) : (
               <Text style={styles.saveButtonText}>Save Changes</Text>
             )}
@@ -163,7 +163,7 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   placeholder: {
     width: 40,
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   },
   changePhotoText: {
     fontSize: 14,
-    color: 'Colors.secondary,
+    color: Colors.secondary,
     fontWeight: '600',
   },
   form: {
@@ -220,16 +220,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   input: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   textArea: {
     minHeight: 100,
@@ -245,11 +245,11 @@ const styles = StyleSheet.create({
   },
   roleInfoText: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   roleValue: {
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   footer: {
     position: 'absolute',
@@ -257,12 +257,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
   },
   saveButton: {
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -273,6 +273,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
 });

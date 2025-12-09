@@ -64,7 +64,7 @@ export default function MaterialsMainScreen() {
       title: 'Vendors',
       description: 'Manage suppliers',
       icon: 'business',
-      color: 'Colors.primary,
+      color: Colors.primary,
       route: '/materials/vendors',
     },
     {
@@ -112,7 +112,7 @@ export default function MaterialsMainScreen() {
               <Text style={styles.statLabel}>Materials</Text>
             </View>
             <View style={[styles.statCard, { backgroundColor: '#DBEAFE' }]}>
-              <Ionicons name="business" size={24} color="Colors.primary" />
+              <Ionicons name="business" size={24} color=Colors.primary />
               <Text style={styles.statValue}>{stats.vendors}</Text>
               <Text style={styles.statLabel}>Vendors</Text>
             </View>
@@ -152,7 +152,7 @@ export default function MaterialsMainScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -162,27 +162,27 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 16,
     paddingVertical: 20,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
   },
   statsContainer: {
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     marginBottom: 8,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   statsGrid: {
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginTop: 8,
   },
   statLabel: {
@@ -208,13 +208,13 @@ const styles = StyleSheet.create({
   },
   modulesContainer: {
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
   },
   moduleCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 12,
     marginBottom: 12,
   },
@@ -232,11 +232,11 @@ const styles = StyleSheet.create({
   moduleTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   moduleDescription: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
 });

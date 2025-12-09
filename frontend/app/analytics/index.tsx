@@ -130,7 +130,7 @@ export default function AnalyticsScreen() {
   };
 
   const chartConfig = {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     backgroundGradientFrom: Colors.surface,
     backgroundGradientTo: Colors.surface,
     decimalPlaces: 0,
@@ -150,7 +150,7 @@ export default function AnalyticsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.primary" />
+          <ActivityIndicator size="large" color=Colors.primary />
         </View>
       </SafeAreaView>
     );
@@ -160,11 +160,11 @@ export default function AnalyticsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Analytics & Insights</Text>
         <TouchableOpacity style={styles.exportButton} onPress={() => {}}>
-          <Ionicons name="download-outline" size={24} color="Colors.primary" />
+          <Ionicons name="download-outline" size={24} color=Colors.primary />
         </TouchableOpacity>
       </View>
 
@@ -197,7 +197,7 @@ export default function AnalyticsScreen() {
           <Text style={styles.sectionTitle}>Key Metrics</Text>
           <View style={styles.metricsGrid}>
             <View style={[styles.metricCard, { backgroundColor: '#EFF6FF' }]}>
-              <Ionicons name="briefcase" size={28} color="Colors.primary" />
+              <Ionicons name="briefcase" size={28} color=Colors.primary />
               <Text style={styles.metricValue}>{stats.projects?.active}</Text>
               <Text style={styles.metricLabel}>Active Projects</Text>
             </View>
@@ -255,7 +255,7 @@ export default function AnalyticsScreen() {
                   styles.progressSegment,
                   {
                     width: `${(stats.projects?.active / stats.projects?.total * 100) || 0}%`,
-                    backgroundColor: 'Colors.primary,
+                    backgroundColor: Colors.primary,
                   },
                 ]}
               />
@@ -385,7 +385,7 @@ export default function AnalyticsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -398,15 +398,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -414,21 +414,21 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   timeRangeContainer: {
     flexDirection: 'row',
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
     gap: 8,
   },
   timeRangeButton: {
@@ -436,11 +436,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
   },
   timeRangeButtonActive: {
-    backgroundColor: 'Colors.primary,
+    backgroundColor: Colors.primary,
   },
   timeRangeText: {
     fontSize: 14,
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     color: '#4A5568',
   },
   timeRangeTextActive: {
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
   content: {
     flex: 1,
@@ -460,15 +460,15 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   card: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   metricsGrid: {
     flexDirection: 'row',
@@ -485,12 +485,12 @@ const styles = StyleSheet.create({
   metricValue: {
     fontSize: 28,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginTop: 8,
   },
   metricLabel: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
   },
@@ -510,18 +510,18 @@ const styles = StyleSheet.create({
   },
   distributionLabel: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginBottom: 2,
   },
   distributionValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   progressBar: {
     flexDirection: 'row',
     height: 8,
-    backgroundColor: 'Colors.border,
+    backgroundColor: Colors.border,
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 12,
@@ -535,11 +535,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
   },
   completionRateLabel: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   completionRateValue: {
     fontSize: 18,
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
   },
   financialLabel: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   financialValue: {
@@ -573,16 +573,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
   },
   collectionRateLabel: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   collectionRateValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.primary,
+    color: Colors.primary,
   },
   invoiceGrid: {
     flexDirection: 'row',
@@ -590,22 +590,22 @@ const styles = StyleSheet.create({
   },
   invoiceCard: {
     flex: 1,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   invoiceValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginTop: 8,
   },
   invoiceLabel: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   categoryRow: {
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   categoryName: {
     fontSize: 14,
@@ -622,6 +622,6 @@ const styles = StyleSheet.create({
   categoryAmount: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
 });

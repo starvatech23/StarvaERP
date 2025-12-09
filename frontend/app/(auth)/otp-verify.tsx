@@ -69,11 +69,11 @@ export default function OTPVerifyScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
           </TouchableOpacity>
 
           <View style={styles.iconContainer}>
-            <Ionicons name="mail-open" size={64} color="Colors.secondary" />
+            <Ionicons name="mail-open" size={64} color=Colors.secondary />
           </View>
 
           <Text style={styles.title}>Verify OTP</Text>
@@ -93,7 +93,7 @@ export default function OTPVerifyScreen() {
             <Ionicons
               name="keypad-outline"
               size={20}
-              color="Colors.textSecondary"
+              color=Colors.textSecondary
               style={styles.inputIcon}
             />
             <TextInput
@@ -113,7 +113,7 @@ export default function OTPVerifyScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="Colors.surface" />
+              <ActivityIndicator color=Colors.surface />
             ) : (
               <Text style={styles.verifyButtonText}>Verify & Continue</Text>
             )}
@@ -135,7 +135,7 @@ export default function OTPVerifyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
   },
   keyboardView: {
     flex: 1,
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 32,
@@ -167,20 +167,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     textAlign: 'center',
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 16,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,
   },
   phone: {
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   otpDisplay: {
     backgroundColor: '#FFF5F2',
@@ -193,19 +193,19 @@ const styles = StyleSheet.create({
   },
   otpLabel: {
     fontSize: 14,
-    color: 'Colors.secondary,
+    color: Colors.secondary,
     fontWeight: '600',
   },
   otpValue: {
     fontSize: 20,
-    color: 'Colors.secondary,
+    color: Colors.secondary,
     fontWeight: '700',
     letterSpacing: 4,
   },
   otpInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
@@ -218,18 +218,18 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 24,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     letterSpacing: 8,
   },
   verifyButton: {
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginBottom: 16,
   },
   verifyButtonText: {
-    color: 'Colors.surface,
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resendButtonText: {
-    color: 'Colors.secondary,
+    color: Colors.secondary,
     fontSize: 14,
     fontWeight: '600',
   },

@@ -98,7 +98,7 @@ export default function CreateMaterialRequirementScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Material Requirement</Text>
         <View style={{ width: 40 }} />
@@ -139,11 +139,11 @@ export default function CreateMaterialRequirementScreen() {
                   <Text style={styles.infoText}>{selectedMaterial.name}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                  <Ionicons name="pricetag-outline" size={20} color="Colors.textSecondary" />
+                  <Ionicons name="pricetag-outline" size={20} color=Colors.textSecondary />
                   <Text style={styles.infoText}>Category: {selectedMaterial.category}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                  <Ionicons name="resize-outline" size={20} color="Colors.textSecondary" />
+                  <Ionicons name="resize-outline" size={20} color=Colors.textSecondary />
                   <Text style={styles.infoText}>Unit: {selectedMaterial.unit}</Text>
                 </View>
                 {selectedMaterial.minimum_stock && (
@@ -233,7 +233,7 @@ export default function CreateMaterialRequirementScreen() {
             onPress={handleSubmit}
             disabled={loading}
           >
-            <Ionicons name="checkmark-circle-outline" size={20} color="Colors.surface" />
+            <Ionicons name="checkmark-circle-outline" size={20} color=Colors.surface />
             <Text style={styles.submitButtonText}>
               {loading ? 'Creating...' : 'Create Requirement'}
             </Text>
@@ -259,7 +259,7 @@ const getPriorityColor = (level: string, isActive: boolean) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -267,22 +267,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   inputGroup: {
@@ -307,14 +307,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 14,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   textArea: {
     minHeight: 100,
@@ -323,16 +323,16 @@ const styles = StyleSheet.create({
   quantityInput: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     paddingRight: 12,
   },
   unitText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginLeft: 8,
   },
   infoCard: {
@@ -364,11 +364,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   priorityButtonActive: {
     borderWidth: 2,
-    borderColor: 'Colors.textPrimary,
+    borderColor: Colors.textPrimary,
   },
   priorityButtonText: {
     fontSize: 12,
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     color: '#4A5568',
   },
   priorityButtonTextActive: {
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
   submitButton: {
     flexDirection: 'row',
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CBD5E0',
   },
   submitButtonText: {
-    color: 'Colors.surface,
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },

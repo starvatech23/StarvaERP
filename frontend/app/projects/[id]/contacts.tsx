@@ -224,7 +224,7 @@ export default function ProjectContactsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.primary" />
+          <ActivityIndicator size="large" color=Colors.primary />
         </View>
       </SafeAreaView>
     );
@@ -234,11 +234,11 @@ export default function ProjectContactsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Project Contacts</Text>
         <TouchableOpacity style={styles.addButton} onPress={() => setShowAddForm(!showAddForm)}>
-          <Ionicons name={showAddForm ? "close" : "add"} size={24} color="Colors.surface" />
+          <Ionicons name={showAddForm ? "close" : "add"} size={24} color=Colors.surface />
         </TouchableOpacity>
       </View>
 
@@ -395,7 +395,7 @@ export default function ProjectContactsScreen() {
                 <Ionicons
                   name={formData.is_primary ? "checkbox" : "square-outline"}
                   size={24}
-                  color="Colors.primary"
+                  color=Colors.primary
                 />
                 <Text style={styles.checkboxLabel}>Set as Primary Contact for this role</Text>
               </TouchableOpacity>
@@ -453,7 +453,7 @@ export default function ProjectContactsScreen() {
                   <Ionicons
                     name={isExpanded ? "chevron-up" : "chevron-down"}
                     size={24}
-                    color="Colors.textSecondary"
+                    color=Colors.textSecondary
                   />
                 </TouchableOpacity>
 
@@ -484,7 +484,7 @@ export default function ProjectContactsScreen() {
                               <TouchableOpacity
                                 onPress={() => startEdit(contact, contacts.indexOf(contact))}
                               >
-                                <Ionicons name="pencil" size={20} color="Colors.primary" />
+                                <Ionicons name="pencil" size={20} color=Colors.primary />
                               </TouchableOpacity>
                               <TouchableOpacity
                                 onPress={() => handleDeleteContact(contacts.indexOf(contact))}
@@ -507,20 +507,20 @@ export default function ProjectContactsScreen() {
                               style={styles.contactRow}
                               onPress={() => handleEmail(contact.email)}
                             >
-                              <Ionicons name="mail" size={18} color="Colors.primary" />
+                              <Ionicons name="mail" size={18} color=Colors.primary />
                               <Text style={styles.contactText}>{contact.email}</Text>
                             </TouchableOpacity>
 
                             {contact.phone_alternate && (
                               <View style={styles.contactRow}>
-                                <Ionicons name="call-outline" size={18} color="Colors.textSecondary" />
+                                <Ionicons name="call-outline" size={18} color=Colors.textSecondary />
                                 <Text style={styles.contactText}>{contact.phone_alternate}</Text>
                               </View>
                             )}
 
                             {contact.working_hours && (
                               <View style={styles.contactRow}>
-                                <Ionicons name="time-outline" size={18} color="Colors.textSecondary" />
+                                <Ionicons name="time-outline" size={18} color=Colors.textSecondary />
                                 <Text style={styles.contactText}>{contact.working_hours}</Text>
                               </View>
                             )}
@@ -537,7 +537,7 @@ export default function ProjectContactsScreen() {
                               style={styles.quickActionButton}
                               onPress={() => handleCall(contact.phone_mobile)}
                             >
-                              <Ionicons name="call" size={16} color="Colors.surface" />
+                              <Ionicons name="call" size={16} color=Colors.surface />
                               <Text style={styles.quickActionText}>Call</Text>
                             </TouchableOpacity>
 
@@ -545,7 +545,7 @@ export default function ProjectContactsScreen() {
                               style={[styles.quickActionButton, { backgroundColor: 'Colors.primary }]}
                               onPress={() => handleEmail(contact.email)}
                             >
-                              <Ionicons name="mail" size={16} color="Colors.surface" />
+                              <Ionicons name="mail" size={16} color=Colors.surface />
                               <Text style={styles.quickActionText}>Email</Text>
                             </TouchableOpacity>
 
@@ -553,7 +553,7 @@ export default function ProjectContactsScreen() {
                               style={[styles.quickActionButton, { backgroundColor: '#25D366' }]}
                               onPress={() => handleWhatsApp(contact.phone_mobile)}
                             >
-                              <Ionicons name="logo-whatsapp" size={16} color="Colors.surface" />
+                              <Ionicons name="logo-whatsapp" size={16} color=Colors.surface />
                               <Text style={styles.quickActionText}>WhatsApp</Text>
                             </TouchableOpacity>
                           </View>
@@ -576,7 +576,7 @@ export default function ProjectContactsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -589,15 +589,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -605,20 +605,20 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.primary,
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   validateContainer: {
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   validateButton: {
     flexDirection: 'row',
@@ -639,17 +639,17 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   formCard: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   formTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   inputGroup: {
@@ -662,14 +662,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 14,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   textArea: {
     minHeight: 80,
@@ -696,9 +696,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   cancelButtonText: {
     fontSize: 14,
@@ -706,19 +706,19 @@ const styles = StyleSheet.create({
     color: '#4A5568',
   },
   saveButton: {
-    backgroundColor: 'Colors.primary,
+    backgroundColor: Colors.primary,
   },
   saveButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
   roleSection: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     overflow: 'hidden',
   },
   roleHeader: {
@@ -746,16 +746,16 @@ const styles = StyleSheet.create({
   roleTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   roleCount: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   contactsList: {
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
   },
   emptyRole: {
     padding: 16,
@@ -763,13 +763,13 @@ const styles = StyleSheet.create({
   },
   emptyRoleText: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     fontStyle: 'italic',
   },
   contactCard: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.background,
+    borderBottomColor: Colors.background,
   },
   contactHeader: {
     flexDirection: 'row',
@@ -785,10 +785,10 @@ const styles = StyleSheet.create({
   contactName: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   primaryBadge: {
-    backgroundColor: 'Colors.primary,
+    backgroundColor: Colors.primary,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
@@ -796,11 +796,11 @@ const styles = StyleSheet.create({
   primaryText: {
     fontSize: 10,
     fontWeight: '700',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
   contactType: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   contactActions: {
     flexDirection: 'row',
@@ -820,14 +820,14 @@ const styles = StyleSheet.create({
     color: '#4A5568',
   },
   notesContainer: {
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     padding: 8,
     borderRadius: 6,
     marginTop: 4,
   },
   notesText: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     fontStyle: 'italic',
   },
   quickActions: {
@@ -847,6 +847,6 @@ const styles = StyleSheet.create({
   quickActionText: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
 });

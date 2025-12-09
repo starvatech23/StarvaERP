@@ -99,7 +99,7 @@ export default function LabelsSettingsScreen() {
     {
       title: 'Section Headers',
       icon: 'list',
-      color: 'Colors.primary,
+      color: Colors.primary,
       items: [
         { key: 'contactInfoSection', label: 'Contact Info Section', placeholder: 'e.g., Contact Information, Details' },
         { key: 'customFieldsSection', label: 'Custom Fields Section', placeholder: 'e.g., Additional Details, Extra Info' },
@@ -117,7 +117,7 @@ export default function LabelsSettingsScreen() {
           <Text style={styles.headerSubtitle}>Customize terminology for your team</Text>
         </View>
         <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-          <Ionicons name="refresh" size={20} color="Colors.textSecondary" />
+          <Ionicons name="refresh" size={20} color=Colors.textSecondary />
         </TouchableOpacity>
       </View>
 
@@ -162,7 +162,7 @@ export default function LabelsSettingsScreen() {
             style={styles.saveButton}
             onPress={handleSave}
           >
-            <Ionicons name="checkmark-circle" size={24} color="Colors.surface" />
+            <Ionicons name="checkmark-circle" size={24} color=Colors.surface />
             <Text style={styles.saveButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </View>
@@ -179,21 +179,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary },
-  headerSubtitle: { fontSize: 13, color: 'Colors.textSecondary, marginTop: 2 },
+  headerSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   resetButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   content: { flex: 1, padding: 16 },
   infoCard: {
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   },
   infoText: { flex: 1, fontSize: 14, color: '#92400E', lineHeight: 20 },
   groupContainer: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   groupIconContainer: {
     width: 36,
@@ -236,24 +236,24 @@ const styles = StyleSheet.create({
   labelItem: { marginBottom: 16 },
   labelItemLabel: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 8 },
   labelInput: {
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     flexDirection: 'row',
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

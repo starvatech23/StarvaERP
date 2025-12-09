@@ -113,7 +113,7 @@ export default function CreateRoleScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Create Role</Text>
           <View style={{ width: 40 }} />
@@ -221,10 +221,10 @@ export default function CreateRoleScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="Colors.surface" />
+              <ActivityIndicator color=Colors.surface />
             ) : (
               <>
-                <Ionicons name="checkmark-circle" size={20} color="Colors.surface" />
+                <Ionicons name="checkmark-circle" size={20} color=Colors.surface />
                 <Text style={styles.createButtonText}>Create Role</Text>
               </>
             )}
@@ -238,7 +238,7 @@ export default function CreateRoleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -249,40 +249,40 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
   },
   section: {
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginBottom: 16,
   },
   label: {
@@ -293,14 +293,14 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   input: {
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   textArea: {
     height: 80,
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
   },
   switchLabel: {
     flex: 1,
@@ -321,16 +321,16 @@ const styles = StyleSheet.create({
   },
   switchHelper: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   moduleCard: {
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   moduleHeader: {
     flexDirection: 'row',
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   moduleName: {
     fontSize: 15,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginLeft: 10,
   },
   permissionsGrid: {
@@ -361,9 +361,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     gap: 6,
   },
   permissionChipActive: {
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     marginHorizontal: 16,
     marginVertical: 24,
     paddingVertical: 16,
@@ -393,6 +393,6 @@ const styles = StyleSheet.create({
   createButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
 });

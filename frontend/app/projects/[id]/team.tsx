@@ -95,7 +95,7 @@ export default function ProjectTeamScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.secondary" />
+          <ActivityIndicator size="large" color=Colors.secondary />
         </View>
       </SafeAreaView>
     );
@@ -106,7 +106,7 @@ export default function ProjectTeamScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Project Team</Text>
@@ -117,7 +117,7 @@ export default function ProjectTeamScreen() {
             style={styles.editButton}
             onPress={() => setIsEditMode(true)}
           >
-            <Ionicons name="create" size={20} color="Colors.surface" />
+            <Ionicons name="create" size={20} color=Colors.surface />
           </TouchableOpacity>
         )}
         {!canEdit && <View style={{ width: 40 }} />}
@@ -146,7 +146,7 @@ export default function ProjectTeamScreen() {
               currentTeamMembers.map((member: any) => (
                 <View key={member.user_id} style={styles.memberCard}>
                   <View style={styles.memberAvatar}>
-                    <Ionicons name="person" size={24} color="Colors.primary" />
+                    <Ionicons name="person" size={24} color=Colors.primary />
                   </View>
 
                   <View style={styles.memberInfo}>
@@ -159,14 +159,14 @@ export default function ProjectTeamScreen() {
 
                     {member.phone && (
                       <View style={styles.contactRow}>
-                        <Ionicons name="call" size={14} color="Colors.textSecondary" />
+                        <Ionicons name="call" size={14} color=Colors.textSecondary />
                         <Text style={styles.contactText}>{member.phone}</Text>
                       </View>
                     )}
 
                     {member.email && (
                       <View style={styles.contactRow}>
-                        <Ionicons name="mail" size={14} color="Colors.textSecondary" />
+                        <Ionicons name="mail" size={14} color=Colors.textSecondary />
                         <Text style={styles.contactText}>{member.email}</Text>
                       </View>
                     )}
@@ -197,7 +197,7 @@ export default function ProjectTeamScreen() {
 
               {selectedUserIds.length === 0 ? (
                 <View style={styles.infoCard}>
-                  <Ionicons name="information-circle" size={20} color="Colors.primary" />
+                  <Ionicons name="information-circle" size={20} color=Colors.primary />
                   <Text style={styles.infoText}>
                     Select users from the list below to add them to the team
                   </Text>
@@ -247,7 +247,7 @@ export default function ProjectTeamScreen() {
                     onPress={() => toggleUserSelection(user.id)}
                   >
                     <View style={styles.userAvatar}>
-                      <Ionicons name="person-outline" size={20} color="Colors.textSecondary" />
+                      <Ionicons name="person-outline" size={20} color=Colors.textSecondary />
                     </View>
                     <View style={styles.userInfo}>
                       <Text style={styles.userName}>{user.full_name}</Text>
@@ -281,10 +281,10 @@ export default function ProjectTeamScreen() {
                 disabled={saving}
               >
                 {saving ? (
-                  <ActivityIndicator color="Colors.surface" />
+                  <ActivityIndicator color=Colors.surface />
                 ) : (
                   <>
-                    <Ionicons name="checkmark-circle" size={20} color="Colors.surface" />
+                    <Ionicons name="checkmark-circle" size={20} color=Colors.surface />
                     <Text style={styles.saveButtonText}>Save Team</Text>
                   </>
                 )}
@@ -300,7 +300,7 @@ export default function ProjectTeamScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -313,15 +313,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -332,18 +332,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   editButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   },
   section: {
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     marginBottom: 12,
   },
   sectionHeader: {
@@ -363,11 +363,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     flex: 1,
   },
   countBadge: {
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
   emptyState: {
     alignItems: 'center',
@@ -384,12 +384,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginTop: 12,
   },
   emptyText: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     textAlign: 'center',
     marginTop: 8,
     paddingHorizontal: 32,
@@ -397,12 +397,12 @@ const styles = StyleSheet.create({
   memberCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   memberAvatar: {
     width: 48,
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   memberName: {
     fontSize: 15,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   roleBadge: {
     alignSelf: 'flex-start',
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   contactText: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   callButton: {
     width: 44,
@@ -499,18 +499,18 @@ const styles = StyleSheet.create({
   userCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     padding: 12,
     borderRadius: 8,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   userAvatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'Colors.border,
+    backgroundColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -521,11 +521,11 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   userRole: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   addButton: {
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 16,
     borderRadius: 12,
-    backgroundColor: 'Colors.border,
+    backgroundColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -563,6 +563,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
 });

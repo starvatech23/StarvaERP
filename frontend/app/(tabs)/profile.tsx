@@ -72,7 +72,7 @@ export default function ProfileScreen() {
 
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
-            <Ionicons name="person" size={48} color="Colors.secondary" />
+            <Ionicons name="person" size={48} color=Colors.secondary />
           </View>
           <Text style={styles.name}>{user?.full_name || 'User'}</Text>
           <Text style={styles.role}>{getRoleLabel(user?.role || '')}</Text>
@@ -80,13 +80,13 @@ export default function ProfileScreen() {
           <View style={styles.infoContainer}>
             {user?.email && (
               <View style={styles.infoRow}>
-                <Ionicons name="mail" size={16} color="Colors.textSecondary" />
+                <Ionicons name="mail" size={16} color=Colors.textSecondary />
                 <Text style={styles.infoText}>{user.email}</Text>
               </View>
             )}
             {user?.phone && (
               <View style={styles.infoRow}>
-                <Ionicons name="call" size={16} color="Colors.textSecondary" />
+                <Ionicons name="call" size={16} color=Colors.textSecondary />
                 <Text style={styles.infoText}>{user.phone}</Text>
               </View>
             )}
@@ -103,7 +103,7 @@ export default function ProfileScreen() {
                 onPress={item.onPress}
               >
                 <View style={styles.menuLeft}>
-                  <Ionicons name={item.icon as any} size={24} color="Colors.textSecondary" />
+                  <Ionicons name={item.icon as any} size={24} color=Colors.textSecondary />
                   <Text style={styles.menuLabel}>{item.label}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#CBD5E0" />
@@ -125,7 +125,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   scrollContent: {
     padding: 16,
@@ -133,11 +133,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 24,
   },
   profileCard: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     padding: 24,
     borderRadius: 16,
     alignItems: 'center',
@@ -160,12 +160,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   role: {
     fontSize: 14,
-    color: 'Colors.secondary,
+    color: Colors.secondary,
     fontWeight: '600',
     marginBottom: 16,
   },
@@ -180,10 +180,10 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   menuContainer: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 24,
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.background,
+    borderBottomColor: Colors.background,
   },
   menuLeft: {
     flexDirection: 'row',
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   },
   menuLabel: {
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   logoutButton: {
     flexDirection: 'row',

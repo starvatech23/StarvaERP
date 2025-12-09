@@ -21,7 +21,7 @@ export default function CRMScreen() {
           style={styles.backButton}
           onPress={() => router.push('/')}
         >
-          <Ionicons name="home" size={24} color="Colors.secondary" />
+          <Ionicons name="home" size={24} color=Colors.secondary />
           <Text style={styles.backButtonText}>Dashboard</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>CRM</Text>
@@ -53,22 +53,22 @@ export default function CRMScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   header: {
     padding: 24,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   content: {
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   menuCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     padding: 20,
     borderRadius: 12,
     marginBottom: 12,
@@ -102,11 +102,11 @@ const styles = StyleSheet.create({
   menuTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   menuDescription: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   backButton: {
@@ -118,6 +118,6 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.secondary,
+    color: Colors.secondary,
   },
 });

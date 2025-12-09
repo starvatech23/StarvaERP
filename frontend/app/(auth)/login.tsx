@@ -93,7 +93,7 @@ export default function LoginScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
           </TouchableOpacity>
 
           <Text style={styles.title}>Welcome Back</Text>
@@ -156,7 +156,7 @@ export default function LoginScreen() {
               <Ionicons
                 name={authMethod === 'email' ? 'mail-outline' : 'call-outline'}
                 size={20}
-                color="Colors.textSecondary"
+                color=Colors.textSecondary
                 style={styles.inputIcon}
               />
               <TextInput
@@ -175,7 +175,7 @@ export default function LoginScreen() {
                 <Ionicons
                   name="lock-closed-outline"
                   size={20}
-                  color="Colors.textSecondary"
+                  color=Colors.textSecondary
                   style={styles.inputIcon}
                 />
                 <TextInput
@@ -192,7 +192,7 @@ export default function LoginScreen() {
                   <Ionicons
                     name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                     size={20}
-                    color="Colors.textSecondary"
+                    color=Colors.textSecondary
                   />
                 </TouchableOpacity>
               </View>
@@ -201,7 +201,7 @@ export default function LoginScreen() {
                 <Ionicons
                   name="keypad-outline"
                   size={20}
-                  color="Colors.textSecondary"
+                  color=Colors.textSecondary
                   style={styles.inputIcon}
                 />
                 <TextInput
@@ -229,7 +229,7 @@ export default function LoginScreen() {
                 disabled={loading}
               >
                 {loading ? (
-                  <ActivityIndicator color="Colors.surface" />
+                  <ActivityIndicator color=Colors.surface />
                 ) : (
                   <Text style={styles.loginButtonText}>Login</Text>
                 )}
@@ -242,7 +242,7 @@ export default function LoginScreen() {
                   disabled={loading}
                 >
                   {loading ? (
-                    <ActivityIndicator color="Colors.surface" />
+                    <ActivityIndicator color=Colors.surface />
                   ) : (
                     <Text style={styles.loginButtonText}>Verify OTP</Text>
                   )}
@@ -262,7 +262,7 @@ export default function LoginScreen() {
                 disabled={loading}
               >
                 {loading ? (
-                  <ActivityIndicator color="Colors.surface" />
+                  <ActivityIndicator color=Colors.surface />
                 ) : (
                   <Text style={styles.loginButtonText}>Send OTP</Text>
                 )}
@@ -285,7 +285,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
   },
   keyboardView: {
     flex: 1,
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
@@ -308,17 +308,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginBottom: 32,
   },
   methodToggle: {
     flexDirection: 'row',
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 12,
     padding: 4,
     marginBottom: 32,
@@ -333,15 +333,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   methodButtonActive: {
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
   },
   methodText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   methodTextActive: {
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
   form: {
     gap: 16,
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   eyeIcon: {
     padding: 8,
@@ -375,24 +375,24 @@ const styles = StyleSheet.create({
   },
   otpLabel: {
     fontSize: 14,
-    color: 'Colors.secondary,
+    color: Colors.secondary,
     fontWeight: '600',
   },
   otpValue: {
     fontSize: 20,
-    color: 'Colors.secondary,
+    color: Colors.secondary,
     fontWeight: '700',
     letterSpacing: 4,
   },
   loginButton: {
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
   },
   loginButtonText: {
-    color: 'Colors.surface,
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resendButtonText: {
-    color: 'Colors.secondary,
+    color: Colors.secondary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -417,11 +417,11 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   footerLink: {
     fontSize: 14,
-    color: 'Colors.secondary,
+    color: Colors.secondary,
     fontWeight: '600',
   },
 });

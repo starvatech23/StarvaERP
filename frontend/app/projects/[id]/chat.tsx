@@ -285,7 +285,7 @@ export default function ProjectChatScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.secondary" />
+          <ActivityIndicator size="large" color=Colors.secondary />
           <Text style={styles.loadingText}>Loading chat...</Text>
         </View>
       </SafeAreaView>
@@ -302,7 +302,7 @@ export default function ProjectChatScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle}>{conversation?.project_name}</Text>
@@ -311,7 +311,7 @@ export default function ProjectChatScreen() {
             </Text>
           </View>
           <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
-            <Ionicons name="share-outline" size={24} color="Colors.secondary" />
+            <Ionicons name="share-outline" size={24} color=Colors.secondary />
           </TouchableOpacity>
         </View>
 
@@ -337,7 +337,7 @@ export default function ProjectChatScreen() {
           <View style={styles.attachmentsPreview}>
             {attachments.map((att, idx) => (
               <View key={idx} style={styles.attachmentPreviewItem}>
-                <Ionicons name="document" size={16} color="Colors.secondary" />
+                <Ionicons name="document" size={16} color=Colors.secondary />
                 <Text style={styles.attachmentPreviewText} numberOfLines={1}>
                   {att.file_name}
                 </Text>
@@ -368,7 +368,7 @@ export default function ProjectChatScreen() {
               );
             }}
           >
-            <Ionicons name="attach" size={24} color="Colors.textSecondary" />
+            <Ionicons name="attach" size={24} color=Colors.textSecondary />
           </TouchableOpacity>
           
           <TextInput
@@ -387,9 +387,9 @@ export default function ProjectChatScreen() {
             disabled={sending || (!newMessage.trim() && attachments.length === 0)}
           >
             {sending ? (
-              <ActivityIndicator size="small" color="Colors.surface" />
+              <ActivityIndicator size="small" color=Colors.surface />
             ) : (
-              <Ionicons name="send" size={20} color="Colors.surface" />
+              <Ionicons name="send" size={20} color=Colors.surface />
             )}
           </TouchableOpacity>
         </View>
@@ -407,26 +407,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: { marginRight: 12 },
   headerCenter: { flex: 1 },
   headerTitle: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary },
-  headerSubtitle: { fontSize: 12, color: 'Colors.textSecondary, marginTop: 2 },
+  headerSubtitle: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
   shareButton: { marginLeft: 12 },
   messagesList: { padding: 16, flexGrow: 1 },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 60 },
-  emptyText: { fontSize: 18, fontWeight: '600', color: 'Colors.textPrimary, marginTop: 16 },
-  emptySubtext: { fontSize: 14, color: 'Colors.textSecondary, marginTop: 4 },
+  emptyText: { fontSize: 18, fontWeight: '600', color: Colors.textPrimary, marginTop: 16 },
+  emptySubtext: { fontSize: 14, color: Colors.textSecondary, marginTop: 4 },
   messageContainer: { marginBottom: 12 },
   myMessage: { alignItems: 'flex-end' },
   theirMessage: { alignItems: 'flex-start' },
   messageBubble: { maxWidth: '80%', padding: 12, borderRadius: 16 },
-  myBubble: { backgroundColor: 'Colors.secondary, borderBottomRightRadius: 4 },
-  theirBubble: { backgroundColor: 'Colors.surface, borderBottomLeftRadius: 4, borderWidth: 1, borderColor: 'Colors.border },
-  senderName: { fontSize: 12, fontWeight: '600', color: 'Colors.secondary, marginBottom: 4 },
+  myBubble: { backgroundColor: Colors.secondary, borderBottomRightRadius: 4 },
+  theirBubble: { backgroundColor: Colors.surface, borderBottomLeftRadius: 4, borderWidth: 1, borderColor: 'Colors.border },
+  senderName: { fontSize: 12, fontWeight: '600', color: Colors.secondary, marginBottom: 4 },
   messageText: { fontSize: 15, lineHeight: 20 },
   myMessageText: { color: 'Colors.surface },
   theirMessageText: { color: 'Colors.textPrimary },
@@ -434,19 +434,19 @@ const styles = StyleSheet.create({
   attachmentBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
   attachmentText: { fontSize: 13, color: 'Colors.secondary },
   timestamp: { fontSize: 10, marginTop: 4 },
-  myTimestamp: { color: 'Colors.surface, opacity: 0.8, textAlign: 'right' },
+  myTimestamp: { color: Colors.surface, opacity: 0.8, textAlign: 'right' },
   theirTimestamp: { color: 'Colors.textSecondary },
   attachmentsPreview: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
     padding: 12,
     gap: 8,
   },
   attachmentPreviewItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     padding: 8,
     borderRadius: 8,
     gap: 8,
@@ -457,34 +457,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
     gap: 12,
   },
   attachButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   input: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 15,
     maxHeight: 100,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   sendButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },

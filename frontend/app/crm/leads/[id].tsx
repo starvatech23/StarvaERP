@@ -91,7 +91,7 @@ export default function LeadDetailScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.secondary" />
+          <ActivityIndicator size="large" color=Colors.secondary />
         </View>
       </SafeAreaView>
     );
@@ -102,7 +102,7 @@ export default function LeadDetailScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Lead Not Found</Text>
         </View>
@@ -114,11 +114,11 @@ export default function LeadDetailScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{lead.name}</Text>
         <TouchableOpacity style={styles.editButton}>
-          <Ionicons name="pencil" size={20} color="Colors.secondary" />
+          <Ionicons name="pencil" size={20} color=Colors.secondary />
         </TouchableOpacity>
       </View>
 
@@ -141,7 +141,7 @@ export default function LeadDetailScreen() {
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
           <TouchableOpacity style={styles.actionButton} onPress={handleCall}>
-            <Ionicons name="call" size={24} color="Colors.primary" />
+            <Ionicons name="call" size={24} color=Colors.primary />
             <Text style={styles.actionButtonText}>Call</Text>
           </TouchableOpacity>
           
@@ -166,7 +166,7 @@ export default function LeadDetailScreen() {
             style={styles.moveToProjectButton}
             onPress={() => router.push(`/crm/leads/${id}/move-to-project`)}
           >
-            <Ionicons name="arrow-forward-circle" size={20} color="Colors.surface" />
+            <Ionicons name="arrow-forward-circle" size={20} color=Colors.surface />
             <Text style={styles.moveToProjectText}>Convert to Project</Text>
           </TouchableOpacity>
         )}
@@ -183,14 +183,14 @@ export default function LeadDetailScreen() {
           <Text style={styles.cardTitle}>Contact Information</Text>
           
           <View style={styles.infoRow}>
-            <Ionicons name="call" size={16} color="Colors.textSecondary" />
+            <Ionicons name="call" size={16} color=Colors.textSecondary />
             <Text style={styles.infoLabel}>Primary Phone:</Text>
             <Text style={styles.infoValue}>{lead.primary_phone}</Text>
           </View>
 
           {lead.alternate_phone && (
             <View style={styles.infoRow}>
-              <Ionicons name="call-outline" size={16} color="Colors.textSecondary" />
+              <Ionicons name="call-outline" size={16} color=Colors.textSecondary />
               <Text style={styles.infoLabel}>Alternate:</Text>
               <Text style={styles.infoValue}>{lead.alternate_phone}</Text>
             </View>
@@ -198,7 +198,7 @@ export default function LeadDetailScreen() {
 
           {lead.email && (
             <View style={styles.infoRow}>
-              <Ionicons name="mail" size={16} color="Colors.textSecondary" />
+              <Ionicons name="mail" size={16} color=Colors.textSecondary />
               <Text style={styles.infoLabel}>Email:</Text>
               <Text style={styles.infoValue}>{lead.email}</Text>
             </View>
@@ -206,7 +206,7 @@ export default function LeadDetailScreen() {
 
           {lead.city && (
             <View style={styles.infoRow}>
-              <Ionicons name="location" size={16} color="Colors.textSecondary" />
+              <Ionicons name="location" size={16} color=Colors.textSecondary />
               <Text style={styles.infoLabel}>City:</Text>
               <Text style={styles.infoValue}>{lead.city}</Text>
             </View>
@@ -219,7 +219,7 @@ export default function LeadDetailScreen() {
           
           {lead.budget && (
             <View style={styles.infoRow}>
-              <Ionicons name="cash" size={16} color="Colors.textSecondary" />
+              <Ionicons name="cash" size={16} color=Colors.textSecondary />
               <Text style={styles.infoLabel}>Budget:</Text>
               <Text style={styles.infoValue}>
                 {lead.budget_currency} {lead.budget.toLocaleString()}
@@ -349,12 +349,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: { width: 40 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary, flex: 1 },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, flex: 1 },
   editButton: { width: 40, alignItems: 'flex-end' },
   content: { flex: 1 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   card: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     padding: 20,
     marginHorizontal: 16,
     marginBottom: 16,
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   infoRow: {
@@ -419,12 +419,12 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
   infoValue: {
     fontSize: 14,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     flex: 1,
   },
   requirementSection: {
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   badgeText: {
     fontSize: 11,
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   },
   activityCount: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   emptyText: {
     fontSize: 14,
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   activityDescription: {
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
     color: '#A0AEC0',
   },
   moveToProjectButton: {
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   moveToProjectText: {
-    color: 'Colors.surface,
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,

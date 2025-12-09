@@ -99,7 +99,7 @@ export default function PendingUsersScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.secondary" />
+          <ActivityIndicator size="large" color=Colors.secondary />
         </View>
       </SafeAreaView>
     );
@@ -110,7 +110,7 @@ export default function PendingUsersScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Pending Approvals</Text>
         <View style={{ width: 40 }} />
@@ -139,7 +139,7 @@ export default function PendingUsersScreen() {
                 {/* User Info */}
                 <View style={styles.userHeader}>
                   <View style={styles.avatarContainer}>
-                    <Ionicons name="person" size={24} color="Colors.secondary" />
+                    <Ionicons name="person" size={24} color=Colors.secondary />
                   </View>
                   <View style={styles.userInfo}>
                     <Text style={styles.userName}>{user.full_name}</Text>
@@ -152,13 +152,13 @@ export default function PendingUsersScreen() {
                 {/* User Details */}
                 {user.address && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="location" size={16} color="Colors.textSecondary" />
+                    <Ionicons name="location" size={16} color=Colors.textSecondary />
                     <Text style={styles.detailText}>{user.address}</Text>
                   </View>
                 )}
 
                 <View style={styles.detailRow}>
-                  <Ionicons name="calendar" size={16} color="Colors.textSecondary" />
+                  <Ionicons name="calendar" size={16} color=Colors.textSecondary />
                   <Text style={styles.detailText}>
                     Requested: {new Date(user.date_joined).toLocaleDateString()}
                   </Text>
@@ -174,15 +174,15 @@ export default function PendingUsersScreen() {
                         setSelectedRoles({ ...selectedRoles, [user.id]: value })
                       }
                       style={styles.picker}
-                      dropdownIconColor="Colors.textPrimary"
+                      dropdownIconColor=Colors.textPrimary
                     >
-                      <Picker.Item label="Select a role" value="" color="Colors.textSecondary" />
+                      <Picker.Item label="Select a role" value="" color=Colors.textSecondary />
                       {roles.map((role: any) => (
                         <Picker.Item
                           key={role.id}
                           label={role.name}
                           value={role.id}
-                          color="Colors.textPrimary"
+                          color=Colors.textPrimary
                         />
                       ))}
                     </Picker>
@@ -203,7 +203,7 @@ export default function PendingUsersScreen() {
                     style={styles.approveButton}
                     onPress={() => handleApprove(user.id)}
                   >
-                    <Ionicons name="checkmark-circle" size={20} color="Colors.surface" />
+                    <Ionicons name="checkmark-circle" size={20} color=Colors.surface />
                     <Text style={styles.approveButtonText}>Approve</Text>
                   </TouchableOpacity>
                 </View>
@@ -219,7 +219,7 @@ export default function PendingUsersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -232,22 +232,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -261,12 +261,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginTop: 16,
   },
   emptyText: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     textAlign: 'center',
     marginTop: 8,
   },
@@ -276,16 +276,16 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginBottom: 12,
   },
   userCard: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   userHeader: {
     flexDirection: 'row',
@@ -307,11 +307,11 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   userContact: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   detailRow: {
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginLeft: 8,
   },
   roleSection: {
@@ -331,18 +331,18 @@ const styles = StyleSheet.create({
   roleLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   pickerContainer: {
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     overflow: 'hidden',
   },
   picker: {
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   actionButtons: {
     flexDirection: 'row',
@@ -376,6 +376,6 @@ const styles = StyleSheet.create({
   approveButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
 });

@@ -121,7 +121,7 @@ export default function SiteTransferScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="Colors.secondary" style={styles.loader} />
+        <ActivityIndicator size="large" color=Colors.secondary style={styles.loader} />
       </SafeAreaView>
     );
   }
@@ -130,7 +130,7 @@ export default function SiteTransferScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Transfer Worker</Text>
         <View style={{ width: 40 }} />
@@ -223,7 +223,7 @@ export default function SiteTransferScreen() {
                 style={styles.dateButton}
                 onPress={() => setShowDatePicker(true)}
               >
-                <Ionicons name="calendar-outline" size={20} color="Colors.secondary" />
+                <Ionicons name="calendar-outline" size={20} color=Colors.secondary />
                 <Text style={styles.dateText}>{moment(formData.transfer_date).format('DD MMM YYYY')}</Text>
               </TouchableOpacity>
               {showDatePicker && (
@@ -242,7 +242,7 @@ export default function SiteTransferScreen() {
             </View>
 
             <View style={styles.noteCard}>
-              <Ionicons name="information-circle" size={20} color="Colors.primary" />
+              <Ionicons name="information-circle" size={20} color=Colors.primary />
               <Text style={styles.noteText}>
                 Split wage calculation: If you specify hours worked at each site, wages will be
                 calculated proportionally based on the worker's daily rate.
@@ -252,7 +252,7 @@ export default function SiteTransferScreen() {
             <View style={styles.formGroup}>
               <Text style={styles.label}>Hours at From Site (Optional)</Text>
               <View style={styles.hoursInputContainer}>
-                <Ionicons name="time-outline" size={20} color="Colors.textSecondary" />
+                <Ionicons name="time-outline" size={20} color=Colors.textSecondary />
                 <TextInput
                   style={styles.hoursInput}
                   value={formData.hours_at_from_site}
@@ -268,7 +268,7 @@ export default function SiteTransferScreen() {
             <View style={styles.formGroup}>
               <Text style={styles.label}>Hours at To Site (Optional)</Text>
               <View style={styles.hoursInputContainer}>
-                <Ionicons name="time-outline" size={20} color="Colors.textSecondary" />
+                <Ionicons name="time-outline" size={20} color=Colors.textSecondary />
                 <TextInput
                   style={styles.hoursInput}
                   value={formData.hours_at_to_site}
@@ -316,7 +316,7 @@ export default function SiteTransferScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   loader: {
     flex: 1,
@@ -326,9 +326,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     padding: 8,
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   keyboardView: {
     flex: 1,
@@ -353,18 +353,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   pickerContainer: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   infoCard: {
     backgroundColor: '#F0F9FF',
@@ -389,16 +389,16 @@ const styles = StyleSheet.create({
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     padding: 12,
     gap: 8,
   },
   dateText: {
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   noteCard: {
     flexDirection: 'row',
@@ -417,9 +417,9 @@ const styles = StyleSheet.create({
   hoursInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     padding: 12,
     gap: 8,
@@ -427,20 +427,20 @@ const styles = StyleSheet.create({
   hoursInput: {
     flex: 1,
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   hoursUnit: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   input: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   textArea: {
     height: 80,
@@ -448,12 +448,12 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
   },
   submitButton: {
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -464,6 +464,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
 });

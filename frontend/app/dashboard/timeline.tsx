@@ -98,7 +98,7 @@ export default function DashboardTimelineScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.secondary" />
+          <ActivityIndicator size="large" color=Colors.secondary />
         </View>
       </SafeAreaView>
     );
@@ -110,7 +110,7 @@ export default function DashboardTimelineScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Projects Timeline</Text>
         <View style={styles.placeholder} />
@@ -180,7 +180,7 @@ export default function DashboardTimelineScreen() {
                       <TouchableOpacity
                         onPress={() => router.push(`/projects/timeline/${project.id}` as any)}
                       >
-                        <Ionicons name="stats-chart" size={20} color="Colors.secondary" />
+                        <Ionicons name="stats-chart" size={20} color=Colors.secondary />
                       </TouchableOpacity>
                     </View>
                     <View style={styles.projectMeta}>
@@ -206,14 +206,14 @@ export default function DashboardTimelineScreen() {
                   {/* Timeline Dates */}
                   <View style={styles.datesRow}>
                     <View style={styles.dateItem}>
-                      <Ionicons name="calendar-outline" size={14} color="Colors.textSecondary" />
+                      <Ionicons name="calendar-outline" size={14} color=Colors.textSecondary />
                       <Text style={styles.dateText}>
                         {moment(project.start_date).format('MMM DD')}
                       </Text>
                     </View>
                     <View style={styles.dateSeparator} />
                     <View style={styles.dateItem}>
-                      <Ionicons name="calendar" size={14} color="Colors.textSecondary" />
+                      <Ionicons name="calendar" size={14} color=Colors.textSecondary />
                       <Text style={styles.dateText}>
                         {moment(project.end_date).format('MMM DD, YYYY')}
                       </Text>
@@ -245,12 +245,12 @@ export default function DashboardTimelineScreen() {
                   {/* Project Details */}
                   <View style={styles.projectDetails}>
                     <View style={styles.detailItem}>
-                      <Ionicons name="location" size={14} color="Colors.textSecondary" />
+                      <Ionicons name="location" size={14} color=Colors.textSecondary />
                       <Text style={styles.detailText}>{project.location}</Text>
                     </View>
                     {project.budget && (
                       <View style={styles.detailItem}>
-                        <Ionicons name="cash" size={14} color="Colors.textSecondary" />
+                        <Ionicons name="cash" size={14} color=Colors.textSecondary />
                         <Text style={styles.detailText}>₹{project.budget.toLocaleString()}</Text>
                       </View>
                     )}
@@ -268,7 +268,7 @@ export default function DashboardTimelineScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -281,22 +281,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   placeholder: {
     width: 40,
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   statsCard: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   statsTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   statsGrid: {
@@ -331,12 +331,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 28,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   alertBanner: {
     flexDirection: 'row',
@@ -359,13 +359,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 32,
   },
@@ -375,11 +375,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   projectCard: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     flex: 1,
     marginRight: 12,
   },
@@ -445,12 +445,12 @@ const styles = StyleSheet.create({
   dateSeparator: {
     width: 20,
     height: 1,
-    backgroundColor: 'Colors.border,
+    backgroundColor: Colors.border,
     marginHorizontal: 8,
   },
   dateText: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   progressSection: {
     marginBottom: 12,
@@ -463,16 +463,16 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   progressValue: {
     fontSize: 14,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   progressBarContainer: {
     height: 6,
-    backgroundColor: 'Colors.border,
+    backgroundColor: Colors.border,
     borderRadius: 3,
     overflow: 'hidden',
     marginBottom: 4,
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   daysRemaining: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     textAlign: 'right',
   },
   projectDetails: {
@@ -498,6 +498,6 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
 });

@@ -127,7 +127,7 @@ export default function AddWorkerScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Add Labourer</Text>
           <View style={styles.placeholder} />
@@ -301,7 +301,7 @@ export default function AddWorkerScreen() {
               style={styles.uploadButton}
               onPress={() => pickImage('aadhaar')}
             >
-              <Ionicons name="cloud-upload" size={20} color="Colors.secondary" />
+              <Ionicons name="cloud-upload" size={20} color=Colors.secondary />
               <Text style={styles.uploadText}>
                 {formData.aadhaar_photo ? 'Aadhaar Photo Selected ✓' : 'Upload Aadhaar Photo'}
               </Text>
@@ -323,7 +323,7 @@ export default function AddWorkerScreen() {
               style={styles.uploadButton}
               onPress={() => pickImage('pan')}
             >
-              <Ionicons name="cloud-upload" size={20} color="Colors.secondary" />
+              <Ionicons name="cloud-upload" size={20} color=Colors.secondary />
               <Text style={styles.uploadText}>
                 {formData.pan_photo ? 'PAN Photo Selected ✓' : 'Upload PAN Photo'}
               </Text>
@@ -404,7 +404,7 @@ export default function AddWorkerScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="Colors.surface" />
+              <ActivityIndicator color=Colors.surface />
             ) : (
               <Text style={styles.submitButtonText}>Add Worker</Text>
             )}
@@ -418,7 +418,7 @@ export default function AddWorkerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -428,9 +428,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     padding: 8,
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   placeholder: {
     width: 40,
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   section: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   photoSection: {
@@ -467,9 +467,9 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderWidth: 2,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
   },
   photoLabel: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   inputGroup: {
     marginBottom: 16,
@@ -490,31 +490,31 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 14,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   textArea: {
     minHeight: 80,
     textAlignVertical: 'top',
   },
   pickerContainer: {
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   uploadButton: {
     flexDirection: 'row',
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
   uploadText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.secondary,
+    color: Colors.secondary,
   },
   footer: {
     position: 'absolute',
@@ -540,12 +540,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
   },
   submitButton: {
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -556,6 +556,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
 });

@@ -72,7 +72,7 @@ export default function LeadsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.secondary" />
+          <ActivityIndicator size="large" color=Colors.secondary />
         </View>
       </SafeAreaView>
     );
@@ -86,7 +86,7 @@ export default function LeadsScreen() {
             style={styles.backButton}
             onPress={() => router.push('/')}
           >
-            <Ionicons name="home" size={20} color="Colors.secondary" />
+            <Ionicons name="home" size={20} color=Colors.secondary />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Leads</Text>
         </View>
@@ -94,14 +94,14 @@ export default function LeadsScreen() {
           style={styles.addButton}
           onPress={() => router.push('/crm/leads/create' as any)}
         >
-          <Ionicons name="add" size={24} color="Colors.surface" />
+          <Ionicons name="add" size={24} color=Colors.surface />
         </TouchableOpacity>
       </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="Colors.secondary" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor=Colors.secondary />
         }
       >
         {leads.length === 0 ? (
@@ -140,13 +140,13 @@ export default function LeadsScreen() {
 
                 <View style={styles.leadInfo}>
                   <View style={styles.infoRow}>
-                    <Ionicons name="call" size={16} color="Colors.textSecondary" />
+                    <Ionicons name="call" size={16} color=Colors.textSecondary />
                     <Text style={styles.infoText}>{lead.primary_phone}</Text>
                     <TouchableOpacity
                       onPress={() => handleCall(lead.primary_phone)}
                       style={styles.actionButton}
                     >
-                      <Ionicons name="call-outline" size={20} color="Colors.primary" />
+                      <Ionicons name="call-outline" size={20} color=Colors.primary />
                     </TouchableOpacity>
                     {lead.whatsapp_consent && (
                       <TouchableOpacity
@@ -160,14 +160,14 @@ export default function LeadsScreen() {
 
                   {lead.email && (
                     <View style={styles.infoRow}>
-                      <Ionicons name="mail" size={16} color="Colors.textSecondary" />
+                      <Ionicons name="mail" size={16} color=Colors.textSecondary />
                       <Text style={styles.infoText}>{lead.email}</Text>
                     </View>
                   )}
 
                   {lead.budget && (
                     <View style={styles.infoRow}>
-                      <Ionicons name="cash" size={16} color="Colors.textSecondary" />
+                      <Ionicons name="cash" size={16} color=Colors.textSecondary />
                       <Text style={styles.infoText}>
                         {lead.budget_currency} {lead.budget.toLocaleString()}
                       </Text>
@@ -176,7 +176,7 @@ export default function LeadsScreen() {
 
                   {lead.assigned_to_name && (
                     <View style={styles.infoRow}>
-                      <Ionicons name="person" size={16} color="Colors.textSecondary" />
+                      <Ionicons name="person" size={16} color=Colors.textSecondary />
                       <Text style={styles.infoText}>{lead.assigned_to_name}</Text>
                     </View>
                   )}
@@ -234,9 +234,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -256,27 +256,27 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollContent: { padding: 16 },
   emptyState: { alignItems: 'center', paddingVertical: 60 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary, marginTop: 16 },
-  emptyText: { fontSize: 14, color: 'Colors.textSecondary, textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
-  createButton: { backgroundColor: 'Colors.secondary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, marginTop: 24 },
-  createButtonText: { color: 'Colors.surface, fontSize: 16, fontWeight: '600' },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginTop: 16 },
+  emptyText: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
+  createButton: { backgroundColor: Colors.secondary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, marginTop: 24 },
+  createButtonText: { color: Colors.surface, fontSize: 16, fontWeight: '600' },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   leadsList: { gap: 16 },
-  leadCard: { backgroundColor: 'Colors.surface, padding: 16, borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  leadCard: { backgroundColor: Colors.surface, padding: 16, borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
   leadHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  leadName: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary, flex: 1 },
+  leadName: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary, flex: 1 },
   categoryBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   categoryDot: { width: 8, height: 8, borderRadius: 4, marginRight: 4 },
   categoryText: { fontSize: 11, fontWeight: '600' },
   leadInfo: { gap: 8, marginBottom: 12 },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  infoText: { fontSize: 14, color: 'Colors.textSecondary, flex: 1 },
+  infoText: { fontSize: 14, color: Colors.textSecondary, flex: 1 },
   actionButton: { padding: 4 },
   leadFooter: { flexDirection: 'row', gap: 8 },
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },

@@ -96,7 +96,7 @@ export default function EditMilestoneScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit Milestone</Text>
           <View style={{ width: 40 }} />
@@ -127,7 +127,7 @@ export default function EditMilestoneScreen() {
               style={styles.dateButton}
               onPress={() => setShowDatePicker(true)}
             >
-              <Ionicons name="calendar-outline" size={20} color="Colors.textSecondary" />
+              <Ionicons name="calendar-outline" size={20} color=Colors.textSecondary />
               <Text style={styles.dateText}>{dueDate.toLocaleDateString()}</Text>
             </TouchableOpacity>
 
@@ -172,7 +172,7 @@ export default function EditMilestoneScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="Colors.surface" />
+              <ActivityIndicator color=Colors.surface />
             ) : (
               <Text style={styles.updateButtonText}>Update Milestone</Text>
             )}
@@ -186,7 +186,7 @@ export default function EditMilestoneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -202,29 +202,29 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
   },
   section: {
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     marginBottom: 12,
   },
   label: {
@@ -235,14 +235,14 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   input: {
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   textArea: {
     height: 100,
@@ -251,16 +251,16 @@ const styles = StyleSheet.create({
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   dateText: {
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginLeft: 8,
   },
   updateButton: {
@@ -274,6 +274,6 @@ const styles = StyleSheet.create({
   updateButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
 });

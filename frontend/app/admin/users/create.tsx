@@ -111,7 +111,7 @@ export default function AddUserScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.secondary" />
+          <ActivityIndicator size="large" color=Colors.secondary />
         </View>
       </SafeAreaView>
     );
@@ -125,7 +125,7 @@ export default function AddUserScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Add User</Text>
           <View style={{ width: 40 }} />
@@ -134,7 +134,7 @@ export default function AddUserScreen() {
         <ScrollView style={styles.content}>
           {/* Info Card */}
           <View style={styles.infoCard}>
-            <Ionicons name="information-circle" size={20} color="Colors.primary" />
+            <Ionicons name="information-circle" size={20} color=Colors.primary />
             <Text style={styles.infoText}>
               Users created by admin are automatically approved and can access the app immediately.
             </Text>
@@ -146,7 +146,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Full Name *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="person" size={20} color="Colors.textSecondary" style={styles.icon} />
+              <Ionicons name="person" size={20} color=Colors.textSecondary style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Enter full name"
@@ -157,7 +157,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Official Email ID *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="mail" size={20} color="Colors.textSecondary" style={styles.icon} />
+              <Ionicons name="mail" size={20} color=Colors.textSecondary style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Enter email address"
@@ -170,7 +170,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Mobile Number *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="call" size={20} color="Colors.textSecondary" style={styles.icon} />
+              <Ionicons name="call" size={20} color=Colors.textSecondary style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Enter mobile number"
@@ -182,7 +182,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Address</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="location" size={20} color="Colors.textSecondary" style={styles.icon} />
+              <Ionicons name="location" size={20} color=Colors.textSecondary style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Enter address (optional)"
@@ -198,32 +198,32 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Role *</Text>
             <View style={styles.pickerContainer}>
-              <Ionicons name="shield-checkmark" size={20} color="Colors.textSecondary" style={styles.icon} />
+              <Ionicons name="shield-checkmark" size={20} color=Colors.textSecondary style={styles.icon} />
               <Picker
                 selectedValue={roleId}
                 onValueChange={setRoleId}
                 style={styles.picker}
-                dropdownIconColor="Colors.textPrimary"
+                dropdownIconColor=Colors.textPrimary
               >
                 <Picker.Item label="Select role..." value="" color="#9CA3AF" />
                 {roles.map((role: any) => (
-                  <Picker.Item key={role.id} label={role.name} value={role.id} color="Colors.textPrimary" />
+                  <Picker.Item key={role.id} label={role.name} value={role.id} color=Colors.textPrimary />
                 ))}
               </Picker>
             </View>
 
             <Text style={styles.label}>Team/Department *</Text>
             <View style={styles.pickerContainer}>
-              <Ionicons name="people" size={20} color="Colors.textSecondary" style={styles.icon} />
+              <Ionicons name="people" size={20} color=Colors.textSecondary style={styles.icon} />
               <Picker
                 selectedValue={teamId}
                 onValueChange={setTeamId}
                 style={styles.picker}
-                dropdownIconColor="Colors.textPrimary"
+                dropdownIconColor=Colors.textPrimary
               >
                 <Picker.Item label="Select team..." value="" color="#9CA3AF" />
                 {teams.map((team: any) => (
-                  <Picker.Item key={team.id} label={team.name} value={team.id} color="Colors.textPrimary" />
+                  <Picker.Item key={team.id} label={team.name} value={team.id} color=Colors.textPrimary />
                 ))}
               </Picker>
             </View>
@@ -235,7 +235,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Initial Password</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed" size={20} color="Colors.textSecondary" style={styles.icon} />
+              <Ionicons name="lock-closed" size={20} color=Colors.textSecondary style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Leave blank to set later"
@@ -256,10 +256,10 @@ export default function AddUserScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="Colors.surface" />
+              <ActivityIndicator color=Colors.surface />
             ) : (
               <>
-                <Ionicons name="person-add" size={20} color="Colors.surface" />
+                <Ionicons name="person-add" size={20} color=Colors.surface />
                 <Text style={styles.createButtonText}>Create User</Text>
               </>
             )}
@@ -273,7 +273,7 @@ export default function AddUserScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -289,22 +289,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -325,29 +325,29 @@ const styles = StyleSheet.create({
   },
   section: {
     padding: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 8,
     marginTop: 12,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     paddingHorizontal: 12,
   },
   icon: {
@@ -357,24 +357,24 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   pickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
     paddingLeft: 12,
   },
   picker: {
     flex: 1,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   helperText: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   createButton: {
@@ -391,6 +391,6 @@ const styles = StyleSheet.create({
   createButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
 });

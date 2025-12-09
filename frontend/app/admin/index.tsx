@@ -77,14 +77,14 @@ export default function AdminDashboard() {
     {
       title: 'Pending Approvals',
       icon: 'person-add',
-      color: 'Colors.secondary,
+      color: Colors.secondary,
       count: stats.pendingUsers,
       route: '/admin/users/pending',
     },
     {
       title: 'Active Users',
       icon: 'people',
-      color: 'Colors.primary,
+      color: Colors.primary,
       count: stats.activeUsers,
       route: '/admin/users/active',
     },
@@ -115,7 +115,7 @@ export default function AdminDashboard() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.secondary" />
+          <ActivityIndicator size="large" color=Colors.secondary />
         </View>
       </SafeAreaView>
     );
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Admin Dashboard</Text>
         <View style={{ width: 40 }} />
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
       <ScrollView style={styles.content}>
         {/* Welcome Section */}
         <View style={styles.welcomeCard}>
-          <Ionicons name="shield-checkmark-outline" size={48} color="Colors.secondary" />
+          <Ionicons name="shield-checkmark-outline" size={48} color=Colors.secondary />
           <Text style={styles.welcomeTitle}>Admin Control Panel</Text>
           <Text style={styles.welcomeText}>
             Manage users, roles, permissions, and system settings
@@ -189,7 +189,7 @@ export default function AdminDashboard() {
 
         {/* Info Card */}
         <View style={styles.infoCard}>
-          <Ionicons name="information-circle" size={24} color="Colors.primary" />
+          <Ionicons name="information-circle" size={24} color=Colors.primary />
           <View style={styles.infoTextContainer}>
             <Text style={styles.infoTitle}>Admin Limit</Text>
             <Text style={styles.infoText}>
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -218,45 +218,45 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
   },
   welcomeCard: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     marginHorizontal: 16,
     marginTop: 16,
     padding: 24,
     borderRadius: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   welcomeTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginTop: 12,
   },
   welcomeText: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     textAlign: 'center',
     marginTop: 8,
   },
@@ -268,12 +268,12 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   statIcon: {
     width: 48,
@@ -285,12 +285,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginTop: 12,
   },
   statLabel: {
     fontSize: 12,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
   },
@@ -301,19 +301,19 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -334,11 +334,11 @@ const styles = StyleSheet.create({
   menuTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   menuSubtitle: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   infoCard: {
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 13,
-    color: 'Colors.primary,
+    color: Colors.primary,
     marginTop: 4,
   },
 });

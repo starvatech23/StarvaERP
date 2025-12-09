@@ -279,7 +279,7 @@ export default function ProjectsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   scrollContent: {
     padding: 16,
@@ -293,13 +293,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   addButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'Colors.primary,
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   createButton: {
-    backgroundColor: 'Colors.primary,
+    backgroundColor: Colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   projectCard: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     flex: 1,
   },
   statusBadge: {
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     flex: 1,
   },
   managerRow: {
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   managerText: {
     fontSize: 13,
     fontWeight: '500',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     flex: 1,
   },
   callButton: {
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
   },
   progressHeader: {
     flexDirection: 'row',
@@ -438,11 +438,11 @@ const styles = StyleSheet.create({
   progressPercent: {
     fontSize: 13,
     fontWeight: '700',
-    color: 'Colors.primary,
+    color: Colors.primary,
   },
   progressBarContainer: {
     height: 8,
-    backgroundColor: 'Colors.border,
+    backgroundColor: Colors.border,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -452,14 +452,14 @@ const styles = StyleSheet.create({
   },
   progressTasks: {
     fontSize: 11,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 6,
   },
   clientLinkSection: {
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
   },
   clientLinkHeader: {
     flexDirection: 'row',
@@ -470,30 +470,30 @@ const styles = StyleSheet.create({
   clientLinkLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: 'Colors.secondary,
+    color: Colors.secondary,
   },
   clientLinkRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 8,
     gap: 8,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   clientLinkText: {
     flex: 1,
     fontSize: 11,
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     fontFamily: 'monospace',
   },
   copyButton: {
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },

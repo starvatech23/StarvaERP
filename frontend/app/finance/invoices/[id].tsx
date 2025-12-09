@@ -77,7 +77,7 @@ export default function InvoiceDetailScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.primary" />
+          <ActivityIndicator size="large" color=Colors.primary />
         </View>
       </SafeAreaView>
     );
@@ -97,11 +97,11 @@ export default function InvoiceDetailScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Invoice Details</Text>
         <TouchableOpacity style={styles.iconButton} onPress={showStatusOptions}>
-          <Ionicons name="ellipsis-horizontal" size={24} color="Colors.textPrimary" />
+          <Ionicons name="ellipsis-horizontal" size={24} color=Colors.textPrimary />
         </TouchableOpacity>
       </View>
 
@@ -127,18 +127,18 @@ export default function InvoiceDetailScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Client Information</Text>
           <View style={styles.infoRow}>
-            <Ionicons name="person-outline" size={20} color="Colors.textSecondary" />
+            <Ionicons name="person-outline" size={20} color=Colors.textSecondary />
             <Text style={styles.infoText}>{invoice.client_name}</Text>
           </View>
           {invoice.client_address && (
             <View style={styles.infoRow}>
-              <Ionicons name="location-outline" size={20} color="Colors.textSecondary" />
+              <Ionicons name="location-outline" size={20} color=Colors.textSecondary />
               <Text style={styles.infoText}>{invoice.client_address}</Text>
             </View>
           )}
           {invoice.client_phone && (
             <View style={styles.infoRow}>
-              <Ionicons name="call-outline" size={20} color="Colors.textSecondary" />
+              <Ionicons name="call-outline" size={20} color=Colors.textSecondary />
               <Text style={styles.infoText}>{invoice.client_phone}</Text>
             </View>
           )}
@@ -197,7 +197,7 @@ export default function InvoiceDetailScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Payment Details</Text>
           <View style={styles.infoRow}>
-            <Ionicons name="calendar-outline" size={20} color="Colors.textSecondary" />
+            <Ionicons name="calendar-outline" size={20} color=Colors.textSecondary />
             <Text style={styles.infoText}>
               Due Date: {new Date(invoice.due_date).toLocaleDateString()}
             </Text>
@@ -226,7 +226,7 @@ export default function InvoiceDetailScreen() {
             style={styles.actionButton}
             onPress={() => router.push(`/finance/payments/create?invoice_id=${invoice.id}` as any)}
           >
-            <Ionicons name="cash-outline" size={20} color="Colors.surface" />
+            <Ionicons name="cash-outline" size={20} color=Colors.surface />
             <Text style={styles.actionButtonText}>Record Payment</Text>
           </TouchableOpacity>
         )}
@@ -240,7 +240,7 @@ export default function InvoiceDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -253,15 +253,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -269,31 +269,31 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background,
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
     padding: 16,
   },
   card: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'Colors.border,
+    borderColor: Colors.border,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   invoiceHeader: {
@@ -304,11 +304,11 @@ const styles = StyleSheet.create({
   invoiceNumber: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   invoiceDate: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   statusBadge: {
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 11,
     fontWeight: '700',
-    color: 'Colors.surface,
+    color: Colors.surface,
   },
   infoRow: {
     flexDirection: 'row',
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   lineItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   lineItemHeader: {
     marginBottom: 4,
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   lineItemDescription: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   lineItemDetails: {
     flexDirection: 'row',
@@ -352,12 +352,12 @@ const styles = StyleSheet.create({
   },
   lineItemQty: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   lineItemAmount: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.primary,
+    color: Colors.primary,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -366,28 +366,28 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
   },
   summaryValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   totalRow: {
     marginTop: 8,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border,
+    borderTopColor: Colors.border,
   },
   totalLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   totalValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.primary,
+    color: Colors.primary,
   },
   balanceRow: {
     marginTop: 8,
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   balanceLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary,
+    color: Colors.textPrimary,
   },
   balanceValue: {
     fontSize: 18,
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   actionButtonText: {
-    color: 'Colors.surface,
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },

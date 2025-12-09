@@ -92,7 +92,7 @@ export default function FunnelsScreen() {
       <SafeAreaView style={styles.container}>
         <BackToHome />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.secondary" />
+          <ActivityIndicator size="large" color=Colors.secondary />
         </View>
       </SafeAreaView>
     );
@@ -111,7 +111,7 @@ export default function FunnelsScreen() {
           style={styles.addButton}
           onPress={() => router.push('/crm/admin/create-funnel' as any)}
         >
-          <Ionicons name="add" size={24} color="Colors.surface" />
+          <Ionicons name="add" size={24} color=Colors.surface />
         </TouchableOpacity>
       </View>
 
@@ -142,7 +142,7 @@ export default function FunnelsScreen() {
                   )}
                   {funnel.category_names && funnel.category_names.length > 0 && (
                     <View style={styles.categoriesRow}>
-                      <Ionicons name="pricetags" size={14} color="Colors.textSecondary" />
+                      <Ionicons name="pricetags" size={14} color=Colors.textSecondary />
                       <Text style={styles.categoriesText}>
                         {funnel.category_names.join(', ')}
                       </Text>
@@ -153,7 +153,7 @@ export default function FunnelsScreen() {
 
               <View style={styles.statsRow}>
                 <View style={styles.statItem}>
-                  <Ionicons name="people" size={20} color="Colors.primary" />
+                  <Ionicons name="people" size={20} color=Colors.primary />
                   <Text style={styles.statValue}>{funnel.lead_count}</Text>
                   <Text style={styles.statLabel}>Leads</Text>
                 </View>
@@ -194,7 +194,7 @@ export default function FunnelsScreen() {
                   style={[styles.actionButton, { backgroundColor: Colors.primary20 }]}
                   onPress={() => handleClone(funnel)}
                 >
-                  <Ionicons name="copy" size={16} color="Colors.primary" />
+                  <Ionicons name="copy" size={16} color=Colors.primary />
                   <Text style={[styles.actionButtonText, { color: 'Colors.primary }]}>Clone</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -223,17 +223,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border,
+    borderBottomColor: Colors.border,
   },
   headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary },
-  headerSubtitle: { fontSize: 13, color: 'Colors.textSecondary, marginTop: 2 },
+  headerSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   addButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'Colors.secondary,
+    backgroundColor: Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -249,10 +249,10 @@ const styles = StyleSheet.create({
   },
   infoText: { flex: 1, fontSize: 14, color: '#5B21B6', lineHeight: 20 },
   emptyState: { alignItems: 'center', paddingVertical: 60 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary, marginTop: 16 },
-  emptyText: { fontSize: 14, color: 'Colors.textSecondary, textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginTop: 16 },
+  emptyText: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
   funnelCard: {
-    backgroundColor: 'Colors.surface,
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
   },
   funnelHeader: { marginBottom: 16 },
   funnelName: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary },
-  funnelDescription: { fontSize: 14, color: 'Colors.textSecondary, marginTop: 4 },
+  funnelDescription: { fontSize: 14, color: Colors.textSecondary, marginTop: 4 },
   categoriesRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -273,15 +273,15 @@ const styles = StyleSheet.create({
   },
   categoriesText: {
     fontSize: 13,
-    color: 'Colors.textSecondary,
+    color: Colors.textSecondary,
     fontWeight: '500',
   },
   statsRow: { flexDirection: 'row', gap: 16, marginBottom: 16 },
-  statItem: { flex: 1, alignItems: 'center', backgroundColor: 'Colors.background, padding: 12, borderRadius: 8 },
-  statValue: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary, marginTop: 4 },
-  statLabel: { fontSize: 11, color: 'Colors.textSecondary, marginTop: 2 },
+  statItem: { flex: 1, alignItems: 'center', backgroundColor: Colors.background, padding: 12, borderRadius: 8 },
+  statValue: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginTop: 4 },
+  statLabel: { fontSize: 11, color: Colors.textSecondary, marginTop: 2 },
   stagesContainer: { marginBottom: 16 },
-  stagesLabel: { fontSize: 13, fontWeight: '600', color: 'Colors.textSecondary, marginBottom: 8 },
+  stagesLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 8 },
   stagesList: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   stageBadge: { backgroundColor: '#EBF8FF', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
   stageText: { fontSize: 12, fontWeight: '600', color: '#2C5282' },
