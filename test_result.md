@@ -621,10 +621,12 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "Data/Model Drift Fix - Pydantic ValidationErrors"
+  stuck_tasks:
+    - "Data/Model Drift Fix - Pydantic ValidationErrors"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "critical_first"
 
   - agent: "main"
     message: "✅ PROJECT CONTACT HIERARCHY & GANTT SHARE FEATURES IMPLEMENTED - Completed implementation of new contact management and Gantt sharing features. BACKEND UPDATES: (1) Added 'Architect' role to ProjectRole enum in models.py, (2) Fixed critical bug in Gantt share link generation - changed current_user['id'] to current_user.get('id') to prevent KeyError, (3) Updated validation endpoint (/api/projects/{project_id}/contacts/validate) to include 'architect' in required_roles list. FRONTEND UPDATES: (1) Updated contacts.tsx to include 'Architect' in REQUIRED_ROLES array with appropriate icon. (2) Project detail screen (/projects/[id].tsx) has action buttons for 'Contacts' and 'Share Gantt'. FEATURES READY FOR TESTING: Contact hierarchy with 7 mandatory roles (Architect, Project Engineer, Project Manager, Project Head, Operations Executive, Operations Manager, Operations Head), Gantt share link generation with permissions/password protection/expiry, Contact validation endpoint to ensure all required roles are filled before project completion. Ready for comprehensive backend testing."
