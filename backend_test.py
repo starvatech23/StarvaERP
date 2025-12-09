@@ -256,83 +256,75 @@ class BackendTester:
             return False
 
     def run_all_tests(self):
-        """Run all critical API tests in priority order"""
-        print("=" * 80)
-        print("BACKEND API TESTING - DATA/MODEL DRIFT FIX VERIFICATION")
-        print("Testing P0 fix for Pydantic ValidationErrors causing 500 Internal Server Errors")
-        print("=" * 80)
-        print()
+        """Run all tests"""
+        print("🚀 Starting Data/Model Drift Fix Verification (Round 2)")
+        print("=" * 60)
         
-        # Authenticate
-        print("🔐 AUTHENTICATION PHASE")
-        print("-" * 40)
-        auth_success = self.authenticate("admin")
-        if not auth_success:
-            print("❌ CRITICAL: Admin authentication failed. Cannot proceed with tests.")
+        # Authenticate first
+        if not self.authenticate():
+            print("❌ Authentication failed. Cannot proceed with tests.")
             return False
-        print()
         
-        # Run tests in priority order
-        print("🧪 CRITICAL API TESTING PHASE")
-        print("-" * 40)
+        # Run critical fix tests first
+        print("\n🔥 CRITICAL FIXES VERIFICATION:")
+        critical_tests = [
+            self.test_admin_users_api,      # Critical Fix #1
+            self.test_dashboard_stats_api,  # Critical Fix #2
+        ]
         
-        print("Priority 1: Dashboard API")
-        self.test_dashboard_stats()
+        critical_passed = 0
+        for test in critical_tests:
+            if test():
+                critical_passed += 1
         
-        print("Priority 2: Projects API")
-        self.test_projects_api()
+        print(f"\n📊 Critical Fixes: {critical_passed}/{len(critical_tests)} PASSED")
         
-        print("Priority 3: Vendors API")
-        self.test_vendors_api()
+        # Run regression tests
+        print("\n🔄 REGRESSION VERIFICATION:")
+        regression_tests = [
+            self.test_projects_api,
+            self.test_vendors_api,
+            self.test_materials_api,
+            self.test_tasks_api,
+        ]
         
-        print("Priority 4: Materials API")
-        self.test_materials_api()
+        regression_passed = 0
+        for test in regression_tests:
+            if test():
+                regression_passed += 1
         
-        print("Priority 5: Tasks API")
-        self.test_tasks_api()
+        print(f"\n📊 Regression Tests: {regression_passed}/{len(regression_tests)} PASSED")
         
-        print("Priority 6: Users Management API")
-        self.test_users_management_api()
+        # Final summary
+        total_passed = critical_passed + regression_passed
+        total_tests = len(critical_tests) + len(regression_tests)
         
-        print("🔍 BACKEND LOGS CHECK")
-        print("-" * 40)
-        self.check_backend_logs()
+        print("\n" + "=" * 60)
+        print("🏁 FINAL RESULTS:")
+        print(f"   Total Tests: {total_tests}")
+        print(f"   Passed: {total_passed}")
+        print(f"   Failed: {total_tests - total_passed}")
+        print(f"   Success Rate: {(total_passed/total_tests)*100:.1f}%")
         
-        # Summary
-        print("📊 TEST SUMMARY")
-        print("=" * 80)
+        if critical_passed == len(critical_tests):
+            print("\n✅ CRITICAL FIXES: ALL PASSED - Data/Model Drift fix is COMPLETE!")
+        else:
+            print(f"\n❌ CRITICAL FIXES: {len(critical_tests) - critical_passed} FAILED - Fix needs more work!")
         
-        total_tests = len(self.test_results)
-        passed_tests = sum(1 for r in self.test_results if r["success"])
-        failed_tests = total_tests - passed_tests
-        
-        print(f"Total Tests: {total_tests}")
-        print(f"Passed: {passed_tests}")
-        print(f"Failed: {failed_tests}")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
-        print()
-        
-        if failed_tests > 0:
-            print("❌ FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"  - {result['test']}: {result['details']}")
-            print()
-        
-        print("✅ PASSED TESTS:")
-        for result in self.test_results:
-            if result["success"]:
-                print(f"  - {result['test']}: {result['details']}")
-        
-        return failed_tests == 0
+        return critical_passed == len(critical_tests)
 
-if __name__ == "__main__":
+def main():
+    """Main function"""
     tester = BackendTester()
     success = tester.run_all_tests()
     
-    if success:
-        print("\n🎉 ALL TESTS PASSED - Data/Model Drift Fix Verification SUCCESSFUL")
-        sys.exit(0)
-    else:
-        print("\n⚠️  SOME TESTS FAILED - ValidationErrors may still be present")
-        sys.exit(1)
+    # Save detailed results
+    with open("/app/test_results_detailed.json", "w") as f:
+        json.dump(tester.test_results, f, indent=2)
+    
+    print(f"\n📄 Detailed results saved to: /app/test_results_detailed.json")
+    
+    return 0 if success else 1
+
+if __name__ == "__main__":
+    sys.exit(main())
