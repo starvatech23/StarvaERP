@@ -151,7 +151,7 @@ export default function DashboardScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Project Overview</Text>
             <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: 'Colors.primary + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: Colors.primaryPale }]}>
                 <Ionicons name="business" size={28} color={Colors.primary} />
                 <Text style={styles.statValue}>{stats.projects.total}</Text>
                 <Text style={styles.statLabel}>Total Projects</Text>
