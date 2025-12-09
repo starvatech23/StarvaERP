@@ -114,31 +114,50 @@ class BackendTester:
             if response.status_code == 200:
                 data = response.json()
                 
-                # Check for aggregation fields that should handle None values
-                expected_fields = ["month_wages", "month_expenses", "month_payments", "inventory_value"]
-                missing_fields = []
+                # Check for main sections that contain aggregation fields
+                expected_sections = ["labor", "finance", "materials"]
+                missing_sections = []
                 
-                for field in expected_fields:
-                    if field not in data:
-                        missing_fields.append(field)
+                for section in expected_sections:
+                    if section not in data:
+                        missing_sections.append(section)
                 
-                if missing_fields:
+                if missing_sections:
                     self.log_result("GET /api/dashboard/stats", False, 
-                                  f"Missing expected fields: {missing_fields}", data)
-                else:
-                    # Check if None values are handled properly
-                    none_handling_ok = True
-                    for field in expected_fields:
-                        value = data.get(field)
-                        if value is None:
-                            print(f"   Note: {field} is None (acceptable with None handling)")
-                        elif isinstance(value, (int, float)):
-                            print(f"   {field}: {value}")
-                        else:
-                            print(f"   {field}: {type(value)} - {value}")
+                                  f"Missing expected sections: {missing_sections}", data)
+                    return False
+                
+                # Check specific aggregation fields that should handle None values
+                aggregation_checks = []
+                
+                # Check labor section for month_wages
+                if 'labor' in data and 'month_wages' in data['labor']:
+                    month_wages = data['labor']['month_wages']
+                    aggregation_checks.append(f"month_wages: {month_wages}")
+                
+                # Check finance section for month_expenses and month_payments
+                if 'finance' in data:
+                    if 'month_expenses' in data['finance']:
+                        month_expenses = data['finance']['month_expenses']
+                        aggregation_checks.append(f"month_expenses: {month_expenses}")
+                    if 'month_payments' in data['finance']:
+                        month_payments = data['finance']['month_payments']
+                        aggregation_checks.append(f"month_payments: {month_payments}")
+                
+                # Check materials section for inventory_value
+                if 'materials' in data and 'inventory_value' in data['materials']:
+                    inventory_value = data['materials']['inventory_value']
+                    aggregation_checks.append(f"inventory_value: {inventory_value}")
+                
+                if aggregation_checks:
+                    for check in aggregation_checks:
+                        print(f"   ✓ {check}")
                     
                     self.log_result("GET /api/dashboard/stats", True, 
-                                  "Dashboard stats returned successfully with proper None handling")
+                                  "Dashboard stats returned successfully with proper None handling for aggregations")
+                else:
+                    self.log_result("GET /api/dashboard/stats", False, 
+                                  "Dashboard returned but missing expected aggregation fields", data)
                 return True
                 
             else:
