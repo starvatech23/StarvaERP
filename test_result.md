@@ -757,6 +757,18 @@ backend:
         agent: "testing"
         comment: "✅ ALL CONFIG APIS WORKING (2/2 endpoints): GET /api/crm/config (✅ retrieves CRM configuration), PUT /api/crm/config (✅ updates configuration with admin auth). WhatsApp settings, telephony settings, and auto-assignment rules all configurable. Authentication properly enforced (Admin only)."
 
+  - task: "Data/Model Drift Fix - Make Response Models Flexible"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/models.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "🔧 CRITICAL P0 FIX: Fixed recurring 500 Internal Server Errors caused by Pydantic ValidationErrors when old MongoDB documents don't match current models. Changes: (1) Made ALL timestamp fields Optional with None defaults (created_at, updated_at, date_joined), (2) Made ALL user tracking fields Optional (created_by, updated_by, recorded_by, performed_by, uploaded_by), (3) Made business_name Optional in VendorBase, (4) Made location and address Optional in ProjectBase, (5) Made is_active default to True in UserResponse. This allows old documents to be loaded without ValidationErrors. Backend restarted successfully. NEEDS TESTING: Dashboard API (/api/dashboard/stats), Projects API (/api/projects), Vendors API (/api/vendors), Materials API (/api/materials), Tasks API (/api/tasks), Users API (/api/users). Test with existing seeded data."
+
 frontend:
   - task: "CRM Lead List Screen"
     implemented: false
