@@ -398,7 +398,7 @@ export default function LaborScreen() {
         }
       >
         {loading ? (
-          <ActivityIndicator size="large" color=Colors.secondary style={styles.loader} />
+          <ActivityIndicator size="large" color={Colors.secondary} style={styles.loader} />
         ) : (
           <>
             {activeTab === 'workers' && renderWorkers()}

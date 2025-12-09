@@ -146,7 +146,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Full Name *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="person" size={20} color=Colors.textSecondary style={styles.icon} />
+              <Ionicons name="person" size={20} color={Colors.textSecondary} style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Enter full name"
@@ -157,7 +157,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Official Email ID *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="mail" size={20} color=Colors.textSecondary style={styles.icon} />
+              <Ionicons name="mail" size={20} color={Colors.textSecondary} style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Enter email address"
@@ -170,7 +170,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Mobile Number *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="call" size={20} color=Colors.textSecondary style={styles.icon} />
+              <Ionicons name="call" size={20} color={Colors.textSecondary} style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Enter mobile number"
@@ -182,7 +182,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Address</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="location" size={20} color=Colors.textSecondary style={styles.icon} />
+              <Ionicons name="location" size={20} color={Colors.textSecondary} style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Enter address (optional)"
@@ -198,7 +198,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Role *</Text>
             <View style={styles.pickerContainer}>
-              <Ionicons name="shield-checkmark" size={20} color=Colors.textSecondary style={styles.icon} />
+              <Ionicons name="shield-checkmark" size={20} color={Colors.textSecondary} style={styles.icon} />
               <Picker
                 selectedValue={roleId}
                 onValueChange={setRoleId}
@@ -214,7 +214,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Team/Department *</Text>
             <View style={styles.pickerContainer}>
-              <Ionicons name="people" size={20} color=Colors.textSecondary style={styles.icon} />
+              <Ionicons name="people" size={20} color={Colors.textSecondary} style={styles.icon} />
               <Picker
                 selectedValue={teamId}
                 onValueChange={setTeamId}
@@ -235,7 +235,7 @@ export default function AddUserScreen() {
 
             <Text style={styles.label}>Initial Password</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed" size={20} color=Colors.textSecondary style={styles.icon} />
+              <Ionicons name="lock-closed" size={20} color={Colors.textSecondary} style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Leave blank to set later"

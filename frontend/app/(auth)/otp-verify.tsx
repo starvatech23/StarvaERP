@@ -93,7 +93,7 @@ export default function OTPVerifyScreen() {
             <Ionicons
               name="keypad-outline"
               size={20}
-              color=Colors.textSecondary
+              color={Colors.textSecondary}
               style={styles.inputIcon}
             />
             <TextInput

@@ -380,7 +380,7 @@ export default function MaterialsScreen() {
         }
       >
         {loading ? (
-          <ActivityIndicator size="large" color=Colors.secondary style={styles.loader} />
+          <ActivityIndicator size="large" color={Colors.secondary} style={styles.loader} />
         ) : (
           <>
             {activeTab === 'vendors' && renderVendors()}

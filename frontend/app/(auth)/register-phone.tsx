@@ -80,7 +80,7 @@ export default function RegisterPhoneScreen() {
               <Ionicons
                 name="person-outline"
                 size={20}
-                color=Colors.textSecondary
+                color={Colors.textSecondary}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -95,7 +95,7 @@ export default function RegisterPhoneScreen() {
               <Ionicons
                 name="call-outline"
                 size={20}
-                color=Colors.textSecondary
+                color={Colors.textSecondary}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -111,7 +111,7 @@ export default function RegisterPhoneScreen() {
               <Ionicons
                 name="briefcase-outline"
                 size={20}
-                color=Colors.textSecondary
+                color={Colors.textSecondary}
                 style={styles.inputIcon}
               />
               <Picker

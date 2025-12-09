@@ -121,7 +121,7 @@ export default function SiteTransferScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color=Colors.secondary style={styles.loader} />
+        <ActivityIndicator size="large" color={Colors.secondary} style={styles.loader} />
       </SafeAreaView>
     );
   }

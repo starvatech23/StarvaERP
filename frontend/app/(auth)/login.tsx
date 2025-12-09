@@ -156,7 +156,7 @@ export default function LoginScreen() {
               <Ionicons
                 name={authMethod === 'email' ? 'mail-outline' : 'call-outline'}
                 size={20}
-                color=Colors.textSecondary
+                color={Colors.textSecondary}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -175,7 +175,7 @@ export default function LoginScreen() {
                 <Ionicons
                   name="lock-closed-outline"
                   size={20}
-                  color=Colors.textSecondary
+                  color={Colors.textSecondary}
                   style={styles.inputIcon}
                 />
                 <TextInput
@@ -200,7 +200,7 @@ export default function LoginScreen() {
                 <Ionicons
                   name="keypad-outline"
                   size={20}
-                  color=Colors.textSecondary
+                  color={Colors.textSecondary}
                   style={styles.inputIcon}
                 />
                 <TextInput

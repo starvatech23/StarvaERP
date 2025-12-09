@@ -117,7 +117,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="person-outline"
                 size={20}
-                color=Colors.textSecondary
+                color={Colors.textSecondary}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -132,7 +132,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="mail-outline"
                 size={20}
-                color=Colors.textSecondary
+                color={Colors.textSecondary}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -149,7 +149,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="call-outline"
                 size={20}
-                color=Colors.textSecondary
+                color={Colors.textSecondary}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -166,7 +166,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="briefcase-outline"
                 size={20}
-                color=Colors.textSecondary
+                color={Colors.textSecondary}
                 style={styles.inputIcon}
               />
               <Picker
@@ -208,7 +208,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="lock-closed-outline"
                 size={20}
-                color=Colors.textSecondary
+                color={Colors.textSecondary}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -233,7 +233,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="lock-closed-outline"
                 size={20}
-                color=Colors.textSecondary
+                color={Colors.textSecondary}
                 style={styles.inputIcon}
               />
               <TextInput
