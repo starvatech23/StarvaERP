@@ -6,7 +6,6 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -29,6 +28,8 @@ export default function WeeklyAttendanceScreen() {
   const [attendanceData, setAttendanceData] = useState<any>({});
   const [existingAttendance, setExistingAttendance] = useState<any>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [savedCount, setSavedCount] = useState(0);
   
   // Confirmation modal state
   const [confirmModal, setConfirmModal] = useState<{
@@ -68,7 +69,6 @@ export default function WeeklyAttendanceScreen() {
       }
     } catch (error) {
       console.error('Error loading data:', error);
-      Alert.alert('Error', 'Failed to load data');
     } finally {
       setFetchingData(false);
     }
@@ -109,8 +109,23 @@ export default function WeeklyAttendanceScreen() {
   };
 
   const changeWeek = (direction: number) => {
-    setCurrentWeekStart(moment(currentWeekStart).add(direction, 'weeks'));
-    setAttendanceData({});
+    if (hasUnsavedChanges) {
+      setConfirmModal({
+        visible: true,
+        title: 'Unsaved Changes',
+        message: 'You have unsaved attendance data. Do you want to discard these changes?',
+        destructive: true,
+        onConfirm: () => {
+          setCurrentWeekStart(moment(currentWeekStart).add(direction, 'weeks'));
+          setAttendanceData({});
+          setHasUnsavedChanges(false);
+          setConfirmModal(prev => ({ ...prev, visible: false }));
+        },
+      });
+    } else {
+      setCurrentWeekStart(moment(currentWeekStart).add(direction, 'weeks'));
+      setAttendanceData({});
+    }
   };
 
   const markAttendance = (workerId: string, date: string, status: 'present' | 'absent' | 'overtime') => {
@@ -145,9 +160,9 @@ export default function WeeklyAttendanceScreen() {
 
   const getStatusColor = (status: string | null) => {
     switch (status) {
-      case 'present': return '#10B981';
-      case 'overtime': return '#F59E0B';
-      case 'absent': return '#EF4444';
+      case 'present': return Colors.success;
+      case 'overtime': return Colors.warning;
+      case 'absent': return Colors.error;
       default: return Colors.background;
     }
   };
@@ -162,50 +177,41 @@ export default function WeeklyAttendanceScreen() {
   };
 
   const markEntireRow = (workerId: string, status: 'present' | 'absent' | 'overtime') => {
-    Alert.alert(
-      'Mark Entire Week',
-      `Mark all days as ${status.toUpperCase()} for this labourer?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Confirm',
-          onPress: () => {
-            const weekDates = getWeekDates();
-            weekDates.forEach(date => {
-              if (!date.isAfter(moment(), 'day')) {
-                markAttendance(workerId, date.format('YYYY-MM-DD'), status);
-              }
-            });
-          },
-        },
-      ]
-    );
+    setConfirmModal({
+      visible: true,
+      title: 'Mark Entire Week',
+      message: `Mark all days as ${status.toUpperCase()} for this labourer?`,
+      destructive: false,
+      onConfirm: () => {
+        const weekDates = getWeekDates();
+        weekDates.forEach(date => {
+          if (!date.isAfter(moment(), 'day')) {
+            markAttendance(workerId, date.format('YYYY-MM-DD'), status);
+          }
+        });
+        setConfirmModal(prev => ({ ...prev, visible: false }));
+      },
+    });
   };
 
   const markEntireColumn = (date: string, status: 'present' | 'absent' | 'overtime') => {
-    Alert.alert(
-      'Mark Entire Day',
-      `Mark ${moment(date).format('dddd, MMM DD')} as ${status.toUpperCase()} for all labourers?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Confirm',
-          onPress: () => {
-            workers.forEach(worker => {
-              markAttendance(worker.id, date, status);
-            });
-          },
-        },
-      ]
-    );
+    setConfirmModal({
+      visible: true,
+      title: 'Mark Entire Day',
+      message: `Mark ${moment(date).format('dddd, MMM DD')} as ${status.toUpperCase()} for all labourers?`,
+      destructive: false,
+      onConfirm: () => {
+        workers.forEach(worker => {
+          markAttendance(worker.id, date, status);
+        });
+        setConfirmModal(prev => ({ ...prev, visible: false }));
+      },
+    });
   };
 
   const handleSave = async () => {
     const records = Object.values(attendanceData);
-    if (records.length === 0) {
-      Alert.alert('Info', 'No attendance marked');
-      return;
-    }
+    if (records.length === 0) return;
 
     setLoading(true);
     try {
@@ -229,32 +235,41 @@ export default function WeeklyAttendanceScreen() {
       });
 
       await Promise.all(promises);
-
-      const weekStart = moment(currentWeekStart).format('DD MMM');
-      const weekEnd = moment(currentWeekStart).add(6, 'days').format('DD MMM YYYY');
-
-      Alert.alert(
-        'Success!',
-        `Attendance saved for ${records.length} entries\n${weekStart} - ${weekEnd}`,
-        [
-          { text: 'Next Week', onPress: () => {
-            changeWeek(1);
-            setAttendanceData({});
-          }},
-          { text: 'Done', onPress: () => router.back(), style: 'cancel' },
-        ]
-      );
+      
+      // Success - clear unsaved changes and show success modal
+      setSavedCount(records.length);
+      setHasUnsavedChanges(false);
+      setAttendanceData({});
+      await loadWeekAttendance();
+      setShowSuccessModal(true);
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to save attendance');
+      console.error('Save error:', error);
+      setConfirmModal({
+        visible: true,
+        title: 'Save Failed',
+        message: error.response?.data?.detail || 'Failed to save attendance. Please try again.',
+        destructive: true,
+        onConfirm: () => setConfirmModal(prev => ({ ...prev, visible: false })),
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSuccessAction = (action: 'stay' | 'back' | 'nextWeek') => {
+    setShowSuccessModal(false);
+    if (action === 'back') {
+      router.back();
+    } else if (action === 'nextWeek') {
+      setCurrentWeekStart(moment(currentWeekStart).add(1, 'weeks'));
+    }
+    // 'stay' does nothing, just closes modal
+  };
+
   if (fetchingData) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="Colors.secondary" style={styles.loader} />
+        <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
       </SafeAreaView>
     );
   }
@@ -265,7 +280,7 @@ export default function WeeklyAttendanceScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
+          <Ionicons name="arrow-back" size={24} color={Colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Weekly Attendance</Text>
         <View style={styles.placeholder} />
@@ -275,7 +290,7 @@ export default function WeeklyAttendanceScreen() {
         {/* Week Navigation */}
         <View style={styles.weekNav}>
           <TouchableOpacity style={styles.weekButton} onPress={() => changeWeek(-1)}>
-            <Ionicons name="chevron-back" size={24} color="Colors.secondary" />
+            <Ionicons name="chevron-back" size={24} color={Colors.primary} />
           </TouchableOpacity>
           <Text style={styles.weekText}>
             {moment(currentWeekStart).format('DD MMM')} - {moment(currentWeekStart).add(6, 'days').format('DD MMM YYYY')}
@@ -288,7 +303,7 @@ export default function WeeklyAttendanceScreen() {
             <Ionicons 
               name="chevron-forward" 
               size={24} 
-              color={moment(currentWeekStart).add(7, 'days').isAfter(moment(), 'week') ? '#CBD5E0' : Colors.secondary} 
+              color={moment(currentWeekStart).add(7, 'days').isAfter(moment(), 'week') ? Colors.disabledText : Colors.primary} 
             />
           </TouchableOpacity>
         </View>
@@ -298,8 +313,23 @@ export default function WeeklyAttendanceScreen() {
           <Picker
             selectedValue={selectedProject}
             onValueChange={(value) => {
-              setSelectedProject(value);
-              setAttendanceData({});
+              if (hasUnsavedChanges) {
+                setConfirmModal({
+                  visible: true,
+                  title: 'Unsaved Changes',
+                  message: 'Changing projects will discard unsaved attendance. Continue?',
+                  destructive: true,
+                  onConfirm: () => {
+                    setSelectedProject(value);
+                    setAttendanceData({});
+                    setHasUnsavedChanges(false);
+                    setConfirmModal(prev => ({ ...prev, visible: false }));
+                  },
+                });
+              } else {
+                setSelectedProject(value);
+                setAttendanceData({});
+              }
             }}
             style={styles.picker}
           >
@@ -308,6 +338,15 @@ export default function WeeklyAttendanceScreen() {
             ))}
           </Picker>
         </View>
+        
+        {hasUnsavedChanges && (
+          <View style={styles.unsavedBanner}>
+            <Ionicons name="alert-circle" size={16} color={Colors.warning} />
+            <Text style={styles.unsavedText}>
+              {Object.keys(attendanceData).length} unsaved change(s)
+            </Text>
+          </View>
+        )}
       </View>
 
       <ScrollView horizontal style={styles.gridContainer}>
@@ -360,19 +399,19 @@ export default function WeeklyAttendanceScreen() {
                   <View style={styles.bulkRowButtons}>
                     <TouchableOpacity
                       onPress={() => markEntireRow(worker.id, 'present')}
-                      style={[styles.bulkRowButton, { backgroundColor: '#10B981' }]}
+                      style={[styles.bulkRowButton, { backgroundColor: Colors.success }]}
                     >
                       <Text style={styles.bulkRowButtonText}>P All</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => markEntireRow(worker.id, 'overtime')}
-                      style={[styles.bulkRowButton, { backgroundColor: '#F59E0B' }]}
+                      style={[styles.bulkRowButton, { backgroundColor: Colors.warning }]}
                     >
                       <Text style={styles.bulkRowButtonText}>OT</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => markEntireRow(worker.id, 'absent')}
-                      style={[styles.bulkRowButton, { backgroundColor: '#EF4444' }]}
+                      style={[styles.bulkRowButton, { backgroundColor: Colors.error }]}
                     >
                       <Text style={styles.bulkRowButtonText}>A</Text>
                     </TouchableOpacity>
@@ -405,6 +444,7 @@ export default function WeeklyAttendanceScreen() {
                               delete newData[`${worker.id}_${dateStr}`];
                               return newData;
                             });
+                            setHasUnsavedChanges(Object.keys(attendanceData).length > 1);
                           } else {
                             markAttendance(worker.id, dateStr, 'present');
                           }
@@ -431,35 +471,61 @@ export default function WeeklyAttendanceScreen() {
       <View style={styles.footer}>
         <View style={styles.legend}>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
+            <View style={[styles.legendDot, { backgroundColor: Colors.success }]} />
             <Text style={styles.legendText}>Present</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#F59E0B' }]} />
+            <View style={[styles.legendDot, { backgroundColor: Colors.warning }]} />
             <Text style={styles.legendText}>Overtime</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#EF4444' }]} />
+            <View style={[styles.legendDot, { backgroundColor: Colors.error }]} />
             <Text style={styles.legendText}>Absent</Text>
           </View>
         </View>
         <TouchableOpacity
-          style={[styles.saveButton, (loading || Object.keys(attendanceData).length === 0) && styles.saveButtonDisabled]}
+          style={[styles.saveButton, (!hasUnsavedChanges || loading) && styles.saveButtonDisabled]}
           onPress={handleSave}
-          disabled={loading || Object.keys(attendanceData).length === 0}
+          disabled={!hasUnsavedChanges || loading}
         >
           {loading ? (
-            <ActivityIndicator color="Colors.surface" />
+            <ActivityIndicator color={Colors.white} />
           ) : (
             <>
-              <Ionicons name="checkmark-circle" size={20} color="Colors.surface" />
+              <Ionicons name="checkmark-circle" size={20} color={Colors.white} />
               <Text style={styles.saveButtonText}>
-                Save ({Object.keys(attendanceData).length})
+                Save {hasUnsavedChanges ? `(${Object.keys(attendanceData).length})` : ''}
               </Text>
             </>
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        visible={confirmModal.visible}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Confirm"
+        cancelText="Cancel"
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, visible: false }))}
+        destructive={confirmModal.destructive}
+      />
+      
+      {/* Success Modal */}
+      <ConfirmationModal
+        visible={showSuccessModal}
+        title="Attendance Saved!"
+        message={`Successfully saved ${savedCount} attendance record(s) for ${moment(currentWeekStart).format('DD MMM')} - ${moment(currentWeekStart).add(6, 'days').format('DD MMM YYYY')}`}
+        icon="checkmark-circle"
+        iconColor={Colors.success}
+        confirmText="Next Week"
+        cancelText="Stay Here"
+        onConfirm={() => handleSuccessAction('nextWeek')}
+        onCancel={() => handleSuccessAction('stay')}
+        destructive={false}
+      />
     </SafeAreaView>
   );
 }
@@ -517,8 +583,26 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     borderRadius: 8,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   picker: {
+    color: Colors.textPrimary,
+  },
+  unsavedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+    padding: 8,
+    backgroundColor: Colors.warningLight,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.warning,
+  },
+  unsavedText: {
+    fontSize: 13,
+    fontWeight: '600',
     color: Colors.textPrimary,
   },
   gridContainer: {
@@ -526,7 +610,7 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.primary,
     borderBottomWidth: 2,
     borderBottomColor: Colors.border,
   },
@@ -543,7 +627,7 @@ const styles = StyleSheet.create({
     padding: 8,
     alignItems: 'center',
     borderRightWidth: 1,
-    borderRightColor: '#FFF5F2',
+    borderRightColor: Colors.white,
   },
   headerText: {
     fontSize: 14,
@@ -553,13 +637,13 @@ const styles = StyleSheet.create({
   dayText: {
     fontSize: 12,
     fontWeight: '700',
-    color: Colors.surface,
+    color: Colors.white,
     marginBottom: 2,
   },
   dateNumText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.surface,
+    color: Colors.white,
     marginBottom: 4,
   },
   bulkDayButtons: {
@@ -577,7 +661,7 @@ const styles = StyleSheet.create({
   miniButtonText: {
     fontSize: 8,
     fontWeight: '700',
-    color: Colors.surface,
+    color: Colors.white,
   },
   workersScroll: {
     maxHeight: 500,
@@ -586,6 +670,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+    backgroundColor: Colors.surface,
   },
   evenRow: {
     backgroundColor: Colors.background,
@@ -615,7 +700,7 @@ const styles = StyleSheet.create({
   bulkRowButtonText: {
     fontSize: 8,
     fontWeight: '700',
-    color: Colors.surface,
+    color: Colors.white,
   },
   dateCell: {
     width: 80,
@@ -631,10 +716,10 @@ const styles = StyleSheet.create({
   cellText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#CBD5E0',
+    color: Colors.textTertiary,
   },
   cellTextMarked: {
-    color: Colors.surface,
+    color: Colors.white,
   },
   footer: {
     backgroundColor: Colors.surface,
@@ -670,13 +755,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
   saveButtonDisabled: {
     opacity: 0.5,
+    backgroundColor: Colors.disabled,
   },
   saveButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.surface,
+    color: Colors.white,
   },
 });
