@@ -423,9 +423,9 @@ backend:
 
   - task: "Data/Model Drift Fix - Pydantic ValidationErrors"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py, /app/backend/models.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "critical"
     needs_retesting: false
     status_history:
@@ -435,6 +435,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ PARTIAL SUCCESS - DATA/MODEL DRIFT FIX VERIFICATION: Tested 6 critical APIs with 75% success rate (6/8 tests passed). ✅ WORKING APIS: (1) GET /api/projects - Successfully loaded 38 projects with task_count and manager_phone fields, no ValidationErrors, (2) GET /api/vendors - Successfully loaded 19 vendors with business_name field present, (3) GET /api/materials - Successfully loaded 47 materials with created_by field present, (4) GET /api/tasks - Successfully loaded 11 tasks with created_by and timestamp fields present. ❌ CRITICAL ISSUES REMAINING: (1) GET /api/dashboard/stats - 500 Internal Server Error due to TypeError 'int + NoneType' in dashboard calculations (not ValidationError but related data issue), (2) GET /api/admin/users - 500 Internal Server Error with KeyError 'role' at line 1912 in server.py - EXACT ValidationError the fix was supposed to address! Backend logs show: KeyError: 'role' in get_all_users_admin function. CONCLUSION: The P0 fix partially worked for most APIs but FAILED for the critical /api/admin/users endpoint which still has the exact ValidationError issue. The dashboard error is a separate calculation bug. Main agent needs to complete the fix for user management APIs."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPLETE SUCCESS - DATA/MODEL DRIFT FIX VERIFICATION (ROUND 2): Comprehensive testing completed with 100% success rate (6/6 tests passed). CRITICAL FIXES VERIFIED: (1) GET /api/admin/users - ✅ FIXED! Successfully retrieved 38 users with proper role handling, no more KeyError 'role' issues, (2) GET /api/dashboard/stats - ✅ FIXED! Dashboard stats returned successfully with proper None handling for all aggregations (month_wages: 24700.0, month_expenses: 179000.0, month_payments: 800000.0, inventory_value: 3561704). REGRESSION TESTS PASSED: (3) GET /api/projects - Successfully retrieved 38 projects, (4) GET /api/vendors - Successfully retrieved 19 vendors, (5) GET /api/materials - Successfully retrieved 47 materials, (6) GET /api/tasks - Successfully retrieved 11 tasks. CONCLUSION: Both critical fixes applied by main agent are working perfectly. The P0 Data/Model Drift fix is now 100% COMPLETE. All ValidationErrors and TypeError issues have been resolved. Backend APIs are stable and ready for production use."
 
 frontend:
   - task: "Invoice Create Screen"
