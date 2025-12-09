@@ -126,6 +126,7 @@ export default function WeeklyAttendanceScreen() {
         overtime_hours: status === 'overtime' ? 4 : 0,
       },
     }));
+    setHasUnsavedChanges(true);
   };
 
   const getAttendanceStatus = (workerId: string, date: string) => {
