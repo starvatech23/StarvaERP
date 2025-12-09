@@ -430,12 +430,12 @@ class TaskUpdate(BaseModel):
 
 class TaskResponse(TaskBase):
     id: str
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
     assigned_users: List[Dict[str, str]] = []  # [{"id": "", "name": ""}]
     subtasks: List[Dict[str, Any]] = []  # Subtasks
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 # Material Models
 # Note: Material and Vendor models moved to end of file for comprehensive implementation
