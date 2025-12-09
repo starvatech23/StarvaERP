@@ -197,13 +197,13 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     id: str
-    is_active: bool
+    is_active: bool = True
     approval_status: ApprovalStatus = ApprovalStatus.PENDING
     approved_by: Optional[str] = None
     approved_at: Optional[datetime] = None
     role_name: Optional[str] = None  # Populated from role_id
     team_name: Optional[str] = None  # Populated from team_id
-    date_joined: datetime
+    date_joined: Optional[datetime] = None
     last_login: Optional[datetime] = None
     crm_permissions: Optional[Dict[str, bool]] = None  # CRM permissions for frontend
 
