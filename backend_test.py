@@ -21,67 +21,51 @@ ADMIN_PASSWORD = "admin123"
 class BackendTester:
     def __init__(self):
         self.session = requests.Session()
-        self.auth_tokens = {}
+        self.token = None
         self.test_results = []
-        self.project_ids = []
         
-    def log_result(self, test_name: str, success: bool, details: str, response_data: Any = None):
+    def log_result(self, test_name, success, message, response_data=None):
         """Log test result"""
         result = {
             "test": test_name,
             "success": success,
-            "details": details,
+            "message": message,
             "timestamp": datetime.now().isoformat(),
             "response_data": response_data
         }
         self.test_results.append(result)
+        
         status = "✅ PASS" if success else "❌ FAIL"
         print(f"{status}: {test_name}")
-        print(f"   Details: {details}")
+        print(f"   {message}")
         if not success and response_data:
             print(f"   Response: {response_data}")
         print()
-
-    def authenticate(self, role: str) -> bool:
-        """Authenticate and get token for role"""
+        
+    def authenticate(self):
+        """Authenticate with admin credentials"""
+        print("🔐 Authenticating with admin credentials...")
+        
         try:
-            creds = TEST_CREDENTIALS[role]
-            response = self.session.post(
-                f"{BACKEND_URL}/auth/login",
-                json={
-                    "identifier": creds["email"],
-                    "password": creds["password"],
-                    "auth_type": "email"
-                }
-            )
+            response = self.session.post(f"{BACKEND_URL}/auth/login", json={
+                "identifier": ADMIN_EMAIL,
+                "password": ADMIN_PASSWORD,
+                "auth_type": "email"
+            })
             
             if response.status_code == 200:
                 data = response.json()
-                token = data.get("access_token")
-                if token:
-                    self.auth_tokens[role] = f"Bearer {token}"
-                    self.log_result(f"Authentication - {role}", True, f"Successfully authenticated as {role}")
-                    return True
-                else:
-                    self.log_result(f"Authentication - {role}", False, "No access token in response", response.json())
-                    return False
+                self.token = data.get("access_token")
+                self.session.headers.update({"Authorization": f"Bearer {self.token}"})
+                self.log_result("Authentication", True, f"Successfully authenticated as {ADMIN_EMAIL}")
+                return True
             else:
-                self.log_result(f"Authentication - {role}", False, f"HTTP {response.status_code}", response.text)
+                self.log_result("Authentication", False, f"Failed to authenticate: {response.status_code}", response.text)
                 return False
                 
         except Exception as e:
-            self.log_result(f"Authentication - {role}", False, f"Exception: {str(e)}")
+            self.log_result("Authentication", False, f"Authentication error: {str(e)}")
             return False
-
-    def make_authenticated_request(self, method: str, endpoint: str, role: str = "admin", **kwargs) -> requests.Response:
-        """Make authenticated request"""
-        headers = kwargs.get("headers", {})
-        if role in self.auth_tokens:
-            headers["Authorization"] = self.auth_tokens[role]
-        kwargs["headers"] = headers
-        
-        url = f"{BACKEND_URL}{endpoint}"
-        return self.session.request(method, url, **kwargs)
 
     def test_dashboard_stats(self):
         """Test Dashboard API - /api/dashboard/stats (GET) - Priority 1"""
