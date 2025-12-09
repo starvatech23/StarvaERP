@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Data/Model Drift Fix Verification
-Testing critical P0 fix for Pydantic ValidationErrors causing 500 Internal Server Errors
+Backend API Testing Script for Data/Model Drift Fix Verification (Round 2)
+Testing the 2 critical fixes applied:
+1. GET /api/admin/users - Fixed KeyError 'role' 
+2. GET /api/dashboard/stats - Fixed TypeError with None handling
 """
 
 import requests
 import json
 import sys
 from datetime import datetime
-from typing import Dict, Any, Optional
 
 # Get backend URL from frontend .env
 BACKEND_URL = "https://site-ops-hub.preview.emergentagent.com/api"
 
 # Test credentials
-TEST_CREDENTIALS = {
-    "admin": {"email": "admin@test.com", "password": "admin123"},
-    "crm_manager": {"email": "crm.manager@test.com", "password": "manager123"},
-    "project_manager": {"email": "pm@test.com", "password": "pm123"}
-}
+ADMIN_EMAIL = "admin@test.com"
+ADMIN_PASSWORD = "admin123"
 
 class BackendTester:
     def __init__(self):
