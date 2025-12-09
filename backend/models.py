@@ -801,7 +801,7 @@ class SiteTransferResponse(SiteTransferBase):
 
 # Vendor Models
 class VendorBase(BaseModel):
-    business_name: str
+    business_name: Optional[str] = None
     contact_person: str
     phone: str
     email: Optional[EmailStr] = None
