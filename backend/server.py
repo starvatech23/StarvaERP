@@ -7118,6 +7118,252 @@ async def send_client_message(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
+# ============= Comprehensive Dashboard API =============
+
+@api_router.get("/dashboard/stats")
+async def get_dashboard_stats(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get comprehensive dashboard statistics based on user role"""
+    current_user = await get_current_user(credentials)
+    user_role = current_user.get("role")
+    user_id = str(current_user.get("_id"))
+    
+    stats = {
+        "user": {
+            "name": current_user.get("full_name"),
+            "role": user_role,
+            "email": current_user.get("email")
+        },
+        "projects": {},
+        "tasks": {},
+        "crm": {},
+        "materials": {},
+        "labor": {},
+        "finance": {},
+        "recent_activity": []
+    }
+    
+    try:
+        # Projects Statistics
+        if user_role in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+            total_projects = await db.projects.count_documents({})
+            active_projects = await db.projects.count_documents({"status": "in_progress"})
+            completed_projects = await db.projects.count_documents({"status": "completed"})
+            planning_projects = await db.projects.count_documents({"status": "planning"})
+            
+            stats["projects"] = {
+                "total": total_projects,
+                "active": active_projects,
+                "completed": completed_projects,
+                "planning": planning_projects,
+                "completion_rate": round((completed_projects / max(total_projects, 1)) * 100, 1)
+            }
+            
+            # Project status distribution
+            status_pipeline = [
+                {"$group": {"_id": "$status", "count": {"$sum": 1}}}
+            ]
+            status_dist = await db.projects.aggregate(status_pipeline).to_list(100)
+            stats["projects"]["status_distribution"] = {item["_id"]: item["count"] for item in status_dist}
+        
+        # Tasks Statistics  
+        if user_role in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.ENGINEER]:
+            # All tasks
+            total_tasks = await db.tasks.count_documents({})
+            pending_tasks = await db.tasks.count_documents({"status": "pending"})
+            in_progress_tasks = await db.tasks.count_documents({"status": "in_progress"})
+            completed_tasks = await db.tasks.count_documents({"status": "completed"})
+            
+            # My tasks
+            my_tasks = await db.tasks.count_documents({"assigned_to": user_id})
+            my_pending = await db.tasks.count_documents({"assigned_to": user_id, "status": {"$in": ["pending", "in_progress"]}})
+            
+            stats["tasks"] = {
+                "total": total_tasks,
+                "pending": pending_tasks,
+                "in_progress": in_progress_tasks,
+                "completed": completed_tasks,
+                "my_tasks": my_tasks,
+                "my_pending": my_pending,
+                "completion_rate": round((completed_tasks / max(total_tasks, 1)) * 100, 1)
+            }
+            
+            # Overdue tasks
+            from datetime import datetime
+            overdue_tasks = await db.tasks.count_documents({
+                "status": {"$ne": "completed"},
+                "end_date": {"$lt": datetime.utcnow()}
+            })
+            stats["tasks"]["overdue"] = overdue_tasks
+        
+        # CRM Statistics
+        if user_role in [UserRole.ADMIN, UserRole.CRM_MANAGER, UserRole.CRM_USER]:
+            if user_role == UserRole.CRM_USER:
+                # CRM Users only see their leads
+                lead_query = {"assigned_to": user_id, "is_deleted": {"$ne": True}}
+            else:
+                lead_query = {"is_deleted": {"$ne": True}}
+            
+            total_leads = await db.leads.count_documents(lead_query)
+            new_leads = await db.leads.count_documents({**lead_query, "status": "new"})
+            qualified_leads = await db.leads.count_documents({**lead_query, "status": "qualified"})
+            won_leads = await db.leads.count_documents({**lead_query, "status": "won"})
+            lost_leads = await db.leads.count_documents({**lead_query, "status": "lost"})
+            
+            stats["crm"] = {
+                "total_leads": total_leads,
+                "new_leads": new_leads,
+                "qualified_leads": qualified_leads,
+                "won_leads": won_leads,
+                "lost_leads": lost_leads,
+                "conversion_rate": round((won_leads / max(total_leads, 1)) * 100, 1)
+            }
+            
+            # Lead status distribution
+            status_pipeline = [
+                {"$match": lead_query},
+                {"$group": {"_id": "$status", "count": {"$sum": 1}}}
+            ]
+            lead_status = await db.leads.aggregate(status_pipeline).to_list(100)
+            stats["crm"]["status_distribution"] = {item["_id"]: item["count"] for item in lead_status}
+            
+            # Lead source distribution
+            source_pipeline = [
+                {"$match": lead_query},
+                {"$group": {"_id": "$source", "count": {"$sum": 1}}}
+            ]
+            lead_sources = await db.leads.aggregate(source_pipeline).to_list(100)
+            stats["crm"]["source_distribution"] = {item["_id"]: item["count"] for item in lead_sources}
+        
+        # Materials & Inventory Statistics
+        if user_role in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+            total_materials = await db.materials.count_documents({})
+            low_stock_materials = await db.materials.count_documents({
+                "$expr": {"$lt": ["$stock_level", "$min_stock_level"]}
+            })
+            out_of_stock = await db.materials.count_documents({"stock_level": 0})
+            
+            stats["materials"] = {
+                "total": total_materials,
+                "low_stock": low_stock_materials,
+                "out_of_stock": out_of_stock,
+                "stock_alert_rate": round((low_stock_materials / max(total_materials, 1)) * 100, 1)
+            }
+            
+            # Total inventory value
+            value_pipeline = [
+                {"$project": {"total_value": {"$multiply": ["$stock_level", "$unit_cost"]}}}
+            ]
+            material_values = await db.materials.aggregate(value_pipeline).to_list(10000)
+            total_inventory_value = sum(m.get("total_value", 0) for m in material_values)
+            stats["materials"]["inventory_value"] = round(total_inventory_value, 2)
+            
+            # Vendors
+            total_vendors = await db.vendors.count_documents({})
+            stats["materials"]["total_vendors"] = total_vendors
+        
+        # Labor Statistics
+        if user_role in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+            total_workers = await db.workers.count_documents({})
+            active_workers = await db.workers.count_documents({"status": "active"})
+            
+            stats["labor"] = {
+                "total_workers": total_workers,
+                "active_workers": active_workers
+            }
+            
+            # Today's attendance
+            from datetime import datetime, timedelta
+            today = datetime.utcnow().date()
+            today_attendance = await db.labor_attendance.count_documents({
+                "attendance_date": {"$gte": datetime.combine(today, datetime.min.time())}
+            })
+            stats["labor"]["today_attendance"] = today_attendance
+            
+            # This month's labor cost
+            month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            month_wages_pipeline = [
+                {"$match": {"attendance_date": {"$gte": month_start}}},
+                {"$group": {"_id": None, "total_wages": {"$sum": "$wages_earned"}}}
+            ]
+            month_wages_result = await db.labor_attendance.aggregate(month_wages_pipeline).to_list(1)
+            month_wages = month_wages_result[0]["total_wages"] if month_wages_result else 0
+            stats["labor"]["month_wages"] = round(month_wages, 2)
+        
+        # Finance Statistics
+        if user_role in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+            # Total expenses this month
+            from datetime import datetime
+            month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            
+            expenses_pipeline = [
+                {"$match": {"expense_date": {"$gte": month_start}}},
+                {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+            ]
+            expenses_result = await db.expenses.aggregate(expenses_pipeline).to_list(1)
+            month_expenses = expenses_result[0]["total"] if expenses_result else 0
+            
+            # Total payments this month
+            payments_pipeline = [
+                {"$match": {"payment_date": {"$gte": month_start}}},
+                {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+            ]
+            payments_result = await db.payments.aggregate(payments_pipeline).to_list(1)
+            month_payments = payments_result[0]["total"] if payments_result else 0
+            
+            # Total invoices
+            total_invoices = await db.invoices.count_documents({})
+            pending_invoices = await db.invoices.count_documents({"status": "pending"})
+            
+            stats["finance"] = {
+                "month_expenses": round(month_expenses, 2),
+                "month_payments": round(month_payments, 2),
+                "total_invoices": total_invoices,
+                "pending_invoices": pending_invoices,
+                "cash_flow": round(month_payments - month_expenses, 2)
+            }
+        
+        # Recent Activity (last 10 items)
+        recent_activities = []
+        
+        # Recent tasks
+        recent_tasks = await db.tasks.find({}).sort("created_at", -1).limit(5).to_list(5)
+        for task in recent_tasks:
+            recent_activities.append({
+                "type": "task",
+                "action": "created",
+                "title": task.get("title", "Unnamed Task"),
+                "timestamp": task.get("created_at"),
+                "icon": "checkmark-circle"
+            })
+        
+        # Recent leads (if CRM access)
+        if user_role in [UserRole.ADMIN, UserRole.CRM_MANAGER, UserRole.CRM_USER]:
+            lead_query = {"is_deleted": {"$ne": True}}
+            if user_role == UserRole.CRM_USER:
+                lead_query["assigned_to"] = user_id
+            
+            recent_leads = await db.leads.find(lead_query).sort("created_at", -1).limit(3).to_list(3)
+            for lead in recent_leads:
+                recent_activities.append({
+                    "type": "lead",
+                    "action": "created",
+                    "title": lead.get("name", "Unnamed Lead"),
+                    "timestamp": lead.get("created_at"),
+                    "icon": "person-add"
+                })
+        
+        # Sort by timestamp
+        recent_activities.sort(key=lambda x: x.get("timestamp") or datetime.min, reverse=True)
+        stats["recent_activity"] = recent_activities[:10]
+        
+        return stats
+    
+    except Exception as e:
+        logging.error(f"Error fetching dashboard stats: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch dashboard statistics")
+
+
 # ============= Data Export/Import Routes (Admin Only) =============
 
 @api_router.get("/admin/export/template/{data_type}")
