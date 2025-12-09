@@ -9,6 +9,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+import Colors from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import QRScanner from '../../components/QRScanner';
@@ -207,7 +208,7 @@ export default function MaterialScanScreen() {
                 <Text
                   style={[
                     styles.actionButtonText,
-                    action === 'add' && { color: Colors.surface },
+                    action === 'add' && { color: 'Colors.surface },
                   ]}
                 >
                   Add Stock
@@ -226,7 +227,7 @@ export default function MaterialScanScreen() {
                 <Text
                   style={[
                     styles.actionButtonText,
-                    action === 'remove' && { color: Colors.surface },
+                    action === 'remove' && { color: 'Colors.surface },
                   ]}
                 >
                   Remove Stock
@@ -295,7 +296,7 @@ export default function MaterialScanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -303,22 +304,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -333,7 +334,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   scanButtonText: {
-    color: Colors.surface,
+    color: 'Colors.surface,
     fontSize: 18,
     fontWeight: '700',
     marginTop: 12,
@@ -346,12 +347,12 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: Colors.border,
+    backgroundColor: 'Colors.border,
   },
   orText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginHorizontal: 16,
   },
   inputGroup: {
@@ -364,14 +365,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 14,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   textArea: {
     minHeight: 80,
@@ -382,19 +383,19 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   searchButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
     borderRadius: 8,
     width: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
   materialCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
   },
   materialHeader: {
     flexDirection: 'row',
@@ -402,16 +403,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   materialName: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   materialCategory: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 2,
   },
   materialDetails: {
@@ -424,12 +425,12 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   detailValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   actionRow: {
     flexDirection: 'row',
@@ -460,16 +461,16 @@ const styles = StyleSheet.create({
   quantityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     borderRadius: 8,
     paddingRight: 12,
   },
   unitLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginLeft: 8,
   },
   submitButton: {
@@ -482,7 +483,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CBD5E0',
   },
   submitButtonText: {
-    color: Colors.surface,
+    color: 'Colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },

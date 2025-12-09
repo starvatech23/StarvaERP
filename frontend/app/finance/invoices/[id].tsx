@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import Colors from '../../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { invoicesAPI } from '../../../services/api';
@@ -239,7 +240,7 @@ export default function InvoiceDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -252,15 +253,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -268,31 +269,31 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   content: {
     flex: 1,
     padding: 16,
   },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 12,
   },
   invoiceHeader: {
@@ -303,11 +304,11 @@ const styles = StyleSheet.create({
   invoiceNumber: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   invoiceDate: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 4,
   },
   statusBadge: {
@@ -318,7 +319,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 11,
     fontWeight: '700',
-    color: Colors.surface,
+    color: 'Colors.surface,
   },
   infoRow: {
     flexDirection: 'row',
@@ -334,7 +335,7 @@ const styles = StyleSheet.create({
   lineItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   lineItemHeader: {
     marginBottom: 4,
@@ -342,7 +343,7 @@ const styles = StyleSheet.create({
   lineItemDescription: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   lineItemDetails: {
     flexDirection: 'row',
@@ -351,12 +352,12 @@ const styles = StyleSheet.create({
   },
   lineItemQty: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   lineItemAmount: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.primary,
+    color: 'Colors.primary,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -365,28 +366,28 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   summaryValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   totalRow: {
     marginTop: 8,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'Colors.border,
   },
   totalLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   totalValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.primary,
+    color: 'Colors.primary,
   },
   balanceRow: {
     marginTop: 8,
@@ -397,7 +398,7 @@ const styles = StyleSheet.create({
   balanceLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   balanceValue: {
     fontSize: 18,
@@ -419,7 +420,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   actionButtonText: {
-    color: Colors.surface,
+    color: 'Colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },

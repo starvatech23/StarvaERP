@@ -13,6 +13,7 @@ import {
   Linking,
   ActivityIndicator,
 } from 'react-native';
+import Colors from '../../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { projectContactsAPI, usersAPI } from '../../../services/api';
@@ -541,7 +542,7 @@ export default function ProjectContactsScreen() {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                              style={[styles.quickActionButton, { backgroundColor: Colors.primary }]}
+                              style={[styles.quickActionButton, { backgroundColor: 'Colors.primary }]}
                               onPress={() => handleEmail(contact.email)}
                             >
                               <Ionicons name="mail" size={16} color="Colors.surface" />
@@ -575,7 +576,7 @@ export default function ProjectContactsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -588,15 +589,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -604,20 +605,20 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   validateContainer: {
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   validateButton: {
     flexDirection: 'row',
@@ -638,17 +639,17 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   formCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
   },
   formTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 16,
   },
   inputGroup: {
@@ -661,14 +662,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 14,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   textArea: {
     minHeight: 80,
@@ -695,9 +696,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
   },
   cancelButtonText: {
     fontSize: 14,
@@ -705,19 +706,19 @@ const styles = StyleSheet.create({
     color: '#4A5568',
   },
   saveButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
   },
   saveButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.surface,
+    color: 'Colors.surface,
   },
   roleSection: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     overflow: 'hidden',
   },
   roleHeader: {
@@ -745,16 +746,16 @@ const styles = StyleSheet.create({
   roleTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   roleCount: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 2,
   },
   contactsList: {
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'Colors.border,
   },
   emptyRole: {
     padding: 16,
@@ -762,13 +763,13 @@ const styles = StyleSheet.create({
   },
   emptyRoleText: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     fontStyle: 'italic',
   },
   contactCard: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.background,
+    borderBottomColor: 'Colors.background,
   },
   contactHeader: {
     flexDirection: 'row',
@@ -784,10 +785,10 @@ const styles = StyleSheet.create({
   contactName: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   primaryBadge: {
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
@@ -795,11 +796,11 @@ const styles = StyleSheet.create({
   primaryText: {
     fontSize: 10,
     fontWeight: '700',
-    color: Colors.surface,
+    color: 'Colors.surface,
   },
   contactType: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   contactActions: {
     flexDirection: 'row',
@@ -819,14 +820,14 @@ const styles = StyleSheet.create({
     color: '#4A5568',
   },
   notesContainer: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     padding: 8,
     borderRadius: 6,
     marginTop: 4,
   },
   notesText: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     fontStyle: 'italic',
   },
   quickActions: {
@@ -846,6 +847,6 @@ const styles = StyleSheet.create({
   quickActionText: {
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.surface,
+    color: 'Colors.surface,
   },
 });

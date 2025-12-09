@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import BackToHome from '../../../components/BackToHome';
@@ -32,7 +33,7 @@ export default function CreateFunnelScreen() {
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [stages, setStages] = useState<Stage[]>([
-    { name: 'New Lead', description: '', color: Colors.primary, order: 1, default_probability: 0.1, expected_duration_days: 3 },
+    { name: 'New Lead', description: '', color: 'Colors.primary, order: 1, default_probability: 0.1, expected_duration_days: 3 },
     { name: 'Contacted', description: '', color: '#8B5CF6', order: 2, default_probability: 0.3, expected_duration_days: 5 },
     { name: 'Qualified', description: '', color: '#10B981', order: 3, default_probability: 0.5, expected_duration_days: 7 },
     { name: 'Proposal', description: '', color: '#F59E0B', order: 4, default_probability: 0.7, expected_duration_days: 10 },
@@ -372,44 +373,44 @@ export default function CreateFunnelScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1, backgroundColor: 'Colors.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
     gap: 12,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary },
-  headerSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary },
+  headerSubtitle: { fontSize: 13, color: 'Colors.textSecondary, marginTop: 2 },
   saveButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   saveButtonDisabled: { backgroundColor: '#CBD5E0' },
-  saveButtonText: { fontSize: 16, fontWeight: '700', color: Colors.surface },
+  saveButtonText: { fontSize: 16, fontWeight: '700', color: 'Colors.surface },
   content: { flex: 1, padding: 16 },
   section: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
   },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
-  sectionSubtitle: { fontSize: 13, color: Colors.textSecondary, marginBottom: 16 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary, marginBottom: 4 },
+  sectionSubtitle: { fontSize: 13, color: 'Colors.textSecondary, marginBottom: 16 },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -419,14 +420,14 @@ const styles = StyleSheet.create({
   inputGroup: { marginBottom: 16 },
   label: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 8 },
   input: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   textArea: { height: 80, textAlignVertical: 'top' },
   categoriesGrid: {
@@ -441,28 +442,28 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     gap: 6,
   },
   categoryChipSelected: { backgroundColor: '#F0FDF4' },
   categoryDot: { width: 10, height: 10, borderRadius: 5 },
   categoryChipText: { fontSize: 14, fontWeight: '600', color: '#4A5568' },
-  categoryChipTextSelected: { color: Colors.textPrimary },
+  categoryChipTextSelected: { color: 'Colors.textPrimary },
   addStageButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stageCard: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
   },
   stageHeader: {
     flexDirection: 'row',
@@ -475,16 +476,16 @@ const styles = StyleSheet.create({
   stageNumber: { fontSize: 14, fontWeight: '700', color: '#4A5568' },
   stageActions: { flexDirection: 'row', gap: 12 },
   stageInputGroup: { marginBottom: 12 },
-  stageLabel: { fontSize: 12, fontWeight: '600', color: Colors.textSecondary, marginBottom: 6 },
+  stageLabel: { fontSize: 12, fontWeight: '600', color: 'Colors.textSecondary, marginBottom: 6 },
   stageInput: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 14,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   colorPicker: {
     flexDirection: 'row',
@@ -499,7 +500,7 @@ const styles = StyleSheet.create({
   },
   colorOptionSelected: {
     borderWidth: 2,
-    borderColor: Colors.surface,
+    borderColor: 'Colors.surface,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,

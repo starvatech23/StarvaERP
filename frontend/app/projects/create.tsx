@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
+import Colors from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -278,7 +279,7 @@ export default function CreateProjectScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -289,22 +290,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   scrollContent: {
     padding: 16,
@@ -315,7 +316,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 16,
   },
   label: {
@@ -325,14 +326,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     marginBottom: 16,
   },
   textArea: {
@@ -344,7 +345,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.secondary,
+    borderColor: 'Colors.secondary,
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
@@ -352,7 +353,7 @@ const styles = StyleSheet.create({
   },
   photoButtonText: {
     fontSize: 12,
-    color: Colors.secondary,
+    color: 'Colors.secondary,
     marginTop: 8,
     fontWeight: '600',
   },
@@ -369,11 +370,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -8,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
   },
   createButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -381,7 +382,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   createButtonText: {
-    color: Colors.surface,
+    color: 'Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },

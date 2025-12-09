@@ -552,7 +552,7 @@ export default function LaborReportsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loader: {
     flex: 1,
@@ -562,9 +562,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     padding: 8,
@@ -572,21 +572,21 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   exportButton: {
     padding: 8,
   },
   controls: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   periodToggle: {
     flexDirection: 'row',
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderRadius: 8,
     padding: 4,
   },
@@ -597,12 +597,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   toggleButtonActive: {
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
   },
   toggleText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   toggleTextActive: {
     color: '#FFFFFF',
@@ -618,21 +618,21 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   pickerContainer: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   scrollContent: {
     padding: 16,
   },
   statsCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -645,7 +645,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
   statBox: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -665,13 +665,13 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginTop: 8,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textAlign: 'center',
   },
   miniStats: {
@@ -684,14 +684,14 @@ const styles = StyleSheet.create({
   },
   miniStatLabel: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   miniStatValue: {
     fontSize: 16,
     fontWeight: '700',
   },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -709,7 +709,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textAlign: 'center',
     paddingVertical: 20,
   },
@@ -718,7 +718,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   listItemLeft: {
     flex: 1,
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
   listItemTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 4,
   },
   listItemMeta: {
@@ -735,7 +735,7 @@ const styles = StyleSheet.create({
   },
   listItemMetaText: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   listItemRight: {
     alignItems: 'flex-end',
@@ -748,10 +748,10 @@ const styles = StyleSheet.create({
   },
   listItemSubtext: {
     fontSize: 11,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   workerItem: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
@@ -768,12 +768,12 @@ const styles = StyleSheet.create({
   workerName: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 2,
   },
   workerSkill: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textTransform: 'capitalize',
   },
   workerWage: {
@@ -798,7 +798,7 @@ const styles = StyleSheet.create({
   },
   workerStatText: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   workerItemFooter: {
     flexDirection: 'row',
@@ -807,7 +807,7 @@ const styles = StyleSheet.create({
   },
   workerRateText: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   payButton: {
     backgroundColor: '#10B981',
@@ -835,7 +835,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   comingSoonButton: {
-    backgroundColor: Colors.border,
+    backgroundColor: 'Colors.border,
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -843,7 +843,7 @@ const styles = StyleSheet.create({
   comingSoonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   chartToggle: {
     marginLeft: 'auto',
@@ -869,11 +869,11 @@ const styles = StyleSheet.create({
   },
   attendanceStatLabel: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   attendanceStatValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
 });

@@ -399,19 +399,19 @@ export default function WeeklyAttendanceScreen() {
                   <View style={styles.bulkRowButtons}>
                     <TouchableOpacity
                       onPress={() => markEntireRow(worker.id, 'present')}
-                      style={[styles.bulkRowButton, { backgroundColor: Colors.success }]}
+                      style={[styles.bulkRowButton, { backgroundColor: 'Colors.success }]}
                     >
                       <Text style={styles.bulkRowButtonText}>P All</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => markEntireRow(worker.id, 'overtime')}
-                      style={[styles.bulkRowButton, { backgroundColor: Colors.warning }]}
+                      style={[styles.bulkRowButton, { backgroundColor: 'Colors.warning }]}
                     >
                       <Text style={styles.bulkRowButtonText}>OT</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => markEntireRow(worker.id, 'absent')}
-                      style={[styles.bulkRowButton, { backgroundColor: Colors.error }]}
+                      style={[styles.bulkRowButton, { backgroundColor: 'Colors.error }]}
                     >
                       <Text style={styles.bulkRowButtonText}>A</Text>
                     </TouchableOpacity>
@@ -471,15 +471,15 @@ export default function WeeklyAttendanceScreen() {
       <View style={styles.footer}>
         <View style={styles.legend}>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: Colors.success }]} />
+            <View style={[styles.legendDot, { backgroundColor: 'Colors.success }]} />
             <Text style={styles.legendText}>Present</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: Colors.warning }]} />
+            <View style={[styles.legendDot, { backgroundColor: 'Colors.warning }]} />
             <Text style={styles.legendText}>Overtime</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: Colors.error }]} />
+            <View style={[styles.legendDot, { backgroundColor: 'Colors.error }]} />
             <Text style={styles.legendText}>Absent</Text>
           </View>
         </View>
@@ -533,7 +533,7 @@ export default function WeeklyAttendanceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loader: {
     flex: 1,
@@ -544,9 +544,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     padding: 8,
@@ -554,16 +554,16 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   placeholder: {
     width: 40,
   },
   controlsSection: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   weekNav: {
     flexDirection: 'row',
@@ -577,17 +577,17 @@ const styles = StyleSheet.create({
   weekText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   pickerContainer: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderRadius: 8,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
   },
   picker: {
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   unsavedBanner: {
     flexDirection: 'row',
@@ -595,29 +595,29 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 12,
     padding: 8,
-    backgroundColor: Colors.warningLight,
+    backgroundColor: 'Colors.warningLight,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: Colors.warning,
+    borderColor: 'Colors.warning,
   },
   unsavedText: {
     fontSize: 13,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   gridContainer: {
     flex: 1,
   },
   headerRow: {
     flexDirection: 'row',
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
     borderBottomWidth: 2,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   nameColumn: {
     width: 140,
     padding: 12,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRightWidth: 1,
     borderRightColor: Colors.border,
     justifyContent: 'center',
@@ -632,18 +632,18 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   dayText: {
     fontSize: 12,
     fontWeight: '700',
-    color: Colors.white,
+    color: 'Colors.white,
     marginBottom: 2,
   },
   dateNumText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.white,
+    color: 'Colors.white,
     marginBottom: 4,
   },
   bulkDayButtons: {
@@ -661,7 +661,7 @@ const styles = StyleSheet.create({
   miniButtonText: {
     fontSize: 8,
     fontWeight: '700',
-    color: Colors.white,
+    color: 'Colors.white,
   },
   workersScroll: {
     maxHeight: 500,
@@ -669,21 +669,21 @@ const styles = StyleSheet.create({
   workerRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    backgroundColor: Colors.surface,
+    borderBottomColor: 'Colors.border,
+    backgroundColor: 'Colors.surface,
   },
   evenRow: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   workerName: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 2,
   },
   workerSkill: {
     fontSize: 10,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textTransform: 'capitalize',
     marginBottom: 6,
   },
@@ -700,7 +700,7 @@ const styles = StyleSheet.create({
   bulkRowButtonText: {
     fontSize: 8,
     fontWeight: '700',
-    color: Colors.white,
+    color: 'Colors.white,
   },
   dateCell: {
     width: 80,
@@ -716,16 +716,16 @@ const styles = StyleSheet.create({
   cellText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textTertiary,
+    color: 'Colors.textTertiary,
   },
   cellTextMarked: {
-    color: Colors.white,
+    color: 'Colors.white,
   },
   footer: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'Colors.border,
   },
   legend: {
     flexDirection: 'row',
@@ -745,10 +745,10 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   saveButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     padding: 16,
     borderRadius: 12,
     flexDirection: 'row',
@@ -769,11 +769,11 @@ const styles = StyleSheet.create({
   },
   saveButtonDisabled: {
     opacity: 0.5,
-    backgroundColor: Colors.disabled,
+    backgroundColor: 'Colors.disabled,
   },
   saveButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.white,
+    color: 'Colors.white,
   },
 });

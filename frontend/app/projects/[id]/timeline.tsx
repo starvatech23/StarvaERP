@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
+import Colors from '../../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { ganttAPI } from '../../../services/api';
@@ -260,7 +261,7 @@ export default function ProjectTimelineScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -273,22 +274,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -307,14 +308,14 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 8,
     textAlign: 'center',
   },
   legendContainer: {
     flexDirection: 'row',
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     marginBottom: 8,
     justifyContent: 'space-around',
   },
@@ -333,13 +334,13 @@ const styles = StyleSheet.create({
     color: '#4A5568',
   },
   ganttContainer: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     paddingBottom: 16,
   },
   dateHeader: {
     flexDirection: 'row',
     borderBottomWidth: 2,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
     marginLeft: 150,
   },
   dateCell: {
@@ -359,14 +360,14 @@ const styles = StyleSheet.create({
   taskRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.background,
+    borderBottomColor: 'Colors.background,
     position: 'relative',
   },
   taskNameContainer: {
     width: 150,
     padding: 8,
     justifyContent: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     position: 'absolute',
     left: 0,
     top: 0,
@@ -377,12 +378,12 @@ const styles = StyleSheet.create({
   },
   taskName: {
     fontSize: 12,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     fontWeight: '600',
   },
   taskProgress: {
     fontSize: 10,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 2,
   },
   gridCell: {
@@ -414,7 +415,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   milestoneDiamond: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 4,
     borderRadius: 4,
     borderWidth: 2,
@@ -425,20 +426,20 @@ const styles = StyleSheet.create({
     color: '#8B5CF6',
     fontWeight: '600',
     marginTop: 4,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     paddingHorizontal: 4,
     paddingVertical: 2,
     borderRadius: 2,
   },
   summarySection: {
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     marginTop: 16,
   },
   summaryTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 12,
   },
   summaryItem: {
@@ -446,7 +447,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.background,
+    borderBottomColor: 'Colors.background,
   },
   statusDot: {
     width: 10,
@@ -460,11 +461,11 @@ const styles = StyleSheet.create({
   summaryTaskName: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   summaryDates: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 2,
   },
   summaryAssigned: {

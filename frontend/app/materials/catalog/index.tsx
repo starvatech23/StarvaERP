@@ -10,6 +10,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
+import Colors from '../../../constants/Colors';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { materialsAPI } from '../../../services/api';
@@ -188,7 +189,7 @@ export default function MaterialCatalogScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -201,22 +202,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   addButton: {
     width: 40,
@@ -229,17 +230,17 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   searchInput: {
     flex: 1,
     marginLeft: 8,
     fontSize: 16,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 8,
   },
   emptyButton: {
@@ -270,17 +271,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   emptyButtonText: {
-    color: Colors.surface,
+    color: 'Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
   materialCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
   },
   materialHeader: {
     flexDirection: 'row',
@@ -305,7 +306,7 @@ const styles = StyleSheet.create({
   materialName: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   materialDetails: {
     gap: 6,
@@ -316,16 +317,16 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   detailValue: {
     fontSize: 13,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   materialDescription: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 4,
   },
 });

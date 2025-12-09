@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   picker: {
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   scrollContent: {
     padding: 16,

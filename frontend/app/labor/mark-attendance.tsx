@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { workersAPI, laborAttendanceAPI, projectsAPI } from '../../services/api';
@@ -442,7 +443,7 @@ export default function MarkAttendanceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loader: {
     flex: 1,
@@ -453,9 +454,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     padding: 8,
@@ -463,7 +464,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   placeholder: {
     width: 40,
@@ -481,14 +482,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 12,
   },
   dateSelector: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 12,
   },
@@ -503,15 +504,15 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   pickerContainer: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     overflow: 'hidden',
   },
   picker: {
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   bulkActions: {
     marginBottom: 16,
@@ -531,7 +532,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   workerCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
@@ -556,12 +557,12 @@ const styles = StyleSheet.create({
   workerName: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 2,
   },
   workerSkill: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textTransform: 'capitalize',
   },
   statusBadge: {
@@ -574,7 +575,7 @@ const styles = StyleSheet.create({
   statusBadgeText: {
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.surface,
+    color: 'Colors.surface,
   },
   actionButtons: {
     flexDirection: 'row',
@@ -586,7 +587,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
   },
   actionButtonActive: {
     backgroundColor: '#10B981',
@@ -597,10 +598,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   actionButtonTextActive: {
-    color: Colors.surface,
+    color: 'Colors.surface,
   },
   summary: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginTop: 8,
@@ -608,7 +609,7 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 12,
   },
   summaryRow: {
@@ -620,7 +621,7 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginBottom: 4,
   },
   summaryValue: {
@@ -629,7 +630,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textAlign: 'center',
     paddingVertical: 20,
   },
@@ -639,12 +640,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'Colors.border,
   },
   saveButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     padding: 16,
     borderRadius: 12,
     flexDirection: 'row',
@@ -658,6 +659,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.surface,
+    color: 'Colors.surface,
   },
 });

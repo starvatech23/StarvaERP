@@ -14,7 +14,7 @@ export default function AdminPanelScreen() {
       title: 'Custom Fields',
       description: 'Manage custom lead fields',
       route: '/crm/admin/custom-fields' as any,
-      color: Colors.primary,
+      color: 'Colors.primary,
     },
     {
       icon: 'stats-chart',
@@ -89,15 +89,15 @@ export default function AdminPanelScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1, backgroundColor: 'Colors.background },
   header: {
     padding: 24,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
-  headerTitle: { fontSize: 28, fontWeight: '700', color: Colors.textPrimary },
-  headerSubtitle: { fontSize: 14, color: Colors.textSecondary, marginTop: 4 },
+  headerTitle: { fontSize: 28, fontWeight: '700', color: 'Colors.textPrimary },
+  headerSubtitle: { fontSize: 14, color: 'Colors.textSecondary, marginTop: 4 },
   content: { flex: 1, padding: 16 },
   infoCard: {
     flexDirection: 'row',
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 20,
     borderRadius: 12,
     marginBottom: 12,
@@ -130,6 +130,6 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   optionContent: { flex: 1 },
-  optionTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  optionDescription: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  optionTitle: { fontSize: 16, fontWeight: '700', color: 'Colors.textPrimary },
+  optionDescription: { fontSize: 13, color: 'Colors.textSecondary, marginTop: 2 },
 });

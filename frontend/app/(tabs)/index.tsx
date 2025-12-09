@@ -91,24 +91,24 @@ export default function DashboardScreen() {
     
     if (user?.role === 'admin' || user?.role === 'project_manager') {
       actions.push(
-        { icon: 'add-circle', label: 'New Project', color: Colors.primary, route: '/projects/create' },
-        { icon: 'cube', label: 'Materials', color: Colors.secondary, route: '/(tabs)/materials' },
-        { icon: 'wallet', label: 'Finance', color: Colors.success, route: '/finance' },
-        { icon: 'people', label: 'Labor', color: Colors.info, route: '/labor' }
+        { icon: 'add-circle', label: 'New Project', color: 'Colors.primary, route: '/projects/create' },
+        { icon: 'cube', label: 'Materials', color: 'Colors.secondary, route: '/(tabs)/materials' },
+        { icon: 'wallet', label: 'Finance', color: 'Colors.success, route: '/finance' },
+        { icon: 'people', label: 'Labor', color: 'Colors.info, route: '/labor' }
       );
     }
     
     if (user?.role === 'admin' || user?.role === 'crm_manager' || user?.role === 'crm_user') {
       actions.push(
-        { icon: 'person-add', label: 'New Lead', color: Colors.secondary, route: '/crm/leads/create' },
-        { icon: 'briefcase', label: 'CRM', color: Colors.primary, route: '/(tabs)/crm' }
+        { icon: 'person-add', label: 'New Lead', color: 'Colors.secondary, route: '/crm/leads/create' },
+        { icon: 'briefcase', label: 'CRM', color: 'Colors.primary, route: '/(tabs)/crm' }
       );
     }
     
     if (user?.role === 'admin') {
       actions.push(
-        { icon: 'shield-checkmark', label: 'Admin', color: Colors.error, route: '/admin' },
-        { icon: 'download', label: 'Export', color: Colors.info, route: '/admin/data-management' }
+        { icon: 'shield-checkmark', label: 'Admin', color: 'Colors.error, route: '/admin' },
+        { icon: 'download', label: 'Export', color: 'Colors.info, route: '/admin/data-management' }
       );
     }
     
@@ -151,17 +151,17 @@ export default function DashboardScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Project Overview</Text>
             <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: Colors.primary + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: 'Colors.primary + '20' }]}>
                 <Ionicons name="business" size={28} color={Colors.primary} />
                 <Text style={styles.statValue}>{stats.projects.total}</Text>
                 <Text style={styles.statLabel}>Total Projects</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.secondary + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: 'Colors.secondary + '20' }]}>
                 <Ionicons name="flash" size={28} color={Colors.secondary} />
                 <Text style={styles.statValue}>{stats.projects.active}</Text>
                 <Text style={styles.statLabel}>Active</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.success + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: 'Colors.success + '20' }]}>
                 <Ionicons name="checkmark-circle" size={28} color={Colors.success} />
                 <Text style={styles.statValue}>{stats.projects.completed}</Text>
                 <Text style={styles.statLabel}>Completed</Text>
@@ -200,17 +200,17 @@ export default function DashboardScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Tasks Overview</Text>
             <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: 'Colors.info + '20' }]}>
                 <Ionicons name="list" size={28} color={Colors.info} />
                 <Text style={styles.statValue}>{stats.tasks.total}</Text>
                 <Text style={styles.statLabel}>Total Tasks</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.warning + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: 'Colors.warning + '20' }]}>
                 <Ionicons name="time" size={28} color={Colors.warning} />
                 <Text style={styles.statValue}>{stats.tasks.my_pending}</Text>
                 <Text style={styles.statLabel}>My Pending</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.error + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: 'Colors.error + '20' }]}>
                 <Ionicons name="alert-circle" size={28} color={Colors.error} />
                 <Text style={styles.statValue}>{stats.tasks.overdue || 0}</Text>
                 <Text style={styles.statLabel}>Overdue</Text>
@@ -233,17 +233,17 @@ export default function DashboardScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>CRM Performance</Text>
             <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: Colors.secondary + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: 'Colors.secondary + '20' }]}>
                 <Ionicons name="people" size={28} color={Colors.secondary} />
                 <Text style={styles.statValue}>{stats.crm.total_leads}</Text>
                 <Text style={styles.statLabel}>Total Leads</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.success + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: 'Colors.success + '20' }]}>
                 <Ionicons name="trophy" size={28} color={Colors.success} />
                 <Text style={styles.statValue}>{stats.crm.won_leads}</Text>
                 <Text style={styles.statLabel}>Won</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: 'Colors.info + '20' }]}>
                 <Ionicons name="star" size={28} color={Colors.info} />
                 <Text style={styles.statValue}>{stats.crm.conversion_rate}%</Text>
                 <Text style={styles.statLabel}>Conversion</Text>
@@ -266,7 +266,7 @@ export default function DashboardScreen() {
                   yAxisLabel=""
                   yAxisSuffix=""
                   chartConfig={{
-                    backgroundColor: Colors.surface,
+                    backgroundColor: 'Colors.surface,
                     backgroundGradientFrom: Colors.surface,
                     backgroundGradientTo: Colors.surface,
                     decimalPlaces: 0,
@@ -295,12 +295,12 @@ export default function DashboardScreen() {
             <View style={styles.statsRow}>
               {stats?.materials && (
                 <>
-                  <View style={[styles.statCard, { backgroundColor: Colors.warning + '20' }]}>
+                  <View style={[styles.statCard, { backgroundColor: 'Colors.warning + '20' }]}>
                     <Ionicons name="cube" size={28} color={Colors.warning} />
                     <Text style={styles.statValue}>{stats.materials.low_stock}</Text>
                     <Text style={styles.statLabel}>Low Stock</Text>
                   </View>
-                  <View style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}>
+                  <View style={[styles.statCard, { backgroundColor: 'Colors.info + '20' }]}>
                     <Ionicons name="pricetag" size={28} color={Colors.info} />
                     <Text style={styles.statValue}>₹{(stats.materials.inventory_value / 100000).toFixed(1)}L</Text>
                     <Text style={styles.statLabel}>Inventory</Text>
@@ -344,7 +344,7 @@ export default function DashboardScreen() {
             <View style={styles.activityList}>
               {stats.recent_activity.slice(0, 5).map((activity: any, index: number) => (
                 <View key={index} style={styles.activityItem}>
-                  <View style={[styles.activityIcon, { backgroundColor: Colors.primary + '20' }]}>
+                  <View style={[styles.activityIcon, { backgroundColor: 'Colors.primary + '20' }]}>
                     <Ionicons name={activity.icon} size={20} color={Colors.primary} />
                   </View>
                   <View style={styles.activityContent}>
@@ -367,7 +367,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   scrollContent: {
     padding: 16,
@@ -385,12 +385,12 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginTop: 4,
   },
   roleBadge: {
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 16,
   },
   statsRow: {
@@ -425,17 +425,17 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginTop: 8,
   },
   statLabel: {
     fontSize: 11,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
   },
   progressCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     borderRadius: 12,
   },
@@ -447,26 +447,26 @@ const styles = StyleSheet.create({
   progressLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   progressPercent: {
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: 'Colors.secondary,
   },
   progressBar: {
     height: 8,
-    backgroundColor: Colors.border,
+    backgroundColor: 'Colors.border,
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     borderRadius: 4,
   },
   chartCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
   chartTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 16,
     alignSelf: 'flex-start',
   },
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: (width - 56) / 3,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
   actionLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     textAlign: 'center',
   },
   activityList: {
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 12,
     borderRadius: 12,
     gap: 12,
@@ -528,16 +528,16 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 2,
   },
   activitySubtitle: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textTransform: 'capitalize',
   },
   activityTime: {
     fontSize: 11,
-    color: Colors.textTertiary,
+    color: 'Colors.textTertiary,
   },
 });

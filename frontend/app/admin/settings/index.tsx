@@ -11,6 +11,7 @@ import {
   Alert,
   Switch,
 } from 'react-native';
+import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { systemSettingsAPI } from '../../../services/api';
@@ -233,7 +234,7 @@ export default function SystemSettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -246,28 +247,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   content: {
     flex: 1,
   },
   section: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     marginBottom: 12,
   },
@@ -291,11 +292,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 2,
   },
   settingRow: {
@@ -307,24 +308,24 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   settingHelper: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 4,
   },
   numberInput: {
     width: 80,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     textAlign: 'center',
   },
   switchRow: {
@@ -360,12 +361,12 @@ const styles = StyleSheet.create({
   },
   infoRowLabel: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   infoRowValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   statusBadge: {
     flexDirection: 'row',
@@ -391,7 +392,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     marginHorizontal: 16,
     marginVertical: 24,
     paddingVertical: 16,
@@ -401,6 +402,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.surface,
+    color: 'Colors.surface,
   },
 });

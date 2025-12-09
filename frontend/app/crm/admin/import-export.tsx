@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
+import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
@@ -201,7 +202,7 @@ export default function ImportExportScreen() {
               disabled={importing}
             >
               <View style={styles.optionLeft}>
-                <View style={[styles.optionIcon, { backgroundColor: 'Colors.primary20' }]}>
+                <View style={[styles.optionIcon, { backgroundColor: Colors.primary20 }]}>
                   <Ionicons name="document-text" size={24} color="Colors.primary" />
                 </View>
                 <View style={{ flex: 1 }}>
@@ -334,15 +335,15 @@ export default function ImportExportScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1, backgroundColor: 'Colors.background },
   header: {
     padding: 24,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
-  headerTitle: { fontSize: 28, fontWeight: '700', color: Colors.textPrimary },
-  headerSubtitle: { fontSize: 14, color: Colors.textSecondary, marginTop: 4 },
+  headerTitle: { fontSize: 28, fontWeight: '700', color: 'Colors.textPrimary },
+  headerSubtitle: { fontSize: 14, color: 'Colors.textSecondary, marginTop: 4 },
   content: { flex: 1, padding: 16 },
   section: { marginBottom: 24 },
   sectionHeader: {
@@ -358,14 +359,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 16,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
-  sectionSubtitle: { fontSize: 14, color: Colors.textSecondary, marginTop: 2 },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary },
+  sectionSubtitle: { fontSize: 14, color: 'Colors.textSecondary, marginTop: 2 },
   optionsContainer: { gap: 12 },
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
@@ -383,8 +384,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  optionTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  optionDescription: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  optionTitle: { fontSize: 16, fontWeight: '700', color: 'Colors.textPrimary },
+  optionDescription: { fontSize: 13, color: 'Colors.textSecondary, marginTop: 2 },
   comingSoonBadge: {
     backgroundColor: '#FEF3C7',
     paddingHorizontal: 10,
@@ -395,20 +396,20 @@ const styles = StyleSheet.create({
   historyTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 12,
   },
   historyCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 12,
     borderRadius: 8,
     marginBottom: 8,
     gap: 12,
   },
-  historyText: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
-  historyDate: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
+  historyText: { fontSize: 14, fontWeight: '600', color: 'Colors.textPrimary },
+  historyDate: { fontSize: 12, color: 'Colors.textSecondary, marginTop: 2 },
   helpCard: {
     flexDirection: 'row',
     backgroundColor: '#EBF8FF',

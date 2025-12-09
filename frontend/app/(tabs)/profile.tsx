@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'expo-router';
@@ -124,7 +125,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   scrollContent: {
     padding: 16,
@@ -132,11 +133,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 24,
   },
   profileCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 24,
     borderRadius: 16,
     alignItems: 'center',
@@ -159,12 +160,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 4,
   },
   role: {
     fontSize: 14,
-    color: Colors.secondary,
+    color: 'Colors.secondary,
     fontWeight: '600',
     marginBottom: 16,
   },
@@ -179,10 +180,10 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   menuContainer: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 24,
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.background,
+    borderBottomColor: 'Colors.background,
   },
   menuLeft: {
     flexDirection: 'row',
@@ -207,7 +208,7 @@ const styles = StyleSheet.create({
   },
   menuLabel: {
     fontSize: 16,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   logoutButton: {
     flexDirection: 'row',

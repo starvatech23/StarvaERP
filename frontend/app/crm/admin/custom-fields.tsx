@@ -12,6 +12,7 @@ import {
   Switch,
   Modal,
 } from 'react-native';
+import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
@@ -203,11 +204,11 @@ export default function CustomFieldsScreen() {
 
               <View style={styles.fieldActions}>
                 <TouchableOpacity
-                  style={[styles.actionButton, { backgroundColor: 'Colors.primary20' }]}
+                  style={[styles.actionButton, { backgroundColor: Colors.primary20 }]}
                   onPress={() => handleEdit(field)}
                 >
                   <Ionicons name="pencil" size={16} color="Colors.primary" />
-                  <Text style={[styles.actionButtonText, { color: Colors.primary }]}>Edit</Text>
+                  <Text style={[styles.actionButtonText, { color: 'Colors.primary }]}>Edit</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: '#EF444420' }]}
@@ -307,36 +308,36 @@ export default function CustomFieldsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1, backgroundColor: 'Colors.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary },
-  headerSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary },
+  headerSubtitle: { fontSize: 13, color: 'Colors.textSecondary, marginTop: 2 },
   addButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   content: { flex: 1, padding: 16 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   emptyState: { alignItems: 'center', paddingVertical: 60 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginTop: 16 },
-  emptyText: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
-  createButton: { backgroundColor: Colors.secondary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, marginTop: 24 },
-  createButtonText: { color: Colors.surface, fontSize: 16, fontWeight: '600' },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary, marginTop: 16 },
+  emptyText: { fontSize: 14, color: 'Colors.textSecondary, textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
+  createButton: { backgroundColor: 'Colors.secondary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, marginTop: 24 },
+  createButtonText: { color: 'Colors.surface, fontSize: 16, fontWeight: '600' },
   fieldCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -347,14 +348,14 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   fieldHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
-  fieldLabel: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  fieldName: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  fieldLabel: { fontSize: 16, fontWeight: '700', color: 'Colors.textPrimary },
+  fieldName: { fontSize: 13, color: 'Colors.textSecondary, marginTop: 2 },
   fieldTypeBadge: { backgroundColor: '#EBF8FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   fieldTypeText: { fontSize: 11, fontWeight: '600', color: '#2C5282' },
   requiredBadge: { alignSelf: 'flex-start', backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, marginBottom: 8 },
   requiredText: { fontSize: 11, fontWeight: '600', color: '#92400E' },
   optionsContainer: { marginTop: 8 },
-  optionsLabel: { fontSize: 12, fontWeight: '600', color: Colors.textSecondary, marginBottom: 4 },
+  optionsLabel: { fontSize: 12, fontWeight: '600', color: 'Colors.textSecondary, marginBottom: 4 },
   optionsText: { fontSize: 13, color: '#4A5568' },
   fieldActions: { flexDirection: 'row', gap: 8, marginTop: 12 },
   actionButton: {
@@ -372,7 +373,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '90%',
@@ -383,25 +384,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary },
   modalBody: { padding: 20, maxHeight: 400 },
   label: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 8, marginTop: 12 },
   input: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   pickerContainer: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     borderRadius: 8,
     overflow: 'hidden',
   },
@@ -416,11 +417,11 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'Colors.border,
   },
   modalButton: { flex: 1, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
-  cancelButton: { backgroundColor: Colors.background },
-  cancelButtonText: { fontSize: 16, fontWeight: '600', color: Colors.textSecondary },
-  saveButton: { backgroundColor: Colors.secondary },
-  saveButtonText: { fontSize: 16, fontWeight: '600', color: Colors.surface },
+  cancelButton: { backgroundColor: 'Colors.background },
+  cancelButtonText: { fontSize: 16, fontWeight: '600', color: 'Colors.textSecondary },
+  saveButton: { backgroundColor: 'Colors.secondary },
+  saveButtonText: { fontSize: 16, fontWeight: '600', color: 'Colors.surface },
 });

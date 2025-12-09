@@ -10,6 +10,7 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
+import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -396,21 +397,21 @@ export default function MaterialsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   headerButtons: {
     flexDirection: 'row',
@@ -428,15 +429,15 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   tabs: {
     flexDirection: 'row',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   tab: {
     flex: 1,
@@ -449,15 +450,15 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: Colors.secondary,
+    borderBottomColor: 'Colors.secondary,
   },
   tabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   activeTabText: {
-    color: Colors.secondary,
+    color: 'Colors.secondary,
   },
   content: {
     flex: 1,
@@ -474,18 +475,18 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 32,
   },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -513,12 +514,12 @@ const styles = StyleSheet.create({
   vendorName: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 4,
   },
   vendorContact: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   gstBadge: {
     backgroundColor: '#D1FAE5',
@@ -536,7 +537,7 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'Colors.border,
   },
   infoItem: {
     flexDirection: 'row',
@@ -545,7 +546,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   materialInfo: {
     flexDirection: 'row',
@@ -566,15 +567,15 @@ const styles = StyleSheet.create({
   materialName: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 4,
   },
   materialCategory: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   unitBadge: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
@@ -582,15 +583,15 @@ const styles = StyleSheet.create({
   unitText: {
     fontSize: 12,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   materialDescription: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     lineHeight: 18,
   },
   inventoryCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -611,12 +612,12 @@ const styles = StyleSheet.create({
   inventoryMaterial: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 4,
   },
   inventorySite: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   stockBadge: {
     paddingHorizontal: 12,
@@ -634,7 +635,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'Colors.border,
   },
   lowStockText: {
     fontSize: 12,
@@ -650,14 +651,14 @@ const styles = StyleSheet.create({
   reportsTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginTop: 24,
     marginBottom: 12,
     textAlign: 'center',
   },
   reportsText: {
     fontSize: 16,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,
@@ -665,7 +666,7 @@ const styles = StyleSheet.create({
   viewReportsButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -674,7 +675,7 @@ const styles = StyleSheet.create({
   viewReportsText: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.surface,
+    color: 'Colors.surface,
   },
   duesSection: {
     backgroundColor: '#FEF2F2',

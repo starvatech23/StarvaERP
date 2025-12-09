@@ -11,6 +11,7 @@ import {
   Modal,
   Image,
 } from 'react-native';
+import Colors from '../../../../constants/Colors';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { documentsAPI } from '../../../../services/api';
@@ -257,7 +258,7 @@ export default function DocumentsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -270,28 +271,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -300,9 +301,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   filterLabel: {
     fontSize: 14,
@@ -328,29 +329,29 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 8,
   },
   emptyButton: {
     marginTop: 24,
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   emptyButtonText: {
-    color: Colors.surface,
+    color: 'Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
   documentCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     alignItems: 'center',
   },
   documentIcon: {
@@ -367,12 +368,12 @@ const styles = StyleSheet.create({
   documentName: {
     fontSize: 15,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 4,
   },
   documentMeta: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginBottom: 2,
   },
   documentUploader: {
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 10,
-    color: Colors.primary,
+    color: 'Colors.primary,
     fontWeight: '600',
   },
   deleteIcon: {
@@ -405,7 +406,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 16,
     width: '90%',
     maxHeight: '80%',
@@ -416,12 +417,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     flex: 1,
     marginRight: 12,
   },
@@ -448,13 +449,13 @@ const styles = StyleSheet.create({
   },
   previewSubtext: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     marginTop: 4,
   },
   descriptionSection: {
     marginTop: 16,
     padding: 12,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderRadius: 8,
   },
   descriptionLabel: {
@@ -465,7 +466,7 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: 14,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     lineHeight: 20,
   },
 });

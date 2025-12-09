@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import Colors from '../../constants/Colors';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -166,7 +167,7 @@ export default function ClientPortalIndexScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   content: {
     flex: 1,
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginTop: 16,
     marginBottom: 8,
   },
@@ -196,7 +197,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 8,
   },
   input: {
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     marginBottom: 8,
   },
   inputHint: {
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   accessButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#9CA3AF',
   },
   accessButtonText: {
-    color: Colors.surface,
+    color: 'Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -243,7 +244,7 @@ const styles = StyleSheet.create({
   demoTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 8,
   },
   demoText: {
@@ -252,19 +253,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   demoButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
     alignSelf: 'flex-start',
   },
   demoButtonText: {
-    color: Colors.surface,
+    color: 'Colors.surface,
     fontSize: 12,
     fontFamily: 'monospace',
   },
   featuresSection: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -276,7 +277,7 @@ const styles = StyleSheet.create({
   featuresTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 16,
   },
   feature: {

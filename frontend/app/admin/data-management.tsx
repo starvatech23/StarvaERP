@@ -292,7 +292,7 @@ export default function DataManagementScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -304,9 +304,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     padding: 8,
@@ -314,29 +314,29 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   scrollContent: {
     padding: 16,
   },
   infoCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
     gap: 12,
     borderWidth: 1,
-    borderColor: Colors.secondary,
+    borderColor: 'Colors.secondary,
   },
   infoText: {
     flex: 1,
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     lineHeight: 20,
   },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -358,12 +358,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 4,
   },
   cardDescription: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   cardStats: {
     alignItems: 'flex-end',
@@ -371,21 +371,21 @@ const styles = StyleSheet.create({
   cardCount: {
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: 'Colors.secondary,
   },
   cardLabel: {
     fontSize: 11,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   cardFooter: {
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'Colors.border,
     marginBottom: 16,
   },
   fieldsText: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   actionsContainer: {
     flexDirection: 'row',
@@ -402,15 +402,15 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   templateButton: {
-    backgroundColor: Colors.border,
+    backgroundColor: 'Colors.border,
   },
   templateButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   exportButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: 'Colors.primary,
   },
   exportButtonText: {
     fontSize: 13,
@@ -418,11 +418,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   importButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
   },
   importButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
 });

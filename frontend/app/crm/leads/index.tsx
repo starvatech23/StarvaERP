@@ -11,6 +11,7 @@ import {
   Alert,
   Linking,
 } from 'react-native';
+import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { crmLeadsAPI, crmCategoriesAPI } from '../../../services/api';
@@ -226,16 +227,16 @@ const getPriorityColor = (priority: string) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1, backgroundColor: 'Colors.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -250,32 +251,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { fontSize: 28, fontWeight: '700', color: Colors.textPrimary },
+  headerTitle: { fontSize: 28, fontWeight: '700', color: 'Colors.textPrimary },
   addButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollContent: { padding: 16 },
   emptyState: { alignItems: 'center', paddingVertical: 60 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginTop: 16 },
-  emptyText: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
-  createButton: { backgroundColor: Colors.secondary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, marginTop: 24 },
-  createButtonText: { color: Colors.surface, fontSize: 16, fontWeight: '600' },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary, marginTop: 16 },
+  emptyText: { fontSize: 14, color: 'Colors.textSecondary, textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
+  createButton: { backgroundColor: 'Colors.secondary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, marginTop: 24 },
+  createButtonText: { color: 'Colors.surface, fontSize: 16, fontWeight: '600' },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   leadsList: { gap: 16 },
-  leadCard: { backgroundColor: Colors.surface, padding: 16, borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  leadCard: { backgroundColor: 'Colors.surface, padding: 16, borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
   leadHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  leadName: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary, flex: 1 },
+  leadName: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary, flex: 1 },
   categoryBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   categoryDot: { width: 8, height: 8, borderRadius: 4, marginRight: 4 },
   categoryText: { fontSize: 11, fontWeight: '600' },
   leadInfo: { gap: 8, marginBottom: 12 },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  infoText: { fontSize: 14, color: Colors.textSecondary, flex: 1 },
+  infoText: { fontSize: 14, color: 'Colors.textSecondary, flex: 1 },
   actionButton: { padding: 4 },
   leadFooter: { flexDirection: 'row', gap: 8 },
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },

@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { materialsAPI } from '../../services/api';
@@ -180,16 +181,16 @@ export default function AddMaterialScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     padding: 8,
@@ -197,7 +198,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   keyboardView: {
     flex: 1,
@@ -214,40 +215,40 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   textArea: {
     height: 100,
     paddingTop: 12,
   },
   pickerContainer: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   footer: {
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'Colors.border,
   },
   submitButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'Colors.secondary,
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -258,6 +259,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.surface,
+    color: 'Colors.surface,
   },
 });

@@ -11,6 +11,7 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
+import Colors from '../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { projectsAPI, tasksAPI } from '../../services/api';
@@ -301,7 +302,7 @@ export default function ProjectDetailsScreen() {
                 onPress={() => router.push(`/projects/${id}/team` as any)}
               >
                 <Ionicons name="people" size={20} color="Colors.primary" />
-                <Text style={[styles.addTaskText, { color: Colors.primary }]}>Manage</Text>
+                <Text style={[styles.addTaskText, { color: 'Colors.primary }]}>Manage</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -422,7 +423,7 @@ export default function ProjectDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -435,22 +436,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: 'Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
   },
   headerActions: {
     flexDirection: 'row',
@@ -468,7 +469,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -487,7 +488,7 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     flex: 1,
     marginRight: 12,
   },
@@ -516,13 +517,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 12,
   },
   descriptionContainer: {
     marginTop: 8,
     padding: 12,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderRadius: 8,
   },
   description: {
@@ -553,11 +554,11 @@ const styles = StyleSheet.create({
   addTaskText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.secondary,
+    color: 'Colors.secondary,
   },
   emptyText: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textAlign: 'center',
     paddingVertical: 16,
   },
@@ -566,7 +567,7 @@ const styles = StyleSheet.create({
   },
   taskCard: {
     padding: 12,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderRadius: 8,
   },
   taskHeader: {
@@ -578,7 +579,7 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     flex: 1,
     marginRight: 8,
   },
@@ -593,7 +594,7 @@ const styles = StyleSheet.create({
   },
   taskAssignees: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   deleteButton: {
     flexDirection: 'row',
@@ -617,7 +618,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: Colors.background,
+    backgroundColor: 'Colors.background,
     borderRadius: 8,
     gap: 12,
   },
@@ -635,12 +636,12 @@ const styles = StyleSheet.create({
   teamMemberName: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 2,
   },
   teamMemberRole: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
   },
   teamCallButton: {
     width: 32,
@@ -658,12 +659,12 @@ const styles = StyleSheet.create({
   quickActionButton: {
     flex: 1,
     minWidth: '46%',
-    backgroundColor: Colors.surface,
+    backgroundColor: 'Colors.surface,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'Colors.border,
   },
   quickActionIcon: {
     width: 56,
@@ -676,13 +677,13 @@ const styles = StyleSheet.create({
   quickActionLabel: {
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: 'Colors.textPrimary,
     marginBottom: 4,
     textAlign: 'center',
   },
   quickActionSubtext: {
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: 'Colors.textSecondary,
     textAlign: 'center',
   },
 });
