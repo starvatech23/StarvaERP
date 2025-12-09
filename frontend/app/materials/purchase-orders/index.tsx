@@ -56,7 +56,7 @@ export default function PurchaseOrdersScreen() {
     const colors: any = {
       draft: '#6B7280',
       pending: '#F59E0B',
-      approved: 'Colors.primary',
+      approved: Colors.primary,
       ordered: '#8B5CF6',
       received: '#10B981',
       cancelled: '#EF4444',
@@ -194,7 +194,7 @@ export default function PurchaseOrdersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -207,22 +207,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   addButton: {
     width: 40,
@@ -234,9 +234,9 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     padding: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
     gap: 12,
   },
   filterRow: {
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginTop: 8,
   },
   emptyButton: {
@@ -279,17 +279,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   emptyButtonText: {
-    color: 'Colors.surface',
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
   orderCard: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
   },
   orderHeader: {
     flexDirection: 'row',
@@ -300,11 +300,11 @@ const styles = StyleSheet.create({
   orderNumber: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   vendorName: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   statusBadge: {
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 10,
     fontWeight: '600',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
   orderDetails: {
     flexDirection: 'row',

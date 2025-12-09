@@ -43,7 +43,7 @@ export default function DashboardTimelineScreen() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'planning': return 'Colors.primary';
+      case 'planning': return Colors.primary;
       case 'in_progress': return '#F59E0B';
       case 'completed': return '#10B981';
       case 'on_hold': return '#6B7280';
@@ -125,7 +125,7 @@ export default function DashboardTimelineScreen() {
               <Text style={styles.statLabel}>Total</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statValue, { color: 'Colors.primary' }]}>{stats.planning}</Text>
+              <Text style={[styles.statValue, { color: Colors.primary }]}>{stats.planning}</Text>
               <Text style={styles.statLabel}>Planning</Text>
             </View>
             <View style={styles.statItem}>
@@ -267,7 +267,7 @@ export default function DashboardTimelineScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -280,22 +280,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   placeholder: {
     width: 40,
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   statsCard: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   statsTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   statsGrid: {
@@ -330,12 +330,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 28,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   alertBanner: {
     flexDirection: 'row',
@@ -358,13 +358,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 32,
   },
@@ -374,11 +374,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   projectCard: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     flex: 1,
     marginRight: 12,
   },
@@ -444,12 +444,12 @@ const styles = StyleSheet.create({
   dateSeparator: {
     width: 20,
     height: 1,
-    backgroundColor: 'Colors.border',
+    backgroundColor: Colors.border,
     marginHorizontal: 8,
   },
   dateText: {
     fontSize: 12,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   progressSection: {
     marginBottom: 12,
@@ -462,16 +462,16 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 12,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   progressValue: {
     fontSize: 14,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   progressBarContainer: {
     height: 6,
-    backgroundColor: 'Colors.border',
+    backgroundColor: Colors.border,
     borderRadius: 3,
     overflow: 'hidden',
     marginBottom: 4,
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
   daysRemaining: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     textAlign: 'right',
   },
   projectDetails: {
@@ -497,6 +497,6 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 12,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
 });

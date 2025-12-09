@@ -194,7 +194,7 @@ export default function FunnelsScreen() {
                   onPress={() => handleClone(funnel)}
                 >
                   <Ionicons name="copy" size={16} color="Colors.primary" />
-                  <Text style={[styles.actionButtonText, { color: 'Colors.primary' }]}>Clone</Text>
+                  <Text style={[styles.actionButtonText, { color: Colors.primary }]}>Clone</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: '#EF444420' }]}
@@ -215,24 +215,24 @@ export default function FunnelsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background' },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary' },
-  headerSubtitle: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary },
+  headerSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   addButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -248,10 +248,10 @@ const styles = StyleSheet.create({
   },
   infoText: { flex: 1, fontSize: 14, color: '#5B21B6', lineHeight: 20 },
   emptyState: { alignItems: 'center', paddingVertical: 60 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary', marginTop: 16 },
-  emptyText: { fontSize: 14, color: 'Colors.textSecondary', textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginTop: 16 },
+  emptyText: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
   funnelCard: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -262,8 +262,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   funnelHeader: { marginBottom: 16 },
-  funnelName: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary' },
-  funnelDescription: { fontSize: 14, color: 'Colors.textSecondary', marginTop: 4 },
+  funnelName: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  funnelDescription: { fontSize: 14, color: Colors.textSecondary, marginTop: 4 },
   categoriesRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -272,15 +272,15 @@ const styles = StyleSheet.create({
   },
   categoriesText: {
     fontSize: 13,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     fontWeight: '500',
   },
   statsRow: { flexDirection: 'row', gap: 16, marginBottom: 16 },
-  statItem: { flex: 1, alignItems: 'center', backgroundColor: 'Colors.background', padding: 12, borderRadius: 8 },
-  statValue: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary', marginTop: 4 },
-  statLabel: { fontSize: 11, color: 'Colors.textSecondary', marginTop: 2 },
+  statItem: { flex: 1, alignItems: 'center', backgroundColor: Colors.background, padding: 12, borderRadius: 8 },
+  statValue: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginTop: 4 },
+  statLabel: { fontSize: 11, color: Colors.textSecondary, marginTop: 2 },
   stagesContainer: { marginBottom: 16 },
-  stagesLabel: { fontSize: 13, fontWeight: '600', color: 'Colors.textSecondary', marginBottom: 8 },
+  stagesLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 8 },
   stagesList: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   stageBadge: { backgroundColor: '#EBF8FF', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
   stageText: { fontSize: 12, fontWeight: '600', color: '#2C5282' },

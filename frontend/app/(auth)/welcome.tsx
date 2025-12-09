@@ -75,7 +75,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
   },
   content: {
     flex: 1,
@@ -100,13 +100,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 12,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: 20,
@@ -130,28 +130,28 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   primaryButton: {
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    shadowColor: 'Colors.secondary',
+    shadowColor: Colors.secondary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   primaryButtonText: {
-    color: 'Colors.surface',
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
   secondaryButton: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
   },
   secondaryButtonText: {
     color: '#4A5568',

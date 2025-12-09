@@ -195,7 +195,7 @@ export default function InventoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -208,22 +208,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   addButton: {
     width: 40,
@@ -238,9 +238,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   filterLabel: {
     fontSize: 14,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginTop: 8,
   },
   emptyButton: {
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   emptyButtonText: {
-    color: 'Colors.surface',
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -306,12 +306,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   inventoryCard: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
   },
   inventoryHeader: {
     flexDirection: 'row',
@@ -325,11 +325,11 @@ const styles = StyleSheet.create({
   materialName: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   siteName: {
     fontSize: 13,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   statusBadge: {
@@ -351,12 +351,12 @@ const styles = StyleSheet.create({
   },
   stockLabel: {
     fontSize: 13,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   stockValue: {
     fontSize: 13,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 8,
-    backgroundColor: 'Colors.border',
+    backgroundColor: Colors.border,
     borderRadius: 4,
     overflow: 'hidden',
     marginRight: 8,

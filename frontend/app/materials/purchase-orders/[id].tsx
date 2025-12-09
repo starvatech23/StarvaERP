@@ -39,7 +39,7 @@ export default function PurchaseOrderDetailScreen() {
     const colors: any = {
       draft: '#6B7280',
       pending: '#F59E0B',
-      approved: 'Colors.primary',
+      approved: Colors.primary,
       ordered: '#8B5CF6',
       received: '#10B981',
       cancelled: '#EF4444',
@@ -225,7 +225,7 @@ export default function PurchaseOrderDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -238,15 +238,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -254,31 +254,31 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
     padding: 16,
   },
   card: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   poHeader: {
@@ -289,11 +289,11 @@ const styles = StyleSheet.create({
   poNumber: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   poDate: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   statusBadge: {
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 11,
     fontWeight: '700',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
   infoRow: {
     flexDirection: 'row',
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   lineItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   lineItemHeader: {
     flexDirection: 'row',
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   lineItemName: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     flex: 1,
   },
   lineItemAmount: {
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   },
   lineItemQty: {
     fontSize: 13,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   totalRow: {
     flexDirection: 'row',
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   totalValue: {
     fontSize: 24,
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flexDirection: 'row',
-    backgroundColor: 'Colors.primary',
+    backgroundColor: Colors.primary,
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   actionButtonText: {
-    color: 'Colors.surface',
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },

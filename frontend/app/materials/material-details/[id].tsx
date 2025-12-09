@@ -112,7 +112,7 @@ export default function MaterialDetailsScreen() {
       blocks: '#94A3B8',
       tiles: '#06B6D4',
       paint: '#8B5CF6',
-      plumbing: 'Colors.primary',
+      plumbing: Colors.primary,
       electrical: '#FBBF24',
       hardware: '#6366F1',
       wood: '#92400E',
@@ -314,7 +314,7 @@ export default function MaterialDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   loader: {
     flex: 1,
@@ -323,16 +323,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 50,
     fontSize: 16,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     padding: 8,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     flex: 1,
     textAlign: 'center',
   },
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
   keyboardView: {
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   section: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -390,18 +390,18 @@ const styles = StyleSheet.create({
   categoryLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   categoryValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   field: {
@@ -410,18 +410,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginBottom: 8,
   },
   value: {
     fontSize: 16,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   unitBadgeContainer: {
     flexDirection: 'row',
   },
   unitBadge: {
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -429,30 +429,30 @@ const styles = StyleSheet.create({
   unitBadgeText: {
     fontSize: 14,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   input: {
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   textArea: {
     height: 100,
     paddingTop: 12,
   },
   pickerContainer: {
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   deleteButton: {
     flexDirection: 'row',
@@ -467,16 +467,16 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
   footer: {
     padding: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border',
+    borderTopColor: Colors.border,
   },
   saveButton: {
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -487,6 +487,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
 });

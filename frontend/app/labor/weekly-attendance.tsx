@@ -148,7 +148,7 @@ export default function WeeklyAttendanceScreen() {
       case 'present': return '#10B981';
       case 'overtime': return '#F59E0B';
       case 'absent': return '#EF4444';
-      default: return 'Colors.background';
+      default: return Colors.background;
     }
   };
 
@@ -288,7 +288,7 @@ export default function WeeklyAttendanceScreen() {
             <Ionicons 
               name="chevron-forward" 
               size={24} 
-              color={moment(currentWeekStart).add(7, 'days').isAfter(moment(), 'week') ? '#CBD5E0' : 'Colors.secondary'} 
+              color={moment(currentWeekStart).add(7, 'days').isAfter(moment(), 'week') ? '#CBD5E0' : Colors.secondary} 
             />
           </TouchableOpacity>
         </View>
@@ -467,7 +467,7 @@ export default function WeeklyAttendanceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   loader: {
     flex: 1,
@@ -478,9 +478,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     padding: 8,
@@ -488,16 +488,16 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   placeholder: {
     width: 40,
   },
   controlsSection: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   weekNav: {
     flexDirection: 'row',
@@ -511,31 +511,31 @@ const styles = StyleSheet.create({
   weekText: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   pickerContainer: {
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   gridContainer: {
     flex: 1,
   },
   headerRow: {
     flexDirection: 'row',
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     borderBottomWidth: 2,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   nameColumn: {
     width: 140,
     padding: 12,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderRightWidth: 1,
-    borderRightColor: 'Colors.border',
+    borderRightColor: Colors.border,
     justifyContent: 'center',
   },
   dateColumn: {
@@ -548,18 +548,18 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 14,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   dayText: {
     fontSize: 12,
     fontWeight: '700',
-    color: 'Colors.surface',
+    color: Colors.surface,
     marginBottom: 2,
   },
   dateNumText: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.surface',
+    color: Colors.surface,
     marginBottom: 4,
   },
   bulkDayButtons: {
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
   miniButtonText: {
     fontSize: 8,
     fontWeight: '700',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
   workersScroll: {
     maxHeight: 500,
@@ -585,20 +585,20 @@ const styles = StyleSheet.create({
   workerRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   evenRow: {
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   workerName: {
     fontSize: 13,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   workerSkill: {
     fontSize: 10,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     textTransform: 'capitalize',
     marginBottom: 6,
   },
@@ -615,13 +615,13 @@ const styles = StyleSheet.create({
   bulkRowButtonText: {
     fontSize: 8,
     fontWeight: '700',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
   dateCell: {
     width: 80,
     height: 100,
     borderRightWidth: 1,
-    borderRightColor: 'Colors.border',
+    borderRightColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -634,13 +634,13 @@ const styles = StyleSheet.create({
     color: '#CBD5E0',
   },
   cellTextMarked: {
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
   footer: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border',
+    borderTopColor: Colors.border,
   },
   legend: {
     flexDirection: 'row',
@@ -660,10 +660,10 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   saveButton: {
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     padding: 16,
     borderRadius: 12,
     flexDirection: 'row',
@@ -677,6 +677,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
 });

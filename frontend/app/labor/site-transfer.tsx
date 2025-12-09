@@ -315,7 +315,7 @@ export default function SiteTransferScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   loader: {
     flex: 1,
@@ -325,9 +325,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     padding: 8,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   keyboardView: {
     flex: 1,
@@ -352,18 +352,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   pickerContainer: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   infoCard: {
     backgroundColor: '#F0F9FF',
@@ -388,16 +388,16 @@ const styles = StyleSheet.create({
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
     borderRadius: 8,
     padding: 12,
     gap: 8,
   },
   dateText: {
     fontSize: 16,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   noteCard: {
     flexDirection: 'row',
@@ -416,9 +416,9 @@ const styles = StyleSheet.create({
   hoursInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
     borderRadius: 8,
     padding: 12,
     gap: 8,
@@ -426,20 +426,20 @@ const styles = StyleSheet.create({
   hoursInput: {
     flex: 1,
     fontSize: 16,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   hoursUnit: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   input: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   textArea: {
     height: 80,
@@ -447,12 +447,12 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border',
+    borderTopColor: Colors.border,
   },
   submitButton: {
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -463,6 +463,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
 });

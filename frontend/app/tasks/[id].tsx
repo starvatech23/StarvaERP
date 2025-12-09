@@ -76,7 +76,7 @@ export default function TaskDetailsScreen() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return '#F59E0B';
-      case 'in_progress': return 'Colors.primary';
+      case 'in_progress': return Colors.primary;
       case 'completed': return '#10B981';
       case 'cancelled': return '#EF4444';
       default: return '#6B7280';
@@ -222,7 +222,7 @@ export default function TaskDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -235,28 +235,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   scrollContent: {
     padding: 16,
   },
   card: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   badgesRow: {
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     padding: 12,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     borderRadius: 8,
   },
   description: {
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   infoRow: {
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.secondary',
+    color: Colors.secondary,
   },
   actionsGrid: {
     flexDirection: 'row',
@@ -335,13 +335,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     padding: 16,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     borderRadius: 8,
   },
   actionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginTop: 8,
   },
   deleteButton: {

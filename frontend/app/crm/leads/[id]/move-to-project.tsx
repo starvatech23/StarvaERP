@@ -194,7 +194,7 @@ export default function MoveToProjectScreen() {
                 <Switch
                   value={bypassEnabled}
                   onValueChange={setBypassEnabled}
-                  trackColor={{ false: 'Colors.border', true: '#EF4444' }}
+                  trackColor={{ false: Colors.border, true: '#EF4444' }}
                 />
               </View>
             </View>
@@ -343,19 +343,19 @@ export default function MoveToProjectScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background' },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: { width: 40 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary' },
-  headerSubtitle: { fontSize: 14, color: 'Colors.textSecondary', marginTop: 2 },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
+  headerSubtitle: { fontSize: 14, color: Colors.textSecondary, marginTop: 2 },
   content: { flex: 1, padding: 16 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   bypassCard: {
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   infoCard: {
@@ -401,14 +401,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   textArea: {
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     flexDirection: 'row',
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
   submitButtonDisabled: { opacity: 0.5 },
   submitButtonText: {
-    color: 'Colors.surface',
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },

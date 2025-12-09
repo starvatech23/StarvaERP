@@ -291,10 +291,10 @@ export default function LeadDetailScreen() {
 
 const getStatusColor = (status) => {
   const colors = {
-    new: 'Colors.primary',
+    new: Colors.primary,
     contacted: '#8B5CF6',
     qualified: '#F59E0B',
-    proposal: 'Colors.secondary',
+    proposal: Colors.secondary,
     negotiation: '#EC4899',
     won: '#10B981',
     lost: '#EF4444',
@@ -306,7 +306,7 @@ const getPriorityColor = (priority) => {
   const colors = {
     urgent: '#EF4444',
     high: '#F59E0B',
-    medium: 'Colors.primary',
+    medium: Colors.primary,
     low: '#6B7280',
   };
   return colors[priority] || '#6B7280';
@@ -328,32 +328,32 @@ const getActivityIcon = (type) => {
 
 const getActivityColor = (type) => {
   const colors = {
-    call: 'Colors.primary',
+    call: Colors.primary,
     whatsapp: '#10B981',
     email: '#F59E0B',
     meeting: '#8B5CF6',
     note: '#6B7280',
     site_visit: '#EC4899',
-    status_change: 'Colors.secondary',
+    status_change: Colors.secondary,
     field_update: '#6366F1',
   };
   return colors[type] || '#6B7280';
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background' },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: { width: 40 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary', flex: 1 },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, flex: 1 },
   editButton: { width: 40, alignItems: 'flex-end' },
   content: { flex: 1 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   card: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     padding: 20,
     marginHorizontal: 16,
     marginBottom: 16,
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   infoRow: {
@@ -418,12 +418,12 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
   infoValue: {
     fontSize: 14,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     flex: 1,
   },
   requirementSection: {
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   badgeText: {
     fontSize: 11,
@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
   },
   activityCount: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   emptyText: {
     fontSize: 14,
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   activityDescription: {
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
     color: '#A0AEC0',
   },
   moveToProjectButton: {
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   moveToProjectText: {
-    color: 'Colors.surface',
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,

@@ -112,7 +112,7 @@ export default function LoginScreen() {
               <Ionicons
                 name="mail"
                 size={20}
-                color={authMethod === 'email' ? 'Colors.surface' : 'Colors.textSecondary'}
+                color={authMethod === 'email' ? Colors.surface : Colors.textSecondary}
               />
               <Text
                 style={[
@@ -137,7 +137,7 @@ export default function LoginScreen() {
               <Ionicons
                 name="call"
                 size={20}
-                color={authMethod === 'phone' ? 'Colors.surface' : 'Colors.textSecondary'}
+                color={authMethod === 'phone' ? Colors.surface : Colors.textSecondary}
               />
               <Text
                 style={[
@@ -284,7 +284,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
   },
   keyboardView: {
     flex: 1,
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
@@ -307,17 +307,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginBottom: 32,
   },
   methodToggle: {
     flexDirection: 'row',
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     borderRadius: 12,
     padding: 4,
     marginBottom: 32,
@@ -332,15 +332,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   methodButtonActive: {
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
   },
   methodText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   methodTextActive: {
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
   form: {
     gap: 16,
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   eyeIcon: {
     padding: 8,
@@ -374,24 +374,24 @@ const styles = StyleSheet.create({
   },
   otpLabel: {
     fontSize: 14,
-    color: 'Colors.secondary',
+    color: Colors.secondary,
     fontWeight: '600',
   },
   otpValue: {
     fontSize: 20,
-    color: 'Colors.secondary',
+    color: Colors.secondary,
     fontWeight: '700',
     letterSpacing: 4,
   },
   loginButton: {
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
   },
   loginButtonText: {
-    color: 'Colors.surface',
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resendButtonText: {
-    color: 'Colors.secondary',
+    color: Colors.secondary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -416,11 +416,11 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   footerLink: {
     fontSize: 14,
-    color: 'Colors.secondary',
+    color: Colors.secondary,
     fontWeight: '600',
   },
 });

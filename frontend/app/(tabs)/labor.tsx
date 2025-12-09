@@ -68,7 +68,7 @@ export default function LaborScreen() {
     const colors: any = {
       mason: '#EF4444',
       carpenter: '#F59E0B',
-      electrician: 'Colors.primary',
+      electrician: Colors.primary,
       plumber: '#06B6D4',
       painter: '#8B5CF6',
       welder: '#EC4899',
@@ -319,7 +319,7 @@ export default function LaborScreen() {
           <Ionicons
             name="people"
             size={20}
-            color={activeTab === 'workers' ? 'Colors.secondary' : 'Colors.textSecondary'}
+            color={activeTab === 'workers' ? Colors.secondary : Colors.textSecondary}
           />
           <Text
             style={[
@@ -338,7 +338,7 @@ export default function LaborScreen() {
           <Ionicons
             name="calendar"
             size={20}
-            color={activeTab === 'attendance' ? 'Colors.secondary' : 'Colors.textSecondary'}
+            color={activeTab === 'attendance' ? Colors.secondary : Colors.textSecondary}
           />
           <Text
             style={[
@@ -357,7 +357,7 @@ export default function LaborScreen() {
           <Ionicons
             name="swap-horizontal"
             size={20}
-            color={activeTab === 'transfers' ? 'Colors.secondary' : 'Colors.textSecondary'}
+            color={activeTab === 'transfers' ? Colors.secondary : Colors.textSecondary}
           />
           <Text
             style={[
@@ -376,7 +376,7 @@ export default function LaborScreen() {
           <Ionicons
             name="stats-chart"
             size={20}
-            color={activeTab === 'reports' ? 'Colors.secondary' : 'Colors.textSecondary'}
+            color={activeTab === 'reports' ? Colors.secondary : Colors.textSecondary}
           />
           <Text
             style={[
@@ -414,21 +414,21 @@ export default function LaborScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   headerButtons: {
     flexDirection: 'row',
@@ -446,15 +446,15 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   tabs: {
     flexDirection: 'row',
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   tab: {
     flex: 1,
@@ -467,15 +467,15 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: 'Colors.secondary',
+    borderBottomColor: Colors.secondary,
   },
   tabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   activeTabText: {
-    color: 'Colors.secondary',
+    color: Colors.secondary,
   },
   content: {
     flex: 1,
@@ -492,18 +492,18 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 32,
   },
   card: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -531,12 +531,12 @@ const styles = StyleSheet.create({
   workerName: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   workerPhone: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   skillBadge: {
     paddingHorizontal: 10,
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border',
+    borderTopColor: Colors.border,
   },
   infoItem: {
     flexDirection: 'row',
@@ -561,16 +561,16 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 12,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   placeholderText: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     textAlign: 'center',
     marginTop: 20,
   },
   attendanceCard: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -587,12 +587,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   attendanceDate: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   attendanceRow: {
     flexDirection: 'row',
@@ -606,12 +606,12 @@ const styles = StyleSheet.create({
   attendanceWorkerName: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   attendanceProject: {
     fontSize: 12,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   attendanceStatus: {
     flexDirection: 'row',
@@ -628,12 +628,12 @@ const styles = StyleSheet.create({
   attendanceStatusText: {
     fontSize: 12,
     fontWeight: '700',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
   attendanceHours: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   reportsContainer: {
     alignItems: 'center',
@@ -644,14 +644,14 @@ const styles = StyleSheet.create({
   reportsTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginTop: 24,
     marginBottom: 12,
     textAlign: 'center',
   },
   reportsText: {
     fontSize: 16,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,
@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
   viewReportsButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
   viewReportsText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
   transferHeader: {
     flexDirection: 'row',
@@ -686,18 +686,18 @@ const styles = StyleSheet.create({
   transferWorkerName: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   transferDate: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   transferRoute: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
@@ -708,18 +708,18 @@ const styles = StyleSheet.create({
   },
   siteLabel: {
     fontSize: 12,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   siteName: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     textAlign: 'center',
   },
   hours: {
     fontSize: 12,
-    color: 'Colors.secondary',
+    color: Colors.secondary,
     marginTop: 4,
   },
   transferReason: {
@@ -742,12 +742,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: 'Colors.border',
+    borderTopColor: Colors.border,
   },
   wagesLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
   },
   wagesValue: {
     fontSize: 16,

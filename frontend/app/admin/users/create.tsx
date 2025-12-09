@@ -272,7 +272,7 @@ export default function AddUserScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -288,22 +288,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -324,29 +324,29 @@ const styles = StyleSheet.create({
   },
   section: {
     padding: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 8,
     marginTop: 12,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
     paddingHorizontal: 12,
   },
   icon: {
@@ -356,24 +356,24 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   pickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
     paddingLeft: 12,
   },
   picker: {
     flex: 1,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   helperText: {
     fontSize: 12,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   createButton: {
@@ -390,6 +390,6 @@ const styles = StyleSheet.create({
   createButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.surface',
+    color: Colors.surface,
   },
 });

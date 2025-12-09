@@ -94,7 +94,7 @@ export default function CRMSettingsScreen() {
             <Switch
               value={config?.whatsapp_enabled}
               onValueChange={(value) => setConfig({ ...config, whatsapp_enabled: value })}
-              trackColor={{ false: 'Colors.border', true: '#10B981' }}
+              trackColor={{ false: Colors.border, true: '#10B981' }}
               thumbColor="Colors.surface"
             />
           </View>
@@ -139,7 +139,7 @@ export default function CRMSettingsScreen() {
             <Switch
               value={config?.telephony_enabled}
               onValueChange={(value) => setConfig({ ...config, telephony_enabled: value })}
-              trackColor={{ false: 'Colors.border', true: 'Colors.primary' }}
+              trackColor={{ false: Colors.border, true: Colors.primary }}
               thumbColor="Colors.surface"
             />
           </View>
@@ -170,7 +170,7 @@ export default function CRMSettingsScreen() {
             <Switch
               value={config?.auto_assign_enabled}
               onValueChange={(value) => setConfig({ ...config, auto_assign_enabled: value })}
-              trackColor={{ false: 'Colors.border', true: '#8B5CF6' }}
+              trackColor={{ false: Colors.border, true: '#8B5CF6' }}
               thumbColor="Colors.surface"
             />
           </View>
@@ -235,19 +235,19 @@ export default function CRMSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background' },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: { width: 40 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary', flex: 1 },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, flex: 1 },
   content: { flex: 1, padding: 16 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   infoCard: {
@@ -268,14 +268,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   switchCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   switchLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   label: {
     fontSize: 14,
@@ -297,14 +297,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   textArea: {
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   },
   helperText: {
     fontSize: 13,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginTop: -12,
     marginBottom: 16,
   },
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   strategyOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     gap: 12,
@@ -337,15 +337,15 @@ const styles = StyleSheet.create({
   strategyTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   strategyDescription: {
     fontSize: 13,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   saveButton: {
-    backgroundColor: 'Colors.secondary',
+    backgroundColor: Colors.secondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   saveButtonText: {
-    color: 'Colors.surface',
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },

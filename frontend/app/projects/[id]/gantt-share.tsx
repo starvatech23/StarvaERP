@@ -246,7 +246,7 @@ export default function GanttShareLinksScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -259,15 +259,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'Colors.border',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -275,14 +275,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'Colors.primary',
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -302,29 +302,29 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginTop: 8,
     textAlign: 'center',
   },
   emptyButton: {
     marginTop: 24,
-    backgroundColor: 'Colors.primary',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   emptyButtonText: {
-    color: 'Colors.surface',
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
   shareCard: {
-    backgroundColor: 'Colors.surface',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'Colors.border',
+    borderColor: Colors.border,
   },
   shareHeader: {
     flexDirection: 'row',
@@ -339,22 +339,22 @@ const styles = StyleSheet.create({
   shareTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: 'Colors.textPrimary',
+    color: Colors.textPrimary,
   },
   shareDate: {
     fontSize: 12,
-    color: 'Colors.textSecondary',
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   shareUrl: {
-    backgroundColor: 'Colors.background',
+    backgroundColor: Colors.background,
     borderRadius: 6,
     padding: 10,
     marginBottom: 12,
   },
   urlText: {
     fontSize: 12,
-    color: 'Colors.primary',
+    color: Colors.primary,
     fontFamily: 'monospace',
   },
   shareDetails: {
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.primary',
+    color: Colors.primary,
   },
   lastViewed: {
     fontSize: 11,
