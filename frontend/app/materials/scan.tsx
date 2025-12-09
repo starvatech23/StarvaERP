@@ -208,7 +208,7 @@ export default function MaterialScanScreen() {
                 <Text
                   style={[
                     styles.actionButtonText,
-                    action === 'add' && { color: 'Colors.surface },
+                    action === 'add' && { color: Colors.surface },
                   ]}
                 >
                   Add Stock
@@ -227,7 +227,7 @@ export default function MaterialScanScreen() {
                 <Text
                   style={[
                     styles.actionButtonText,
-                    action === 'remove' && { color: 'Colors.surface },
+                    action === 'remove' && { color: Colors.surface },
                   ]}
                 >
                   Remove Stock

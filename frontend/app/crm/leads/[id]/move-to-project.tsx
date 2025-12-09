@@ -344,7 +344,7 @@ export default function MoveToProjectScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
   },
   backButton: { width: 40 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
   headerSubtitle: { fontSize: 14, color: Colors.textSecondary, marginTop: 2 },
   content: { flex: 1, padding: 16 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },

@@ -540,7 +540,7 @@ export default function ProjectContactsScreen() {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                              style={[styles.quickActionButton, { backgroundColor: 'Colors.primary }]}
+                              style={[styles.quickActionButton, { backgroundColor: Colors.primary }]}
                               onPress={() => handleEmail(contact.email)}
                             >
                               <Ionicons name="mail" size={16} color={Colors.surface} />

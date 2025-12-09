@@ -399,19 +399,19 @@ export default function WeeklyAttendanceScreen() {
                   <View style={styles.bulkRowButtons}>
                     <TouchableOpacity
                       onPress={() => markEntireRow(worker.id, 'present')}
-                      style={[styles.bulkRowButton, { backgroundColor: 'Colors.success }]}
+                      style={[styles.bulkRowButton, { backgroundColor: Colors.success }]}
                     >
                       <Text style={styles.bulkRowButtonText}>P All</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => markEntireRow(worker.id, 'overtime')}
-                      style={[styles.bulkRowButton, { backgroundColor: 'Colors.warning }]}
+                      style={[styles.bulkRowButton, { backgroundColor: Colors.warning }]}
                     >
                       <Text style={styles.bulkRowButtonText}>OT</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => markEntireRow(worker.id, 'absent')}
-                      style={[styles.bulkRowButton, { backgroundColor: 'Colors.error }]}
+                      style={[styles.bulkRowButton, { backgroundColor: Colors.error }]}
                     >
                       <Text style={styles.bulkRowButtonText}>A</Text>
                     </TouchableOpacity>
@@ -471,15 +471,15 @@ export default function WeeklyAttendanceScreen() {
       <View style={styles.footer}>
         <View style={styles.legend}>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: 'Colors.success }]} />
+            <View style={[styles.legendDot, { backgroundColor: Colors.success }]} />
             <Text style={styles.legendText}>Present</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: 'Colors.warning }]} />
+            <View style={[styles.legendDot, { backgroundColor: Colors.warning }]} />
             <Text style={styles.legendText}>Overtime</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: 'Colors.error }]} />
+            <View style={[styles.legendDot, { backgroundColor: Colors.error }]} />
             <Text style={styles.legendText}>Absent</Text>
           </View>
         </View>

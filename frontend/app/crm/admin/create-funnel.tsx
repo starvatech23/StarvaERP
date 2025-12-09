@@ -373,7 +373,7 @@ export default function CreateFunnelScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary },
   headerSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   saveButton: {
     backgroundColor: Colors.secondary,
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   saveButtonDisabled: { backgroundColor: '#CBD5E0' },
-  saveButtonText: { fontSize: 16, fontWeight: '700', color: 'Colors.surface },
+  saveButtonText: { fontSize: 16, fontWeight: '700', color: Colors.surface },
   content: { flex: 1, padding: 16 },
   section: {
     backgroundColor: Colors.surface,
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   categoryChipSelected: { backgroundColor: '#F0FDF4' },
   categoryDot: { width: 10, height: 10, borderRadius: 5 },
   categoryChipText: { fontSize: 14, fontWeight: '600', color: '#4A5568' },
-  categoryChipTextSelected: { color: 'Colors.textPrimary },
+  categoryChipTextSelected: { color: Colors.textPrimary },
   addStageButton: {
     width: 36,
     height: 36,

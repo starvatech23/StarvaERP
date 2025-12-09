@@ -324,7 +324,7 @@ export default function CategoriesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary },
   headerSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   addButton: {
     width: 44,
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     gap: 8,
   },
-  emptyButtonText: { fontSize: 16, fontWeight: '700', color: 'Colors.surface },
+  emptyButtonText: { fontSize: 16, fontWeight: '700', color: Colors.surface },
   categoryCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -386,10 +386,10 @@ const styles = StyleSheet.create({
   },
   categoryLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 },
   colorDot: { width: 20, height: 20, borderRadius: 10 },
-  categoryName: { fontSize: 16, fontWeight: '700', color: 'Colors.textPrimary },
+  categoryName: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
   categoryDescription: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   categoryStats: { flexDirection: 'row', alignItems: 'center', marginTop: 6, gap: 4 },
-  categoryStatsText: { fontSize: 12, color: 'Colors.textSecondary },
+  categoryStatsText: { fontSize: 12, color: Colors.textSecondary },
   categoryActions: { flexDirection: 'row', gap: 8 },
   actionButton: {
     width: 36,
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
   modalBody: { padding: 20 },
   inputGroup: { marginBottom: 20 },
   label: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 8 },
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
   previewLabel: { fontSize: 12, fontWeight: '600', color: Colors.textSecondary, marginBottom: 8 },
   previewItem: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   previewDot: { width: 16, height: 16, borderRadius: 8 },
-  previewText: { fontSize: 16, fontWeight: '600', color: 'Colors.textPrimary },
+  previewText: { fontSize: 16, fontWeight: '600', color: Colors.textPrimary },
   modalFooter: {
     flexDirection: 'row',
     padding: 20,
@@ -488,5 +488,5 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.secondary,
     alignItems: 'center',
   },
-  saveButtonText: { fontSize: 16, fontWeight: '700', color: 'Colors.surface },
+  saveButtonText: { fontSize: 16, fontWeight: '700', color: Colors.surface },
 });

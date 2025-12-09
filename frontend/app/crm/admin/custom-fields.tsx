@@ -208,7 +208,7 @@ export default function CustomFieldsScreen() {
                   onPress={() => handleEdit(field)}
                 >
                   <Ionicons name="pencil" size={16} color={Colors.primary} />
-                  <Text style={[styles.actionButtonText, { color: 'Colors.primary }]}>Edit</Text>
+                  <Text style={[styles.actionButtonText, { color: Colors.primary }]}>Edit</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: '#EF444420' }]}
@@ -308,7 +308,7 @@ export default function CustomFieldsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary },
   headerSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   addButton: {
     width: 44,
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   fieldHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
-  fieldLabel: { fontSize: 16, fontWeight: '700', color: 'Colors.textPrimary },
+  fieldLabel: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
   fieldName: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   fieldTypeBadge: { backgroundColor: '#EBF8FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   fieldTypeText: { fontSize: 11, fontWeight: '600', color: '#2C5282' },
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
   modalBody: { padding: 20, maxHeight: 400 },
   label: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 8, marginTop: 12 },
   input: {
@@ -420,8 +420,8 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.border,
   },
   modalButton: { flex: 1, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
-  cancelButton: { backgroundColor: 'Colors.background },
-  cancelButtonText: { fontSize: 16, fontWeight: '600', color: 'Colors.textSecondary },
-  saveButton: { backgroundColor: 'Colors.secondary },
-  saveButtonText: { fontSize: 16, fontWeight: '600', color: 'Colors.surface },
+  cancelButton: { backgroundColor: Colors.background },
+  cancelButtonText: { fontSize: 16, fontWeight: '600', color: Colors.textSecondary },
+  saveButton: { backgroundColor: Colors.secondary },
+  saveButtonText: { fontSize: 16, fontWeight: '600', color: Colors.surface },
 });

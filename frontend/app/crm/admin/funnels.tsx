@@ -195,7 +195,7 @@ export default function FunnelsScreen() {
                   onPress={() => handleClone(funnel)}
                 >
                   <Ionicons name="copy" size={16} color={Colors.primary} />
-                  <Text style={[styles.actionButtonText, { color: 'Colors.primary }]}>Clone</Text>
+                  <Text style={[styles.actionButtonText, { color: Colors.primary }]}>Clone</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: '#EF444420' }]}
@@ -216,7 +216,7 @@ export default function FunnelsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary },
   headerSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   addButton: {
     width: 44,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   funnelHeader: { marginBottom: 16 },
-  funnelName: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary },
+  funnelName: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
   funnelDescription: { fontSize: 14, color: Colors.textSecondary, marginTop: 4 },
   categoriesRow: {
     flexDirection: 'row',

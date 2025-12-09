@@ -158,7 +158,7 @@ export default function FinancialReportsScreen() {
                 </View>
                 <View style={styles.budgetItem}>
                   <Text style={styles.budgetLabel}>Utilization</Text>
-                  <Text style={[styles.budgetValue, { color: 'Colors.primary }]}>
+                  <Text style={[styles.budgetValue, { color: Colors.primary }]}>
                     {reportData.budget_utilization?.toFixed(1) || 0}%
                   </Text>
                 </View>

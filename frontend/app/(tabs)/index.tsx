@@ -156,12 +156,12 @@ export default function DashboardScreen() {
                 <Text style={styles.statValue}>{stats.projects.total}</Text>
                 <Text style={styles.statLabel}>Total Projects</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: 'Colors.secondary + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: Colors.secondary + '20' }]}>
                 <Ionicons name="flash" size={28} color={Colors.secondary} />
                 <Text style={styles.statValue}>{stats.projects.active}</Text>
                 <Text style={styles.statLabel}>Active</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: 'Colors.success + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: Colors.success + '20' }]}>
                 <Ionicons name="checkmark-circle" size={28} color={Colors.success} />
                 <Text style={styles.statValue}>{stats.projects.completed}</Text>
                 <Text style={styles.statLabel}>Completed</Text>
@@ -200,17 +200,17 @@ export default function DashboardScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Tasks Overview</Text>
             <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: 'Colors.info + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}>
                 <Ionicons name="list" size={28} color={Colors.info} />
                 <Text style={styles.statValue}>{stats.tasks.total}</Text>
                 <Text style={styles.statLabel}>Total Tasks</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: 'Colors.warning + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: Colors.warning + '20' }]}>
                 <Ionicons name="time" size={28} color={Colors.warning} />
                 <Text style={styles.statValue}>{stats.tasks.my_pending}</Text>
                 <Text style={styles.statLabel}>My Pending</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: 'Colors.error + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: Colors.error + '20' }]}>
                 <Ionicons name="alert-circle" size={28} color={Colors.error} />
                 <Text style={styles.statValue}>{stats.tasks.overdue || 0}</Text>
                 <Text style={styles.statLabel}>Overdue</Text>
@@ -233,17 +233,17 @@ export default function DashboardScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>CRM Performance</Text>
             <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: 'Colors.secondary + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: Colors.secondary + '20' }]}>
                 <Ionicons name="people" size={28} color={Colors.secondary} />
                 <Text style={styles.statValue}>{stats.crm.total_leads}</Text>
                 <Text style={styles.statLabel}>Total Leads</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: 'Colors.success + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: Colors.success + '20' }]}>
                 <Ionicons name="trophy" size={28} color={Colors.success} />
                 <Text style={styles.statValue}>{stats.crm.won_leads}</Text>
                 <Text style={styles.statLabel}>Won</Text>
               </View>
-              <View style={[styles.statCard, { backgroundColor: 'Colors.info + '20' }]}>
+              <View style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}>
                 <Ionicons name="star" size={28} color={Colors.info} />
                 <Text style={styles.statValue}>{stats.crm.conversion_rate}%</Text>
                 <Text style={styles.statLabel}>Conversion</Text>
@@ -295,12 +295,12 @@ export default function DashboardScreen() {
             <View style={styles.statsRow}>
               {stats?.materials && (
                 <>
-                  <View style={[styles.statCard, { backgroundColor: 'Colors.warning + '20' }]}>
+                  <View style={[styles.statCard, { backgroundColor: Colors.warning + '20' }]}>
                     <Ionicons name="cube" size={28} color={Colors.warning} />
                     <Text style={styles.statValue}>{stats.materials.low_stock}</Text>
                     <Text style={styles.statLabel}>Low Stock</Text>
                   </View>
-                  <View style={[styles.statCard, { backgroundColor: 'Colors.info + '20' }]}>
+                  <View style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}>
                     <Ionicons name="pricetag" size={28} color={Colors.info} />
                     <Text style={styles.statValue}>₹{(stats.materials.inventory_value / 100000).toFixed(1)}L</Text>
                     <Text style={styles.statLabel}>Inventory</Text>
@@ -344,7 +344,7 @@ export default function DashboardScreen() {
             <View style={styles.activityList}>
               {stats.recent_activity.slice(0, 5).map((activity: any, index: number) => (
                 <View key={index} style={styles.activityItem}>
-                  <View style={[styles.activityIcon, { backgroundColor: 'Colors.primary + '20' }]}>
+                  <View style={[styles.activityIcon, { backgroundColor: Colors.primary + '20' }]}>
                     <Ionicons name={activity.icon} size={20} color={Colors.primary} />
                   </View>
                   <View style={styles.activityContent}>

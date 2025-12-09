@@ -227,7 +227,7 @@ const getPriorityColor = (priority: string) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { fontSize: 28, fontWeight: '700', color: 'Colors.textPrimary },
+  headerTitle: { fontSize: 28, fontWeight: '700', color: Colors.textPrimary },
   addButton: {
     width: 44,
     height: 44,

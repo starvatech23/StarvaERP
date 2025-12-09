@@ -172,7 +172,7 @@ export default function LabelsSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary },
   headerSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   resetButton: {
     width: 44,
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  groupTitle: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary },
+  groupTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
   labelItem: { marginBottom: 16 },
   labelItemLabel: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 8 },
   labelInput: {
@@ -269,5 +269,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  saveButtonText: { fontSize: 16, fontWeight: '700', color: 'Colors.surface },
+  saveButtonText: { fontSize: 16, fontWeight: '700', color: Colors.surface },
 });

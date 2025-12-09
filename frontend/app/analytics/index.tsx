@@ -230,7 +230,7 @@ export default function AnalyticsScreen() {
                 <Text style={styles.distributionValue}>{stats.projects?.completed}</Text>
               </View>
               <View style={styles.distributionItem}>
-                <View style={[styles.distributionDot, { backgroundColor: 'Colors.primary }]} />
+                <View style={[styles.distributionDot, { backgroundColor: Colors.primary }]} />
                 <Text style={styles.distributionLabel}>Active</Text>
                 <Text style={styles.distributionValue}>{stats.projects?.active}</Text>
               </View>
@@ -311,7 +311,7 @@ export default function AnalyticsScreen() {
               </View>
               <View style={styles.financialItem}>
                 <Text style={styles.financialLabel}>Total Invoiced</Text>
-                <Text style={[styles.financialValue, { color: 'Colors.primary }]}>
+                <Text style={[styles.financialValue, { color: Colors.primary }]}>
                   ₹{(stats.finance?.totalInvoiced || 0).toLocaleString()}
                 </Text>
               </View>

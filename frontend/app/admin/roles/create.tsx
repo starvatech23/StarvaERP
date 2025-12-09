@@ -19,8 +19,8 @@ import { useRouter } from 'expo-router';
 import { rolesAPI, permissionsAPI } from '../../../services/api';
 
 const MODULES = [
-  { key: 'projects', label: 'Projects', icon: 'business', color: 'Colors.secondary },
-  { key: 'tasks', label: 'Tasks', icon: 'checkbox', color: 'Colors.primary },
+  { key: 'projects', label: 'Projects', icon: 'business', color: Colors.secondary },
+  { key: 'tasks', label: 'Tasks', icon: 'checkbox', color: Colors.primary },
   { key: 'labor', label: 'Labor', icon: 'people', color: '#10B981' },
   { key: 'materials', label: 'Materials', icon: 'cube', color: '#8B5CF6' },
   { key: 'vendors', label: 'Vendors', icon: 'storefront', color: '#F59E0B' },

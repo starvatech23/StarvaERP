@@ -302,7 +302,7 @@ export default function ProjectDetailsScreen() {
                 onPress={() => router.push(`/projects/${id}/team` as any)}
               >
                 <Ionicons name="people" size={20} color={Colors.primary} />
-                <Text style={[styles.addTaskText, { color: 'Colors.primary }]}>Manage</Text>
+                <Text style={[styles.addTaskText, { color: Colors.primary }]}>Manage</Text>
               </TouchableOpacity>
             )}
           </View>

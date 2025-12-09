@@ -399,9 +399,9 @@ export default function ProjectChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background },
+  container: { flex: 1, backgroundColor: Colors.background },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: 16, fontSize: 16, color: 'Colors.textSecondary },
+  loadingText: { marginTop: 16, fontSize: 16, color: Colors.textSecondary },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
   },
   backButton: { marginRight: 12 },
   headerCenter: { flex: 1 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
   headerSubtitle: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
   shareButton: { marginLeft: 12 },
   messagesList: { padding: 16, flexGrow: 1 },
@@ -425,17 +425,17 @@ const styles = StyleSheet.create({
   theirMessage: { alignItems: 'flex-start' },
   messageBubble: { maxWidth: '80%', padding: 12, borderRadius: 16 },
   myBubble: { backgroundColor: Colors.secondary, borderBottomRightRadius: 4 },
-  theirBubble: { backgroundColor: Colors.surface, borderBottomLeftRadius: 4, borderWidth: 1, borderColor: 'Colors.border },
+  theirBubble: { backgroundColor: Colors.surface, borderBottomLeftRadius: 4, borderWidth: 1, borderColor: Colors.border },
   senderName: { fontSize: 12, fontWeight: '600', color: Colors.secondary, marginBottom: 4 },
   messageText: { fontSize: 15, lineHeight: 20 },
-  myMessageText: { color: 'Colors.surface },
-  theirMessageText: { color: 'Colors.textPrimary },
+  myMessageText: { color: Colors.surface },
+  theirMessageText: { color: Colors.textPrimary },
   attachmentsContainer: { marginTop: 8, gap: 4 },
   attachmentBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
-  attachmentText: { fontSize: 13, color: 'Colors.secondary },
+  attachmentText: { fontSize: 13, color: Colors.secondary },
   timestamp: { fontSize: 10, marginTop: 4 },
   myTimestamp: { color: Colors.surface, opacity: 0.8, textAlign: 'right' },
-  theirTimestamp: { color: 'Colors.textSecondary },
+  theirTimestamp: { color: Colors.textSecondary },
   attachmentsPreview: {
     backgroundColor: Colors.surface,
     borderTopWidth: 1,
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     gap: 8,
   },
-  attachmentPreviewText: { flex: 1, fontSize: 14, color: 'Colors.textPrimary },
+  attachmentPreviewText: { flex: 1, fontSize: 14, color: Colors.textPrimary },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',

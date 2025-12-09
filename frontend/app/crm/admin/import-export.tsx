@@ -335,14 +335,14 @@ export default function ImportExportScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'Colors.background },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     padding: 24,
     backgroundColor: Colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  headerTitle: { fontSize: 28, fontWeight: '700', color: 'Colors.textPrimary },
+  headerTitle: { fontSize: 28, fontWeight: '700', color: Colors.textPrimary },
   headerSubtitle: { fontSize: 14, color: Colors.textSecondary, marginTop: 4 },
   content: { flex: 1, padding: 16 },
   section: { marginBottom: 24 },
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 16,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
   sectionSubtitle: { fontSize: 14, color: Colors.textSecondary, marginTop: 2 },
   optionsContainer: { gap: 12 },
   optionCard: {
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  optionTitle: { fontSize: 16, fontWeight: '700', color: 'Colors.textPrimary },
+  optionTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
   optionDescription: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   comingSoonBadge: {
     backgroundColor: '#FEF3C7',
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     gap: 12,
   },
-  historyText: { fontSize: 14, fontWeight: '600', color: 'Colors.textPrimary },
+  historyText: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
   historyDate: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
   helpCard: {
     flexDirection: 'row',

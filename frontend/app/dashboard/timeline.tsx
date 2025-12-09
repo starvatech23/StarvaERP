@@ -126,7 +126,7 @@ export default function DashboardTimelineScreen() {
               <Text style={styles.statLabel}>Total</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statValue, { color: 'Colors.primary }]}>{stats.planning}</Text>
+              <Text style={[styles.statValue, { color: Colors.primary }]}>{stats.planning}</Text>
               <Text style={styles.statLabel}>Planning</Text>
             </View>
             <View style={styles.statItem}>
