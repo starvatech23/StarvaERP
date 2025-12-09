@@ -630,8 +630,8 @@ class UserManagementResponse(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     full_name: str
-    role: UserRole
-    is_active: bool
+    role: Optional[UserRole] = None
+    is_active: bool = True
     date_joined: Optional[datetime] = None
     last_login: Optional[datetime] = None
     total_projects: int = 0
