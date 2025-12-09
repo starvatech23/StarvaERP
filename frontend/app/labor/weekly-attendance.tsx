@@ -28,6 +28,22 @@ export default function WeeklyAttendanceScreen() {
   const [currentWeekStart, setCurrentWeekStart] = useState(moment().startOf('week'));
   const [attendanceData, setAttendanceData] = useState<any>({});
   const [existingAttendance, setExistingAttendance] = useState<any>({});
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // Confirmation modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    destructive?: boolean;
+  }>({
+    visible: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    destructive: false,
+  });
 
   useEffect(() => {
     loadData();
