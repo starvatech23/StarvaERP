@@ -1,27 +1,32 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import Colors from '../../constants/Colors';
 
 export default function TabsLayout() {
   const { user } = useAuth();
 
-  const canAccessCRM = user?.role === 'admin' || user?.role === 'project_manager';
+  const canAccessCRM = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'crm_manager' || user?.role === 'crm_user';
   const canAccessProjects = user?.role !== 'vendor';
   const isWorker = user?.role === 'worker';
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FF6B35',
-        tabBarInactiveTintColor: '#718096',
+        tabBarActiveTintColor: Colors.secondary,
+        tabBarInactiveTintColor: Colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopColor: '#E2E8F0',
+          backgroundColor: Colors.surface,
+          borderTopColor: Colors.border,
           height: 60,
           paddingBottom: 8,
           paddingTop: 8,
         },
         headerShown: false,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+        },
       }}
     >
       <Tabs.Screen
