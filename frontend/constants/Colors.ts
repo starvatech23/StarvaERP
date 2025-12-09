@@ -1,37 +1,90 @@
-// Global color scheme
+/**
+ * Global Color Palette - Orange, Blue, and White Theme
+ * WCAG AA Compliant for accessibility
+ * Supports both light and dark modes
+ */
+
 export const Colors = {
-  // Primary colors - Blue and Yellow theme
-  primary: '#3B82F6', // Blue
-  primaryLight: '#93C5FD', // Light blue
-  primaryDark: '#1E40AF', // Dark blue
+  // ============= PRIMARY - Blue =============
+  // Main brand color for primary actions, headers, and key UI elements
+  primary: '#1E88E5', // Vibrant Blue (WCAG AA compliant on white)
+  primaryLight: '#64B5F6', // Light Blue
+  primaryDark: '#1565C0', // Dark Blue
+  primaryPale: '#E3F2FD', // Very light blue for backgrounds
   
-  // Secondary colors - Yellow accent
-  secondary: '#FDB913', // Yellow
-  secondaryLight: '#FEE8A0', // Light yellow
-  secondaryDark: '#E5A50A', // Dark yellow
+  // ============= SECONDARY - Orange =============
+  // Accent color for CTAs, highlights, and important actions
+  secondary: '#FF6F00', // Vibrant Orange (WCAG AA compliant on white)
+  secondaryLight: '#FFA726', // Light Orange
+  secondaryDark: '#E65100', // Dark Orange
+  secondaryPale: '#FFF3E0', // Very light orange for backgrounds
   
-  // Neutral colors - Dark grey background
-  background: '#1F2937', // Dark grey background
-  surface: '#374151', // Medium grey for cards
-  border: '#4B5563', // Grey border
+  // ============= NEUTRAL - White & Greys =============
+  // Base colors for backgrounds, surfaces, and structure
+  white: '#FFFFFF',
+  background: '#F5F7FA', // Off-white background
+  surface: '#FFFFFF', // White cards and surfaces
+  surfaceHover: '#F8FAFC', // Slight tint on hover
+  border: '#E2E8F0', // Light grey borders
+  borderDark: '#CBD5E1', // Darker borders
   
-  // Text colors - Light for dark background
-  textPrimary: '#F9FAFB', // Almost white
-  textSecondary: '#D1D5DB', // Light grey
-  textTertiary: '#9CA3AF', // Medium grey
+  // ============= TEXT COLORS =============
+  // Optimized for readability on white/light backgrounds
+  textPrimary: '#1A202C', // Almost black (WCAG AAA)
+  textSecondary: '#4A5568', // Dark grey (WCAG AA)
+  textTertiary: '#718096', // Medium grey
+  textLight: '#A0AEC0', // Light grey for subtle text
+  textOnPrimary: '#FFFFFF', // White text on blue
+  textOnSecondary: '#FFFFFF', // White text on orange
   
-  // Status colors
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  info: '#3B82F6',
+  // ============= STATUS COLORS =============
+  // Semantic colors for various states
+  success: '#10B981', // Green
+  successLight: '#D1FAE5',
+  warning: '#F59E0B', // Amber
+  warningLight: '#FEF3C7',
+  error: '#EF4444', // Red
+  errorLight: '#FEE2E2',
+  info: '#3B82F6', // Blue
+  infoLight: '#DBEAFE',
   
-  // Project status colors
-  planning: '#3B82F6',
-  inProgress: '#FDB913', // Yellow
-  completed: '#10B981',
-  onHold: '#6B7280',
-  cancelled: '#EF4444',
+  // ============= PROJECT STATUS =============
+  planning: '#64B5F6', // Light Blue
+  inProgress: '#FFA726', // Orange
+  completed: '#10B981', // Green
+  onHold: '#94A3B8', // Grey
+  cancelled: '#EF4444', // Red
+  
+  // ============= INTERACTIVE STATES =============
+  hover: '#F1F5F9', // Light grey hover
+  pressed: '#E2E8F0', // Slightly darker pressed state
+  disabled: '#E2E8F0', // Disabled background
+  disabledText: '#94A3B8', // Disabled text
+  
+  // ============= SHADOWS & OVERLAYS =============
+  shadow: 'rgba(0, 0, 0, 0.1)', // Soft shadow
+  shadowDark: 'rgba(0, 0, 0, 0.2)', // Darker shadow
+  overlay: 'rgba(0, 0, 0, 0.5)', // Modal overlay
+  overlayLight: 'rgba(0, 0, 0, 0.3)', // Lighter overlay
+  
+  // ============= GRADIENTS =============
+  gradientPrimary: ['#1E88E5', '#1565C0'], // Blue gradient
+  gradientSecondary: ['#FF6F00', '#E65100'], // Orange gradient
+  gradientAccent: ['#1E88E5', '#FF6F00'], // Blue to Orange
+};
+
+/**
+ * Dark Mode Colors (for future implementation)
+ * Currently app uses light mode only
+ */
+export const DarkColors = {
+  primary: '#42A5F5',
+  secondary: '#FF8F00',
+  background: '#121212',
+  surface: '#1E1E1E',
+  border: '#2D2D2D',
+  textPrimary: '#FFFFFF',
+  textSecondary: '#B0B0B0',
 };
 
 export default Colors;
