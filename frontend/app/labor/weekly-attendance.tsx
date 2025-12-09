@@ -8,12 +8,15 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { workersAPI, laborAttendanceAPI, projectsAPI } from '../../services/api';
 import { Picker } from '@react-native-picker/picker';
 import moment from 'moment';
+import ConfirmationModal from '../../components/ConfirmationModal';
+import Colors from '../../constants/Colors';
 
 export default function WeeklyAttendanceScreen() {
   const router = useRouter();
