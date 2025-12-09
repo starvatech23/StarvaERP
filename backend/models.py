@@ -331,8 +331,8 @@ class ContactAudit(BaseModel):
 # Project Models
 class ProjectBase(BaseModel):
     name: str
-    location: str
-    address: str
+    location: Optional[str] = None
+    address: Optional[str] = None
     client_name: str
     client_contact: Optional[str] = None
     status: ProjectStatus = ProjectStatus.PLANNING
