@@ -249,13 +249,13 @@ class BackendTester:
             self.log_result("Tasks API", False, f"Exception: {str(e)}")
 
     def test_users_management_api(self):
-        """Test Users APIs - /api/users/management (GET, Admin only) - Priority 6"""
+        """Test Users APIs - /api/admin/users (GET, Admin only) - Priority 6"""
         try:
-            # Try the management endpoint first
-            response = self.make_authenticated_request("GET", "/users/management", "admin")
+            # Try the admin users endpoint first
+            response = self.make_authenticated_request("GET", "/admin/users", "admin")
             
-            if response.status_code == 404:
-                # If management endpoint doesn't exist, try regular users endpoint
+            if response.status_code == 404 or response.status_code == 405:
+                # If admin endpoint doesn't exist, try regular users endpoint
                 response = self.make_authenticated_request("GET", "/users", "admin")
             
             if response.status_code == 200:
