@@ -79,7 +79,7 @@ export default function ExpensesScreen() {
 
   const getCategoryColor = (category: string) => {
     const colors: any = {
-      labor: '#3B82F6',
+      labor: 'Colors.primary',
       materials: '#10B981',
       equipment: '#F59E0B',
       subcontractors: '#8B5CF6',
@@ -109,14 +109,14 @@ export default function ExpensesScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Expenses</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/finance/expenses/add' as any)}
         >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
+          <Ionicons name="add" size={24} color="Colors.surface" />
         </TouchableOpacity>
       </View>
 
@@ -227,7 +227,7 @@ export default function ExpensesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -240,22 +240,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   addButton: {
     width: 40,
@@ -267,9 +267,9 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
     gap: 12,
   },
   filterRow: {
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 8,
   },
   emptyButton: {
@@ -312,17 +312,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   emptyButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '600',
   },
   expenseCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   expenseHeader: {
     flexDirection: 'row',
@@ -344,11 +344,11 @@ const styles = StyleSheet.create({
   expenseDescription: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   expenseCategory: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
     textTransform: 'capitalize',
   },
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   expenseLabel: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   expenseAmount: {
     fontSize: 14,
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   },
   expenseValue: {
     fontSize: 13,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   receiptImage: {
     width: '100%',

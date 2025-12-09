@@ -262,7 +262,7 @@ export default function ProjectChatScreen() {
                   <Ionicons 
                     name={att.file_type === 'image' ? 'image' : 'document'} 
                     size={16} 
-                    color={isMe ? '#FFFFFF' : '#FF6B35'} 
+                    color={isMe ? 'Colors.surface' : 'Colors.secondary'} 
                   />
                   <Text style={[styles.attachmentText, isMe && styles.myMessageText]}>
                     {att.file_name}
@@ -284,7 +284,7 @@ export default function ProjectChatScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
           <Text style={styles.loadingText}>Loading chat...</Text>
         </View>
       </SafeAreaView>
@@ -301,7 +301,7 @@ export default function ProjectChatScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1A202C" />
+            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle}>{conversation?.project_name}</Text>
@@ -310,7 +310,7 @@ export default function ProjectChatScreen() {
             </Text>
           </View>
           <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
-            <Ionicons name="share-outline" size={24} color="#FF6B35" />
+            <Ionicons name="share-outline" size={24} color="Colors.secondary" />
           </TouchableOpacity>
         </View>
 
@@ -336,7 +336,7 @@ export default function ProjectChatScreen() {
           <View style={styles.attachmentsPreview}>
             {attachments.map((att, idx) => (
               <View key={idx} style={styles.attachmentPreviewItem}>
-                <Ionicons name="document" size={16} color="#FF6B35" />
+                <Ionicons name="document" size={16} color="Colors.secondary" />
                 <Text style={styles.attachmentPreviewText} numberOfLines={1}>
                   {att.file_name}
                 </Text>
@@ -367,7 +367,7 @@ export default function ProjectChatScreen() {
               );
             }}
           >
-            <Ionicons name="attach" size={24} color="#718096" />
+            <Ionicons name="attach" size={24} color="Colors.textSecondary" />
           </TouchableOpacity>
           
           <TextInput
@@ -386,9 +386,9 @@ export default function ProjectChatScreen() {
             disabled={sending || (!newMessage.trim() && attachments.length === 0)}
           >
             {sending ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color="Colors.surface" />
             ) : (
-              <Ionicons name="send" size={20} color="#FFFFFF" />
+              <Ionicons name="send" size={20} color="Colors.surface" />
             )}
           </TouchableOpacity>
         </View>
@@ -398,92 +398,92 @@ export default function ProjectChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFC' },
+  container: { flex: 1, backgroundColor: 'Colors.background' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: 16, fontSize: 16, color: '#718096' },
+  loadingText: { marginTop: 16, fontSize: 16, color: 'Colors.textSecondary' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: { marginRight: 12 },
   headerCenter: { flex: 1 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1A202C' },
-  headerSubtitle: { fontSize: 12, color: '#718096', marginTop: 2 },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary' },
+  headerSubtitle: { fontSize: 12, color: 'Colors.textSecondary', marginTop: 2 },
   shareButton: { marginLeft: 12 },
   messagesList: { padding: 16, flexGrow: 1 },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 60 },
-  emptyText: { fontSize: 18, fontWeight: '600', color: '#1A202C', marginTop: 16 },
-  emptySubtext: { fontSize: 14, color: '#718096', marginTop: 4 },
+  emptyText: { fontSize: 18, fontWeight: '600', color: 'Colors.textPrimary', marginTop: 16 },
+  emptySubtext: { fontSize: 14, color: 'Colors.textSecondary', marginTop: 4 },
   messageContainer: { marginBottom: 12 },
   myMessage: { alignItems: 'flex-end' },
   theirMessage: { alignItems: 'flex-start' },
   messageBubble: { maxWidth: '80%', padding: 12, borderRadius: 16 },
-  myBubble: { backgroundColor: '#FF6B35', borderBottomRightRadius: 4 },
-  theirBubble: { backgroundColor: '#FFFFFF', borderBottomLeftRadius: 4, borderWidth: 1, borderColor: '#E2E8F0' },
-  senderName: { fontSize: 12, fontWeight: '600', color: '#FF6B35', marginBottom: 4 },
+  myBubble: { backgroundColor: 'Colors.secondary', borderBottomRightRadius: 4 },
+  theirBubble: { backgroundColor: 'Colors.surface', borderBottomLeftRadius: 4, borderWidth: 1, borderColor: 'Colors.border' },
+  senderName: { fontSize: 12, fontWeight: '600', color: 'Colors.secondary', marginBottom: 4 },
   messageText: { fontSize: 15, lineHeight: 20 },
-  myMessageText: { color: '#FFFFFF' },
-  theirMessageText: { color: '#1A202C' },
+  myMessageText: { color: 'Colors.surface' },
+  theirMessageText: { color: 'Colors.textPrimary' },
   attachmentsContainer: { marginTop: 8, gap: 4 },
   attachmentBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
-  attachmentText: { fontSize: 13, color: '#FF6B35' },
+  attachmentText: { fontSize: 13, color: 'Colors.secondary' },
   timestamp: { fontSize: 10, marginTop: 4 },
-  myTimestamp: { color: '#FFFFFF', opacity: 0.8, textAlign: 'right' },
-  theirTimestamp: { color: '#718096' },
+  myTimestamp: { color: 'Colors.surface', opacity: 0.8, textAlign: 'right' },
+  theirTimestamp: { color: 'Colors.textSecondary' },
   attachmentsPreview: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
     padding: 12,
     gap: 8,
   },
   attachmentPreviewItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     padding: 8,
     borderRadius: 8,
     gap: 8,
   },
-  attachmentPreviewText: { flex: 1, fontSize: 14, color: '#1A202C' },
+  attachmentPreviewText: { flex: 1, fontSize: 14, color: 'Colors.textPrimary' },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
     gap: 12,
   },
   attachButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   input: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 15,
     maxHeight: 100,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   sendButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     alignItems: 'center',
     justifyContent: 'center',
   },

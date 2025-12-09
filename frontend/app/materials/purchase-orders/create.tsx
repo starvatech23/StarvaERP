@@ -140,7 +140,7 @@ export default function CreatePurchaseOrderScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Create Purchase Order</Text>
         <View style={{ width: 40 }} />
@@ -301,7 +301,7 @@ export default function CreatePurchaseOrderScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   header: {
     flexDirection: 'row',
@@ -309,22 +309,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   addItemButton: {
@@ -365,14 +365,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 14,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   textArea: {
     minHeight: 100,
@@ -382,12 +382,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   itemCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   itemHeader: {
     flexDirection: 'row',
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   itemTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   amountDisplay: {
     flexDirection: 'row',
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   amountLabel: {
     fontSize: 14,
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
     color: '#8B5CF6',
   },
   totalCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   totalValue: {
     fontSize: 24,
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CBD5E0',
   },
   submitButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '700',
   },

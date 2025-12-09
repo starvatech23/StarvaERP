@@ -32,7 +32,7 @@ export default function CreateFunnelScreen() {
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [stages, setStages] = useState<Stage[]>([
-    { name: 'New Lead', description: '', color: '#3B82F6', order: 1, default_probability: 0.1, expected_duration_days: 3 },
+    { name: 'New Lead', description: '', color: 'Colors.primary', order: 1, default_probability: 0.1, expected_duration_days: 3 },
     { name: 'Contacted', description: '', color: '#8B5CF6', order: 2, default_probability: 0.3, expected_duration_days: 5 },
     { name: 'Qualified', description: '', color: '#10B981', order: 3, default_probability: 0.5, expected_duration_days: 7 },
     { name: 'Proposal', description: '', color: '#F59E0B', order: 4, default_probability: 0.7, expected_duration_days: 10 },
@@ -178,7 +178,7 @@ export default function CreateFunnelScreen() {
     }
   };
 
-  const stageColors = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#14B8A6', '#F97316'];
+  const stageColors = ['Colors.primary', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#14B8A6', '#F97316'];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -186,7 +186,7 @@ export default function CreateFunnelScreen() {
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Create Funnel</Text>
@@ -276,7 +276,7 @@ export default function CreateFunnelScreen() {
                 <Text style={styles.sectionSubtitle}>{stages.length} stages configured</Text>
               </View>
               <TouchableOpacity style={styles.addStageButton} onPress={addStage}>
-                <Ionicons name="add" size={20} color="#FFFFFF" />
+                <Ionicons name="add" size={20} color="Colors.surface" />
               </TouchableOpacity>
             </View>
 
@@ -289,10 +289,10 @@ export default function CreateFunnelScreen() {
                   </View>
                   <View style={styles.stageActions}>
                     <TouchableOpacity onPress={() => moveStage(index, 'up')} disabled={index === 0}>
-                      <Ionicons name="chevron-up" size={20} color={index === 0 ? '#CBD5E0' : '#718096'} />
+                      <Ionicons name="chevron-up" size={20} color={index === 0 ? '#CBD5E0' : 'Colors.textSecondary'} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => moveStage(index, 'down')} disabled={index === stages.length - 1}>
-                      <Ionicons name="chevron-down" size={20} color={index === stages.length - 1 ? '#CBD5E0' : '#718096'} />
+                      <Ionicons name="chevron-down" size={20} color={index === stages.length - 1 ? '#CBD5E0' : 'Colors.textSecondary'} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => removeStage(index)}>
                       <Ionicons name="trash-outline" size={20} color="#EF4444" />
@@ -325,7 +325,7 @@ export default function CreateFunnelScreen() {
                         onPress={() => updateStage(index, 'color', color)}
                       >
                         {stage.color === color && (
-                          <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                          <Ionicons name="checkmark" size={16} color="Colors.surface" />
                         )}
                       </TouchableOpacity>
                     ))}
@@ -372,44 +372,44 @@ export default function CreateFunnelScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFC' },
+  container: { flex: 1, backgroundColor: 'Colors.background' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
     gap: 12,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: '#1A202C' },
-  headerSubtitle: { fontSize: 13, color: '#718096', marginTop: 2 },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary' },
+  headerSubtitle: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
   saveButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   saveButtonDisabled: { backgroundColor: '#CBD5E0' },
-  saveButtonText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  saveButtonText: { fontSize: 16, fontWeight: '700', color: 'Colors.surface' },
   content: { flex: 1, padding: 16 },
   section: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
   },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1A202C', marginBottom: 4 },
-  sectionSubtitle: { fontSize: 13, color: '#718096', marginBottom: 16 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary', marginBottom: 4 },
+  sectionSubtitle: { fontSize: 13, color: 'Colors.textSecondary', marginBottom: 16 },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -419,14 +419,14 @@ const styles = StyleSheet.create({
   inputGroup: { marginBottom: 16 },
   label: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 8 },
   input: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   textArea: { height: 80, textAlignVertical: 'top' },
   categoriesGrid: {
@@ -441,28 +441,28 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     gap: 6,
   },
   categoryChipSelected: { backgroundColor: '#F0FDF4' },
   categoryDot: { width: 10, height: 10, borderRadius: 5 },
   categoryChipText: { fontSize: 14, fontWeight: '600', color: '#4A5568' },
-  categoryChipTextSelected: { color: '#1A202C' },
+  categoryChipTextSelected: { color: 'Colors.textPrimary' },
   addStageButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     alignItems: 'center',
     justifyContent: 'center',
   },
   stageCard: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   stageHeader: {
     flexDirection: 'row',
@@ -475,16 +475,16 @@ const styles = StyleSheet.create({
   stageNumber: { fontSize: 14, fontWeight: '700', color: '#4A5568' },
   stageActions: { flexDirection: 'row', gap: 12 },
   stageInputGroup: { marginBottom: 12 },
-  stageLabel: { fontSize: 12, fontWeight: '600', color: '#718096', marginBottom: 6 },
+  stageLabel: { fontSize: 12, fontWeight: '600', color: 'Colors.textSecondary', marginBottom: 6 },
   stageInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 14,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   colorPicker: {
     flexDirection: 'row',
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
   },
   colorOptionSelected: {
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: 'Colors.surface',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,

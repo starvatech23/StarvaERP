@@ -66,7 +66,7 @@ export default function RolesListScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -77,14 +77,14 @@ export default function RolesListScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Role Management</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/admin/roles/create' as any)}
         >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
+          <Ionicons name="add" size={24} color="Colors.surface" />
         </TouchableOpacity>
       </View>
 
@@ -114,7 +114,7 @@ export default function RolesListScreen() {
               >
                 <View style={styles.roleHeader}>
                   <View style={styles.roleIcon}>
-                    <Ionicons name="shield-checkmark" size={24} color="#3B82F6" />
+                    <Ionicons name="shield-checkmark" size={24} color="Colors.primary" />
                   </View>
                   <View style={styles.roleInfo}>
                     <Text style={styles.roleName}>{role.name}</Text>
@@ -143,7 +143,7 @@ export default function RolesListScreen() {
                     style={styles.editButton}
                     onPress={() => router.push(`/admin/roles/edit/${role.id}` as any)}
                   >
-                    <Ionicons name="create-outline" size={18} color="#3B82F6" />
+                    <Ionicons name="create-outline" size={18} color="Colors.primary" />
                     <Text style={styles.editButtonText}>Edit</Text>
                   </TouchableOpacity>
 
@@ -160,7 +160,7 @@ export default function RolesListScreen() {
                     onPress={() => router.push(`/admin/roles/edit/${role.id}` as any)}
                   >
                     <Text style={styles.permissionsButtonText}>Permissions</Text>
-                    <Ionicons name="chevron-forward" size={18} color="#718096" />
+                    <Ionicons name="chevron-forward" size={18} color="Colors.textSecondary" />
                   </TouchableOpacity>
                 </View>
               </TouchableOpacity>
@@ -175,7 +175,7 @@ export default function RolesListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -188,28 +188,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -225,12 +225,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 16,
   },
   emptyText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     marginTop: 8,
   },
@@ -240,16 +240,16 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 12,
   },
   roleCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   roleHeader: {
     flexDirection: 'row',
@@ -271,11 +271,11 @@ const styles = StyleSheet.create({
   roleName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   roleDescription: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 4,
   },
   roleActions: {
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
     gap: 8,
   },
   editButton: {
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   editButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#3B82F6',
+    color: 'Colors.primary',
   },
   deleteButton: {
     flexDirection: 'row',
@@ -359,6 +359,6 @@ const styles = StyleSheet.create({
   permissionsButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
 });

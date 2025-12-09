@@ -92,7 +92,7 @@ export default function CreateLeadScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Create Lead</Text>
         <View style={{ width: 40 }} />
@@ -261,8 +261,8 @@ export default function CreateLeadScreen() {
               <Switch
                 value={formData.whatsapp_consent}
                 onValueChange={(value) => setFormData({ ...formData, whatsapp_consent: value })}
-                trackColor={{ false: '#E2E8F0', true: '#10B981' }}
-                thumbColor="#FFFFFF"
+                trackColor={{ false: 'Colors.border', true: '#10B981' }}
+                thumbColor="Colors.surface"
               />
             </View>
 
@@ -272,8 +272,8 @@ export default function CreateLeadScreen() {
                 <Switch
                   value={formData.send_whatsapp}
                   onValueChange={(value) => setFormData({ ...formData, send_whatsapp: value })}
-                  trackColor={{ false: '#E2E8F0', true: '#10B981' }}
-                  thumbColor="#FFFFFF"
+                  trackColor={{ false: 'Colors.border', true: '#10B981' }}
+                  thumbColor="Colors.surface"
                 />
               </View>
             )}
@@ -298,7 +298,7 @@ export default function CreateLeadScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="Colors.surface" />
             ) : (
               <Text style={styles.submitButtonText}>Create Lead</Text>
             )}
@@ -312,25 +312,25 @@ export default function CreateLeadScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFC' },
+  container: { flex: 1, backgroundColor: 'Colors.background' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: { width: 40 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: '#1A202C' },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary' },
   content: { flex: 1, padding: 16 },
   section: { marginBottom: 24 },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 16,
   },
   label: {
@@ -340,14 +340,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 16,
   },
   textArea: {
@@ -359,9 +359,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   pickerContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     marginBottom: 16,
     overflow: 'hidden',
@@ -373,13 +373,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
   },
   submitButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   submitButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '700',
   },

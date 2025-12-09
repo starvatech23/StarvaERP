@@ -132,7 +132,7 @@ export default function CreateProjectScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#1A202C" />
+            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Create Project</Text>
           <View style={{ width: 40 }} />
@@ -240,7 +240,7 @@ export default function CreateProjectScreen() {
             <Text style={styles.sectionTitle}>Photos</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
-                <Ionicons name="camera" size={32} color="#FF6B35" />
+                <Ionicons name="camera" size={32} color="Colors.secondary" />
                 <Text style={styles.photoButtonText}>Add Photo</Text>
               </TouchableOpacity>
 
@@ -264,7 +264,7 @@ export default function CreateProjectScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="Colors.surface" />
             ) : (
               <Text style={styles.createButtonText}>Create Project</Text>
             )}
@@ -278,7 +278,7 @@ export default function CreateProjectScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   keyboardView: {
     flex: 1,
@@ -289,22 +289,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   scrollContent: {
     padding: 16,
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 16,
   },
   label: {
@@ -325,14 +325,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     marginBottom: 16,
   },
   textArea: {
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#FF6B35',
+    borderColor: 'Colors.secondary',
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   },
   photoButtonText: {
     fontSize: 12,
-    color: '#FF6B35',
+    color: 'Colors.secondary',
     marginTop: 8,
     fontWeight: '600',
   },
@@ -369,11 +369,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
   },
   createButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   createButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '600',
   },

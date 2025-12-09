@@ -67,7 +67,7 @@ export default function VendorsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="Colors.primary" />
         </View>
       </SafeAreaView>
     );
@@ -77,20 +77,20 @@ export default function VendorsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Vendors</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/materials/vendors/add' as any)}
         >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
+          <Ionicons name="add" size={24} color="Colors.surface" />
         </TouchableOpacity>
       </View>
 
       {/* Search */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#718096" />
+        <Ionicons name="search" size={20} color="Colors.textSecondary" />
         <TextInput
           style={styles.searchInput}
           placeholder="Search vendors..."
@@ -124,7 +124,7 @@ export default function VendorsScreen() {
             <View key={vendor.id} style={styles.vendorCard}>
               <View style={styles.vendorHeader}>
                 <View style={styles.vendorIcon}>
-                  <Ionicons name="business" size={24} color="#3B82F6" />
+                  <Ionicons name="business" size={24} color="Colors.primary" />
                 </View>
                 <View style={styles.vendorInfo}>
                   <Text style={styles.vendorName}>{vendor.business_name}</Text>
@@ -140,19 +140,19 @@ export default function VendorsScreen() {
               <View style={styles.vendorDetails}>
                 {vendor.phone && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="call" size={16} color="#718096" />
+                    <Ionicons name="call" size={16} color="Colors.textSecondary" />
                     <Text style={styles.detailText}>{vendor.phone}</Text>
                   </View>
                 )}
                 {vendor.email && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="mail" size={16} color="#718096" />
+                    <Ionicons name="mail" size={16} color="Colors.textSecondary" />
                     <Text style={styles.detailText}>{vendor.email}</Text>
                   </View>
                 )}
                 {vendor.address && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="location" size={16} color="#718096" />
+                    <Ionicons name="location" size={16} color="Colors.textSecondary" />
                     <Text style={styles.detailText}>{vendor.address}</Text>
                   </View>
                 )}
@@ -173,7 +173,7 @@ export default function VendorsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -186,45 +186,45 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     alignItems: 'center',
     justifyContent: 'center',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   searchInput: {
     flex: 1,
     marginLeft: 8,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
@@ -244,28 +244,28 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 8,
   },
   emptyButton: {
     marginTop: 24,
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   emptyButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '600',
   },
   vendorCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   vendorHeader: {
     flexDirection: 'row',
@@ -287,11 +287,11 @@ const styles = StyleSheet.create({
   vendorName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   vendorContact: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
   },
   vendorDetails: {

@@ -97,7 +97,7 @@ export default function CreateMaterialRequirementScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Material Requirement</Text>
         <View style={{ width: 40 }} />
@@ -138,11 +138,11 @@ export default function CreateMaterialRequirementScreen() {
                   <Text style={styles.infoText}>{selectedMaterial.name}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                  <Ionicons name="pricetag-outline" size={20} color="#718096" />
+                  <Ionicons name="pricetag-outline" size={20} color="Colors.textSecondary" />
                   <Text style={styles.infoText}>Category: {selectedMaterial.category}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                  <Ionicons name="resize-outline" size={20} color="#718096" />
+                  <Ionicons name="resize-outline" size={20} color="Colors.textSecondary" />
                   <Text style={styles.infoText}>Unit: {selectedMaterial.unit}</Text>
                 </View>
                 {selectedMaterial.minimum_stock && (
@@ -232,7 +232,7 @@ export default function CreateMaterialRequirementScreen() {
             onPress={handleSubmit}
             disabled={loading}
           >
-            <Ionicons name="checkmark-circle-outline" size={20} color="#FFFFFF" />
+            <Ionicons name="checkmark-circle-outline" size={20} color="Colors.surface" />
             <Text style={styles.submitButtonText}>
               {loading ? 'Creating...' : 'Create Requirement'}
             </Text>
@@ -258,7 +258,7 @@ const getPriorityColor = (level: string, isActive: boolean) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   header: {
     flexDirection: 'row',
@@ -266,22 +266,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   inputGroup: {
@@ -306,14 +306,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 14,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   textArea: {
     minHeight: 100,
@@ -322,16 +322,16 @@ const styles = StyleSheet.create({
   quantityInput: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingRight: 12,
   },
   unitText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginLeft: 8,
   },
   infoCard: {
@@ -363,11 +363,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   priorityButtonActive: {
     borderWidth: 2,
-    borderColor: '#1A202C',
+    borderColor: 'Colors.textPrimary',
   },
   priorityButtonText: {
     fontSize: 12,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     color: '#4A5568',
   },
   priorityButtonTextActive: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   submitButton: {
     flexDirection: 'row',
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CBD5E0',
   },
   submitButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '700',
   },

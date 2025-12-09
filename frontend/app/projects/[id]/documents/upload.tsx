@@ -108,7 +108,7 @@ export default function UploadDocumentScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#1A202C" />
+            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Upload Document</Text>
           <View style={{ width: 40 }} />
@@ -160,7 +160,7 @@ export default function UploadDocumentScreen() {
 
             <Text style={styles.label}>File *</Text>
             <TouchableOpacity style={styles.filePickerButton} onPress={pickDocument}>
-              <Ionicons name="cloud-upload-outline" size={24} color="#3B82F6" />
+              <Ionicons name="cloud-upload-outline" size={24} color="Colors.primary" />
               <Text style={styles.filePickerText}>
                 {selectedFile ? selectedFile.name : 'Choose File'}
               </Text>
@@ -188,10 +188,10 @@ export default function UploadDocumentScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="Colors.surface" />
             ) : (
               <>
-                <Ionicons name="cloud-upload" size={20} color="#FFFFFF" />
+                <Ionicons name="cloud-upload" size={20} color="Colors.surface" />
                 <Text style={styles.uploadButtonText}>Upload Document</Text>
               </>
             )}
@@ -205,7 +205,7 @@ export default function UploadDocumentScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   keyboardView: {
     flex: 1,
@@ -216,29 +216,29 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
   },
   section: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     marginBottom: 12,
   },
   label: {
@@ -249,14 +249,14 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   input: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   textArea: {
     height: 100,
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   },
   filePickerText: {
     fontSize: 16,
-    color: '#3B82F6',
+    color: 'Colors.primary',
     fontWeight: '600',
     marginLeft: 8,
   },
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   fileName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   fileSize: {
     fontSize: 12,
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     marginHorizontal: 16,
     marginVertical: 24,
     paddingVertical: 16,
@@ -317,6 +317,6 @@ const styles = StyleSheet.create({
   uploadButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
 });

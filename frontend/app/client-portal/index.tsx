@@ -75,7 +75,7 @@ export default function ClientPortalIndexScreen() {
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Ionicons name="business-outline" size={48} color="#3B82F6" />
+          <Ionicons name="business-outline" size={48} color="Colors.primary" />
           <Text style={styles.title}>Client Portal</Text>
           <Text style={styles.subtitle}>
             Access your project timeline and chat with your team
@@ -122,7 +122,7 @@ export default function ClientPortalIndexScreen() {
             <Text style={styles.accessButtonText}>Logging in...</Text>
           ) : (
             <>
-              <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+              <Ionicons name="arrow-forward" size={20} color="Colors.surface" />
               <Text style={styles.accessButtonText}>Access Portal</Text>
             </>
           )}
@@ -150,7 +150,7 @@ export default function ClientPortalIndexScreen() {
             <Text style={styles.featureText}>View project timeline and milestones</Text>
           </View>
           <View style={styles.feature}>
-            <Ionicons name="chatbubble-outline" size={20} color="#3B82F6" />
+            <Ionicons name="chatbubble-outline" size={20} color="Colors.primary" />
             <Text style={styles.featureText}>Chat with your project team</Text>
           </View>
           <View style={styles.feature}>
@@ -166,7 +166,7 @@ export default function ClientPortalIndexScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   content: {
     flex: 1,
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 16,
     marginBottom: 8,
   },
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 8,
   },
   input: {
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     marginBottom: 8,
   },
   inputHint: {
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   accessButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#9CA3AF',
   },
   accessButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -238,12 +238,12 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 32,
     borderLeftWidth: 4,
-    borderLeftColor: '#3B82F6',
+    borderLeftColor: 'Colors.primary',
   },
   demoTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 8,
   },
   demoText: {
@@ -252,19 +252,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   demoButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
     alignSelf: 'flex-start',
   },
   demoButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 12,
     fontFamily: 'monospace',
   },
   featuresSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   featuresTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 16,
   },
   feature: {

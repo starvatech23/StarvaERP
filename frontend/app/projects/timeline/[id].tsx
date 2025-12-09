@@ -68,7 +68,7 @@ export default function ProjectTimelineScreen() {
   const getTaskColor = (status: string) => {
     switch (status) {
       case 'pending': return '#F59E0B';
-      case 'in_progress': return '#3B82F6';
+      case 'in_progress': return 'Colors.primary';
       case 'completed': return '#10B981';
       case 'cancelled': return '#EF4444';
       default: return '#6B7280';
@@ -93,7 +93,7 @@ export default function ProjectTimelineScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -111,7 +111,7 @@ export default function ProjectTimelineScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Project Timeline</Text>
         <View style={styles.placeholder} />
@@ -126,14 +126,14 @@ export default function ProjectTimelineScreen() {
           {project.start_date && project.end_date && (
             <View style={styles.dateRange}>
               <View style={styles.dateItem}>
-                <Ionicons name="calendar-outline" size={16} color="#718096" />
+                <Ionicons name="calendar-outline" size={16} color="Colors.textSecondary" />
                 <Text style={styles.dateLabel}>Start:</Text>
                 <Text style={styles.dateValue}>
                   {moment(project.start_date).format('MMM DD, YYYY')}
                 </Text>
               </View>
               <View style={styles.dateItem}>
-                <Ionicons name="calendar" size={16} color="#718096" />
+                <Ionicons name="calendar" size={16} color="Colors.textSecondary" />
                 <Text style={styles.dateLabel}>End:</Text>
                 <Text style={styles.dateValue}>
                   {moment(project.end_date).format('MMM DD, YYYY')}
@@ -158,7 +158,7 @@ export default function ProjectTimelineScreen() {
             
             <View style={styles.statCard}>
               <View style={[styles.statIcon, { backgroundColor: '#EFF6FF' }]}>
-                <Ionicons name="sync-circle" size={24} color="#3B82F6" />
+                <Ionicons name="sync-circle" size={24} color="Colors.primary" />
               </View>
               <Text style={styles.statValue}>{stats.inProgress}</Text>
               <Text style={styles.statLabel}>In Progress</Text>
@@ -269,7 +269,7 @@ export default function ProjectTimelineScreen() {
                   </View>
                   {task.due_date && (
                     <View style={styles.taskMeta}>
-                      <Ionicons name="calendar-outline" size={14} color="#718096" />
+                      <Ionicons name="calendar-outline" size={14} color="Colors.textSecondary" />
                       <Text style={styles.taskMetaText}>
                         Due: {moment(task.due_date).format('MMM DD, YYYY')}
                       </Text>
@@ -277,7 +277,7 @@ export default function ProjectTimelineScreen() {
                   )}
                   {task.assigned_users && task.assigned_users.length > 0 && (
                     <View style={styles.taskMeta}>
-                      <Ionicons name="people-outline" size={14} color="#718096" />
+                      <Ionicons name="people-outline" size={14} color="Colors.textSecondary" />
                       <Text style={styles.taskMetaText}>
                         {task.assigned_users.map((u: any) => u.name).join(', ')}
                       </Text>
@@ -296,7 +296,7 @@ export default function ProjectTimelineScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -309,22 +309,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   placeholder: {
     width: 40,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -346,12 +346,12 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
   },
   projectLocation: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 16,
   },
   dateRange: {
@@ -364,17 +364,17 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   dateValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 16,
   },
   statsContainer: {
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 12,
   },
   statIcon: {
@@ -400,12 +400,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
   },
   progressSection: {
@@ -419,16 +419,16 @@ const styles = StyleSheet.create({
   progressLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   progressPercentage: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FF6B35',
+    color: 'Colors.secondary',
   },
   progressBarContainer: {
     height: 8,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: 'Colors.border',
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
   },
   timelineItem: {
     flexDirection: 'row',
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     padding: 12,
     borderRadius: 8,
     gap: 12,
@@ -454,12 +454,12 @@ const styles = StyleSheet.create({
   timelineName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
   },
   timelineDate: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 2,
   },
   timelineDuration: {
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   },
   timelineBarContainer: {
     height: 8,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: 'Colors.border',
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 4,
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   timelineProgress: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'right',
   },
   emptyState: {
@@ -494,13 +494,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     paddingHorizontal: 32,
   },
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   },
   taskCard: {
     padding: 12,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
   },
   taskHeader: {
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     flex: 1,
   },
   taskStatus: {
@@ -547,6 +547,6 @@ const styles = StyleSheet.create({
   },
   taskMetaText: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
 });

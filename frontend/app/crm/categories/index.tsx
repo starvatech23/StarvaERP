@@ -28,10 +28,10 @@ export default function CategoriesScreen() {
   // Form state
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedColor, setSelectedColor] = useState('#3B82F6');
+  const [selectedColor, setSelectedColor] = useState('Colors.primary');
 
   const colors = [
-    '#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', 
+    'Colors.primary', '#8B5CF6', '#10B981', '#F59E0B', 
     '#EF4444', '#EC4899', '#14B8A6', '#F97316',
     '#6366F1', '#84CC16', '#06B6D4', '#A855F7'
   ];
@@ -58,12 +58,12 @@ export default function CategoriesScreen() {
       setEditingCategory(category);
       setName(category.name);
       setDescription(category.description || '');
-      setSelectedColor(category.color || '#3B82F6');
+      setSelectedColor(category.color || 'Colors.primary');
     } else {
       setEditingCategory(null);
       setName('');
       setDescription('');
-      setSelectedColor('#3B82F6');
+      setSelectedColor('Colors.primary');
     }
     setModalVisible(true);
   };
@@ -73,7 +73,7 @@ export default function CategoriesScreen() {
     setEditingCategory(null);
     setName('');
     setDescription('');
-    setSelectedColor('#3B82F6');
+    setSelectedColor('Colors.primary');
   };
 
   const handleSave = async () => {
@@ -137,7 +137,7 @@ export default function CategoriesScreen() {
       <SafeAreaView style={styles.container}>
         <BackToHome />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -156,7 +156,7 @@ export default function CategoriesScreen() {
           style={styles.addButton}
           onPress={() => openModal()}
         >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
+          <Ionicons name="add" size={24} color="Colors.surface" />
         </TouchableOpacity>
       </View>
 
@@ -179,7 +179,7 @@ export default function CategoriesScreen() {
               style={styles.emptyButton}
               onPress={() => openModal()}
             >
-              <Ionicons name="add" size={20} color="#FFFFFF" />
+              <Ionicons name="add" size={20} color="Colors.surface" />
               <Text style={styles.emptyButtonText}>Create Category</Text>
             </TouchableOpacity>
           </View>
@@ -194,7 +194,7 @@ export default function CategoriesScreen() {
                     <Text style={styles.categoryDescription}>{category.description}</Text>
                   )}
                   <View style={styles.categoryStats}>
-                    <Ionicons name="people" size={14} color="#718096" />
+                    <Ionicons name="people" size={14} color="Colors.textSecondary" />
                     <Text style={styles.categoryStatsText}>
                       {category.lead_count || 0} leads
                     </Text>
@@ -207,7 +207,7 @@ export default function CategoriesScreen() {
                   style={styles.actionButton}
                   onPress={() => openModal(category)}
                 >
-                  <Ionicons name="create-outline" size={20} color="#3B82F6" />
+                  <Ionicons name="create-outline" size={20} color="Colors.primary" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.actionButton}
@@ -240,7 +240,7 @@ export default function CategoriesScreen() {
                 {editingCategory ? 'Edit Category' : 'New Category'}
               </Text>
               <TouchableOpacity onPress={closeModal}>
-                <Ionicons name="close" size={28} color="#718096" />
+                <Ionicons name="close" size={28} color="Colors.textSecondary" />
               </TouchableOpacity>
             </View>
 
@@ -283,7 +283,7 @@ export default function CategoriesScreen() {
                       onPress={() => setSelectedColor(color)}
                     >
                       {selectedColor === color && (
-                        <Ionicons name="checkmark" size={20} color="#FFFFFF" />
+                        <Ionicons name="checkmark" size={20} color="Colors.surface" />
                       )}
                     </TouchableOpacity>
                   ))}
@@ -323,24 +323,24 @@ export default function CategoriesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFC' },
+  container: { flex: 1, backgroundColor: 'Colors.background' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: '#1A202C' },
-  headerSubtitle: { fontSize: 13, color: '#718096', marginTop: 2 },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary' },
+  headerSubtitle: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
   addButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -356,24 +356,24 @@ const styles = StyleSheet.create({
   },
   infoText: { flex: 1, fontSize: 14, color: '#5B21B6', lineHeight: 20 },
   emptyState: { alignItems: 'center', paddingVertical: 60 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#1A202C', marginTop: 16 },
-  emptyText: { fontSize: 14, color: '#718096', textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary', marginTop: 16 },
+  emptyText: { fontSize: 14, color: 'Colors.textSecondary', textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
   emptyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 24,
     gap: 8,
   },
-  emptyButtonText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  emptyButtonText: { fontSize: 16, fontWeight: '700', color: 'Colors.surface' },
   categoryCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -385,16 +385,16 @@ const styles = StyleSheet.create({
   },
   categoryLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 },
   colorDot: { width: 20, height: 20, borderRadius: 10 },
-  categoryName: { fontSize: 16, fontWeight: '700', color: '#1A202C' },
-  categoryDescription: { fontSize: 13, color: '#718096', marginTop: 2 },
+  categoryName: { fontSize: 16, fontWeight: '700', color: 'Colors.textPrimary' },
+  categoryDescription: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
   categoryStats: { flexDirection: 'row', alignItems: 'center', marginTop: 6, gap: 4 },
-  categoryStatsText: { fontSize: 12, color: '#718096' },
+  categoryStatsText: { fontSize: 12, color: 'Colors.textSecondary' },
   categoryActions: { flexDirection: 'row', gap: 8 },
   actionButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
@@ -417,21 +417,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: '#1A202C' },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary' },
   modalBody: { padding: 20 },
   inputGroup: { marginBottom: 20 },
   label: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 8 },
   input: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   textArea: { height: 80, textAlignVertical: 'top' },
   colorGrid: {
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   },
   colorOptionSelected: {
     borderWidth: 3,
-    borderColor: '#FFFFFF',
+    borderColor: 'Colors.surface',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -456,27 +456,27 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   previewCard: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     padding: 16,
     borderRadius: 8,
     marginTop: 8,
   },
-  previewLabel: { fontSize: 12, fontWeight: '600', color: '#718096', marginBottom: 8 },
+  previewLabel: { fontSize: 12, fontWeight: '600', color: 'Colors.textSecondary', marginBottom: 8 },
   previewItem: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   previewDot: { width: 16, height: 16, borderRadius: 8 },
-  previewText: { fontSize: 16, fontWeight: '600', color: '#1A202C' },
+  previewText: { fontSize: 16, fontWeight: '600', color: 'Colors.textPrimary' },
   modalFooter: {
     flexDirection: 'row',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
     gap: 12,
   },
   cancelButton: {
     flex: 1,
     paddingVertical: 14,
     borderRadius: 8,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
   },
   cancelButtonText: { fontSize: 16, fontWeight: '700', color: '#4A5568' },
@@ -484,8 +484,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     borderRadius: 8,
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     alignItems: 'center',
   },
-  saveButtonText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  saveButtonText: { fontSize: 16, fontWeight: '700', color: 'Colors.surface' },
 });

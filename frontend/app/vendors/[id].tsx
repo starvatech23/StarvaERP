@@ -66,7 +66,7 @@ export default function VendorDetailsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -80,7 +80,7 @@ export default function VendorDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Vendor Details</Text>
         <View style={{ width: 40 }} />
@@ -89,7 +89,7 @@ export default function VendorDetailsScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
           <View style={styles.iconContainer}>
-            <Ionicons name="business" size={48} color="#FF6B35" />
+            <Ionicons name="business" size={48} color="Colors.secondary" />
           </View>
           <Text style={styles.companyName}>{vendor.company_name}</Text>
           <Text style={styles.contactPerson}>{vendor.contact_person}</Text>
@@ -99,20 +99,20 @@ export default function VendorDetailsScreen() {
           <Text style={styles.cardTitle}>Contact Information</Text>
           
           <View style={styles.infoRow}>
-            <Ionicons name="call" size={18} color="#718096" />
+            <Ionicons name="call" size={18} color="Colors.textSecondary" />
             <Text style={styles.infoText}>{vendor.phone}</Text>
           </View>
 
           {vendor.email && (
             <View style={styles.infoRow}>
-              <Ionicons name="mail" size={18} color="#718096" />
+              <Ionicons name="mail" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>{vendor.email}</Text>
             </View>
           )}
 
           {vendor.address && (
             <View style={styles.infoRow}>
-              <Ionicons name="location" size={18} color="#718096" />
+              <Ionicons name="location" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>{vendor.address}</Text>
             </View>
           )}
@@ -124,7 +124,7 @@ export default function VendorDetailsScreen() {
             
             {vendor.payment_terms && (
               <View style={styles.infoRow}>
-                <Ionicons name="cash" size={18} color="#718096" />
+                <Ionicons name="cash" size={18} color="Colors.textSecondary" />
                 <Text style={styles.infoText}>{vendor.payment_terms}</Text>
               </View>
             )}
@@ -152,7 +152,7 @@ export default function VendorDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -165,28 +165,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   scrollContent: {
     padding: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -209,18 +209,18 @@ const styles = StyleSheet.create({
   companyName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
     textAlign: 'center',
   },
   contactPerson: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
     alignSelf: 'flex-start',
     width: '100%',

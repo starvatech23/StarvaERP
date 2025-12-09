@@ -128,7 +128,7 @@ export default function WeeklyAttendanceScreen() {
       case 'present': return '#10B981';
       case 'overtime': return '#F59E0B';
       case 'absent': return '#EF4444';
-      default: return '#F7FAFC';
+      default: return 'Colors.background';
     }
   };
 
@@ -234,7 +234,7 @@ export default function WeeklyAttendanceScreen() {
   if (fetchingData) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#FF6B35" style={styles.loader} />
+        <ActivityIndicator size="large" color="Colors.secondary" style={styles.loader} />
       </SafeAreaView>
     );
   }
@@ -245,7 +245,7 @@ export default function WeeklyAttendanceScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Weekly Attendance</Text>
         <View style={styles.placeholder} />
@@ -255,7 +255,7 @@ export default function WeeklyAttendanceScreen() {
         {/* Week Navigation */}
         <View style={styles.weekNav}>
           <TouchableOpacity style={styles.weekButton} onPress={() => changeWeek(-1)}>
-            <Ionicons name="chevron-back" size={24} color="#FF6B35" />
+            <Ionicons name="chevron-back" size={24} color="Colors.secondary" />
           </TouchableOpacity>
           <Text style={styles.weekText}>
             {moment(currentWeekStart).format('DD MMM')} - {moment(currentWeekStart).add(6, 'days').format('DD MMM YYYY')}
@@ -268,7 +268,7 @@ export default function WeeklyAttendanceScreen() {
             <Ionicons 
               name="chevron-forward" 
               size={24} 
-              color={moment(currentWeekStart).add(7, 'days').isAfter(moment(), 'week') ? '#CBD5E0' : '#FF6B35'} 
+              color={moment(currentWeekStart).add(7, 'days').isAfter(moment(), 'week') ? '#CBD5E0' : 'Colors.secondary'} 
             />
           </TouchableOpacity>
         </View>
@@ -429,10 +429,10 @@ export default function WeeklyAttendanceScreen() {
           disabled={loading || Object.keys(attendanceData).length === 0}
         >
           {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color="Colors.surface" />
           ) : (
             <>
-              <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+              <Ionicons name="checkmark-circle" size={20} color="Colors.surface" />
               <Text style={styles.saveButtonText}>
                 Save ({Object.keys(attendanceData).length})
               </Text>
@@ -447,7 +447,7 @@ export default function WeeklyAttendanceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loader: {
     flex: 1,
@@ -458,9 +458,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     padding: 8,
@@ -468,16 +468,16 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   placeholder: {
     width: 40,
   },
   controlsSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   weekNav: {
     flexDirection: 'row',
@@ -491,31 +491,31 @@ const styles = StyleSheet.create({
   weekText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   pickerContainer: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   gridContainer: {
     flex: 1,
   },
   headerRow: {
     flexDirection: 'row',
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     borderBottomWidth: 2,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   nameColumn: {
     width: 140,
     padding: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRightWidth: 1,
-    borderRightColor: '#E2E8F0',
+    borderRightColor: 'Colors.border',
     justifyContent: 'center',
   },
   dateColumn: {
@@ -528,18 +528,18 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   dayText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     marginBottom: 2,
   },
   dateNumText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     marginBottom: 4,
   },
   bulkDayButtons: {
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
   miniButtonText: {
     fontSize: 8,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   workersScroll: {
     maxHeight: 500,
@@ -565,20 +565,20 @@ const styles = StyleSheet.create({
   workerRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   evenRow: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   workerName: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 2,
   },
   workerSkill: {
     fontSize: 10,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textTransform: 'capitalize',
     marginBottom: 6,
   },
@@ -595,13 +595,13 @@ const styles = StyleSheet.create({
   bulkRowButtonText: {
     fontSize: 8,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   dateCell: {
     width: 80,
     height: 100,
     borderRightWidth: 1,
-    borderRightColor: '#E2E8F0',
+    borderRightColor: 'Colors.border',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -614,13 +614,13 @@ const styles = StyleSheet.create({
     color: '#CBD5E0',
   },
   cellTextMarked: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   footer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   legend: {
     flexDirection: 'row',
@@ -640,10 +640,10 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   saveButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     padding: 16,
     borderRadius: 12,
     flexDirection: 'row',
@@ -657,6 +657,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
 });

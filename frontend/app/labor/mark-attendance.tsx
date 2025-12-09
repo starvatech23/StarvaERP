@@ -103,7 +103,7 @@ export default function MarkAttendanceScreen() {
       case 'present': return '#10B981';
       case 'overtime': return '#F59E0B';
       case 'absent': return '#EF4444';
-      default: return '#E2E8F0';
+      default: return 'Colors.border';
     }
   };
 
@@ -205,7 +205,7 @@ export default function MarkAttendanceScreen() {
   if (fetchingData) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#FF6B35" style={styles.loader} />
+        <ActivityIndicator size="large" color="Colors.secondary" style={styles.loader} />
       </SafeAreaView>
     );
   }
@@ -214,7 +214,7 @@ export default function MarkAttendanceScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Mark Attendance</Text>
         <View style={styles.placeholder} />
@@ -229,10 +229,10 @@ export default function MarkAttendanceScreen() {
               style={styles.dateButton}
               onPress={() => changeDate(-1)}
             >
-              <Ionicons name="chevron-back" size={24} color="#FF6B35" />
+              <Ionicons name="chevron-back" size={24} color="Colors.secondary" />
             </TouchableOpacity>
             <View style={styles.dateDisplay}>
-              <Ionicons name="calendar" size={20} color="#FF6B35" />
+              <Ionicons name="calendar" size={20} color="Colors.secondary" />
               <Text style={styles.dateText}>{moment(selectedDate).format('DD MMM YYYY')}</Text>
             </View>
             <TouchableOpacity
@@ -243,7 +243,7 @@ export default function MarkAttendanceScreen() {
               <Ionicons
                 name="chevron-forward"
                 size={24}
-                color={moment(selectedDate).isAfter(moment(), 'day') ? '#CBD5E0' : '#FF6B35'}
+                color={moment(selectedDate).isAfter(moment(), 'day') ? '#CBD5E0' : 'Colors.secondary'}
               />
             </TouchableOpacity>
           </View>
@@ -308,7 +308,7 @@ export default function MarkAttendanceScreen() {
                 <View key={worker.id} style={styles.workerCard}>
                   <View style={styles.workerInfo}>
                     <View style={styles.workerAvatar}>
-                      <Ionicons name="person" size={24} color="#FF6B35" />
+                      <Ionicons name="person" size={24} color="Colors.secondary" />
                     </View>
                     <View style={styles.workerDetails}>
                       <Text style={styles.workerName}>{worker.full_name}</Text>
@@ -337,7 +337,7 @@ export default function MarkAttendanceScreen() {
                         style={[
                           styles.actionButtonText,
                           status === 'present' && styles.actionButtonTextActive,
-                          { color: status === 'present' ? '#FFFFFF' : '#10B981' },
+                          { color: status === 'present' ? 'Colors.surface' : '#10B981' },
                         ]}
                       >
                         P
@@ -356,7 +356,7 @@ export default function MarkAttendanceScreen() {
                         style={[
                           styles.actionButtonText,
                           status === 'overtime' && styles.actionButtonTextActive,
-                          { color: status === 'overtime' ? '#FFFFFF' : '#F59E0B' },
+                          { color: status === 'overtime' ? 'Colors.surface' : '#F59E0B' },
                         ]}
                       >
                         OT
@@ -375,7 +375,7 @@ export default function MarkAttendanceScreen() {
                         style={[
                           styles.actionButtonText,
                           status === 'absent' && styles.actionButtonTextActive,
-                          { color: status === 'absent' ? '#FFFFFF' : '#EF4444' },
+                          { color: status === 'absent' ? 'Colors.surface' : '#EF4444' },
                         ]}
                       >
                         A
@@ -424,10 +424,10 @@ export default function MarkAttendanceScreen() {
           disabled={loading || Object.keys(attendanceData).length === 0}
         >
           {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color="Colors.surface" />
           ) : (
             <>
-              <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+              <Ionicons name="checkmark-circle" size={20} color="Colors.surface" />
               <Text style={styles.saveButtonText}>
                 Save Attendance ({Object.keys(attendanceData).length})
               </Text>
@@ -442,7 +442,7 @@ export default function MarkAttendanceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loader: {
     flex: 1,
@@ -453,9 +453,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     padding: 8,
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   placeholder: {
     width: 40,
@@ -481,14 +481,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   dateSelector: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 12,
   },
@@ -503,15 +503,15 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   pickerContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     overflow: 'hidden',
   },
   picker: {
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   bulkActions: {
     marginBottom: 16,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   workerCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
@@ -556,12 +556,12 @@ const styles = StyleSheet.create({
   workerName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 2,
   },
   workerSkill: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textTransform: 'capitalize',
   },
   statusBadge: {
@@ -574,7 +574,7 @@ const styles = StyleSheet.create({
   statusBadgeText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   actionButtons: {
     flexDirection: 'row',
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
   },
   actionButtonActive: {
     backgroundColor: '#10B981',
@@ -597,10 +597,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   actionButtonTextActive: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   summary: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginTop: 8,
@@ -608,7 +608,7 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   summaryRow: {
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 4,
   },
   summaryValue: {
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     paddingVertical: 20,
   },
@@ -639,12 +639,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   saveButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     padding: 16,
     borderRadius: 12,
     flexDirection: 'row',
@@ -658,6 +658,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
 });

@@ -76,7 +76,7 @@ export default function TaskDetailsScreen() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return '#F59E0B';
-      case 'in_progress': return '#3B82F6';
+      case 'in_progress': return 'Colors.primary';
       case 'completed': return '#10B981';
       case 'cancelled': return '#EF4444';
       default: return '#6B7280';
@@ -101,7 +101,7 @@ export default function TaskDetailsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -115,7 +115,7 @@ export default function TaskDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Task Details</Text>
         <View style={{ width: 40 }} />
@@ -150,7 +150,7 @@ export default function TaskDetailsScreen() {
           
           {task.due_date && (
             <View style={styles.infoRow}>
-              <Ionicons name="calendar" size={18} color="#718096" />
+              <Ionicons name="calendar" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>
                 Due: {format(new Date(task.due_date), 'MMM dd, yyyy')}
               </Text>
@@ -158,12 +158,12 @@ export default function TaskDetailsScreen() {
           )}
 
           <View style={styles.infoRow}>
-            <Ionicons name="person" size={18} color="#718096" />
+            <Ionicons name="person" size={18} color="Colors.textSecondary" />
             <Text style={styles.infoText}>Created by: {task.created_by_name}</Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Ionicons name="time" size={18} color="#718096" />
+            <Ionicons name="time" size={18} color="Colors.textSecondary" />
             <Text style={styles.infoText}>
               Created: {format(new Date(task.created_at), 'MMM dd, yyyy')}
             </Text>
@@ -175,7 +175,7 @@ export default function TaskDetailsScreen() {
             <Text style={styles.cardTitle}>Assigned To</Text>
             {task.assigned_users.map((user: any) => (
               <View key={user.id} style={styles.userChip}>
-                <Ionicons name="person-circle" size={24} color="#FF6B35" />
+                <Ionicons name="person-circle" size={24} color="Colors.secondary" />
                 <Text style={styles.userName}>{user.name}</Text>
               </View>
             ))}
@@ -191,7 +191,7 @@ export default function TaskDetailsScreen() {
                   style={styles.actionButton}
                   onPress={() => handleStatusChange('in_progress')}
                 >
-                  <Ionicons name="play-circle" size={24} color="#3B82F6" />
+                  <Ionicons name="play-circle" size={24} color="Colors.primary" />
                   <Text style={styles.actionText}>Start Task</Text>
                 </TouchableOpacity>
               )}
@@ -222,7 +222,7 @@ export default function TaskDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -235,28 +235,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   scrollContent: {
     padding: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   badgesRow: {
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     padding: 12,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
   },
   description: {
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   infoRow: {
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FF6B35',
+    color: 'Colors.secondary',
   },
   actionsGrid: {
     flexDirection: 'row',
@@ -335,13 +335,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
   },
   actionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 8,
   },
   deleteButton: {

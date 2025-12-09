@@ -130,7 +130,7 @@ export default function CreateInvoiceScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Create Invoice</Text>
         <View style={{ width: 40 }} />
@@ -208,7 +208,7 @@ export default function CreateInvoiceScreen() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Line Items</Text>
               <TouchableOpacity onPress={addLineItem} style={styles.addItemButton}>
-                <Ionicons name="add-circle" size={24} color="#3B82F6" />
+                <Ionicons name="add-circle" size={24} color="Colors.primary" />
                 <Text style={styles.addItemText}>Add Item</Text>
               </TouchableOpacity>
             </View>
@@ -334,7 +334,7 @@ export default function CreateInvoiceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   header: {
     flexDirection: 'row',
@@ -342,22 +342,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   addItemButton: {
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   addItemText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#3B82F6',
+    color: 'Colors.primary',
   },
   inputGroup: {
     marginBottom: 16,
@@ -398,14 +398,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 14,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   textArea: {
     minHeight: 80,
@@ -415,12 +415,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   lineItemCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   lineItemHeader: {
     flexDirection: 'row',
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   lineItemTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   amountDisplay: {
     flexDirection: 'row',
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   amountLabel: {
     fontSize: 14,
@@ -450,14 +450,14 @@ const styles = StyleSheet.create({
   amountValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#3B82F6',
+    color: 'Colors.primary',
   },
   totalCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 8,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   totalRow: {
     flexDirection: 'row',
@@ -466,32 +466,32 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   totalValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   grandTotal: {
     marginTop: 8,
     paddingTop: 12,
     borderTopWidth: 2,
-    borderTopColor: '#3B82F6',
+    borderTopColor: 'Colors.primary',
     marginBottom: 0,
   },
   grandTotalLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   grandTotalValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#3B82F6',
+    color: 'Colors.primary',
   },
   submitButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CBD5E0',
   },
   submitButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '700',
   },

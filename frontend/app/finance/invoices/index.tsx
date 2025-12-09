@@ -54,7 +54,7 @@ export default function InvoicesScreen() {
   const getStatusColor = (status: string) => {
     const colors: any = {
       draft: '#6B7280',
-      sent: '#3B82F6',
+      sent: 'Colors.primary',
       paid: '#10B981',
       overdue: '#EF4444',
       cancelled: '#9CA3AF',
@@ -70,7 +70,7 @@ export default function InvoicesScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="Colors.primary" />
         </View>
       </SafeAreaView>
     );
@@ -80,14 +80,14 @@ export default function InvoicesScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Invoices</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/finance/invoices/create' as any)}
         >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
+          <Ionicons name="add" size={24} color="Colors.surface" />
         </TouchableOpacity>
       </View>
 
@@ -195,7 +195,7 @@ export default function InvoicesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -208,36 +208,36 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     alignItems: 'center',
     justifyContent: 'center',
   },
   filterContainer: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
     gap: 12,
   },
   filterRow: {
@@ -269,28 +269,28 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 8,
   },
   emptyButton: {
     marginTop: 24,
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   emptyButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '600',
   },
   invoiceCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   invoiceHeader: {
     flexDirection: 'row',
@@ -301,11 +301,11 @@ const styles = StyleSheet.create({
   invoiceNumber: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   clientName: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
   },
   statusBadge: {
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   invoiceDetails: {
     gap: 6,
@@ -328,12 +328,12 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   detailValue: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   invoiceFooter: {
     alignItems: 'flex-end',

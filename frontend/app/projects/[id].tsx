@@ -80,7 +80,7 @@ export default function ProjectDetailsScreen() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'planning': return '#3B82F6';
+      case 'planning': return 'Colors.primary';
       case 'in_progress': return '#F59E0B';
       case 'completed': return '#10B981';
       case 'on_hold': return '#6B7280';
@@ -96,7 +96,7 @@ export default function ProjectDetailsScreen() {
   const getTaskStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return '#F59E0B';
-      case 'in_progress': return '#3B82F6';
+      case 'in_progress': return 'Colors.primary';
       case 'completed': return '#10B981';
       case 'cancelled': return '#EF4444';
       default: return '#6B7280';
@@ -107,7 +107,7 @@ export default function ProjectDetailsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -121,7 +121,7 @@ export default function ProjectDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Project Details</Text>
         <View style={styles.headerActions}>
@@ -129,20 +129,20 @@ export default function ProjectDetailsScreen() {
             style={styles.iconButton}
             onPress={() => router.push(`/projects/${id}/chat` as any)}
           >
-            <Ionicons name="chatbubbles" size={20} color="#FF6B35" />
+            <Ionicons name="chatbubbles" size={20} color="Colors.secondary" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => router.push(`/projects/timeline/${id}` as any)}
           >
-            <Ionicons name="stats-chart" size={20} color="#FF6B35" />
+            <Ionicons name="stats-chart" size={20} color="Colors.secondary" />
           </TouchableOpacity>
           {canEdit && (
             <TouchableOpacity
               style={styles.iconButton}
               onPress={() => router.push(`/projects/edit/${id}` as any)}
             >
-              <Ionicons name="create" size={20} color="#FF6B35" />
+              <Ionicons name="create" size={20} color="Colors.secondary" />
             </TouchableOpacity>
           )}
         </View>
@@ -166,12 +166,12 @@ export default function ProjectDetailsScreen() {
 
           <View style={styles.infoSection}>
             <View style={styles.infoRow}>
-              <Ionicons name="location" size={18} color="#718096" />
+              <Ionicons name="location" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>{project.location}</Text>
             </View>
             {project.address && (
               <View style={styles.infoRow}>
-                <Ionicons name="map" size={18} color="#718096" />
+                <Ionicons name="map" size={18} color="Colors.textSecondary" />
                 <Text style={styles.infoText}>{project.address}</Text>
               </View>
             )}
@@ -181,12 +181,12 @@ export default function ProjectDetailsScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Client Information</Text>
           <View style={styles.infoRow}>
-            <Ionicons name="person" size={18} color="#718096" />
+            <Ionicons name="person" size={18} color="Colors.textSecondary" />
             <Text style={styles.infoText}>{project.client_name}</Text>
           </View>
           {project.client_contact && (
             <View style={styles.infoRow}>
-              <Ionicons name="call" size={18} color="#718096" />
+              <Ionicons name="call" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>{project.client_contact}</Text>
             </View>
           )}
@@ -196,7 +196,7 @@ export default function ProjectDetailsScreen() {
           <Text style={styles.cardTitle}>Project Details</Text>
           {project.budget && (
             <View style={styles.infoRow}>
-              <Ionicons name="cash" size={18} color="#718096" />
+              <Ionicons name="cash" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>
                 Budget: ${project.budget.toLocaleString()}
               </Text>
@@ -204,7 +204,7 @@ export default function ProjectDetailsScreen() {
           )}
           {project.project_manager_name && (
             <View style={styles.infoRow}>
-              <Ionicons name="briefcase" size={18} color="#718096" />
+              <Ionicons name="briefcase" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>PM: {project.project_manager_name}</Text>
             </View>
           )}
@@ -224,7 +224,7 @@ export default function ProjectDetailsScreen() {
               onPress={() => router.push(`/projects/${id}/contacts` as any)}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: '#EFF6FF' }]}>
-                <Ionicons name="people" size={24} color="#3B82F6" />
+                <Ionicons name="people" size={24} color="Colors.primary" />
               </View>
               <Text style={styles.quickActionLabel}>Contacts</Text>
               <Text style={styles.quickActionSubtext}>Manage hierarchy</Text>
@@ -300,8 +300,8 @@ export default function ProjectDetailsScreen() {
                 style={styles.addTaskButton}
                 onPress={() => router.push(`/projects/${id}/team` as any)}
               >
-                <Ionicons name="people" size={20} color="#3B82F6" />
-                <Text style={[styles.addTaskText, { color: '#3B82F6' }]}>Manage</Text>
+                <Ionicons name="people" size={20} color="Colors.primary" />
+                <Text style={[styles.addTaskText, { color: 'Colors.primary' }]}>Manage</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -313,7 +313,7 @@ export default function ProjectDetailsScreen() {
               {project?.team_members?.map((member: any) => (
                 <View key={member.user_id} style={styles.teamMemberCard}>
                   <View style={styles.teamMemberAvatar}>
-                    <Ionicons name="person" size={18} color="#3B82F6" />
+                    <Ionicons name="person" size={18} color="Colors.primary" />
                   </View>
                   <View style={styles.teamMemberInfo}>
                     <Text style={styles.teamMemberName}>{member.full_name}</Text>
@@ -361,7 +361,7 @@ export default function ProjectDetailsScreen() {
                 style={styles.addTaskButton}
                 onPress={() => router.push(`/tasks/create?projectId=${id}` as any)}
               >
-                <Ionicons name="add" size={20} color="#FF6B35" />
+                <Ionicons name="add" size={20} color="Colors.secondary" />
                 <Text style={styles.addTaskText}>Add Task</Text>
               </TouchableOpacity>
             )}
@@ -422,7 +422,7 @@ export default function ProjectDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -435,22 +435,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   headerActions: {
     flexDirection: 'row',
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     flex: 1,
     marginRight: 12,
   },
@@ -516,13 +516,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   descriptionContainer: {
     marginTop: 8,
     padding: 12,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
   },
   description: {
@@ -553,11 +553,11 @@ const styles = StyleSheet.create({
   addTaskText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FF6B35',
+    color: 'Colors.secondary',
   },
   emptyText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     paddingVertical: 16,
   },
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
   },
   taskCard: {
     padding: 12,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
   },
   taskHeader: {
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     flex: 1,
     marginRight: 8,
   },
@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
   },
   taskAssignees: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   deleteButton: {
     flexDirection: 'row',
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
     gap: 12,
   },
@@ -635,12 +635,12 @@ const styles = StyleSheet.create({
   teamMemberName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 2,
   },
   teamMemberRole: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   teamCallButton: {
     width: 32,
@@ -658,12 +658,12 @@ const styles = StyleSheet.create({
   quickActionButton: {
     flex: 1,
     minWidth: '46%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   quickActionIcon: {
     width: 56,
@@ -676,13 +676,13 @@ const styles = StyleSheet.create({
   quickActionLabel: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
     textAlign: 'center',
   },
   quickActionSubtext: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
   },
 });

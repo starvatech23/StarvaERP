@@ -76,7 +76,7 @@ export default function MaterialsScreen() {
       blocks: '#94A3B8',
       tiles: '#06B6D4',
       paint: '#8B5CF6',
-      plumbing: '#3B82F6',
+      plumbing: 'Colors.primary',
       electrical: '#FBBF24',
       hardware: '#6366F1',
       wood: '#92400E',
@@ -108,7 +108,7 @@ export default function MaterialsScreen() {
         >
           <View style={styles.cardHeader}>
             <View style={styles.vendorInfo}>
-              <Ionicons name="business" size={40} color="#FF6B35" />
+              <Ionicons name="business" size={40} color="Colors.secondary" />
               <View style={styles.vendorDetails}>
                 <Text style={styles.vendorName}>{vendor.business_name}</Text>
                 <Text style={styles.vendorContact}>{vendor.contact_person}</Text>
@@ -134,12 +134,12 @@ export default function MaterialsScreen() {
           
           <View style={styles.cardFooter}>
             <View style={styles.infoItem}>
-              <Ionicons name="call-outline" size={16} color="#718096" />
+              <Ionicons name="call-outline" size={16} color="Colors.textSecondary" />
               <Text style={styles.infoText}>{vendor.phone}</Text>
             </View>
             {vendor.email && (
               <View style={styles.infoItem}>
-                <Ionicons name="mail-outline" size={16} color="#718096" />
+                <Ionicons name="mail-outline" size={16} color="Colors.textSecondary" />
                 <Text style={styles.infoText}>{vendor.email}</Text>
               </View>
             )}
@@ -250,7 +250,7 @@ export default function MaterialsScreen() {
   const renderReports = () => {
     return (
       <View style={styles.reportsContainer}>
-        <Ionicons name="stats-chart" size={80} color="#FF6B35" />
+        <Ionicons name="stats-chart" size={80} color="Colors.secondary" />
         <Text style={styles.reportsTitle}>Material Reports</Text>
         <Text style={styles.reportsText}>
           View spending analysis, inventory reports, and purchase order summaries
@@ -259,7 +259,7 @@ export default function MaterialsScreen() {
           style={styles.viewReportsButton}
           onPress={() => router.push('/materials/reports' as any)}
         >
-          <Ionicons name="document-text" size={20} color="#FFFFFF" />
+          <Ionicons name="document-text" size={20} color="Colors.surface" />
           <Text style={styles.viewReportsText}>View Reports</Text>
         </TouchableOpacity>
       </View>
@@ -275,7 +275,7 @@ export default function MaterialsScreen() {
             style={styles.scanButton}
             onPress={() => router.push('/materials/scan' as any)}
           >
-            <Ionicons name="qr-code" size={24} color="#FFFFFF" />
+            <Ionicons name="qr-code" size={24} color="Colors.surface" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButton}
@@ -289,7 +289,7 @@ export default function MaterialsScreen() {
               }
             }}
           >
-            <Ionicons name="add" size={24} color="#FFFFFF" />
+            <Ionicons name="add" size={24} color="Colors.surface" />
           </TouchableOpacity>
         </View>
       </View>
@@ -302,7 +302,7 @@ export default function MaterialsScreen() {
           <Ionicons
             name="business"
             size={20}
-            color={activeTab === 'vendors' ? '#FF6B35' : '#718096'}
+            color={activeTab === 'vendors' ? 'Colors.secondary' : 'Colors.textSecondary'}
           />
           <Text
             style={[
@@ -321,7 +321,7 @@ export default function MaterialsScreen() {
           <Ionicons
             name="cube"
             size={20}
-            color={activeTab === 'materials' ? '#FF6B35' : '#718096'}
+            color={activeTab === 'materials' ? 'Colors.secondary' : 'Colors.textSecondary'}
           />
           <Text
             style={[
@@ -340,7 +340,7 @@ export default function MaterialsScreen() {
           <Ionicons
             name="layers"
             size={20}
-            color={activeTab === 'inventory' ? '#FF6B35' : '#718096'}
+            color={activeTab === 'inventory' ? 'Colors.secondary' : 'Colors.textSecondary'}
           />
           <Text
             style={[
@@ -359,7 +359,7 @@ export default function MaterialsScreen() {
           <Ionicons
             name="stats-chart"
             size={20}
-            color={activeTab === 'reports' ? '#FF6B35' : '#718096'}
+            color={activeTab === 'reports' ? 'Colors.secondary' : 'Colors.textSecondary'}
           />
           <Text
             style={[
@@ -379,7 +379,7 @@ export default function MaterialsScreen() {
         }
       >
         {loading ? (
-          <ActivityIndicator size="large" color="#FF6B35" style={styles.loader} />
+          <ActivityIndicator size="large" color="Colors.secondary" style={styles.loader} />
         ) : (
           <>
             {activeTab === 'vendors' && renderVendors()}
@@ -396,21 +396,21 @@ export default function MaterialsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   headerButtons: {
     flexDirection: 'row',
@@ -428,15 +428,15 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     alignItems: 'center',
     justifyContent: 'center',
   },
   tabs: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   tab: {
     flex: 1,
@@ -449,15 +449,15 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#FF6B35',
+    borderBottomColor: 'Colors.secondary',
   },
   tabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   activeTabText: {
-    color: '#FF6B35',
+    color: 'Colors.secondary',
   },
   content: {
     flex: 1,
@@ -474,18 +474,18 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     paddingHorizontal: 32,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -513,12 +513,12 @@ const styles = StyleSheet.create({
   vendorName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
   },
   vendorContact: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   gstBadge: {
     backgroundColor: '#D1FAE5',
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   infoItem: {
     flexDirection: 'row',
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   materialInfo: {
     flexDirection: 'row',
@@ -566,15 +566,15 @@ const styles = StyleSheet.create({
   materialName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
   },
   materialCategory: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   unitBadge: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
@@ -582,15 +582,15 @@ const styles = StyleSheet.create({
   unitText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   materialDescription: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     lineHeight: 18,
   },
   inventoryCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -611,12 +611,12 @@ const styles = StyleSheet.create({
   inventoryMaterial: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
   },
   inventorySite: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   stockBadge: {
     paddingHorizontal: 12,
@@ -634,7 +634,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   lowStockText: {
     fontSize: 12,
@@ -650,14 +650,14 @@ const styles = StyleSheet.create({
   reportsTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 24,
     marginBottom: 12,
     textAlign: 'center',
   },
   reportsText: {
     fontSize: 16,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,
@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
   viewReportsButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
   viewReportsText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   duesSection: {
     backgroundColor: '#FEF2F2',

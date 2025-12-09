@@ -54,7 +54,7 @@ export default function FinanceMainScreen() {
       title: 'Invoices',
       description: 'Generate client invoices',
       icon: 'document-text',
-      color: '#3B82F6',
+      color: 'Colors.primary',
       route: '/finance/invoices',
     },
     {
@@ -81,7 +81,7 @@ export default function FinanceMainScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.push('/(tabs)' as any)}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Financial Management</Text>
         <View style={{ width: 40 }} />
@@ -132,8 +132,8 @@ export default function FinanceMainScreen() {
             style={styles.moduleCard}
             onPress={() => router.push('/finance/reports' as any)}
           >
-            <View style={[styles.moduleIcon, { backgroundColor: '#3B82F620' }]}>
-              <Ionicons name="bar-chart" size={28} color="#3B82F6" />
+            <View style={[styles.moduleIcon, { backgroundColor: 'Colors.primary20' }]}>
+              <Ionicons name="bar-chart" size={28} color="Colors.primary" />
             </View>
             <View style={styles.moduleInfo}>
               <Text style={styles.moduleTitle}>Financial Reports</Text>
@@ -150,7 +150,7 @@ export default function FinanceMainScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -163,35 +163,35 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
   },
   statsContainer: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     marginBottom: 8,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   statsGrid: {
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 8,
   },
   statLabel: {
@@ -217,14 +217,14 @@ const styles = StyleSheet.create({
   },
   modulesContainer: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     marginBottom: 8,
   },
   moduleCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 12,
     marginBottom: 12,
   },
@@ -242,23 +242,23 @@ const styles = StyleSheet.create({
   moduleTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 2,
   },
   moduleDescription: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   projectsContainer: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
   },
   projectCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 12,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -268,11 +268,11 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   projectLocation: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
   },
   projectAction: {
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   viewReportText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#3B82F6',
+    color: 'Colors.primary',
     marginRight: 4,
   },
 });

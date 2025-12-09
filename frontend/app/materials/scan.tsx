@@ -118,7 +118,7 @@ export default function MaterialScanScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Scan Material</Text>
         <View style={{ width: 40 }} />
@@ -130,7 +130,7 @@ export default function MaterialScanScreen() {
           style={styles.scanButton}
           onPress={() => setShowScanner(true)}
         >
-          <Ionicons name="qr-code-outline" size={48} color="#FFFFFF" />
+          <Ionicons name="qr-code-outline" size={48} color="Colors.surface" />
           <Text style={styles.scanButtonText}>Tap to Scan QR Code</Text>
         </TouchableOpacity>
 
@@ -156,7 +156,7 @@ export default function MaterialScanScreen() {
               onPress={() => lookupMaterial(scannedData)}
               disabled={!scannedData || loading}
             >
-              <Ionicons name="search" size={20} color="#FFFFFF" />
+              <Ionicons name="search" size={20} color="Colors.surface" />
             </TouchableOpacity>
           </View>
         </View>
@@ -203,11 +203,11 @@ export default function MaterialScanScreen() {
                 ]}
                 onPress={() => setAction('add')}
               >
-                <Ionicons name="add" size={20} color={action === 'add' ? '#FFFFFF' : '#10B981'} />
+                <Ionicons name="add" size={20} color={action === 'add' ? 'Colors.surface' : '#10B981'} />
                 <Text
                   style={[
                     styles.actionButtonText,
-                    action === 'add' && { color: '#FFFFFF' },
+                    action === 'add' && { color: 'Colors.surface' },
                   ]}
                 >
                   Add Stock
@@ -222,11 +222,11 @@ export default function MaterialScanScreen() {
                 ]}
                 onPress={() => setAction('remove')}
               >
-                <Ionicons name="remove" size={20} color={action === 'remove' ? '#FFFFFF' : '#EF4444'} />
+                <Ionicons name="remove" size={20} color={action === 'remove' ? 'Colors.surface' : '#EF4444'} />
                 <Text
                   style={[
                     styles.actionButtonText,
-                    action === 'remove' && { color: '#FFFFFF' },
+                    action === 'remove' && { color: 'Colors.surface' },
                   ]}
                 >
                   Remove Stock
@@ -295,7 +295,7 @@ export default function MaterialScanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   header: {
     flexDirection: 'row',
@@ -303,22 +303,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   scanButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 18,
     fontWeight: '700',
     marginTop: 12,
@@ -346,12 +346,12 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: 'Colors.border',
   },
   orText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginHorizontal: 16,
   },
   inputGroup: {
@@ -364,14 +364,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 14,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   textArea: {
     minHeight: 80,
@@ -382,19 +382,19 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   searchButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     borderRadius: 8,
     width: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
   materialCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   materialHeader: {
     flexDirection: 'row',
@@ -402,16 +402,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   materialName: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   materialCategory: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
   },
   materialDetails: {
@@ -424,12 +424,12 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   detailValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   actionRow: {
     flexDirection: 'row',
@@ -460,16 +460,16 @@ const styles = StyleSheet.create({
   quantityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingRight: 12,
   },
   unitLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginLeft: 8,
   },
   submitButton: {
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CBD5E0',
   },
   submitButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '700',
   },

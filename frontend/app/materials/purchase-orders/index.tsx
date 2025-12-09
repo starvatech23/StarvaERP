@@ -56,7 +56,7 @@ export default function PurchaseOrdersScreen() {
     const colors: any = {
       draft: '#6B7280',
       pending: '#F59E0B',
-      approved: '#3B82F6',
+      approved: 'Colors.primary',
       ordered: '#8B5CF6',
       received: '#10B981',
       cancelled: '#EF4444',
@@ -72,7 +72,7 @@ export default function PurchaseOrdersScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="Colors.primary" />
         </View>
       </SafeAreaView>
     );
@@ -82,14 +82,14 @@ export default function PurchaseOrdersScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Purchase Orders</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/materials/purchase-orders/create' as any)}
         >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
+          <Ionicons name="add" size={24} color="Colors.surface" />
         </TouchableOpacity>
       </View>
 
@@ -161,19 +161,19 @@ export default function PurchaseOrdersScreen() {
 
               <View style={styles.orderDetails}>
                 <View style={styles.detailRow}>
-                  <Ionicons name="cube-outline" size={16} color="#718096" />
+                  <Ionicons name="cube-outline" size={16} color="Colors.textSecondary" />
                   <Text style={styles.detailText}>
                     {order.items?.length || 0} items
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="cash-outline" size={16} color="#718096" />
+                  <Ionicons name="cash-outline" size={16} color="Colors.textSecondary" />
                   <Text style={styles.detailText}>
                     {formatCurrency(order.total_amount || 0)}
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="calendar-outline" size={16} color="#718096" />
+                  <Ionicons name="calendar-outline" size={16} color="Colors.textSecondary" />
                   <Text style={styles.detailText}>
                     {new Date(order.order_date).toLocaleDateString()}
                   </Text>
@@ -194,7 +194,7 @@ export default function PurchaseOrdersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -207,22 +207,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   addButton: {
     width: 40,
@@ -234,9 +234,9 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
     gap: 12,
   },
   filterRow: {
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 8,
   },
   emptyButton: {
@@ -279,17 +279,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   emptyButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '600',
   },
   orderCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   orderHeader: {
     flexDirection: 'row',
@@ -300,11 +300,11 @@ const styles = StyleSheet.create({
   orderNumber: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   vendorName: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
   },
   statusBadge: {
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   orderDetails: {
     flexDirection: 'row',

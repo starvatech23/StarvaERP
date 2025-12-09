@@ -157,7 +157,7 @@ export default function ClientPortalScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="Colors.primary" />
           <Text style={styles.loadingText}>Loading Project Portal...</Text>
         </View>
       </SafeAreaView>
@@ -184,7 +184,7 @@ export default function ClientPortalScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Ionicons name="business-outline" size={24} color="#3B82F6" />
+          <Ionicons name="business-outline" size={24} color="Colors.primary" />
           <Text style={styles.headerTitle}>{project?.name || 'Project Portal'}</Text>
         </View>
       </View>
@@ -198,7 +198,7 @@ export default function ClientPortalScreen() {
           <Ionicons 
             name="calendar-outline" 
             size={20} 
-            color={activeTab === 'timeline' ? '#3B82F6' : '#6B7280'} 
+            color={activeTab === 'timeline' ? 'Colors.primary' : '#6B7280'} 
           />
           <Text style={[styles.tabText, activeTab === 'timeline' && styles.activeTabText]}>
             Timeline
@@ -213,7 +213,7 @@ export default function ClientPortalScreen() {
             <Ionicons 
               name="chatbubble-outline" 
               size={20} 
-              color={activeTab === 'chat' ? '#3B82F6' : '#6B7280'} 
+              color={activeTab === 'chat' ? 'Colors.primary' : '#6B7280'} 
             />
             <Text style={[styles.tabText, activeTab === 'chat' && styles.activeTabText]}>
               Chat
@@ -369,9 +369,9 @@ export default function ClientPortalScreen() {
               disabled={!newMessage.trim() || sendingMessage}
             >
               {sendingMessage ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color="Colors.surface" />
               ) : (
-                <Ionicons name="send" size={20} color="#FFFFFF" />
+                <Ionicons name="send" size={20} color="Colors.surface" />
               )}
             </TouchableOpacity>
           </View>
@@ -384,7 +384,7 @@ export default function ClientPortalScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   header: {
     flexDirection: 'row',
@@ -392,9 +392,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -404,13 +404,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   tab: {
     flex: 1,
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#3B82F6',
+    borderBottomColor: 'Colors.primary',
   },
   tabText: {
     fontSize: 14,
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   activeTabText: {
-    color: '#3B82F6',
+    color: 'Colors.primary',
   },
   content: {
     flex: 1,
@@ -456,27 +456,27 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   errorText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
   },
   retryButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 16,
   },
   retryButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 14,
     fontWeight: '600',
   },
   projectCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 8,
   },
   projectDescription: {
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
   milestoneName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     flex: 1,
   },
   milestoneFooter: {
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   },
   dueDate: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   progressContainer: {
     flexDirection: 'row',
@@ -561,7 +561,7 @@ const styles = StyleSheet.create({
   progressBar: {
     width: 60,
     height: 6,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: 'Colors.border',
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -599,7 +599,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   emptySubtext: {
     fontSize: 14,
@@ -615,7 +615,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   messageCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
   clientMessage: {
     backgroundColor: '#EBF8FF',
     borderLeftWidth: 3,
-    borderLeftColor: '#3B82F6',
+    borderLeftColor: 'Colors.primary',
   },
   teamMessage: {
     backgroundColor: '#F0FDF4',
@@ -644,7 +644,7 @@ const styles = StyleSheet.create({
   senderName: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   senderRole: {
     fontSize: 12,
@@ -669,7 +669,7 @@ const styles = StyleSheet.create({
   emptyChatText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   emptyChatSubtext: {
     fontSize: 14,
@@ -680,9 +680,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
     gap: 12,
   },
   messageInput: {
@@ -697,7 +697,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   sendButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     width: 44,
     height: 44,
     borderRadius: 22,

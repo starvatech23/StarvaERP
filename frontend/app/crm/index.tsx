@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
@@ -7,7 +8,7 @@ export default function CRMScreen() {
   const router = useRouter();
 
   const menuItems = [
-    { icon: 'people', title: 'Leads', description: 'Manage and track leads', route: '/crm/leads' as any, color: '#3B82F6' },
+    { icon: 'people', title: 'Leads', description: 'Manage and track leads', route: '/crm/leads' as any, color: 'Colors.primary' },
     { icon: 'list', title: 'Categories', description: 'Manage lead funnel stages', route: '/crm/categories' as any, color: '#8B5CF6' },
     { icon: 'construct', title: 'Admin Panel', description: 'CRM configuration & customization', route: '/crm/admin' as any, color: '#EF4444' },
     { icon: 'settings', title: 'Settings', description: 'Configure CRM options', route: '/crm/settings' as any, color: '#F59E0B' },
@@ -20,7 +21,7 @@ export default function CRMScreen() {
           style={styles.backButton}
           onPress={() => router.push('/')}
         >
-          <Ionicons name="home" size={24} color="#FF6B35" />
+          <Ionicons name="home" size={24} color="Colors.secondary" />
           <Text style={styles.backButtonText}>Dashboard</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>CRM</Text>
@@ -52,22 +53,22 @@ export default function CRMScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   header: {
     padding: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 4,
   },
   content: {
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
   menuCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 20,
     borderRadius: 12,
     marginBottom: 12,
@@ -101,11 +102,11 @@ const styles = StyleSheet.create({
   menuTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   menuDescription: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 4,
   },
   backButton: {
@@ -117,6 +118,6 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FF6B35',
+    color: 'Colors.secondary',
   },
 });

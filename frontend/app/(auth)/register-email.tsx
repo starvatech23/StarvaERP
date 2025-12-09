@@ -105,7 +105,7 @@ export default function RegisterEmailScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#1A202C" />
+            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
           </TouchableOpacity>
 
           <Text style={styles.title}>Create Account</Text>
@@ -116,7 +116,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="person-outline"
                 size={20}
-                color="#718096"
+                color="Colors.textSecondary"
                 style={styles.inputIcon}
               />
               <TextInput
@@ -131,7 +131,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="mail-outline"
                 size={20}
-                color="#718096"
+                color="Colors.textSecondary"
                 style={styles.inputIcon}
               />
               <TextInput
@@ -148,7 +148,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="call-outline"
                 size={20}
-                color="#718096"
+                color="Colors.textSecondary"
                 style={styles.inputIcon}
               />
               <TextInput
@@ -165,7 +165,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="briefcase-outline"
                 size={20}
-                color="#718096"
+                color="Colors.textSecondary"
                 style={styles.inputIcon}
               />
               <Picker
@@ -178,18 +178,18 @@ export default function RegisterEmailScreen() {
                   }
                 }}
                 style={styles.picker}
-                dropdownIconColor="#1A202C"
+                dropdownIconColor="Colors.textPrimary"
               >
                 <Picker.Item label="Select your role..." value="" color="#9CA3AF" />
                 {availableRoles.length > 0 ? (
                   availableRoles.map((r: any) => (
-                    <Picker.Item key={r.id} label={r.name} value={r.id} color="#1A202C" />
+                    <Picker.Item key={r.id} label={r.name} value={r.id} color="Colors.textPrimary" />
                   ))
                 ) : (
                   <>
-                    <Picker.Item label="Worker" value="worker" color="#1A202C" />
-                    <Picker.Item label="Engineer" value="engineer" color="#1A202C" />
-                    <Picker.Item label="Project Manager" value="project_manager" color="#1A202C" />
+                    <Picker.Item label="Worker" value="worker" color="Colors.textPrimary" />
+                    <Picker.Item label="Engineer" value="engineer" color="Colors.textPrimary" />
+                    <Picker.Item label="Project Manager" value="project_manager" color="Colors.textPrimary" />
                   </>
                 )}
               </Picker>
@@ -197,7 +197,7 @@ export default function RegisterEmailScreen() {
 
             {/* Approval Notice */}
             <View style={styles.infoCard}>
-              <Ionicons name="information-circle" size={20} color="#3B82F6" />
+              <Ionicons name="information-circle" size={20} color="Colors.primary" />
               <Text style={styles.infoText}>
                 Your account will be reviewed by an admin. You'll have limited access until approved.
               </Text>
@@ -207,7 +207,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="lock-closed-outline"
                 size={20}
-                color="#718096"
+                color="Colors.textSecondary"
                 style={styles.inputIcon}
               />
               <TextInput
@@ -224,7 +224,7 @@ export default function RegisterEmailScreen() {
                 <Ionicons
                   name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                   size={20}
-                  color="#718096"
+                  color="Colors.textSecondary"
                 />
               </TouchableOpacity>
             </View>
@@ -233,7 +233,7 @@ export default function RegisterEmailScreen() {
               <Ionicons
                 name="lock-closed-outline"
                 size={20}
-                color="#718096"
+                color="Colors.textSecondary"
                 style={styles.inputIcon}
               />
               <TextInput
@@ -250,7 +250,7 @@ export default function RegisterEmailScreen() {
                 <Ionicons
                   name={showConfirmPassword ? 'eye-outline' : 'eye-off-outline'}
                   size={20}
-                  color="#718096"
+                  color="Colors.textSecondary"
                 />
               </TouchableOpacity>
             </View>
@@ -261,7 +261,7 @@ export default function RegisterEmailScreen() {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color="Colors.surface" />
               ) : (
                 <Text style={styles.registerButtonText}>Create Account</Text>
               )}
@@ -283,7 +283,7 @@ export default function RegisterEmailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
   },
   keyboardView: {
     flex: 1,
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
@@ -306,12 +306,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 32,
   },
   form: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
   pickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
@@ -339,24 +339,24 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   picker: {
     flex: 1,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   eyeIcon: {
     padding: 8,
   },
   registerButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
   },
   registerButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -369,17 +369,17 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   footerLink: {
     fontSize: 14,
-    color: '#FF6B35',
+    color: 'Colors.secondary',
     fontWeight: '600',
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 8,
     marginLeft: 4,
   },

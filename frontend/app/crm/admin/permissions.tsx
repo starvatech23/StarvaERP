@@ -41,7 +41,7 @@ export default function PermissionsScreen() {
       <SafeAreaView style={styles.container}>
         <BackToHome />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -68,7 +68,7 @@ export default function PermissionsScreen() {
           <View key={index} style={styles.roleCard}>
             <View style={styles.roleHeader}>
               <View style={styles.roleIconContainer}>
-                <Ionicons name="person" size={20} color="#3B82F6" />
+                <Ionicons name="person" size={20} color="Colors.primary" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.roleName}>{rolePermission.role}</Text>
@@ -101,15 +101,15 @@ export default function PermissionsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFC' },
+  container: { flex: 1, backgroundColor: 'Colors.background' },
   header: {
     padding: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: '#1A202C' },
-  headerSubtitle: { fontSize: 13, color: '#718096', marginTop: 2 },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary' },
+  headerSubtitle: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
   content: { flex: 1, padding: 16 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   infoCard: {
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   },
   infoText: { flex: 1, fontSize: 14, color: '#065F46', lineHeight: 20 },
   roleCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -149,10 +149,10 @@ const styles = StyleSheet.create({
   roleName: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     textTransform: 'capitalize',
   },
-  roleSubtitle: { fontSize: 13, color: '#718096', marginTop: 2 },
+  roleSubtitle: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
   permissionsList: { gap: 8 },
   permissionBadge: {
     flexDirection: 'row',

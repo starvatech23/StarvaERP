@@ -18,8 +18,8 @@ import { useRouter } from 'expo-router';
 import { rolesAPI, permissionsAPI } from '../../../services/api';
 
 const MODULES = [
-  { key: 'projects', label: 'Projects', icon: 'business', color: '#FF6B35' },
-  { key: 'tasks', label: 'Tasks', icon: 'checkbox', color: '#3B82F6' },
+  { key: 'projects', label: 'Projects', icon: 'business', color: 'Colors.secondary' },
+  { key: 'tasks', label: 'Tasks', icon: 'checkbox', color: 'Colors.primary' },
   { key: 'labor', label: 'Labor', icon: 'people', color: '#10B981' },
   { key: 'materials', label: 'Materials', icon: 'cube', color: '#8B5CF6' },
   { key: 'vendors', label: 'Vendors', icon: 'storefront', color: '#F59E0B' },
@@ -112,7 +112,7 @@ export default function CreateRoleScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#1A202C" />
+            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Create Role</Text>
           <View style={{ width: 40 }} />
@@ -220,10 +220,10 @@ export default function CreateRoleScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="Colors.surface" />
             ) : (
               <>
-                <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+                <Ionicons name="checkmark-circle" size={20} color="Colors.surface" />
                 <Text style={styles.createButtonText}>Create Role</Text>
               </>
             )}
@@ -237,7 +237,7 @@ export default function CreateRoleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   keyboardView: {
     flex: 1,
@@ -248,40 +248,40 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
   },
   section: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 16,
   },
   label: {
@@ -292,14 +292,14 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   input: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   textArea: {
     height: 80,
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   switchLabel: {
     flex: 1,
@@ -320,16 +320,16 @@ const styles = StyleSheet.create({
   },
   switchHelper: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 4,
   },
   moduleCard: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   moduleHeader: {
     flexDirection: 'row',
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
   moduleName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginLeft: 10,
   },
   permissionsGrid: {
@@ -360,9 +360,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     gap: 6,
   },
   permissionChipActive: {
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     marginHorizontal: 16,
     marginVertical: 24,
     paddingVertical: 16,
@@ -392,6 +392,6 @@ const styles = StyleSheet.create({
   createButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
 });

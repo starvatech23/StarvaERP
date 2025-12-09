@@ -116,7 +116,7 @@ export default function CreateTaskScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#1A202C" />
+            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Create Task</Text>
           <View style={{ width: 40 }} />
@@ -189,7 +189,7 @@ export default function CreateTaskScreen() {
               style={styles.dateButton}
               onPress={() => setShowDatePicker(true)}
             >
-              <Ionicons name="calendar" size={20} color="#718096" />
+              <Ionicons name="calendar" size={20} color="Colors.textSecondary" />
               <Text style={styles.dateText}>{dueDate.toLocaleDateString()}</Text>
             </TouchableOpacity>
 
@@ -226,7 +226,7 @@ export default function CreateTaskScreen() {
 
             {selectedUser && (
               <TouchableOpacity style={styles.addUserButton} onPress={addAssignedUser}>
-                <Ionicons name="add-circle" size={20} color="#FF6B35" />
+                <Ionicons name="add-circle" size={20} color="Colors.secondary" />
                 <Text style={styles.addUserText}>Add User</Text>
               </TouchableOpacity>
             )}
@@ -238,7 +238,7 @@ export default function CreateTaskScreen() {
                   <View key={index} style={styles.assignedUserChip}>
                     <Text style={styles.assignedUserName}>{name}</Text>
                     <TouchableOpacity onPress={() => removeAssignedUser(assignedTo[index])}>
-                      <Ionicons name="close-circle" size={20} color="#718096" />
+                      <Ionicons name="close-circle" size={20} color="Colors.textSecondary" />
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -252,7 +252,7 @@ export default function CreateTaskScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="Colors.surface" />
             ) : (
               <Text style={styles.createButtonText}>Create Task</Text>
             )}
@@ -266,7 +266,7 @@ export default function CreateTaskScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   keyboardView: {
     flex: 1,
@@ -277,22 +277,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   scrollContent: {
     padding: 16,
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 16,
   },
   label: {
@@ -313,14 +313,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     marginBottom: 16,
   },
   textArea: {
@@ -328,31 +328,31 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   pickerContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     marginBottom: 16,
     overflow: 'hidden',
   },
   picker: {
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     marginBottom: 16,
   },
   dateText: {
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   addUserButton: {
     flexDirection: 'row',
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   addUserText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FF6B35',
+    color: 'Colors.secondary',
   },
   assignedUsersContainer: {
     marginTop: 16,
@@ -385,11 +385,11 @@ const styles = StyleSheet.create({
   },
   assignedUserName: {
     fontSize: 14,
-    color: '#FF6B35',
+    color: 'Colors.secondary',
     fontWeight: '600',
   },
   createButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   createButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '600',
   },

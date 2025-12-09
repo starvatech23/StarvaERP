@@ -68,7 +68,7 @@ export default function LaborScreen() {
     const colors: any = {
       mason: '#EF4444',
       carpenter: '#F59E0B',
-      electrician: '#3B82F6',
+      electrician: 'Colors.primary',
       plumber: '#06B6D4',
       painter: '#8B5CF6',
       welder: '#EC4899',
@@ -98,7 +98,7 @@ export default function LaborScreen() {
       >
         <View style={styles.cardHeader}>
           <View style={styles.workerInfo}>
-            <Ionicons name="person-circle" size={40} color="#FF6B35" />
+            <Ionicons name="person-circle" size={40} color="Colors.secondary" />
             <View style={styles.workerDetails}>
               <Text style={styles.workerName}>{worker.full_name}</Text>
               <Text style={styles.workerPhone}>{worker.phone}</Text>
@@ -122,12 +122,12 @@ export default function LaborScreen() {
         </View>
         <View style={styles.cardFooter}>
           <View style={styles.infoItem}>
-            <Ionicons name="cash-outline" size={16} color="#718096" />
+            <Ionicons name="cash-outline" size={16} color="Colors.textSecondary" />
             <Text style={styles.infoText}>₹{worker.base_rate}/{worker.pay_scale}</Text>
           </View>
           {worker.current_site_name && (
             <View style={styles.infoItem}>
-              <Ionicons name="location-outline" size={16} color="#718096" />
+              <Ionicons name="location-outline" size={16} color="Colors.textSecondary" />
               <Text style={styles.infoText}>{worker.current_site_name}</Text>
             </View>
           )}
@@ -160,7 +160,7 @@ export default function LaborScreen() {
     return Object.keys(groupedByDate).sort().reverse().slice(0, 10).map(date => (
       <View key={date} style={styles.attendanceCard}>
         <View style={styles.attendanceHeader}>
-          <Ionicons name="calendar" size={20} color="#FF6B35" />
+          <Ionicons name="calendar" size={20} color="Colors.secondary" />
           <Text style={styles.attendanceDate}>{moment(date).format('DD MMM YYYY')}</Text>
         </View>
         {groupedByDate[date].map((record: any) => (
@@ -210,7 +210,7 @@ export default function LaborScreen() {
       <View key={transfer.id} style={styles.card}>
         <View style={styles.transferHeader}>
           <View style={styles.transferInfo}>
-            <Ionicons name="person-circle" size={32} color="#FF6B35" />
+            <Ionicons name="person-circle" size={32} color="Colors.secondary" />
             <View style={styles.transferDetails}>
               <Text style={styles.transferWorkerName}>{transfer.worker_name}</Text>
               <Text style={styles.transferDate}>
@@ -229,7 +229,7 @@ export default function LaborScreen() {
             )}
           </View>
           
-          <Ionicons name="arrow-forward" size={24} color="#FF6B35" />
+          <Ionicons name="arrow-forward" size={24} color="Colors.secondary" />
           
           <View style={styles.siteBox}>
             <Text style={styles.siteLabel}>To</Text>
@@ -242,7 +242,7 @@ export default function LaborScreen() {
         
         {transfer.reason && (
           <View style={styles.transferReason}>
-            <Ionicons name="information-circle-outline" size={16} color="#718096" />
+            <Ionicons name="information-circle-outline" size={16} color="Colors.textSecondary" />
             <Text style={styles.reasonText}>{transfer.reason}</Text>
           </View>
         )}
@@ -262,7 +262,7 @@ export default function LaborScreen() {
   const renderReports = () => {
     return (
       <View style={styles.reportsContainer}>
-        <Ionicons name="stats-chart" size={80} color="#FF6B35" />
+        <Ionicons name="stats-chart" size={80} color="Colors.secondary" />
         <Text style={styles.reportsTitle}>Labour Wage Reports</Text>
         <Text style={styles.reportsText}>
           View weekly and monthly wage reports, site-wise breakdowns, and individual labourer earnings
@@ -271,7 +271,7 @@ export default function LaborScreen() {
           style={styles.viewReportsButton}
           onPress={() => router.push('/labor/reports' as any)}
         >
-          <Ionicons name="document-text" size={20} color="#FFFFFF" />
+          <Ionicons name="document-text" size={20} color="Colors.surface" />
           <Text style={styles.viewReportsText}>View Reports</Text>
         </TouchableOpacity>
       </View>
@@ -288,7 +288,7 @@ export default function LaborScreen() {
               style={styles.weeklyButton}
               onPress={() => router.push('/labor/weekly-attendance' as any)}
             >
-              <Ionicons name="calendar" size={20} color="#FF6B35" />
+              <Ionicons name="calendar" size={20} color="Colors.secondary" />
             </TouchableOpacity>
           )}
           <TouchableOpacity
@@ -305,7 +305,7 @@ export default function LaborScreen() {
               }
             }}
           >
-            <Ionicons name="add" size={24} color="#FFFFFF" />
+            <Ionicons name="add" size={24} color="Colors.surface" />
           </TouchableOpacity>
         </View>
       </View>
@@ -319,7 +319,7 @@ export default function LaborScreen() {
           <Ionicons
             name="people"
             size={20}
-            color={activeTab === 'workers' ? '#FF6B35' : '#718096'}
+            color={activeTab === 'workers' ? 'Colors.secondary' : 'Colors.textSecondary'}
           />
           <Text
             style={[
@@ -338,7 +338,7 @@ export default function LaborScreen() {
           <Ionicons
             name="calendar"
             size={20}
-            color={activeTab === 'attendance' ? '#FF6B35' : '#718096'}
+            color={activeTab === 'attendance' ? 'Colors.secondary' : 'Colors.textSecondary'}
           />
           <Text
             style={[
@@ -357,7 +357,7 @@ export default function LaborScreen() {
           <Ionicons
             name="swap-horizontal"
             size={20}
-            color={activeTab === 'transfers' ? '#FF6B35' : '#718096'}
+            color={activeTab === 'transfers' ? 'Colors.secondary' : 'Colors.textSecondary'}
           />
           <Text
             style={[
@@ -376,7 +376,7 @@ export default function LaborScreen() {
           <Ionicons
             name="stats-chart"
             size={20}
-            color={activeTab === 'reports' ? '#FF6B35' : '#718096'}
+            color={activeTab === 'reports' ? 'Colors.secondary' : 'Colors.textSecondary'}
           />
           <Text
             style={[
@@ -397,7 +397,7 @@ export default function LaborScreen() {
         }
       >
         {loading ? (
-          <ActivityIndicator size="large" color="#FF6B35" style={styles.loader} />
+          <ActivityIndicator size="large" color="Colors.secondary" style={styles.loader} />
         ) : (
           <>
             {activeTab === 'workers' && renderWorkers()}
@@ -414,21 +414,21 @@ export default function LaborScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   headerButtons: {
     flexDirection: 'row',
@@ -446,15 +446,15 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     alignItems: 'center',
     justifyContent: 'center',
   },
   tabs: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   tab: {
     flex: 1,
@@ -467,15 +467,15 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#FF6B35',
+    borderBottomColor: 'Colors.secondary',
   },
   tabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   activeTabText: {
-    color: '#FF6B35',
+    color: 'Colors.secondary',
   },
   content: {
     flex: 1,
@@ -492,18 +492,18 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     paddingHorizontal: 32,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -531,12 +531,12 @@ const styles = StyleSheet.create({
   workerName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
   },
   workerPhone: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   skillBadge: {
     paddingHorizontal: 10,
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   infoItem: {
     flexDirection: 'row',
@@ -561,16 +561,16 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   placeholderText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     marginTop: 20,
   },
   attendanceCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -587,12 +587,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   attendanceDate: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   attendanceRow: {
     flexDirection: 'row',
@@ -606,12 +606,12 @@ const styles = StyleSheet.create({
   attendanceWorkerName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 2,
   },
   attendanceProject: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   attendanceStatus: {
     flexDirection: 'row',
@@ -628,12 +628,12 @@ const styles = StyleSheet.create({
   attendanceStatusText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   attendanceHours: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   reportsContainer: {
     alignItems: 'center',
@@ -644,14 +644,14 @@ const styles = StyleSheet.create({
   reportsTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 24,
     marginBottom: 12,
     textAlign: 'center',
   },
   reportsText: {
     fontSize: 16,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,
@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
   viewReportsButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
   viewReportsText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   transferHeader: {
     flexDirection: 'row',
@@ -686,18 +686,18 @@ const styles = StyleSheet.create({
   transferWorkerName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
   },
   transferDate: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   transferRoute: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
@@ -708,18 +708,18 @@ const styles = StyleSheet.create({
   },
   siteLabel: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 4,
   },
   siteName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     textAlign: 'center',
   },
   hours: {
     fontSize: 12,
-    color: '#FF6B35',
+    color: 'Colors.secondary',
     marginTop: 4,
   },
   transferReason: {
@@ -742,12 +742,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   wagesLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   wagesValue: {
     fontSize: 16,

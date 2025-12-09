@@ -67,7 +67,7 @@ export default function MaterialDetailsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -81,7 +81,7 @@ export default function MaterialDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Material Details</Text>
         <View style={{ width: 40 }} />
@@ -105,7 +105,7 @@ export default function MaterialDetailsScreen() {
           
           {material.unit_price && (
             <View style={styles.infoRow}>
-              <Ionicons name="cash" size={18} color="#718096" />
+              <Ionicons name="cash" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>
                 ${material.unit_price}/{material.unit}
               </Text>
@@ -114,21 +114,21 @@ export default function MaterialDetailsScreen() {
 
           {material.vendor_name && (
             <View style={styles.infoRow}>
-              <Ionicons name="business" size={18} color="#718096" />
+              <Ionicons name="business" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>Vendor: {material.vendor_name}</Text>
             </View>
           )}
 
           {material.project_name && (
             <View style={styles.infoRow}>
-              <Ionicons name="location" size={18} color="#718096" />
+              <Ionicons name="location" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>Project: {material.project_name}</Text>
             </View>
           )}
 
           {material.location && (
             <View style={styles.infoRow}>
-              <Ionicons name="map" size={18} color="#718096" />
+              <Ionicons name="map" size={18} color="Colors.textSecondary" />
               <Text style={styles.infoText}>Location: {material.location}</Text>
             </View>
           )}
@@ -170,7 +170,7 @@ export default function MaterialDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -183,28 +183,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   scrollContent: {
     padding: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   materialName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     flex: 1,
     marginRight: 12,
   },
@@ -240,12 +240,12 @@ const styles = StyleSheet.create({
   },
   category: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   infoRow: {

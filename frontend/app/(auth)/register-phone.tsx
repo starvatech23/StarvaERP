@@ -68,7 +68,7 @@ export default function RegisterPhoneScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#1A202C" />
+            <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
           </TouchableOpacity>
 
           <Text style={styles.title}>Create Account</Text>
@@ -79,7 +79,7 @@ export default function RegisterPhoneScreen() {
               <Ionicons
                 name="person-outline"
                 size={20}
-                color="#718096"
+                color="Colors.textSecondary"
                 style={styles.inputIcon}
               />
               <TextInput
@@ -94,7 +94,7 @@ export default function RegisterPhoneScreen() {
               <Ionicons
                 name="call-outline"
                 size={20}
-                color="#718096"
+                color="Colors.textSecondary"
                 style={styles.inputIcon}
               />
               <TextInput
@@ -110,7 +110,7 @@ export default function RegisterPhoneScreen() {
               <Ionicons
                 name="briefcase-outline"
                 size={20}
-                color="#718096"
+                color="Colors.textSecondary"
                 style={styles.inputIcon}
               />
               <Picker
@@ -139,7 +139,7 @@ export default function RegisterPhoneScreen() {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color="Colors.surface" />
               ) : (
                 <Text style={styles.sendButtonText}>Send OTP</Text>
               )}
@@ -161,7 +161,7 @@ export default function RegisterPhoneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
   },
   keyboardView: {
     flex: 1,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
@@ -184,12 +184,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 32,
   },
   form: {
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   pickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
@@ -217,11 +217,11 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   picker: {
     flex: 1,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   otpDisplay: {
     backgroundColor: '#FFF5F2',
@@ -233,24 +233,24 @@ const styles = StyleSheet.create({
   },
   otpLabel: {
     fontSize: 14,
-    color: '#FF6B35',
+    color: 'Colors.secondary',
     fontWeight: '600',
   },
   otpValue: {
     fontSize: 20,
-    color: '#FF6B35',
+    color: 'Colors.secondary',
     fontWeight: '700',
     letterSpacing: 4,
   },
   sendButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
   },
   sendButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -263,11 +263,11 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   footerLink: {
     fontSize: 14,
-    color: '#FF6B35',
+    color: 'Colors.secondary',
     fontWeight: '600',
   },
 });

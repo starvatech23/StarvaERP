@@ -201,8 +201,8 @@ export default function ImportExportScreen() {
               disabled={importing}
             >
               <View style={styles.optionLeft}>
-                <View style={[styles.optionIcon, { backgroundColor: '#3B82F620' }]}>
-                  <Ionicons name="document-text" size={24} color="#3B82F6" />
+                <View style={[styles.optionIcon, { backgroundColor: 'Colors.primary20' }]}>
+                  <Ionicons name="document-text" size={24} color="Colors.primary" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.optionTitle}>CSV File</Text>
@@ -210,7 +210,7 @@ export default function ImportExportScreen() {
                 </View>
               </View>
               {importing ? (
-                <ActivityIndicator size="small" color="#3B82F6" />
+                <ActivityIndicator size="small" color="Colors.primary" />
               ) : (
                 <Ionicons name="chevron-forward" size={24} color="#CBD5E0" />
               )}
@@ -299,7 +299,7 @@ export default function ImportExportScreen() {
             <Text style={styles.historyTitle}>Recent Imports</Text>
             {importHistory.reverse().slice(0, 5).map((item, index) => (
               <View key={index} style={styles.historyCard}>
-                <Ionicons name="time" size={20} color="#718096" />
+                <Ionicons name="time" size={20} color="Colors.textSecondary" />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.historyText}>
                     {item.count} leads from {item.source}
@@ -315,7 +315,7 @@ export default function ImportExportScreen() {
 
         {/* Help Section */}
         <View style={styles.helpCard}>
-          <Ionicons name="help-circle" size={24} color="#3B82F6" />
+          <Ionicons name="help-circle" size={24} color="Colors.primary" />
           <View style={{ flex: 1 }}>
             <Text style={styles.helpTitle}>CSV Format Guidelines</Text>
             <Text style={styles.helpText}>
@@ -334,15 +334,15 @@ export default function ImportExportScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFC' },
+  container: { flex: 1, backgroundColor: 'Colors.background' },
   header: {
     padding: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
-  headerTitle: { fontSize: 28, fontWeight: '700', color: '#1A202C' },
-  headerSubtitle: { fontSize: 14, color: '#718096', marginTop: 4 },
+  headerTitle: { fontSize: 28, fontWeight: '700', color: 'Colors.textPrimary' },
+  headerSubtitle: { fontSize: 14, color: 'Colors.textSecondary', marginTop: 4 },
   content: { flex: 1, padding: 16 },
   section: { marginBottom: 24 },
   sectionHeader: {
@@ -358,14 +358,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 16,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#1A202C' },
-  sectionSubtitle: { fontSize: 14, color: '#718096', marginTop: 2 },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary' },
+  sectionSubtitle: { fontSize: 14, color: 'Colors.textSecondary', marginTop: 2 },
   optionsContainer: { gap: 12 },
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
@@ -383,8 +383,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  optionTitle: { fontSize: 16, fontWeight: '700', color: '#1A202C' },
-  optionDescription: { fontSize: 13, color: '#718096', marginTop: 2 },
+  optionTitle: { fontSize: 16, fontWeight: '700', color: 'Colors.textPrimary' },
+  optionDescription: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
   comingSoonBadge: {
     backgroundColor: '#FEF3C7',
     paddingHorizontal: 10,
@@ -395,20 +395,20 @@ const styles = StyleSheet.create({
   historyTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   historyCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 12,
     borderRadius: 8,
     marginBottom: 8,
     gap: 12,
   },
-  historyText: { fontSize: 14, fontWeight: '600', color: '#1A202C' },
-  historyDate: { fontSize: 12, color: '#718096', marginTop: 2 },
+  historyText: { fontSize: 14, fontWeight: '600', color: 'Colors.textPrimary' },
+  historyDate: { fontSize: 12, color: 'Colors.textSecondary', marginTop: 2 },
   helpCard: {
     flexDirection: 'row',
     backgroundColor: '#EBF8FF',

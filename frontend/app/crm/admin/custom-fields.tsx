@@ -145,7 +145,7 @@ export default function CustomFieldsScreen() {
       <SafeAreaView style={styles.container}>
         <BackToHome />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -161,7 +161,7 @@ export default function CustomFieldsScreen() {
           <Text style={styles.headerSubtitle}>{fields.length} fields configured</Text>
         </View>
         <TouchableOpacity style={styles.addButton} onPress={handleCreate}>
-          <Ionicons name="add" size={24} color="#FFFFFF" />
+          <Ionicons name="add" size={24} color="Colors.surface" />
         </TouchableOpacity>
       </View>
 
@@ -203,11 +203,11 @@ export default function CustomFieldsScreen() {
 
               <View style={styles.fieldActions}>
                 <TouchableOpacity
-                  style={[styles.actionButton, { backgroundColor: '#3B82F620' }]}
+                  style={[styles.actionButton, { backgroundColor: 'Colors.primary20' }]}
                   onPress={() => handleEdit(field)}
                 >
-                  <Ionicons name="pencil" size={16} color="#3B82F6" />
-                  <Text style={[styles.actionButtonText, { color: '#3B82F6' }]}>Edit</Text>
+                  <Ionicons name="pencil" size={16} color="Colors.primary" />
+                  <Text style={[styles.actionButtonText, { color: 'Colors.primary' }]}>Edit</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionButton, { backgroundColor: '#EF444420' }]}
@@ -231,7 +231,7 @@ export default function CustomFieldsScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{editingField ? 'Edit' : 'Create'} Custom Field</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
-                <Ionicons name="close" size={24} color="#718096" />
+                <Ionicons name="close" size={24} color="Colors.textSecondary" />
               </TouchableOpacity>
             </View>
 
@@ -283,7 +283,7 @@ export default function CustomFieldsScreen() {
                 <Switch
                   value={formData.is_required}
                   onValueChange={(value) => setFormData({ ...formData, is_required: value })}
-                  trackColor={{ false: '#E2E8F0', true: '#10B981' }}
+                  trackColor={{ false: 'Colors.border', true: '#10B981' }}
                 />
               </View>
             </ScrollView>
@@ -307,36 +307,36 @@ export default function CustomFieldsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFC' },
+  container: { flex: 1, backgroundColor: 'Colors.background' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: '#1A202C' },
-  headerSubtitle: { fontSize: 13, color: '#718096', marginTop: 2 },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary' },
+  headerSubtitle: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
   addButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     alignItems: 'center',
     justifyContent: 'center',
   },
   content: { flex: 1, padding: 16 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   emptyState: { alignItems: 'center', paddingVertical: 60 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#1A202C', marginTop: 16 },
-  emptyText: { fontSize: 14, color: '#718096', textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
-  createButton: { backgroundColor: '#FF6B35', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, marginTop: 24 },
-  createButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary', marginTop: 16 },
+  emptyText: { fontSize: 14, color: 'Colors.textSecondary', textAlign: 'center', marginTop: 8, paddingHorizontal: 40 },
+  createButton: { backgroundColor: 'Colors.secondary', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, marginTop: 24 },
+  createButtonText: { color: 'Colors.surface', fontSize: 16, fontWeight: '600' },
   fieldCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -347,14 +347,14 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   fieldHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
-  fieldLabel: { fontSize: 16, fontWeight: '700', color: '#1A202C' },
-  fieldName: { fontSize: 13, color: '#718096', marginTop: 2 },
+  fieldLabel: { fontSize: 16, fontWeight: '700', color: 'Colors.textPrimary' },
+  fieldName: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
   fieldTypeBadge: { backgroundColor: '#EBF8FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   fieldTypeText: { fontSize: 11, fontWeight: '600', color: '#2C5282' },
   requiredBadge: { alignSelf: 'flex-start', backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, marginBottom: 8 },
   requiredText: { fontSize: 11, fontWeight: '600', color: '#92400E' },
   optionsContainer: { marginTop: 8 },
-  optionsLabel: { fontSize: 12, fontWeight: '600', color: '#718096', marginBottom: 4 },
+  optionsLabel: { fontSize: 12, fontWeight: '600', color: 'Colors.textSecondary', marginBottom: 4 },
   optionsText: { fontSize: 13, color: '#4A5568' },
   fieldActions: { flexDirection: 'row', gap: 8, marginTop: 12 },
   actionButton: {
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '90%',
@@ -383,25 +383,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: '#1A202C' },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary' },
   modalBody: { padding: 20, maxHeight: 400 },
   label: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 8, marginTop: 12 },
   input: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   pickerContainer: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     overflow: 'hidden',
   },
@@ -416,11 +416,11 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   modalButton: { flex: 1, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
-  cancelButton: { backgroundColor: '#F7FAFC' },
-  cancelButtonText: { fontSize: 16, fontWeight: '600', color: '#718096' },
-  saveButton: { backgroundColor: '#FF6B35' },
-  saveButtonText: { fontSize: 16, fontWeight: '600', color: '#FFFFFF' },
+  cancelButton: { backgroundColor: 'Colors.background' },
+  cancelButtonText: { fontSize: 16, fontWeight: '600', color: 'Colors.textSecondary' },
+  saveButton: { backgroundColor: 'Colors.secondary' },
+  saveButtonText: { fontSize: 16, fontWeight: '600', color: 'Colors.surface' },
 });

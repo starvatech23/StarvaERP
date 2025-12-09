@@ -100,7 +100,7 @@ export default function ProjectTimelineScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -111,7 +111,7 @@ export default function ProjectTimelineScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Project Timeline</Text>
         <View style={{ width: 40 }} />
@@ -260,7 +260,7 @@ export default function ProjectTimelineScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -273,22 +273,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
@@ -307,14 +307,14 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 8,
     textAlign: 'center',
   },
   legendContainer: {
     flexDirection: 'row',
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     marginBottom: 8,
     justifyContent: 'space-around',
   },
@@ -333,20 +333,20 @@ const styles = StyleSheet.create({
     color: '#4A5568',
   },
   ganttContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     paddingBottom: 16,
   },
   dateHeader: {
     flexDirection: 'row',
     borderBottomWidth: 2,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
     marginLeft: 150,
   },
   dateCell: {
     padding: 8,
     alignItems: 'center',
     borderRightWidth: 1,
-    borderRightColor: '#F7FAFC',
+    borderRightColor: 'Colors.background',
   },
   dateText: {
     fontSize: 11,
@@ -359,30 +359,30 @@ const styles = StyleSheet.create({
   taskRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#F7FAFC',
+    borderBottomColor: 'Colors.background',
     position: 'relative',
   },
   taskNameContainer: {
     width: 150,
     padding: 8,
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     position: 'absolute',
     left: 0,
     top: 0,
     bottom: 0,
     borderRightWidth: 2,
-    borderRightColor: '#E2E8F0',
+    borderRightColor: 'Colors.border',
     zIndex: 1,
   },
   taskName: {
     fontSize: 12,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     fontWeight: '600',
   },
   taskProgress: {
     fontSize: 10,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
   },
   gridCell: {
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     borderRightWidth: 1,
-    borderRightColor: '#F7FAFC',
+    borderRightColor: 'Colors.background',
   },
   taskBar: {
     position: 'absolute',
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   milestoneDiamond: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 4,
     borderRadius: 4,
     borderWidth: 2,
@@ -425,20 +425,20 @@ const styles = StyleSheet.create({
     color: '#8B5CF6',
     fontWeight: '600',
     marginTop: 4,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     paddingHorizontal: 4,
     paddingVertical: 2,
     borderRadius: 2,
   },
   summarySection: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     marginTop: 16,
   },
   summaryTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 12,
   },
   summaryItem: {
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F7FAFC',
+    borderBottomColor: 'Colors.background',
   },
   statusDot: {
     width: 10,
@@ -460,11 +460,11 @@ const styles = StyleSheet.create({
   summaryTaskName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   summaryDates: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
   },
   summaryAssigned: {

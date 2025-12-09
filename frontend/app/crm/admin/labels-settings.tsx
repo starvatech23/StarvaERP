@@ -98,7 +98,7 @@ export default function LabelsSettingsScreen() {
     {
       title: 'Section Headers',
       icon: 'list',
-      color: '#3B82F6',
+      color: 'Colors.primary',
       items: [
         { key: 'contactInfoSection', label: 'Contact Info Section', placeholder: 'e.g., Contact Information, Details' },
         { key: 'customFieldsSection', label: 'Custom Fields Section', placeholder: 'e.g., Additional Details, Extra Info' },
@@ -116,7 +116,7 @@ export default function LabelsSettingsScreen() {
           <Text style={styles.headerSubtitle}>Customize terminology for your team</Text>
         </View>
         <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-          <Ionicons name="refresh" size={20} color="#718096" />
+          <Ionicons name="refresh" size={20} color="Colors.textSecondary" />
         </TouchableOpacity>
       </View>
 
@@ -161,7 +161,7 @@ export default function LabelsSettingsScreen() {
             style={styles.saveButton}
             onPress={handleSave}
           >
-            <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
+            <Ionicons name="checkmark-circle" size={24} color="Colors.surface" />
             <Text style={styles.saveButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </View>
@@ -171,28 +171,28 @@ export default function LabelsSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFC' },
+  container: { flex: 1, backgroundColor: 'Colors.background' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: '#1A202C' },
-  headerSubtitle: { fontSize: 13, color: '#718096', marginTop: 2 },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: 'Colors.textPrimary' },
+  headerSubtitle: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
   resetButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   content: { flex: 1, padding: 16 },
   infoCard: {
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   infoText: { flex: 1, fontSize: 14, color: '#92400E', lineHeight: 20 },
   groupContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   groupIconContainer: {
     width: 36,
@@ -231,28 +231,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  groupTitle: { fontSize: 18, fontWeight: '700', color: '#1A202C' },
+  groupTitle: { fontSize: 18, fontWeight: '700', color: 'Colors.textPrimary' },
   labelItem: { marginBottom: 16 },
   labelItemLabel: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 8 },
   labelInput: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
@@ -261,12 +261,12 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     flexDirection: 'row',
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
   },
-  saveButtonText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  saveButtonText: { fontSize: 16, fontWeight: '700', color: 'Colors.surface' },
 });

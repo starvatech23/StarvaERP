@@ -77,7 +77,7 @@ export default function DocumentsScreen() {
 
   const getDocumentColor = (type: string) => {
     switch (type) {
-      case 'contract': return '#3B82F6';
+      case 'contract': return 'Colors.primary';
       case 'blueprint': return '#8B5CF6';
       case 'permit': return '#10B981';
       case 'invoice': return '#F59E0B';
@@ -102,7 +102,7 @@ export default function DocumentsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="Colors.primary" />
         </View>
       </SafeAreaView>
     );
@@ -112,14 +112,14 @@ export default function DocumentsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Documents</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push(`/projects/${id}/documents/upload` as any)}
         >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
+          <Ionicons name="add" size={24} color="Colors.surface" />
         </TouchableOpacity>
       </View>
 
@@ -221,7 +221,7 @@ export default function DocumentsScreen() {
                 onPress={() => setViewingDocument(null)}
                 style={styles.closeButton}
               >
-                <Ionicons name="close" size={24} color="#1A202C" />
+                <Ionicons name="close" size={24} color="Colors.textPrimary" />
               </TouchableOpacity>
             </View>
 
@@ -257,7 +257,7 @@ export default function DocumentsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -270,28 +270,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -300,9 +300,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   filterLabel: {
     fontSize: 14,
@@ -328,29 +328,29 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 8,
   },
   emptyButton: {
     marginTop: 24,
-    backgroundColor: '#3B82F6',
+    backgroundColor: 'Colors.primary',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   emptyButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '600',
   },
   documentCard: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     alignItems: 'center',
   },
   documentIcon: {
@@ -367,12 +367,12 @@ const styles = StyleSheet.create({
   documentName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 4,
   },
   documentMeta: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 2,
   },
   documentUploader: {
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 10,
-    color: '#3B82F6',
+    color: 'Colors.primary',
     fontWeight: '600',
   },
   deleteIcon: {
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 16,
     width: '90%',
     maxHeight: '80%',
@@ -416,12 +416,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     flex: 1,
     marginRight: 12,
   },
@@ -448,13 +448,13 @@ const styles = StyleSheet.create({
   },
   previewSubtext: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 4,
   },
   descriptionSection: {
     marginTop: 16,
     padding: 12,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
   },
   descriptionLabel: {
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: 14,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     lineHeight: 20,
   },
 });

@@ -85,7 +85,7 @@ export default function SystemSettingsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -96,7 +96,7 @@ export default function SystemSettingsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>System Settings</Text>
         <View style={{ width: 40 }} />
@@ -129,7 +129,7 @@ export default function SystemSettingsScreen() {
           </View>
 
           <View style={styles.infoCard}>
-            <Ionicons name="information-circle" size={20} color="#3B82F6" />
+            <Ionicons name="information-circle" size={20} color="Colors.primary" />
             <Text style={styles.infoText}>
               Set how many users can have admin privileges. Range: 1-100
             </Text>
@@ -140,7 +140,7 @@ export default function SystemSettingsScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View style={[styles.sectionIcon, { backgroundColor: '#DBEAFE' }]}>
-              <Ionicons name="checkmark-done" size={24} color="#3B82F6" />
+              <Ionicons name="checkmark-done" size={24} color="Colors.primary" />
             </View>
             <View style={styles.sectionTitleContainer}>
               <Text style={styles.sectionTitle}>User Registration</Text>
@@ -217,10 +217,10 @@ export default function SystemSettingsScreen() {
           disabled={saving}
         >
           {saving ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color="Colors.surface" />
           ) : (
             <>
-              <Ionicons name="save" size={20} color="#FFFFFF" />
+              <Ionicons name="save" size={20} color="Colors.surface" />
               <Text style={styles.saveButtonText}>Save Settings</Text>
             </>
           )}
@@ -233,7 +233,7 @@ export default function SystemSettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -246,28 +246,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
   },
   section: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     marginBottom: 12,
   },
@@ -291,11 +291,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
   },
   settingRow: {
@@ -307,24 +307,24 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   settingHelper: {
     fontSize: 12,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 4,
   },
   numberInput: {
     width: 80,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     textAlign: 'center',
   },
   switchRow: {
@@ -360,12 +360,12 @@ const styles = StyleSheet.create({
   },
   infoRowLabel: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   infoRowValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   statusBadge: {
     flexDirection: 'row',
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     marginHorizontal: 16,
     marginVertical: 24,
     paddingVertical: 16,
@@ -401,6 +401,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
 });

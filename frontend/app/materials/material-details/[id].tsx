@@ -112,7 +112,7 @@ export default function MaterialDetailsScreen() {
       blocks: '#94A3B8',
       tiles: '#06B6D4',
       paint: '#8B5CF6',
-      plumbing: '#3B82F6',
+      plumbing: 'Colors.primary',
       electrical: '#FBBF24',
       hardware: '#6366F1',
       wood: '#92400E',
@@ -124,7 +124,7 @@ export default function MaterialDetailsScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#FF6B35" style={styles.loader} />
+        <ActivityIndicator size="large" color="Colors.secondary" style={styles.loader} />
       </SafeAreaView>
     );
   }
@@ -141,7 +141,7 @@ export default function MaterialDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Material Details</Text>
         <View style={styles.headerActions}>
@@ -151,7 +151,7 @@ export default function MaterialDetailsScreen() {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity onPress={() => setEditing(true)} style={styles.editButton}>
-              <Ionicons name="pencil" size={20} color="#FF6B35" />
+              <Ionicons name="pencil" size={20} color="Colors.secondary" />
             </TouchableOpacity>
           )}
         </View>
@@ -287,7 +287,7 @@ export default function MaterialDetailsScreen() {
 
           {!editing && (
             <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-              <Ionicons name="trash" size={20} color="#FFFFFF" />
+              <Ionicons name="trash" size={20} color="Colors.surface" />
               <Text style={styles.deleteButtonText}>Delete Material</Text>
             </TouchableOpacity>
           )}
@@ -314,7 +314,7 @@ export default function MaterialDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loader: {
     flex: 1,
@@ -323,16 +323,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 50,
     fontSize: 16,
-    color: '#718096',
+    color: 'Colors.textSecondary',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     padding: 8,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     flex: 1,
     textAlign: 'center',
   },
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     fontWeight: '600',
   },
   keyboardView: {
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   section: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -390,18 +390,18 @@ const styles = StyleSheet.create({
   categoryLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 4,
   },
   categoryValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 16,
   },
   field: {
@@ -410,18 +410,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 8,
   },
   value: {
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   unitBadgeContainer: {
     flexDirection: 'row',
   },
   unitBadge: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -429,30 +429,30 @@ const styles = StyleSheet.create({
   unitBadgeText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   input: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   textArea: {
     height: 100,
     paddingTop: 12,
   },
   pickerContainer: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   deleteButton: {
     flexDirection: 'row',
@@ -467,16 +467,16 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   footer: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   saveButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -487,6 +487,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
 });

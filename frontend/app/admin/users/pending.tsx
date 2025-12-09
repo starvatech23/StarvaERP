@@ -98,7 +98,7 @@ export default function PendingUsersScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -109,7 +109,7 @@ export default function PendingUsersScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Pending Approvals</Text>
         <View style={{ width: 40 }} />
@@ -138,7 +138,7 @@ export default function PendingUsersScreen() {
                 {/* User Info */}
                 <View style={styles.userHeader}>
                   <View style={styles.avatarContainer}>
-                    <Ionicons name="person" size={24} color="#FF6B35" />
+                    <Ionicons name="person" size={24} color="Colors.secondary" />
                   </View>
                   <View style={styles.userInfo}>
                     <Text style={styles.userName}>{user.full_name}</Text>
@@ -151,13 +151,13 @@ export default function PendingUsersScreen() {
                 {/* User Details */}
                 {user.address && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="location" size={16} color="#718096" />
+                    <Ionicons name="location" size={16} color="Colors.textSecondary" />
                     <Text style={styles.detailText}>{user.address}</Text>
                   </View>
                 )}
 
                 <View style={styles.detailRow}>
-                  <Ionicons name="calendar" size={16} color="#718096" />
+                  <Ionicons name="calendar" size={16} color="Colors.textSecondary" />
                   <Text style={styles.detailText}>
                     Requested: {new Date(user.date_joined).toLocaleDateString()}
                   </Text>
@@ -173,15 +173,15 @@ export default function PendingUsersScreen() {
                         setSelectedRoles({ ...selectedRoles, [user.id]: value })
                       }
                       style={styles.picker}
-                      dropdownIconColor="#1A202C"
+                      dropdownIconColor="Colors.textPrimary"
                     >
-                      <Picker.Item label="Select a role" value="" color="#718096" />
+                      <Picker.Item label="Select a role" value="" color="Colors.textSecondary" />
                       {roles.map((role: any) => (
                         <Picker.Item
                           key={role.id}
                           label={role.name}
                           value={role.id}
-                          color="#1A202C"
+                          color="Colors.textPrimary"
                         />
                       ))}
                     </Picker>
@@ -202,7 +202,7 @@ export default function PendingUsersScreen() {
                     style={styles.approveButton}
                     onPress={() => handleApprove(user.id)}
                   >
-                    <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+                    <Ionicons name="checkmark-circle" size={20} color="Colors.surface" />
                     <Text style={styles.approveButtonText}>Approve</Text>
                   </TouchableOpacity>
                 </View>
@@ -218,7 +218,7 @@ export default function PendingUsersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -231,22 +231,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
@@ -260,12 +260,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 16,
   },
   emptyText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     marginTop: 8,
   },
@@ -275,16 +275,16 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 12,
   },
   userCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   userHeader: {
     flexDirection: 'row',
@@ -306,11 +306,11 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   userContact: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
   },
   detailRow: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginLeft: 8,
   },
   roleSection: {
@@ -330,18 +330,18 @@ const styles = StyleSheet.create({
   roleLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 8,
   },
   pickerContainer: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     overflow: 'hidden',
   },
   picker: {
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   actionButtons: {
     flexDirection: 'row',
@@ -375,6 +375,6 @@ const styles = StyleSheet.create({
   approveButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
 });

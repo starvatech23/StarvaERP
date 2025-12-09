@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import BackToHome from '../../../components/BackToHome';
@@ -13,7 +14,7 @@ export default function AdminPanelScreen() {
       title: 'Custom Fields',
       description: 'Manage custom lead fields',
       route: '/crm/admin/custom-fields' as any,
-      color: '#3B82F6',
+      color: 'Colors.primary',
     },
     {
       icon: 'stats-chart',
@@ -58,7 +59,7 @@ export default function AdminPanelScreen() {
 
       <ScrollView style={styles.content}>
         <View style={styles.infoCard}>
-          <Ionicons name="information-circle" size={24} color="#3B82F6" />
+          <Ionicons name="information-circle" size={24} color="Colors.primary" />
           <Text style={styles.infoText}>
             Admin-only area for CRM configuration. Changes here affect all users.
           </Text>
@@ -88,15 +89,15 @@ export default function AdminPanelScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFC' },
+  container: { flex: 1, backgroundColor: 'Colors.background' },
   header: {
     padding: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
-  headerTitle: { fontSize: 28, fontWeight: '700', color: '#1A202C' },
-  headerSubtitle: { fontSize: 14, color: '#718096', marginTop: 4 },
+  headerTitle: { fontSize: 28, fontWeight: '700', color: 'Colors.textPrimary' },
+  headerSubtitle: { fontSize: 14, color: 'Colors.textSecondary', marginTop: 4 },
   content: { flex: 1, padding: 16 },
   infoCard: {
     flexDirection: 'row',
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 20,
     borderRadius: 12,
     marginBottom: 12,
@@ -129,6 +130,6 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   optionContent: { flex: 1 },
-  optionTitle: { fontSize: 16, fontWeight: '700', color: '#1A202C' },
-  optionDescription: { fontSize: 13, color: '#718096', marginTop: 2 },
+  optionTitle: { fontSize: 16, fontWeight: '700', color: 'Colors.textPrimary' },
+  optionDescription: { fontSize: 13, color: 'Colors.textSecondary', marginTop: 2 },
 });

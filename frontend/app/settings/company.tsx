@@ -96,7 +96,7 @@ export default function CompanySettingsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
           <Text style={styles.loadingText}>Loading settings...</Text>
         </View>
       </SafeAreaView>
@@ -113,7 +113,7 @@ export default function CompanySettingsScreen() {
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#1A202C" />
+              <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Company Settings</Text>
             <View style={styles.placeholder} />
@@ -122,7 +122,7 @@ export default function CompanySettingsScreen() {
           {/* Logo Section */}
           <View style={styles.logoSection}>
             <View style={styles.logoPlaceholder}>
-              <Ionicons name="business" size={48} color="#FF6B35" />
+              <Ionicons name="business" size={48} color="Colors.secondary" />
             </View>
             <TouchableOpacity style={styles.changeLogoButton}>
               <Text style={styles.changeLogoText}>Change Logo</Text>
@@ -213,7 +213,7 @@ export default function CompanySettingsScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="Colors.surface" />
             ) : (
               <Text style={styles.saveButtonText}>Save Settings</Text>
             )}
@@ -227,7 +227,7 @@ export default function CompanySettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   keyboardView: {
     flex: 1,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   placeholder: {
     width: 40,
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   },
   changeLogoText: {
     fontSize: 14,
-    color: '#FF6B35',
+    color: 'Colors.secondary',
     fontWeight: '600',
   },
   form: {
@@ -287,16 +287,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   textArea: {
     minHeight: 100,
@@ -308,12 +308,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
   },
   saveButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   errorContainer: {
     flex: 1,
@@ -335,12 +335,12 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 16,
     marginBottom: 24,
   },
   backBtn: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   backBtnText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'Colors.surface',
   },
   loadingContainer: {
     flex: 1,
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 16,
   },
 });

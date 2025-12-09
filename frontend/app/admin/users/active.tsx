@@ -68,7 +68,7 @@ export default function ActiveUsersScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -79,7 +79,7 @@ export default function ActiveUsersScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Active Users</Text>
         <View style={{ width: 40 }} />
@@ -111,7 +111,7 @@ export default function ActiveUsersScreen() {
                   {/* User Header */}
                   <View style={styles.userHeader}>
                     <View style={styles.avatarContainer}>
-                      <Ionicons name="person" size={24} color="#3B82F6" />
+                      <Ionicons name="person" size={24} color="Colors.primary" />
                     </View>
                     <View style={styles.userInfo}>
                       <Text style={styles.userName}>{user.full_name}</Text>
@@ -129,14 +129,14 @@ export default function ActiveUsersScreen() {
                   <View style={styles.contactSection}>
                     {user.email && (
                       <View style={styles.contactRow}>
-                        <Ionicons name="mail" size={16} color="#718096" />
+                        <Ionicons name="mail" size={16} color="Colors.textSecondary" />
                         <Text style={styles.contactText}>{user.email}</Text>
                       </View>
                     )}
                     
                     {user.phone && (
                       <View style={styles.contactRow}>
-                        <Ionicons name="call" size={16} color="#718096" />
+                        <Ionicons name="call" size={16} color="Colors.textSecondary" />
                         <Text style={styles.contactText}>{user.phone}</Text>
                         <TouchableOpacity
                           style={styles.callButton}
@@ -149,7 +149,7 @@ export default function ActiveUsersScreen() {
 
                     {user.address && (
                       <View style={styles.contactRow}>
-                        <Ionicons name="location" size={16} color="#718096" />
+                        <Ionicons name="location" size={16} color="Colors.textSecondary" />
                         <Text style={styles.contactText} numberOfLines={2}>
                           {user.address}
                         </Text>
@@ -195,7 +195,7 @@ export default function ActiveUsersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
   },
   loadingContainer: {
     flex: 1,
@@ -208,22 +208,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: 'Colors.background',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   content: {
     flex: 1,
@@ -237,12 +237,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginTop: 16,
   },
   emptyText: {
     fontSize: 14,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     textAlign: 'center',
     marginTop: 8,
   },
@@ -252,16 +252,16 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 12,
   },
   userCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
   },
   userHeader: {
     flexDirection: 'row',
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   roleBadge: {
     alignSelf: 'flex-start',
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
   contactText: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginLeft: 8,
     flex: 1,
   },
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'Colors.border',
     gap: 16,
   },
   metadataItem: {
@@ -331,13 +331,13 @@ const styles = StyleSheet.create({
   },
   metadataLabel: {
     fontSize: 11,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginBottom: 4,
   },
   metadataValue: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   statusBadge: {
     flexDirection: 'row',

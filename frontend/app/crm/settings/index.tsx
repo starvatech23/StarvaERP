@@ -58,7 +58,7 @@ export default function CRMSettingsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color="Colors.secondary" />
         </View>
       </SafeAreaView>
     );
@@ -68,7 +68,7 @@ export default function CRMSettingsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A202C" />
+          <Ionicons name="arrow-back" size={24} color="Colors.textPrimary" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>CRM Settings</Text>
         <View style={{ width: 40 }} />
@@ -94,8 +94,8 @@ export default function CRMSettingsScreen() {
             <Switch
               value={config?.whatsapp_enabled}
               onValueChange={(value) => setConfig({ ...config, whatsapp_enabled: value })}
-              trackColor={{ false: '#E2E8F0', true: '#10B981' }}
-              thumbColor="#FFFFFF"
+              trackColor={{ false: 'Colors.border', true: '#10B981' }}
+              thumbColor="Colors.surface"
             />
           </View>
 
@@ -133,14 +133,14 @@ export default function CRMSettingsScreen() {
           
           <View style={styles.switchCard}>
             <View style={styles.switchLeft}>
-              <Ionicons name="call" size={24} color="#3B82F6" />
+              <Ionicons name="call" size={24} color="Colors.primary" />
               <Text style={styles.switchLabel}>Enable Telephony</Text>
             </View>
             <Switch
               value={config?.telephony_enabled}
               onValueChange={(value) => setConfig({ ...config, telephony_enabled: value })}
-              trackColor={{ false: '#E2E8F0', true: '#3B82F6' }}
-              thumbColor="#FFFFFF"
+              trackColor={{ false: 'Colors.border', true: 'Colors.primary' }}
+              thumbColor="Colors.surface"
             />
           </View>
 
@@ -170,8 +170,8 @@ export default function CRMSettingsScreen() {
             <Switch
               value={config?.auto_assign_enabled}
               onValueChange={(value) => setConfig({ ...config, auto_assign_enabled: value })}
-              trackColor={{ false: '#E2E8F0', true: '#8B5CF6' }}
-              thumbColor="#FFFFFF"
+              trackColor={{ false: 'Colors.border', true: '#8B5CF6' }}
+              thumbColor="Colors.surface"
             />
           </View>
 
@@ -222,7 +222,7 @@ export default function CRMSettingsScreen() {
           disabled={saving}
         >
           {saving ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color="Colors.surface" />
           ) : (
             <Text style={styles.saveButtonText}>Save Settings</Text>
           )}
@@ -235,19 +235,19 @@ export default function CRMSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFC' },
+  container: { flex: 1, backgroundColor: 'Colors.background' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: 'Colors.border',
   },
   backButton: { width: 40 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: '#1A202C', flex: 1 },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: 'Colors.textPrimary', flex: 1 },
   content: { flex: 1, padding: 16 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   infoCard: {
@@ -268,14 +268,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 16,
   },
   switchCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   switchLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   label: {
     fontSize: 14,
@@ -297,14 +297,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'Colors.border',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
     marginBottom: 16,
   },
   textArea: {
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   },
   helperText: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: -12,
     marginBottom: 16,
   },
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   strategyOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'Colors.surface',
     padding: 16,
     borderRadius: 12,
     gap: 12,
@@ -337,15 +337,15 @@ const styles = StyleSheet.create({
   strategyTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A202C',
+    color: 'Colors.textPrimary',
   },
   strategyDescription: {
     fontSize: 13,
-    color: '#718096',
+    color: 'Colors.textSecondary',
     marginTop: 2,
   },
   saveButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: 'Colors.secondary',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   saveButtonText: {
-    color: '#FFFFFF',
+    color: 'Colors.surface',
     fontSize: 16,
     fontWeight: '700',
   },
