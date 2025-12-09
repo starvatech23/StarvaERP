@@ -174,7 +174,7 @@ export default function PendingUsersScreen() {
                         setSelectedRoles({ ...selectedRoles, [user.id]: value })
                       }
                       style={styles.picker}
-                      dropdownIconColor=Colors.textPrimary
+                      dropdownIconColor={Colors.textPrimary}
                     >
                       <Picker.Item label="Select a role" value="" color={Colors.textSecondary} />
                       {roles.map((role: any) => (

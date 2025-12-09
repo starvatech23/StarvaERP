@@ -203,7 +203,7 @@ export default function AddUserScreen() {
                 selectedValue={roleId}
                 onValueChange={setRoleId}
                 style={styles.picker}
-                dropdownIconColor=Colors.textPrimary
+                dropdownIconColor={Colors.textPrimary}
               >
                 <Picker.Item label="Select role..." value="" color="#9CA3AF" />
                 {roles.map((role: any) => (
@@ -219,7 +219,7 @@ export default function AddUserScreen() {
                 selectedValue={teamId}
                 onValueChange={setTeamId}
                 style={styles.picker}
-                dropdownIconColor=Colors.textPrimary
+                dropdownIconColor={Colors.textPrimary}
               >
                 <Picker.Item label="Select team..." value="" color="#9CA3AF" />
                 {teams.map((team: any) => (

@@ -179,7 +179,7 @@ export default function RegisterEmailScreen() {
                   }
                 }}
                 style={styles.picker}
-                dropdownIconColor=Colors.textPrimary
+                dropdownIconColor={Colors.textPrimary}
               >
                 <Picker.Item label="Select your role..." value="" color="#9CA3AF" />
                 {availableRoles.length > 0 ? (

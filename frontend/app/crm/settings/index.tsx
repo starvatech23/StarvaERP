@@ -96,7 +96,7 @@ export default function CRMSettingsScreen() {
               value={config?.whatsapp_enabled}
               onValueChange={(value) => setConfig({ ...config, whatsapp_enabled: value })}
               trackColor={{ false: Colors.border, true: '#10B981' }}
-              thumbColor=Colors.surface
+              thumbColor={Colors.surface}
             />
           </View>
 
@@ -141,7 +141,7 @@ export default function CRMSettingsScreen() {
               value={config?.telephony_enabled}
               onValueChange={(value) => setConfig({ ...config, telephony_enabled: value })}
               trackColor={{ false: Colors.border, true: Colors.primary }}
-              thumbColor=Colors.surface
+              thumbColor={Colors.surface}
             />
           </View>
 
@@ -172,7 +172,7 @@ export default function CRMSettingsScreen() {
               value={config?.auto_assign_enabled}
               onValueChange={(value) => setConfig({ ...config, auto_assign_enabled: value })}
               trackColor={{ false: Colors.border, true: '#8B5CF6' }}
-              thumbColor=Colors.surface
+              thumbColor={Colors.surface}
             />
           </View>
 

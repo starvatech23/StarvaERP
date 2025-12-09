@@ -263,7 +263,7 @@ export default function CreateLeadScreen() {
                 value={formData.whatsapp_consent}
                 onValueChange={(value) => setFormData({ ...formData, whatsapp_consent: value })}
                 trackColor={{ false: Colors.border, true: '#10B981' }}
-                thumbColor=Colors.surface
+                thumbColor={Colors.surface}
               />
             </View>
 
@@ -274,7 +274,7 @@ export default function CreateLeadScreen() {
                   value={formData.send_whatsapp}
                   onValueChange={(value) => setFormData({ ...formData, send_whatsapp: value })}
                   trackColor={{ false: Colors.border, true: '#10B981' }}
-                  thumbColor=Colors.surface
+                  thumbColor={Colors.surface}
                 />
               </View>
             )}
