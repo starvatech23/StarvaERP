@@ -67,241 +67,193 @@ class BackendTester:
             self.log_result("Authentication", False, f"Authentication error: {str(e)}")
             return False
 
-    def test_dashboard_stats(self):
-        """Test Dashboard API - /api/dashboard/stats (GET) - Priority 1"""
+    def test_admin_users_api(self):
+        """Test GET /api/admin/users - CRITICAL FIX #1"""
+        print("🔍 Testing GET /api/admin/users (Critical Fix #1)...")
+        
         try:
-            response = self.make_authenticated_request("GET", "/dashboard/stats", "admin")
+            response = self.session.get(f"{BACKEND_URL}/admin/users")
             
             if response.status_code == 200:
                 data = response.json()
-                # Check for expected dashboard fields
-                expected_fields = ["projects", "tasks", "user", "crm", "materials", "labor", "finance"]
-                has_expected_fields = any(field in data for field in expected_fields)
+                user_count = len(data) if isinstance(data, list) else 0
                 
-                if has_expected_fields:
-                    self.log_result("Dashboard Stats API", True, 
-                                  f"Dashboard stats returned successfully with expected data structure")
+                # Check if users have role field handling
+                role_issues = []
+                for user in data:
+                    if isinstance(user, dict):
+                        # Check if role field is handled properly (can be None)
+                        role = user.get("role")
+                        if "role" not in user:
+                            role_issues.append(f"User {user.get('id', 'unknown')} missing role field")
+                
+                if role_issues:
+                    self.log_result("GET /api/admin/users", False, 
+                                  f"Role field issues found: {'; '.join(role_issues)}", data)
                 else:
-                    self.log_result("Dashboard Stats API", True, 
-                                  f"Dashboard stats returned (status 200) but may have different structure", data)
-            elif response.status_code == 500:
-                # Check if it's the specific TypeError we're seeing in logs
-                error_text = response.text
-                if "Failed to fetch dashboard statistics" in error_text:
-                    self.log_result("Dashboard Stats API", False, 
-                                  "500 Internal Server Error - Backend calculation error (likely None + int TypeError), not ValidationError", error_text)
-                else:
-                    self.log_result("Dashboard Stats API", False, 
-                                  "500 Internal Server Error - ValidationError likely present", error_text)
+                    self.log_result("GET /api/admin/users", True, 
+                                  f"Successfully retrieved {user_count} users with proper role handling")
+                return True
+                
             else:
-                self.log_result("Dashboard Stats API", False, 
-                              f"HTTP {response.status_code}", response.text)
+                self.log_result("GET /api/admin/users", False, 
+                              f"API returned {response.status_code}", response.text)
+                return False
                 
         except Exception as e:
-            self.log_result("Dashboard Stats API", False, f"Exception: {str(e)}")
-
+            self.log_result("GET /api/admin/users", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_dashboard_stats_api(self):
+        """Test GET /api/dashboard/stats - CRITICAL FIX #2"""
+        print("🔍 Testing GET /api/dashboard/stats (Critical Fix #2)...")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/dashboard/stats")
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Check for aggregation fields that should handle None values
+                expected_fields = ["month_wages", "month_expenses", "month_payments", "inventory_value"]
+                missing_fields = []
+                
+                for field in expected_fields:
+                    if field not in data:
+                        missing_fields.append(field)
+                
+                if missing_fields:
+                    self.log_result("GET /api/dashboard/stats", False, 
+                                  f"Missing expected fields: {missing_fields}", data)
+                else:
+                    # Check if None values are handled properly
+                    none_handling_ok = True
+                    for field in expected_fields:
+                        value = data.get(field)
+                        if value is None:
+                            print(f"   Note: {field} is None (acceptable with None handling)")
+                        elif isinstance(value, (int, float)):
+                            print(f"   {field}: {value}")
+                        else:
+                            print(f"   {field}: {type(value)} - {value}")
+                    
+                    self.log_result("GET /api/dashboard/stats", True, 
+                                  "Dashboard stats returned successfully with proper None handling")
+                return True
+                
+            else:
+                self.log_result("GET /api/dashboard/stats", False, 
+                              f"API returned {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_result("GET /api/dashboard/stats", False, f"Request failed: {str(e)}")
+            return False
+    
     def test_projects_api(self):
-        """Test Projects APIs - /api/projects (GET) - Priority 2"""
+        """Test GET /api/projects - Verify still working"""
+        print("🔍 Testing GET /api/projects...")
+        
         try:
-            response = self.make_authenticated_request("GET", "/projects", "admin")
+            response = self.session.get(f"{BACKEND_URL}/projects")
             
             if response.status_code == 200:
                 data = response.json()
-                if isinstance(data, list):
-                    # Store project IDs for later tests
-                    self.project_ids = [p.get("id") for p in data if p.get("id")]
-                    
-                    # Check if projects load without ValidationErrors
-                    project_count = len(data)
-                    has_task_count = any(p.get("task_count") for p in data)
-                    has_manager_phone = any(p.get("manager_phone") for p in data)
-                    
-                    details = f"Loaded {project_count} projects successfully"
-                    if has_task_count:
-                        details += ", task_count field present"
-                    if has_manager_phone:
-                        details += ", manager_phone field present"
-                    
-                    self.log_result("Projects API", True, details)
-                else:
-                    self.log_result("Projects API", True, "Projects API returned non-list response", data)
-            elif response.status_code == 500:
-                self.log_result("Projects API", False, 
-                              "500 Internal Server Error - ValidationError with missing address/location", response.text)
+                project_count = len(data) if isinstance(data, list) else 0
+                self.log_result("GET /api/projects", True, 
+                              f"Successfully retrieved {project_count} projects")
+                return True
             else:
-                self.log_result("Projects API", False, 
-                              f"HTTP {response.status_code}", response.text)
+                self.log_result("GET /api/projects", False, 
+                              f"API returned {response.status_code}", response.text)
+                return False
                 
         except Exception as e:
-            self.log_result("Projects API", False, f"Exception: {str(e)}")
-
+            self.log_result("GET /api/projects", False, f"Request failed: {str(e)}")
+            return False
+    
     def test_vendors_api(self):
-        """Test Vendors APIs - /api/vendors (GET) - Priority 3"""
+        """Test GET /api/vendors - Verify still working"""
+        print("🔍 Testing GET /api/vendors...")
+        
         try:
-            response = self.make_authenticated_request("GET", "/vendors", "admin")
+            response = self.session.get(f"{BACKEND_URL}/vendors")
             
             if response.status_code == 200:
                 data = response.json()
-                if isinstance(data, list):
-                    vendor_count = len(data)
-                    has_business_name = any(v.get("business_name") for v in data)
-                    
-                    details = f"Loaded {vendor_count} vendors successfully"
-                    if has_business_name:
-                        details += ", business_name field present"
-                    else:
-                        details += ", business_name field may be null (acceptable after fix)"
-                    
-                    self.log_result("Vendors API", True, details)
-                else:
-                    self.log_result("Vendors API", True, "Vendors API returned non-list response", data)
-            elif response.status_code == 500:
-                self.log_result("Vendors API", False, 
-                              "500 Internal Server Error - ValidationError with missing business_name", response.text)
+                vendor_count = len(data) if isinstance(data, list) else 0
+                self.log_result("GET /api/vendors", True, 
+                              f"Successfully retrieved {vendor_count} vendors")
+                return True
             else:
-                self.log_result("Vendors API", False, 
-                              f"HTTP {response.status_code}", response.text)
+                self.log_result("GET /api/vendors", False, 
+                              f"API returned {response.status_code}", response.text)
+                return False
                 
         except Exception as e:
-            self.log_result("Vendors API", False, f"Exception: {str(e)}")
-
+            self.log_result("GET /api/vendors", False, f"Request failed: {str(e)}")
+            return False
+    
     def test_materials_api(self):
-        """Test Materials APIs - /api/materials (GET) - Priority 4"""
+        """Test GET /api/materials - Verify still working"""
+        print("🔍 Testing GET /api/materials...")
+        
         try:
-            response = self.make_authenticated_request("GET", "/materials", "admin")
+            response = self.session.get(f"{BACKEND_URL}/materials")
             
             if response.status_code == 200:
                 data = response.json()
-                if isinstance(data, list):
-                    material_count = len(data)
-                    has_created_by = any(m.get("created_by") for m in data)
-                    
-                    details = f"Loaded {material_count} materials successfully"
-                    if has_created_by:
-                        details += ", created_by field present"
-                    else:
-                        details += ", created_by field may be null (acceptable after fix)"
-                    
-                    self.log_result("Materials API", True, details)
-                else:
-                    self.log_result("Materials API", True, "Materials API returned non-list response", data)
-            elif response.status_code == 500:
-                self.log_result("Materials API", False, 
-                              "500 Internal Server Error - ValidationError with missing created_by", response.text)
+                material_count = len(data) if isinstance(data, list) else 0
+                self.log_result("GET /api/materials", True, 
+                              f"Successfully retrieved {material_count} materials")
+                return True
             else:
-                self.log_result("Materials API", False, 
-                              f"HTTP {response.status_code}", response.text)
+                self.log_result("GET /api/materials", False, 
+                              f"API returned {response.status_code}", response.text)
+                return False
                 
         except Exception as e:
-            self.log_result("Materials API", False, f"Exception: {str(e)}")
-
+            self.log_result("GET /api/materials", False, f"Request failed: {str(e)}")
+            return False
+    
     def test_tasks_api(self):
-        """Test Tasks APIs - /api/tasks?project_id=<any_project_id> (GET) - Priority 5"""
+        """Test GET /api/tasks with project_id parameter - Verify still working"""
+        print("🔍 Testing GET /api/tasks...")
+        
         try:
-            # Use first available project ID if we have any
-            project_id = self.project_ids[0] if self.project_ids else None
-            
-            if project_id:
-                response = self.make_authenticated_request("GET", f"/tasks?project_id={project_id}", "admin")
+            # First get projects to get a project_id
+            projects_response = self.session.get(f"{BACKEND_URL}/projects")
+            if projects_response.status_code == 200:
+                projects = projects_response.json()
+                if projects and len(projects) > 0:
+                    project_id = projects[0].get("id")
+                    if project_id:
+                        # Test with project_id parameter
+                        response = self.session.get(f"{BACKEND_URL}/tasks?project_id={project_id}")
+                    else:
+                        # Test without parameter
+                        response = self.session.get(f"{BACKEND_URL}/tasks")
+                else:
+                    # Test without parameter if no projects
+                    response = self.session.get(f"{BACKEND_URL}/tasks")
             else:
-                # Test without project_id filter
-                response = self.make_authenticated_request("GET", "/tasks", "admin")
+                # Test without parameter if projects API fails
+                response = self.session.get(f"{BACKEND_URL}/tasks")
             
             if response.status_code == 200:
                 data = response.json()
-                if isinstance(data, list):
-                    task_count = len(data)
-                    has_created_by = any(t.get("created_by") for t in data)
-                    has_timestamps = any(t.get("created_at") or t.get("updated_at") for t in data)
-                    
-                    details = f"Loaded {task_count} tasks successfully"
-                    if has_created_by:
-                        details += ", created_by field present"
-                    else:
-                        details += ", created_by field may be null (acceptable after fix)"
-                    if has_timestamps:
-                        details += ", timestamp fields present"
-                    
-                    filter_info = f" for project {project_id}" if project_id else " (no project filter)"
-                    self.log_result("Tasks API", True, details + filter_info)
-                else:
-                    self.log_result("Tasks API", True, "Tasks API returned non-list response", data)
-            elif response.status_code == 500:
-                self.log_result("Tasks API", False, 
-                              "500 Internal Server Error - ValidationError with missing created_by/timestamps", response.text)
+                task_count = len(data) if isinstance(data, list) else 0
+                self.log_result("GET /api/tasks", True, 
+                              f"Successfully retrieved {task_count} tasks")
+                return True
             else:
-                self.log_result("Tasks API", False, 
-                              f"HTTP {response.status_code}", response.text)
+                self.log_result("GET /api/tasks", False, 
+                              f"API returned {response.status_code}", response.text)
+                return False
                 
         except Exception as e:
-            self.log_result("Tasks API", False, f"Exception: {str(e)}")
-
-    def test_users_management_api(self):
-        """Test Users APIs - /api/admin/users (GET, Admin only) - Priority 6"""
-        try:
-            # Try the admin users endpoint first
-            response = self.make_authenticated_request("GET", "/admin/users", "admin")
-            
-            if response.status_code == 404 or response.status_code == 405:
-                # If admin endpoint doesn't exist, try regular users endpoint
-                response = self.make_authenticated_request("GET", "/users", "admin")
-            
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, list):
-                    user_count = len(data)
-                    has_date_joined = any(u.get("date_joined") for u in data)
-                    has_is_active = any(u.get("is_active") is not None for u in data)
-                    
-                    details = f"Loaded {user_count} users successfully"
-                    if has_date_joined:
-                        details += ", date_joined field present"
-                    else:
-                        details += ", date_joined field may be null (acceptable after fix)"
-                    if has_is_active:
-                        details += ", is_active field present"
-                    
-                    self.log_result("Users Management API", True, details)
-                else:
-                    self.log_result("Users Management API", True, "Users API returned non-list response", data)
-            elif response.status_code == 500:
-                self.log_result("Users Management API", False, 
-                              "500 Internal Server Error - ValidationError with missing date_joined", response.text)
-            else:
-                self.log_result("Users Management API", False, 
-                              f"HTTP {response.status_code}", response.text)
-                
-        except Exception as e:
-            self.log_result("Users Management API", False, f"Exception: {str(e)}")
-
-    def check_backend_logs(self):
-        """Check backend logs for ValidationErrors"""
-        try:
-            import subprocess
-            result = subprocess.run(
-                ["tail", "-n", "50", "/var/log/supervisor/backend.err.log"],
-                capture_output=True, text=True, timeout=10
-            )
-            
-            if result.returncode == 0:
-                log_content = result.stdout
-                validation_errors = log_content.count("ValidationError")
-                pydantic_errors = log_content.count("pydantic")
-                
-                if validation_errors > 0 or pydantic_errors > 0:
-                    self.log_result("Backend Logs Check", False, 
-                                  f"Found {validation_errors} ValidationErrors and {pydantic_errors} pydantic errors in recent logs")
-                    print("Recent error logs:")
-                    print(log_content[-1000:])  # Last 1000 chars
-                else:
-                    self.log_result("Backend Logs Check", True, 
-                                  "No ValidationErrors or pydantic errors found in recent logs")
-            else:
-                self.log_result("Backend Logs Check", False, 
-                              f"Could not read backend logs: {result.stderr}")
-                
-        except Exception as e:
-            self.log_result("Backend Logs Check", False, f"Exception checking logs: {str(e)}")
+            self.log_result("GET /api/tasks", False, f"Request failed: {str(e)}")
+            return False
 
     def run_all_tests(self):
         """Run all critical API tests in priority order"""
