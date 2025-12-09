@@ -382,8 +382,8 @@ class ProjectResponse(ProjectBase):
     gantt_share_tokens: List[GanttShareToken] = []  # Active share links
     client_portal_link: Optional[str] = None  # Client portal access link
     address: Optional[str] = None  # Make address optional
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 class ProjectTeamUpdate(BaseModel):
     team_member_ids: List[str]
