@@ -7255,7 +7255,7 @@ async def get_dashboard_stats(credentials: HTTPAuthorizationCredentials = Depend
                 {"$project": {"total_value": {"$multiply": ["$stock_level", "$unit_cost"]}}}
             ]
             material_values = await db.materials.aggregate(value_pipeline).to_list(10000)
-            total_inventory_value = sum(m.get("total_value", 0) for m in material_values)
+            total_inventory_value = sum((m.get("total_value") or 0) for m in material_values)
             stats["materials"]["inventory_value"] = round(total_inventory_value, 2)
             
             # Vendors
