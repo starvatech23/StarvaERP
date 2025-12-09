@@ -92,7 +92,7 @@ class RoleUpdate(BaseModel):
 
 class RoleResponse(RoleBase):
     id: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
 
 # ============= Permission Models =============
@@ -115,7 +115,7 @@ class PermissionUpdate(BaseModel):
 
 class PermissionResponse(PermissionBase):
     id: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
 
 # ============= System Settings Models =============
@@ -133,7 +133,7 @@ class SystemSettingUpdate(BaseModel):
 
 class SystemSettingResponse(SystemSettingBase):
     id: str
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
 # ============= Team/Department Models =============
 class TeamBase(BaseModel):
@@ -151,7 +151,7 @@ class TeamUpdate(BaseModel):
 
 class TeamResponse(TeamBase):
     id: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
     member_count: int = 0  # Number of users in this team
 
@@ -293,8 +293,8 @@ class GanttShareToken(BaseModel):
     show_contacts: bool = False
     password: Optional[str] = None  # Hashed password
     expires_at: Optional[datetime] = None
-    created_at: datetime
-    created_by: str
+    created_at: Optional[datetime] = None
+    created_by: Optional[str] = None
     views_count: int = 0
     downloads_count: int = 0
     last_viewed_at: Optional[datetime] = None
@@ -313,7 +313,7 @@ class GanttShareResponse(BaseModel):
     show_contacts: bool
     has_password: bool
     expires_at: Optional[datetime] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
     views_count: int
     downloads_count: int
     last_viewed_at: Optional[datetime] = None
@@ -489,8 +489,8 @@ class WorkScheduleResponse(WorkScheduleBase):
     project_name: str
     task_title: Optional[str] = None
     assigned_users: List[Dict[str, str]] = []
-    created_by: str
-    created_at: datetime
+    created_by: Optional[str] = None
+    created_at: Optional[datetime] = None
 
 # Removed old CRM models - will be rebuilt
 
@@ -544,9 +544,9 @@ class PaymentUpdate(BaseModel):
 class PaymentResponse(PaymentBase):
     id: str
     project_name: str
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 # Expense Models
 class ExpenseCategory(str, Enum):
@@ -585,9 +585,9 @@ class ExpenseResponse(ExpenseBase):
     id: str
     project_name: str
     vendor_name: Optional[str] = None
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 # Notification Models
 class NotificationType(str, Enum):
@@ -614,7 +614,7 @@ class NotificationCreate(NotificationBase):
 
 class NotificationResponse(NotificationBase):
     id: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 # Removed Activity Log Models - will be rebuilt if needed
 
@@ -632,7 +632,7 @@ class UserManagementResponse(BaseModel):
     full_name: str
     role: UserRole
     is_active: bool
-    date_joined: datetime
+    date_joined: Optional[datetime] = None
     last_login: Optional[datetime] = None
     total_projects: int = 0
     total_tasks: int = 0
@@ -723,9 +723,9 @@ class WorkerUpdate(BaseModel):
 class WorkerResponse(WorkerBase):
     id: str
     current_site_name: Optional[str] = None
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
 
 # Labor Attendance Models
@@ -766,8 +766,8 @@ class LaborAttendanceResponse(LaborAttendanceBase):
     worker_name: str
     project_name: str
     worker_skill: str
-    created_by: str
-    created_at: datetime
+    created_by: Optional[str] = None
+    created_at: Optional[datetime] = None
     updated_at: datetime
 
 # Site Transfer Models
@@ -792,9 +792,9 @@ class SiteTransferResponse(SiteTransferBase):
     worker_name: str
     from_project_name: str
     to_project_name: str
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 
 # ============= Vendor & Materials Management Models =============
@@ -918,8 +918,8 @@ class VendorMaterialRateResponse(VendorMaterialRateBase):
     vendor_name: str
     material_name: str
     material_unit: str
-    created_by: str
-    created_at: datetime
+    created_by: Optional[str] = None
+    created_at: Optional[datetime] = None
     updated_at: datetime
 
 # Site Inventory Models
@@ -972,9 +972,9 @@ class MaterialRequirementResponse(MaterialRequirementBase):
     material_name: str
     material_unit: str
     material_category: str
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
 
 # Purchase Order Status Enum
@@ -1021,9 +1021,9 @@ class PurchaseOrderResponse(PurchaseOrderBase):
     id: str
     vendor_name: str
     project_name: str
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
     items: List[Dict[str, Any]]
 
@@ -1051,7 +1051,7 @@ class PurchaseOrderItemResponse(PurchaseOrderItemBase):
     id: str
     material_name: str
     material_unit: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 # Material Transaction Type Enum
 class TransactionType(str, Enum):
@@ -1081,9 +1081,9 @@ class MaterialTransactionResponse(MaterialTransactionBase):
     project_name: str
     material_name: str
     material_unit: str
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 # ============= Task Material Management Models =============
 
@@ -1100,7 +1100,7 @@ class TaskMaterialEstimateResponse(TaskMaterialEstimate):
     id: str
     material_name: str
     material_category: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 # Task Work Measurement Model
 class TaskWorkMeasurement(BaseModel):
@@ -1130,7 +1130,7 @@ class MaterialConsumptionTemplate(BaseModel):
 
 class MaterialConsumptionTemplateResponse(MaterialConsumptionTemplate):
     id: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 
 # Milestone Status Enum
@@ -1270,9 +1270,9 @@ class ExpenseUpdate(BaseModel):
 
 class ExpenseResponse(ExpenseBase):
     id: str
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
 # Invoice Status Enum
@@ -1331,9 +1331,9 @@ class InvoiceResponse(InvoiceBase):
     status: InvoiceStatus = InvoiceStatus.DRAFT
     paid_amount: float = 0
     balance_due: float = 0
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
 # Payment Method Enum
@@ -1368,9 +1368,9 @@ class PaymentResponse(PaymentBase):
     id: str
     invoice_number: Optional[str] = None
     client_name: Optional[str] = None
-    recorded_by: str
+    recorded_by: Optional[str] = None
     recorded_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
 
@@ -1462,7 +1462,7 @@ class LeadCategoryUpdate(BaseModel):
 
 class LeadCategoryResponse(LeadCategoryBase):
     id: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
     lead_count: int = 0  # Number of leads in this category
 
@@ -1524,9 +1524,9 @@ class LeadResponse(LeadBase):
     assigned_to_name: Optional[str] = None
     category_name: Optional[str] = None
     category_color: Optional[str] = None
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
     last_activity: Optional[datetime] = None
     activities_count: int = 0
@@ -1555,9 +1555,9 @@ class LeadActivityCreate(LeadActivityBase):
 
 class LeadActivityResponse(LeadActivityBase):
     id: str
-    performed_by: str
+    performed_by: Optional[str] = None
     performed_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 # ============= Lead Field Audit (Field-Level Change Tracking) =============
 
@@ -1625,9 +1625,9 @@ class CRMConfigUpdate(BaseModel):
 
 class CRMConfigResponse(CRMConfigBase):
     id: str
-    updated_by: str
+    updated_by: Optional[str] = None
     updated_by_name: Optional[str] = None
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
 
 # ============= CRM Audit Log =============
@@ -1702,7 +1702,7 @@ class CustomFieldUpdate(BaseModel):
 
 class CustomFieldResponse(CustomFieldBase):
     id: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
 
 # ============= Funnel System =============
@@ -1744,9 +1744,9 @@ class FunnelUpdate(BaseModel):
 
 class FunnelResponse(FunnelBase):
     id: str
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
     lead_count: int = 0
     category_names: List[str] = []  # Names of linked categories
@@ -1832,7 +1832,7 @@ class BankTransactionCreate(BankTransactionBase):
 class BankTransactionResponse(BankTransactionBase):
     id: str
     account_number_masked: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 class MoveLeadToProjectRequest(BaseModel):
     lead_id: str
@@ -1875,7 +1875,7 @@ class Message(MessageBase):
     sender_role: str
     is_read: bool = False
     read_by: List[str] = []  # List of user IDs who have read the message
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
 
 class MessageResponse(MessageBase):
@@ -1886,7 +1886,7 @@ class MessageResponse(MessageBase):
     sender_role: str
     is_read: bool
     read_by: List[str]
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
 
 class ConversationBase(BaseModel):
@@ -1905,9 +1905,9 @@ class Conversation(ConversationBase):
     last_message_sender: Optional[str] = None
     unread_count: Dict[str, int] = {}  # user_id -> count
     is_active: bool = True
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
-    created_by: str
+    created_by: Optional[str] = None
 
 class ConversationResponse(ConversationBase):
     id: str
@@ -1916,7 +1916,7 @@ class ConversationResponse(ConversationBase):
     last_message_sender: Optional[str]
     unread_count: Dict[str, int]
     is_active: bool
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: datetime
     message_count: int = 0
 
@@ -1951,7 +1951,7 @@ class AuditLogCreate(AuditLogBase):
 class AuditLogResponse(AuditLogBase):
     id: str
     user_name: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 class AuditLogFilter(BaseModel):
     action_type: Optional[AuditActionType] = None
