@@ -7287,7 +7287,8 @@ async def get_dashboard_stats(credentials: HTTPAuthorizationCredentials = Depend
                 {"$group": {"_id": None, "total_wages": {"$sum": "$wages_earned"}}}
             ]
             month_wages_result = await db.labor_attendance.aggregate(month_wages_pipeline).to_list(1)
-            month_wages = month_wages_result[0]["total_wages"] if month_wages_result else 0
+            month_wages = month_wages_result[0].get("total_wages", 0) if month_wages_result else 0
+            month_wages = month_wages or 0  # Handle None
             stats["labor"]["month_wages"] = round(month_wages, 2)
         
         # Finance Statistics
