@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import Colors from '../../constants/Colors';
+import Colors from '../constants/Colors';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 
