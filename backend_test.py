@@ -93,8 +93,8 @@ class BackendTester:
             if response.status_code == 200:
                 data = response.json()
                 # Check for expected dashboard fields
-                expected_fields = ["total_projects", "active_projects", "total_users"]
-                has_expected_fields = any(field in str(data) for field in expected_fields)
+                expected_fields = ["projects", "tasks", "user", "crm", "materials", "labor", "finance"]
+                has_expected_fields = any(field in data for field in expected_fields)
                 
                 if has_expected_fields:
                     self.log_result("Dashboard Stats API", True, 
@@ -103,8 +103,14 @@ class BackendTester:
                     self.log_result("Dashboard Stats API", True, 
                                   f"Dashboard stats returned (status 200) but may have different structure", data)
             elif response.status_code == 500:
-                self.log_result("Dashboard Stats API", False, 
-                              "500 Internal Server Error - ValidationError likely present", response.text)
+                # Check if it's the specific TypeError we're seeing in logs
+                error_text = response.text
+                if "Failed to fetch dashboard statistics" in error_text:
+                    self.log_result("Dashboard Stats API", False, 
+                                  "500 Internal Server Error - Backend calculation error (likely None + int TypeError), not ValidationError", error_text)
+                else:
+                    self.log_result("Dashboard Stats API", False, 
+                                  "500 Internal Server Error - ValidationError likely present", error_text)
             else:
                 self.log_result("Dashboard Stats API", False, 
                               f"HTTP {response.status_code}", response.text)
