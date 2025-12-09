@@ -3,179 +3,49 @@
     "test": "Authentication",
     "success": true,
     "message": "Successfully authenticated as admin@test.com",
-    "timestamp": "2025-12-09T10:17:03.031545",
+    "timestamp": "2025-12-09T10:17:37.402690",
     "response_data": null
   },
   {
     "test": "GET /api/admin/users",
     "success": true,
     "message": "Successfully retrieved 38 users with proper role handling",
-    "timestamp": "2025-12-09T10:17:03.063865",
+    "timestamp": "2025-12-09T10:17:37.436170",
     "response_data": null
   },
   {
     "test": "GET /api/dashboard/stats",
-    "success": false,
-    "message": "Missing expected fields: ['month_wages', 'month_expenses', 'month_payments', 'inventory_value']",
-    "timestamp": "2025-12-09T10:17:03.093982",
-    "response_data": {
-      "user": {
-        "name": "Test Admin",
-        "role": "admin",
-        "email": "admin@test.com"
-      },
-      "projects": {
-        "total": 38,
-        "active": 10,
-        "completed": 2,
-        "planning": 23,
-        "completion_rate": 5.3,
-        "status_distribution": {
-          "cancelled": 3,
-          "completed": 2,
-          "planning": 23,
-          "in_progress": 10
-        }
-      },
-      "tasks": {
-        "total": 47,
-        "pending": 13,
-        "in_progress": 14,
-        "completed": 20,
-        "my_tasks": 0,
-        "my_pending": 0,
-        "completion_rate": 42.6,
-        "overdue": 0
-      },
-      "crm": {
-        "total_leads": 12,
-        "new_leads": 2,
-        "qualified_leads": 0,
-        "won_leads": 4,
-        "lost_leads": 1,
-        "conversion_rate": 33.3,
-        "status_distribution": {
-          "won": 4,
-          "new": 2,
-          "negotiation": 1,
-          "lost": 1,
-          "contacted": 4
-        },
-        "source_distribution": {
-          "cold_call": 2,
-          "website": 3,
-          "advertisement": 2,
-          "social_media": 4,
-          "referral": 1
-        }
-      },
-      "materials": {
-        "total": 47,
-        "low_stock": 1,
-        "out_of_stock": 0,
-        "stock_alert_rate": 2.1,
-        "inventory_value": 3561704,
-        "total_vendors": 19
-      },
-      "labor": {
-        "total_workers": 4,
-        "active_workers": 4,
-        "today_attendance": 3,
-        "month_wages": 24700.0
-      },
-      "finance": {
-        "month_expenses": 179000.0,
-        "month_payments": 800000.0,
-        "total_invoices": 5,
-        "pending_invoices": 0,
-        "cash_flow": 621000.0
-      },
-      "recent_activity": [
-        {
-          "type": "task",
-          "action": "created",
-          "title": "Shopping Mall - City Center - Electrical & Plumbing",
-          "timestamp": "2025-12-08T09:46:43.120000",
-          "icon": "checkmark-circle"
-        },
-        {
-          "type": "task",
-          "action": "created",
-          "title": "Villa Development - Palm Grove - Electrical & Plumbing",
-          "timestamp": "2025-12-08T09:46:43.118000",
-          "icon": "checkmark-circle"
-        },
-        {
-          "type": "task",
-          "action": "created",
-          "title": "Villa Development - Palm Grove - Walls & Roofing",
-          "timestamp": "2025-12-08T09:46:43.116000",
-          "icon": "checkmark-circle"
-        },
-        {
-          "type": "task",
-          "action": "created",
-          "title": "Office Building - Corporate Hub - Foundation Work",
-          "timestamp": "2025-12-08T07:54:24.635000",
-          "icon": "checkmark-circle"
-        },
-        {
-          "type": "task",
-          "action": "created",
-          "title": "Office Building - Corporate Hub - Structure Framework",
-          "timestamp": "2025-12-08T07:54:24.635000",
-          "icon": "checkmark-circle"
-        },
-        {
-          "type": "lead",
-          "action": "created",
-          "title": "Suresh Nair",
-          "timestamp": "2025-12-06T07:54:24.595000",
-          "icon": "person-add"
-        },
-        {
-          "type": "lead",
-          "action": "created",
-          "title": "Kavita Reddy",
-          "timestamp": "2025-12-06T07:54:24.595000",
-          "icon": "person-add"
-        },
-        {
-          "type": "lead",
-          "action": "created",
-          "title": "Nithin",
-          "timestamp": "2025-12-05T16:36:10.038000",
-          "icon": "person-add"
-        }
-      ]
-    }
+    "success": true,
+    "message": "Dashboard stats returned successfully with proper None handling for aggregations",
+    "timestamp": "2025-12-09T10:17:37.453782",
+    "response_data": null
   },
   {
     "test": "GET /api/projects",
     "success": true,
     "message": "Successfully retrieved 38 projects",
-    "timestamp": "2025-12-09T10:17:03.147597",
+    "timestamp": "2025-12-09T10:17:37.507333",
     "response_data": null
   },
   {
     "test": "GET /api/vendors",
     "success": true,
     "message": "Successfully retrieved 19 vendors",
-    "timestamp": "2025-12-09T10:17:03.162999",
+    "timestamp": "2025-12-09T10:17:37.522351",
     "response_data": null
   },
   {
     "test": "GET /api/materials",
     "success": true,
     "message": "Successfully retrieved 47 materials",
-    "timestamp": "2025-12-09T10:17:03.171345",
+    "timestamp": "2025-12-09T10:17:37.530751",
     "response_data": null
   },
   {
     "test": "GET /api/tasks",
     "success": true,
     "message": "Successfully retrieved 11 tasks",
-    "timestamp": "2025-12-09T10:17:03.235881",
+    "timestamp": "2025-12-09T10:17:37.599215",
     "response_data": null
   }
 ]
