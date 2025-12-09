@@ -843,10 +843,10 @@ class VendorUpdate(BaseModel):
 
 class VendorResponse(VendorBase):
     id: str
-    created_by: str
+    created_by: Optional[str] = None
     created_by_name: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 # Material Category Enum
 class MaterialCategory(str, Enum):
