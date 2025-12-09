@@ -11,7 +11,7 @@ from datetime import datetime
 import os
 
 # Get backend URL from environment
-BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://construct-crm.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://site-ops-hub.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
 class Colors:
@@ -129,7 +129,7 @@ class BackendTester:
                 if status in ["confirmed", "active", "in_progress"] and not project.get("client_portal_link"):
                     print_warning(f"Project {project.get('name', 'unknown')} has status '{status}' but no client_portal_link")
                 elif project.get("client_portal_link"):
-                    expected_format = f"https://construct-crm.preview.emergentagent.com/client-portal/?projectId={project['id']}"
+                    expected_format = f"https://site-ops-hub.preview.emergentagent.com/client-portal/?projectId={project['id']}"
                     if project["client_portal_link"] != expected_format:
                         print_error(f"Project {project.get('name', 'unknown')} has incorrect link format: {project['client_portal_link']}")
                         self.failed_tests += 1
@@ -184,7 +184,7 @@ class BackendTester:
             
             # Verify link format if it exists
             if project.get("client_portal_link"):
-                expected_format = f"https://construct-crm.preview.emergentagent.com/client-portal/?projectId={project['id']}"
+                expected_format = f"https://site-ops-hub.preview.emergentagent.com/client-portal/?projectId={project['id']}"
                 if project["client_portal_link"] != expected_format:
                     print_error(f"Single project has incorrect link format: {project['client_portal_link']}")
                     self.failed_tests += 1
@@ -272,7 +272,7 @@ class BackendTester:
                 self.failed_tests += 1
                 return False
             
-            expected_link = f"https://construct-crm.preview.emergentagent.com/client-portal/?projectId={project_id}"
+            expected_link = f"https://site-ops-hub.preview.emergentagent.com/client-portal/?projectId={project_id}"
             if updated_project["client_portal_link"] != expected_link:
                 print_error(f"Generated link format incorrect. Expected: {expected_link}, Got: {updated_project['client_portal_link']}")
                 self.failed_tests += 1
