@@ -889,9 +889,9 @@ class MaterialUpdate(BaseModel):
 
 class MaterialResponse(MaterialBase):
     id: str
-    created_by: str
-    created_at: datetime
-    updated_at: datetime
+    created_by: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 # Vendor Material Rate Models
 class VendorMaterialRateBase(BaseModel):
