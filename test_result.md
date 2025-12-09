@@ -421,6 +421,21 @@ backend:
         agent: "testing"
         comment: "✅ GANTT SHARE LINK APIS WORKING: Comprehensive testing completed with 100% success rate (8/8 tests passed). VERIFIED FEATURES: (1) POST /api/projects/{project_id}/gantt-share - Successfully creates share links with and without password protection, secure token generation (32 bytes urlsafe), (2) GET /api/projects/{project_id}/gantt-share - Successfully lists all active share links for a project, (3) GET /api/projects/{project_id}/gantt-share/{token} - Successfully accesses Gantt data via share token, correctly handles password verification (rejects wrong passwords, accepts correct passwords), (4) DELETE /api/projects/{project_id}/gantt-share/{token} - Successfully revokes share links, (5) Revoked link verification - Correctly makes revoked links inaccessible (404 error). PERMISSIONS VERIFIED: Correct permissions enum values (view_only, downloadable, embeddable), password protection with SHA256 hashing, expiry date functionality, view/download counters, contact visibility toggle. Authentication working properly (Admin/PM only for creation/management). CRITICAL BUG FIXED: Resolved ObjectId serialization issues in list_gantt_shares endpoint by implementing proper manual serialization. All share link features fully functional and secure."
 
+  - task: "Data/Model Drift Fix - Pydantic ValidationErrors"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py, /app/backend/models.py"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRITICAL P0 FIX: Made ALL timestamp fields Optional with None defaults (created_at, updated_at, date_joined), made ALL user tracking fields Optional (created_by, updated_by, etc.), made business_name Optional in VendorBase, made location and address Optional in ProjectBase, made is_active default to True in UserResponse. This fix addresses recurring 500 Internal Server Errors caused by Pydantic ValidationErrors when old MongoDB documents don't have all required fields that newer Pydantic models expect."
+      - working: false
+        agent: "testing"
+        comment: "❌ PARTIAL SUCCESS - DATA/MODEL DRIFT FIX VERIFICATION: Tested 6 critical APIs with 75% success rate (6/8 tests passed). ✅ WORKING APIS: (1) GET /api/projects - Successfully loaded 38 projects with task_count and manager_phone fields, no ValidationErrors, (2) GET /api/vendors - Successfully loaded 19 vendors with business_name field present, (3) GET /api/materials - Successfully loaded 47 materials with created_by field present, (4) GET /api/tasks - Successfully loaded 11 tasks with created_by and timestamp fields present. ❌ CRITICAL ISSUES REMAINING: (1) GET /api/dashboard/stats - 500 Internal Server Error due to TypeError 'int + NoneType' in dashboard calculations (not ValidationError but related data issue), (2) GET /api/admin/users - 500 Internal Server Error with KeyError 'role' at line 1912 in server.py - EXACT ValidationError the fix was supposed to address! Backend logs show: KeyError: 'role' in get_all_users_admin function. CONCLUSION: The P0 fix partially worked for most APIs but FAILED for the critical /api/admin/users endpoint which still has the exact ValidationError issue. The dashboard error is a separate calculation bug. Main agent needs to complete the fix for user management APIs."
+
 frontend:
   - task: "Invoice Create Screen"
     implemented: true
