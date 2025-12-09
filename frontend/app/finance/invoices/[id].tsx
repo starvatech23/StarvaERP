@@ -77,7 +77,7 @@ export default function InvoiceDetailScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -97,11 +97,11 @@ export default function InvoiceDetailScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Invoice Details</Text>
         <TouchableOpacity style={styles.iconButton} onPress={showStatusOptions}>
-          <Ionicons name="ellipsis-horizontal" size={24} color=Colors.textPrimary />
+          <Ionicons name="ellipsis-horizontal" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -127,18 +127,18 @@ export default function InvoiceDetailScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Client Information</Text>
           <View style={styles.infoRow}>
-            <Ionicons name="person-outline" size={20} color=Colors.textSecondary />
+            <Ionicons name="person-outline" size={20} color={Colors.textSecondary} />
             <Text style={styles.infoText}>{invoice.client_name}</Text>
           </View>
           {invoice.client_address && (
             <View style={styles.infoRow}>
-              <Ionicons name="location-outline" size={20} color=Colors.textSecondary />
+              <Ionicons name="location-outline" size={20} color={Colors.textSecondary} />
               <Text style={styles.infoText}>{invoice.client_address}</Text>
             </View>
           )}
           {invoice.client_phone && (
             <View style={styles.infoRow}>
-              <Ionicons name="call-outline" size={20} color=Colors.textSecondary />
+              <Ionicons name="call-outline" size={20} color={Colors.textSecondary} />
               <Text style={styles.infoText}>{invoice.client_phone}</Text>
             </View>
           )}
@@ -197,7 +197,7 @@ export default function InvoiceDetailScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Payment Details</Text>
           <View style={styles.infoRow}>
-            <Ionicons name="calendar-outline" size={20} color=Colors.textSecondary />
+            <Ionicons name="calendar-outline" size={20} color={Colors.textSecondary} />
             <Text style={styles.infoText}>
               Due Date: {new Date(invoice.due_date).toLocaleDateString()}
             </Text>
@@ -226,7 +226,7 @@ export default function InvoiceDetailScreen() {
             style={styles.actionButton}
             onPress={() => router.push(`/finance/payments/create?invoice_id=${invoice.id}` as any)}
           >
-            <Ionicons name="cash-outline" size={20} color=Colors.surface />
+            <Ionicons name="cash-outline" size={20} color={Colors.surface} />
             <Text style={styles.actionButtonText}>Record Payment</Text>
           </TouchableOpacity>
         )}

@@ -119,7 +119,7 @@ export default function MaterialScanScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Scan Material</Text>
         <View style={{ width: 40 }} />
@@ -131,7 +131,7 @@ export default function MaterialScanScreen() {
           style={styles.scanButton}
           onPress={() => setShowScanner(true)}
         >
-          <Ionicons name="qr-code-outline" size={48} color=Colors.surface />
+          <Ionicons name="qr-code-outline" size={48} color={Colors.surface} />
           <Text style={styles.scanButtonText}>Tap to Scan QR Code</Text>
         </TouchableOpacity>
 
@@ -157,7 +157,7 @@ export default function MaterialScanScreen() {
               onPress={() => lookupMaterial(scannedData)}
               disabled={!scannedData || loading}
             >
-              <Ionicons name="search" size={20} color=Colors.surface />
+              <Ionicons name="search" size={20} color={Colors.surface} />
             </TouchableOpacity>
           </View>
         </View>

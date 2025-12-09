@@ -142,7 +142,7 @@ export default function MaterialDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Material Details</Text>
         <View style={styles.headerActions}>
@@ -152,7 +152,7 @@ export default function MaterialDetailsScreen() {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity onPress={() => setEditing(true)} style={styles.editButton}>
-              <Ionicons name="pencil" size={20} color=Colors.secondary />
+              <Ionicons name="pencil" size={20} color={Colors.secondary} />
             </TouchableOpacity>
           )}
         </View>
@@ -288,7 +288,7 @@ export default function MaterialDetailsScreen() {
 
           {!editing && (
             <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-              <Ionicons name="trash" size={20} color=Colors.surface />
+              <Ionicons name="trash" size={20} color={Colors.surface} />
               <Text style={styles.deleteButtonText}>Delete Material</Text>
             </TouchableOpacity>
           )}

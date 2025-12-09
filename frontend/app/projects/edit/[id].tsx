@@ -154,7 +154,7 @@ export default function EditProjectScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -168,7 +168,7 @@ export default function EditProjectScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit Project</Text>
           <View style={{ width: 40 }} />
@@ -280,7 +280,7 @@ export default function EditProjectScreen() {
               onPress={() => router.push(`/projects/${id}/team` as any)}
             >
               <View style={styles.manageTeamContent}>
-                <Ionicons name="people" size={24} color=Colors.primary />
+                <Ionicons name="people" size={24} color={Colors.primary} />
                 <View style={styles.manageTeamText}>
                   <Text style={styles.manageTeamTitle}>Manage Project Team</Text>
                   <Text style={styles.manageTeamSubtitle}>
@@ -288,7 +288,7 @@ export default function EditProjectScreen() {
                   </Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={24} color=Colors.textSecondary />
+              <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -296,7 +296,7 @@ export default function EditProjectScreen() {
             <Text style={styles.sectionTitle}>Photos</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
-                <Ionicons name="camera" size={32} color=Colors.secondary />
+                <Ionicons name="camera" size={32} color={Colors.secondary} />
                 <Text style={styles.photoButtonText}>Add Photo</Text>
               </TouchableOpacity>
 
@@ -320,7 +320,7 @@ export default function EditProjectScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <Text style={styles.updateButtonText}>Update Project</Text>
             )}

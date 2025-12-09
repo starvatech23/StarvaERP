@@ -45,7 +45,7 @@ export default function VendorsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -55,21 +55,21 @@ export default function VendorsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Vendors</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/vendors/create' as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor=Colors.secondary />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.secondary} />
         }
       >
         {vendors.length === 0 ? (
@@ -96,7 +96,7 @@ export default function VendorsScreen() {
               >
                 <View style={styles.vendorHeader}>
                   <View style={styles.iconContainer}>
-                    <Ionicons name="business" size={24} color=Colors.secondary />
+                    <Ionicons name="business" size={24} color={Colors.secondary} />
                   </View>
                   <View style={styles.vendorInfo}>
                     <Text style={styles.vendorName}>{vendor.company_name}</Text>
@@ -105,12 +105,12 @@ export default function VendorsScreen() {
                 </View>
                 <View style={styles.vendorDetails}>
                   <View style={styles.detailRow}>
-                    <Ionicons name="call" size={14} color=Colors.textSecondary />
+                    <Ionicons name="call" size={14} color={Colors.textSecondary} />
                     <Text style={styles.detailText}>{vendor.phone}</Text>
                   </View>
                   {vendor.email && (
                     <View style={styles.detailRow}>
-                      <Ionicons name="mail" size={14} color=Colors.textSecondary />
+                      <Ionicons name="mail" size={14} color={Colors.textSecondary} />
                       <Text style={styles.detailText}>{vendor.email}</Text>
                     </View>
                   )}

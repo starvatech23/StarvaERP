@@ -86,7 +86,7 @@ export default function SystemSettingsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -97,7 +97,7 @@ export default function SystemSettingsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>System Settings</Text>
         <View style={{ width: 40 }} />
@@ -130,7 +130,7 @@ export default function SystemSettingsScreen() {
           </View>
 
           <View style={styles.infoCard}>
-            <Ionicons name="information-circle" size={20} color=Colors.primary />
+            <Ionicons name="information-circle" size={20} color={Colors.primary} />
             <Text style={styles.infoText}>
               Set how many users can have admin privileges. Range: 1-100
             </Text>
@@ -141,7 +141,7 @@ export default function SystemSettingsScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View style={[styles.sectionIcon, { backgroundColor: '#DBEAFE' }]}>
-              <Ionicons name="checkmark-done" size={24} color=Colors.primary />
+              <Ionicons name="checkmark-done" size={24} color={Colors.primary} />
             </View>
             <View style={styles.sectionTitleContainer}>
               <Text style={styles.sectionTitle}>User Registration</Text>
@@ -218,10 +218,10 @@ export default function SystemSettingsScreen() {
           disabled={saving}
         >
           {saving ? (
-            <ActivityIndicator color=Colors.surface />
+            <ActivityIndicator color={Colors.surface} />
           ) : (
             <>
-              <Ionicons name="save" size={20} color=Colors.surface />
+              <Ionicons name="save" size={20} color={Colors.surface} />
               <Text style={styles.saveButtonText}>Save Settings</Text>
             </>
           )}

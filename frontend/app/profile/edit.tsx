@@ -65,7 +65,7 @@ export default function EditProfileScreen() {
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+              <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Edit Profile</Text>
             <View style={styles.placeholder} />
@@ -74,7 +74,7 @@ export default function EditProfileScreen() {
           {/* Profile Photo Section */}
           <View style={styles.photoSection}>
             <View style={styles.avatar}>
-              <Ionicons name="person" size={48} color=Colors.secondary />
+              <Ionicons name="person" size={48} color={Colors.secondary} />
             </View>
             <TouchableOpacity style={styles.changePhotoButton}>
               <Text style={styles.changePhotoText}>Change Photo</Text>
@@ -133,7 +133,7 @@ export default function EditProfileScreen() {
             </View>
 
             <View style={styles.roleInfo}>
-              <Ionicons name="information-circle" size={20} color=Colors.textSecondary />
+              <Ionicons name="information-circle" size={20} color={Colors.textSecondary} />
               <Text style={styles.roleInfoText}>
                 Role: <Text style={styles.roleValue}>{user?.role || 'N/A'}</Text>
               </Text>
@@ -149,7 +149,7 @@ export default function EditProfileScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <Text style={styles.saveButtonText}>Save Changes</Text>
             )}

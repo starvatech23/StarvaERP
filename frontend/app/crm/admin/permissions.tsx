@@ -42,7 +42,7 @@ export default function PermissionsScreen() {
       <SafeAreaView style={styles.container}>
         <BackToHome />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -69,7 +69,7 @@ export default function PermissionsScreen() {
           <View key={index} style={styles.roleCard}>
             <View style={styles.roleHeader}>
               <View style={styles.roleIconContainer}>
-                <Ionicons name="person" size={20} color=Colors.primary />
+                <Ionicons name="person" size={20} color={Colors.primary} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.roleName}>{rolePermission.role}</Text>

@@ -21,7 +21,7 @@ export default function CRMScreen() {
           style={styles.backButton}
           onPress={() => router.push('/')}
         >
-          <Ionicons name="home" size={24} color=Colors.secondary />
+          <Ionicons name="home" size={24} color={Colors.secondary} />
           <Text style={styles.backButtonText}>Dashboard</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>CRM</Text>

@@ -72,7 +72,7 @@ export default function ProfileScreen() {
 
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
-            <Ionicons name="person" size={48} color=Colors.secondary />
+            <Ionicons name="person" size={48} color={Colors.secondary} />
           </View>
           <Text style={styles.name}>{user?.full_name || 'User'}</Text>
           <Text style={styles.role}>{getRoleLabel(user?.role || '')}</Text>
@@ -80,13 +80,13 @@ export default function ProfileScreen() {
           <View style={styles.infoContainer}>
             {user?.email && (
               <View style={styles.infoRow}>
-                <Ionicons name="mail" size={16} color=Colors.textSecondary />
+                <Ionicons name="mail" size={16} color={Colors.textSecondary} />
                 <Text style={styles.infoText}>{user.email}</Text>
               </View>
             )}
             {user?.phone && (
               <View style={styles.infoRow}>
-                <Ionicons name="call" size={16} color=Colors.textSecondary />
+                <Ionicons name="call" size={16} color={Colors.textSecondary} />
                 <Text style={styles.infoText}>{user.phone}</Text>
               </View>
             )}
@@ -103,7 +103,7 @@ export default function ProfileScreen() {
                 onPress={item.onPress}
               >
                 <View style={styles.menuLeft}>
-                  <Ionicons name={item.icon as any} size={24} color=Colors.textSecondary />
+                  <Ionicons name={item.icon as any} size={24} color={Colors.textSecondary} />
                   <Text style={styles.menuLabel}>{item.label}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#CBD5E0" />

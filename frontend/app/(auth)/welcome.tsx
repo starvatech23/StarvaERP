@@ -23,7 +23,7 @@ export default function WelcomeScreen() {
       <View style={styles.content}>
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <Ionicons name="construct" size={80} color=Colors.secondary />
+            <Ionicons name="construct" size={80} color={Colors.secondary} />
           </View>
           <Text style={styles.title}>Construction Manager</Text>
           <Text style={styles.subtitle}>

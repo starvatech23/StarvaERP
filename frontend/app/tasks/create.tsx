@@ -117,7 +117,7 @@ export default function CreateTaskScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Create Task</Text>
           <View style={{ width: 40 }} />
@@ -190,7 +190,7 @@ export default function CreateTaskScreen() {
               style={styles.dateButton}
               onPress={() => setShowDatePicker(true)}
             >
-              <Ionicons name="calendar" size={20} color=Colors.textSecondary />
+              <Ionicons name="calendar" size={20} color={Colors.textSecondary} />
               <Text style={styles.dateText}>{dueDate.toLocaleDateString()}</Text>
             </TouchableOpacity>
 
@@ -227,7 +227,7 @@ export default function CreateTaskScreen() {
 
             {selectedUser && (
               <TouchableOpacity style={styles.addUserButton} onPress={addAssignedUser}>
-                <Ionicons name="add-circle" size={20} color=Colors.secondary />
+                <Ionicons name="add-circle" size={20} color={Colors.secondary} />
                 <Text style={styles.addUserText}>Add User</Text>
               </TouchableOpacity>
             )}
@@ -239,7 +239,7 @@ export default function CreateTaskScreen() {
                   <View key={index} style={styles.assignedUserChip}>
                     <Text style={styles.assignedUserName}>{name}</Text>
                     <TouchableOpacity onPress={() => removeAssignedUser(assignedTo[index])}>
-                      <Ionicons name="close-circle" size={20} color=Colors.textSecondary />
+                      <Ionicons name="close-circle" size={20} color={Colors.textSecondary} />
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -253,7 +253,7 @@ export default function CreateTaskScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <Text style={styles.createButtonText}>Create Task</Text>
             )}

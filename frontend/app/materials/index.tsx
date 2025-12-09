@@ -112,7 +112,7 @@ export default function MaterialsMainScreen() {
               <Text style={styles.statLabel}>Materials</Text>
             </View>
             <View style={[styles.statCard, { backgroundColor: '#DBEAFE' }]}>
-              <Ionicons name="business" size={24} color=Colors.primary />
+              <Ionicons name="business" size={24} color={Colors.primary} />
               <Text style={styles.statValue}>{stats.vendors}</Text>
               <Text style={styles.statLabel}>Vendors</Text>
             </View>

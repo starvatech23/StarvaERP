@@ -72,7 +72,7 @@ export default function LeadsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -86,7 +86,7 @@ export default function LeadsScreen() {
             style={styles.backButton}
             onPress={() => router.push('/')}
           >
-            <Ionicons name="home" size={20} color=Colors.secondary />
+            <Ionicons name="home" size={20} color={Colors.secondary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Leads</Text>
         </View>
@@ -94,14 +94,14 @@ export default function LeadsScreen() {
           style={styles.addButton}
           onPress={() => router.push('/crm/leads/create' as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor=Colors.secondary />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.secondary} />
         }
       >
         {leads.length === 0 ? (
@@ -140,13 +140,13 @@ export default function LeadsScreen() {
 
                 <View style={styles.leadInfo}>
                   <View style={styles.infoRow}>
-                    <Ionicons name="call" size={16} color=Colors.textSecondary />
+                    <Ionicons name="call" size={16} color={Colors.textSecondary} />
                     <Text style={styles.infoText}>{lead.primary_phone}</Text>
                     <TouchableOpacity
                       onPress={() => handleCall(lead.primary_phone)}
                       style={styles.actionButton}
                     >
-                      <Ionicons name="call-outline" size={20} color=Colors.primary />
+                      <Ionicons name="call-outline" size={20} color={Colors.primary} />
                     </TouchableOpacity>
                     {lead.whatsapp_consent && (
                       <TouchableOpacity
@@ -160,14 +160,14 @@ export default function LeadsScreen() {
 
                   {lead.email && (
                     <View style={styles.infoRow}>
-                      <Ionicons name="mail" size={16} color=Colors.textSecondary />
+                      <Ionicons name="mail" size={16} color={Colors.textSecondary} />
                       <Text style={styles.infoText}>{lead.email}</Text>
                     </View>
                   )}
 
                   {lead.budget && (
                     <View style={styles.infoRow}>
-                      <Ionicons name="cash" size={16} color=Colors.textSecondary />
+                      <Ionicons name="cash" size={16} color={Colors.textSecondary} />
                       <Text style={styles.infoText}>
                         {lead.budget_currency} {lead.budget.toLocaleString()}
                       </Text>
@@ -176,7 +176,7 @@ export default function LeadsScreen() {
 
                   {lead.assigned_to_name && (
                     <View style={styles.infoRow}>
-                      <Ionicons name="person" size={16} color=Colors.textSecondary />
+                      <Ionicons name="person" size={16} color={Colors.textSecondary} />
                       <Text style={styles.infoText}>{lead.assigned_to_name}</Text>
                     </View>
                   )}

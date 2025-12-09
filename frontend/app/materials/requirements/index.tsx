@@ -76,7 +76,7 @@ export default function MaterialRequirementsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -86,14 +86,14 @@ export default function MaterialRequirementsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Material Requirements</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/materials/requirements/create' as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 

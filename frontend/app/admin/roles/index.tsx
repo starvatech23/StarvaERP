@@ -67,7 +67,7 @@ export default function RolesListScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -78,14 +78,14 @@ export default function RolesListScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Role Management</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/admin/roles/create' as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
@@ -115,7 +115,7 @@ export default function RolesListScreen() {
               >
                 <View style={styles.roleHeader}>
                   <View style={styles.roleIcon}>
-                    <Ionicons name="shield-checkmark" size={24} color=Colors.primary />
+                    <Ionicons name="shield-checkmark" size={24} color={Colors.primary} />
                   </View>
                   <View style={styles.roleInfo}>
                     <Text style={styles.roleName}>{role.name}</Text>
@@ -144,7 +144,7 @@ export default function RolesListScreen() {
                     style={styles.editButton}
                     onPress={() => router.push(`/admin/roles/edit/${role.id}` as any)}
                   >
-                    <Ionicons name="create-outline" size={18} color=Colors.primary />
+                    <Ionicons name="create-outline" size={18} color={Colors.primary} />
                     <Text style={styles.editButtonText}>Edit</Text>
                   </TouchableOpacity>
 
@@ -161,7 +161,7 @@ export default function RolesListScreen() {
                     onPress={() => router.push(`/admin/roles/edit/${role.id}` as any)}
                   >
                     <Text style={styles.permissionsButtonText}>Permissions</Text>
-                    <Ionicons name="chevron-forward" size={18} color=Colors.textSecondary />
+                    <Ionicons name="chevron-forward" size={18} color={Colors.textSecondary} />
                   </TouchableOpacity>
                 </View>
               </TouchableOpacity>

@@ -111,7 +111,7 @@ export default function AddUserScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -125,7 +125,7 @@ export default function AddUserScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Add User</Text>
           <View style={{ width: 40 }} />
@@ -134,7 +134,7 @@ export default function AddUserScreen() {
         <ScrollView style={styles.content}>
           {/* Info Card */}
           <View style={styles.infoCard}>
-            <Ionicons name="information-circle" size={20} color=Colors.primary />
+            <Ionicons name="information-circle" size={20} color={Colors.primary} />
             <Text style={styles.infoText}>
               Users created by admin are automatically approved and can access the app immediately.
             </Text>
@@ -207,7 +207,7 @@ export default function AddUserScreen() {
               >
                 <Picker.Item label="Select role..." value="" color="#9CA3AF" />
                 {roles.map((role: any) => (
-                  <Picker.Item key={role.id} label={role.name} value={role.id} color=Colors.textPrimary />
+                  <Picker.Item key={role.id} label={role.name} value={role.id} color={Colors.textPrimary} />
                 ))}
               </Picker>
             </View>
@@ -223,7 +223,7 @@ export default function AddUserScreen() {
               >
                 <Picker.Item label="Select team..." value="" color="#9CA3AF" />
                 {teams.map((team: any) => (
-                  <Picker.Item key={team.id} label={team.name} value={team.id} color=Colors.textPrimary />
+                  <Picker.Item key={team.id} label={team.name} value={team.id} color={Colors.textPrimary} />
                 ))}
               </Picker>
             </View>
@@ -256,10 +256,10 @@ export default function AddUserScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <>
-                <Ionicons name="person-add" size={20} color=Colors.surface />
+                <Ionicons name="person-add" size={20} color={Colors.surface} />
                 <Text style={styles.createButtonText}>Create User</Text>
               </>
             )}

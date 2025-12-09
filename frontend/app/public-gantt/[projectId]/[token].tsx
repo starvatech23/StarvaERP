@@ -65,7 +65,7 @@ export default function PublicGanttScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.loadingText}>Loading Gantt Chart...</Text>
         </View>
       </SafeAreaView>
@@ -91,7 +91,7 @@ export default function PublicGanttScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Ionicons name="calendar-outline" size={24} color=Colors.primary />
+        <Ionicons name="calendar-outline" size={24} color={Colors.primary} />
         <Text style={styles.headerTitle}>Gantt Chart</Text>
       </View>
 
@@ -159,7 +159,7 @@ export default function PublicGanttScreen() {
         {tasks.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
-              <Ionicons name="list" size={18} color=Colors.primary /> Tasks
+              <Ionicons name="list" size={18} color={Colors.primary} /> Tasks
             </Text>
             {tasks.map((task: any, index: number) => (
               <View key={task.id || index} style={styles.taskCard}>

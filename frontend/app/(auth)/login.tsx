@@ -93,7 +93,7 @@ export default function LoginScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
 
           <Text style={styles.title}>Welcome Back</Text>
@@ -192,8 +192,7 @@ export default function LoginScreen() {
                   <Ionicons
                     name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                     size={20}
-                    color=Colors.textSecondary
-                  />
+                    color={Colors.textSecondary} />
                 </TouchableOpacity>
               </View>
             ) : otpSent ? (
@@ -229,7 +228,7 @@ export default function LoginScreen() {
                 disabled={loading}
               >
                 {loading ? (
-                  <ActivityIndicator color=Colors.surface />
+                  <ActivityIndicator color={Colors.surface} />
                 ) : (
                   <Text style={styles.loginButtonText}>Login</Text>
                 )}
@@ -242,7 +241,7 @@ export default function LoginScreen() {
                   disabled={loading}
                 >
                   {loading ? (
-                    <ActivityIndicator color=Colors.surface />
+                    <ActivityIndicator color={Colors.surface} />
                   ) : (
                     <Text style={styles.loginButtonText}>Verify OTP</Text>
                   )}
@@ -262,7 +261,7 @@ export default function LoginScreen() {
                 disabled={loading}
               >
                 {loading ? (
-                  <ActivityIndicator color=Colors.surface />
+                  <ActivityIndicator color={Colors.surface} />
                 ) : (
                   <Text style={styles.loginButtonText}>Send OTP</Text>
                 )}

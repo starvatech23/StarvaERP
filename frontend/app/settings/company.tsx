@@ -97,7 +97,7 @@ export default function CompanySettingsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
           <Text style={styles.loadingText}>Loading settings...</Text>
         </View>
       </SafeAreaView>
@@ -114,7 +114,7 @@ export default function CompanySettingsScreen() {
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+              <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Company Settings</Text>
             <View style={styles.placeholder} />
@@ -123,7 +123,7 @@ export default function CompanySettingsScreen() {
           {/* Logo Section */}
           <View style={styles.logoSection}>
             <View style={styles.logoPlaceholder}>
-              <Ionicons name="business" size={48} color=Colors.secondary />
+              <Ionicons name="business" size={48} color={Colors.secondary} />
             </View>
             <TouchableOpacity style={styles.changeLogoButton}>
               <Text style={styles.changeLogoText}>Change Logo</Text>
@@ -214,7 +214,7 @@ export default function CompanySettingsScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <Text style={styles.saveButtonText}>Save Settings</Text>
             )}

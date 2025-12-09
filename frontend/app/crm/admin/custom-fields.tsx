@@ -146,7 +146,7 @@ export default function CustomFieldsScreen() {
       <SafeAreaView style={styles.container}>
         <BackToHome />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -162,7 +162,7 @@ export default function CustomFieldsScreen() {
           <Text style={styles.headerSubtitle}>{fields.length} fields configured</Text>
         </View>
         <TouchableOpacity style={styles.addButton} onPress={handleCreate}>
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
@@ -207,7 +207,7 @@ export default function CustomFieldsScreen() {
                   style={[styles.actionButton, { backgroundColor: Colors.primary20 }]}
                   onPress={() => handleEdit(field)}
                 >
-                  <Ionicons name="pencil" size={16} color=Colors.primary />
+                  <Ionicons name="pencil" size={16} color={Colors.primary} />
                   <Text style={[styles.actionButtonText, { color: 'Colors.primary }]}>Edit</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -232,7 +232,7 @@ export default function CustomFieldsScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{editingField ? 'Edit' : 'Create'} Custom Field</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
-                <Ionicons name="close" size={24} color=Colors.textSecondary />
+                <Ionicons name="close" size={24} color={Colors.textSecondary} />
               </TouchableOpacity>
             </View>
 

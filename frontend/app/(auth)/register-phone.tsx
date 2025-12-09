@@ -69,7 +69,7 @@ export default function RegisterPhoneScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
 
           <Text style={styles.title}>Create Account</Text>
@@ -140,7 +140,7 @@ export default function RegisterPhoneScreen() {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color=Colors.surface />
+                <ActivityIndicator color={Colors.surface} />
               ) : (
                 <Text style={styles.sendButtonText}>Send OTP</Text>
               )}

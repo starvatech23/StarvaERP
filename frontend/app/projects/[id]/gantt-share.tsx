@@ -106,7 +106,7 @@ export default function GanttShareLinksScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -116,14 +116,14 @@ export default function GanttShareLinksScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Share Links</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setShowModal(true)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
@@ -170,16 +170,16 @@ export default function GanttShareLinksScreen() {
 
               <View style={styles.shareDetails}>
                 <View style={styles.detailItem}>
-                  <Ionicons name="eye-outline" size={16} color=Colors.textSecondary />
+                  <Ionicons name="eye-outline" size={16} color={Colors.textSecondary} />
                   <Text style={styles.detailText}>{share.views_count} views</Text>
                 </View>
                 <View style={styles.detailItem}>
-                  <Ionicons name="download-outline" size={16} color=Colors.textSecondary />
+                  <Ionicons name="download-outline" size={16} color={Colors.textSecondary} />
                   <Text style={styles.detailText}>{share.downloads_count} downloads</Text>
                 </View>
                 {share.expires_at && (
                   <View style={styles.detailItem}>
-                    <Ionicons name="time-outline" size={16} color=Colors.textSecondary />
+                    <Ionicons name="time-outline" size={16} color={Colors.textSecondary} />
                     <Text style={styles.detailText}>
                       Expires {formatDate(share.expires_at)}
                     </Text>
@@ -209,7 +209,7 @@ export default function GanttShareLinksScreen() {
                   style={styles.actionButton}
                   onPress={() => handleCopy(share.share_url)}
                 >
-                  <Ionicons name="copy-outline" size={18} color=Colors.primary />
+                  <Ionicons name="copy-outline" size={18} color={Colors.primary} />
                   <Text style={styles.actionButtonText}>Copy</Text>
                 </TouchableOpacity>
 
@@ -217,7 +217,7 @@ export default function GanttShareLinksScreen() {
                   style={styles.actionButton}
                   onPress={() => handleShare(share.share_url, share.has_password)}
                 >
-                  <Ionicons name="share-outline" size={18} color=Colors.primary />
+                  <Ionicons name="share-outline" size={18} color={Colors.primary} />
                   <Text style={styles.actionButtonText}>Share</Text>
                 </TouchableOpacity>
               </View>

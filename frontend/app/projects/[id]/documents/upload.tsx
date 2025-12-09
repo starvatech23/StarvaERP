@@ -109,7 +109,7 @@ export default function UploadDocumentScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Upload Document</Text>
           <View style={{ width: 40 }} />
@@ -161,7 +161,7 @@ export default function UploadDocumentScreen() {
 
             <Text style={styles.label}>File *</Text>
             <TouchableOpacity style={styles.filePickerButton} onPress={pickDocument}>
-              <Ionicons name="cloud-upload-outline" size={24} color=Colors.primary />
+              <Ionicons name="cloud-upload-outline" size={24} color={Colors.primary} />
               <Text style={styles.filePickerText}>
                 {selectedFile ? selectedFile.name : 'Choose File'}
               </Text>
@@ -189,10 +189,10 @@ export default function UploadDocumentScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <>
-                <Ionicons name="cloud-upload" size={20} color=Colors.surface />
+                <Ionicons name="cloud-upload" size={20} color={Colors.surface} />
                 <Text style={styles.uploadButtonText}>Upload Document</Text>
               </>
             )}

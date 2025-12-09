@@ -158,7 +158,7 @@ export default function ClientPortalScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.loadingText}>Loading Project Portal...</Text>
         </View>
       </SafeAreaView>
@@ -185,7 +185,7 @@ export default function ClientPortalScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Ionicons name="business-outline" size={24} color=Colors.primary />
+          <Ionicons name="business-outline" size={24} color={Colors.primary} />
           <Text style={styles.headerTitle}>{project?.name || 'Project Portal'}</Text>
         </View>
       </View>
@@ -370,9 +370,9 @@ export default function ClientPortalScreen() {
               disabled={!newMessage.trim() || sendingMessage}
             >
               {sendingMessage ? (
-                <ActivityIndicator size="small" color=Colors.surface />
+                <ActivityIndicator size="small" color={Colors.surface} />
               ) : (
-                <Ionicons name="send" size={20} color=Colors.surface />
+                <Ionicons name="send" size={20} color={Colors.surface} />
               )}
             </TouchableOpacity>
           </View>

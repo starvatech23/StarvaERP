@@ -115,7 +115,7 @@ export default function CreateMaterialScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Add Material</Text>
           <View style={{ width: 40 }} />
@@ -239,7 +239,7 @@ export default function CreateMaterialScreen() {
             <Text style={styles.sectionTitle}>Photos</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
-                <Ionicons name="camera" size={32} color=Colors.secondary />
+                <Ionicons name="camera" size={32} color={Colors.secondary} />
                 <Text style={styles.photoButtonText}>Add Photo</Text>
               </TouchableOpacity>
 
@@ -263,7 +263,7 @@ export default function CreateMaterialScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <Text style={styles.createButtonText}>Add Material</Text>
             )}

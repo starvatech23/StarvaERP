@@ -95,7 +95,7 @@ export default function ProjectTeamScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -106,7 +106,7 @@ export default function ProjectTeamScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Project Team</Text>
@@ -117,7 +117,7 @@ export default function ProjectTeamScreen() {
             style={styles.editButton}
             onPress={() => setIsEditMode(true)}
           >
-            <Ionicons name="create" size={20} color=Colors.surface />
+            <Ionicons name="create" size={20} color={Colors.surface} />
           </TouchableOpacity>
         )}
         {!canEdit && <View style={{ width: 40 }} />}
@@ -146,7 +146,7 @@ export default function ProjectTeamScreen() {
               currentTeamMembers.map((member: any) => (
                 <View key={member.user_id} style={styles.memberCard}>
                   <View style={styles.memberAvatar}>
-                    <Ionicons name="person" size={24} color=Colors.primary />
+                    <Ionicons name="person" size={24} color={Colors.primary} />
                   </View>
 
                   <View style={styles.memberInfo}>
@@ -159,14 +159,14 @@ export default function ProjectTeamScreen() {
 
                     {member.phone && (
                       <View style={styles.contactRow}>
-                        <Ionicons name="call" size={14} color=Colors.textSecondary />
+                        <Ionicons name="call" size={14} color={Colors.textSecondary} />
                         <Text style={styles.contactText}>{member.phone}</Text>
                       </View>
                     )}
 
                     {member.email && (
                       <View style={styles.contactRow}>
-                        <Ionicons name="mail" size={14} color=Colors.textSecondary />
+                        <Ionicons name="mail" size={14} color={Colors.textSecondary} />
                         <Text style={styles.contactText}>{member.email}</Text>
                       </View>
                     )}
@@ -197,7 +197,7 @@ export default function ProjectTeamScreen() {
 
               {selectedUserIds.length === 0 ? (
                 <View style={styles.infoCard}>
-                  <Ionicons name="information-circle" size={20} color=Colors.primary />
+                  <Ionicons name="information-circle" size={20} color={Colors.primary} />
                   <Text style={styles.infoText}>
                     Select users from the list below to add them to the team
                   </Text>
@@ -247,7 +247,7 @@ export default function ProjectTeamScreen() {
                     onPress={() => toggleUserSelection(user.id)}
                   >
                     <View style={styles.userAvatar}>
-                      <Ionicons name="person-outline" size={20} color=Colors.textSecondary />
+                      <Ionicons name="person-outline" size={20} color={Colors.textSecondary} />
                     </View>
                     <View style={styles.userInfo}>
                       <Text style={styles.userName}>{user.full_name}</Text>
@@ -281,10 +281,10 @@ export default function ProjectTeamScreen() {
                 disabled={saving}
               >
                 {saving ? (
-                  <ActivityIndicator color=Colors.surface />
+                  <ActivityIndicator color={Colors.surface} />
                 ) : (
                   <>
-                    <Ionicons name="checkmark-circle" size={20} color=Colors.surface />
+                    <Ionicons name="checkmark-circle" size={20} color={Colors.surface} />
                     <Text style={styles.saveButtonText}>Save Team</Text>
                   </>
                 )}

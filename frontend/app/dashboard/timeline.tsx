@@ -98,7 +98,7 @@ export default function DashboardTimelineScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -110,7 +110,7 @@ export default function DashboardTimelineScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Projects Timeline</Text>
         <View style={styles.placeholder} />
@@ -180,7 +180,7 @@ export default function DashboardTimelineScreen() {
                       <TouchableOpacity
                         onPress={() => router.push(`/projects/timeline/${project.id}` as any)}
                       >
-                        <Ionicons name="stats-chart" size={20} color=Colors.secondary />
+                        <Ionicons name="stats-chart" size={20} color={Colors.secondary} />
                       </TouchableOpacity>
                     </View>
                     <View style={styles.projectMeta}>
@@ -206,14 +206,14 @@ export default function DashboardTimelineScreen() {
                   {/* Timeline Dates */}
                   <View style={styles.datesRow}>
                     <View style={styles.dateItem}>
-                      <Ionicons name="calendar-outline" size={14} color=Colors.textSecondary />
+                      <Ionicons name="calendar-outline" size={14} color={Colors.textSecondary} />
                       <Text style={styles.dateText}>
                         {moment(project.start_date).format('MMM DD')}
                       </Text>
                     </View>
                     <View style={styles.dateSeparator} />
                     <View style={styles.dateItem}>
-                      <Ionicons name="calendar" size={14} color=Colors.textSecondary />
+                      <Ionicons name="calendar" size={14} color={Colors.textSecondary} />
                       <Text style={styles.dateText}>
                         {moment(project.end_date).format('MMM DD, YYYY')}
                       </Text>
@@ -245,12 +245,12 @@ export default function DashboardTimelineScreen() {
                   {/* Project Details */}
                   <View style={styles.projectDetails}>
                     <View style={styles.detailItem}>
-                      <Ionicons name="location" size={14} color=Colors.textSecondary />
+                      <Ionicons name="location" size={14} color={Colors.textSecondary} />
                       <Text style={styles.detailText}>{project.location}</Text>
                     </View>
                     {project.budget && (
                       <View style={styles.detailItem}>
-                        <Ionicons name="cash" size={14} color=Colors.textSecondary />
+                        <Ionicons name="cash" size={14} color={Colors.textSecondary} />
                         <Text style={styles.detailText}>₹{project.budget.toLocaleString()}</Text>
                       </View>
                     )}

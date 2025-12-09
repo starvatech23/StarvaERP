@@ -215,7 +215,7 @@ export default function MarkAttendanceScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Mark Attendance</Text>
         <View style={styles.placeholder} />
@@ -230,10 +230,10 @@ export default function MarkAttendanceScreen() {
               style={styles.dateButton}
               onPress={() => changeDate(-1)}
             >
-              <Ionicons name="chevron-back" size={24} color=Colors.secondary />
+              <Ionicons name="chevron-back" size={24} color={Colors.secondary} />
             </TouchableOpacity>
             <View style={styles.dateDisplay}>
-              <Ionicons name="calendar" size={20} color=Colors.secondary />
+              <Ionicons name="calendar" size={20} color={Colors.secondary} />
               <Text style={styles.dateText}>{moment(selectedDate).format('DD MMM YYYY')}</Text>
             </View>
             <TouchableOpacity
@@ -309,7 +309,7 @@ export default function MarkAttendanceScreen() {
                 <View key={worker.id} style={styles.workerCard}>
                   <View style={styles.workerInfo}>
                     <View style={styles.workerAvatar}>
-                      <Ionicons name="person" size={24} color=Colors.secondary />
+                      <Ionicons name="person" size={24} color={Colors.secondary} />
                     </View>
                     <View style={styles.workerDetails}>
                       <Text style={styles.workerName}>{worker.full_name}</Text>
@@ -425,10 +425,10 @@ export default function MarkAttendanceScreen() {
           disabled={loading || Object.keys(attendanceData).length === 0}
         >
           {loading ? (
-            <ActivityIndicator color=Colors.surface />
+            <ActivityIndicator color={Colors.surface} />
           ) : (
             <>
-              <Ionicons name="checkmark-circle" size={20} color=Colors.surface />
+              <Ionicons name="checkmark-circle" size={20} color={Colors.surface} />
               <Text style={styles.saveButtonText}>
                 Save Attendance ({Object.keys(attendanceData).length})
               </Text>

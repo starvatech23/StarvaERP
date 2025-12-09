@@ -187,7 +187,7 @@ export default function CreateFunnelScreen() {
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Create Funnel</Text>
@@ -277,7 +277,7 @@ export default function CreateFunnelScreen() {
                 <Text style={styles.sectionSubtitle}>{stages.length} stages configured</Text>
               </View>
               <TouchableOpacity style={styles.addStageButton} onPress={addStage}>
-                <Ionicons name="add" size={20} color=Colors.surface />
+                <Ionicons name="add" size={20} color={Colors.surface} />
               </TouchableOpacity>
             </View>
 
@@ -326,7 +326,7 @@ export default function CreateFunnelScreen() {
                         onPress={() => updateStage(index, 'color', color)}
                       >
                         {stage.color === color && (
-                          <Ionicons name="checkmark" size={16} color=Colors.surface />
+                          <Ionicons name="checkmark" size={16} color={Colors.surface} />
                         )}
                       </TouchableOpacity>
                     ))}

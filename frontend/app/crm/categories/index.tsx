@@ -138,7 +138,7 @@ export default function CategoriesScreen() {
       <SafeAreaView style={styles.container}>
         <BackToHome />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -157,7 +157,7 @@ export default function CategoriesScreen() {
           style={styles.addButton}
           onPress={() => openModal()}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
@@ -180,7 +180,7 @@ export default function CategoriesScreen() {
               style={styles.emptyButton}
               onPress={() => openModal()}
             >
-              <Ionicons name="add" size={20} color=Colors.surface />
+              <Ionicons name="add" size={20} color={Colors.surface} />
               <Text style={styles.emptyButtonText}>Create Category</Text>
             </TouchableOpacity>
           </View>
@@ -195,7 +195,7 @@ export default function CategoriesScreen() {
                     <Text style={styles.categoryDescription}>{category.description}</Text>
                   )}
                   <View style={styles.categoryStats}>
-                    <Ionicons name="people" size={14} color=Colors.textSecondary />
+                    <Ionicons name="people" size={14} color={Colors.textSecondary} />
                     <Text style={styles.categoryStatsText}>
                       {category.lead_count || 0} leads
                     </Text>
@@ -208,7 +208,7 @@ export default function CategoriesScreen() {
                   style={styles.actionButton}
                   onPress={() => openModal(category)}
                 >
-                  <Ionicons name="create-outline" size={20} color=Colors.primary />
+                  <Ionicons name="create-outline" size={20} color={Colors.primary} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.actionButton}
@@ -241,7 +241,7 @@ export default function CategoriesScreen() {
                 {editingCategory ? 'Edit Category' : 'New Category'}
               </Text>
               <TouchableOpacity onPress={closeModal}>
-                <Ionicons name="close" size={28} color=Colors.textSecondary />
+                <Ionicons name="close" size={28} color={Colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -284,7 +284,7 @@ export default function CategoriesScreen() {
                       onPress={() => setSelectedColor(color)}
                     >
                       {selectedColor === color && (
-                        <Ionicons name="checkmark" size={20} color=Colors.surface />
+                        <Ionicons name="checkmark" size={20} color={Colors.surface} />
                       )}
                     </TouchableOpacity>
                   ))}

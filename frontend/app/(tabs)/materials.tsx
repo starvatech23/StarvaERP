@@ -109,7 +109,7 @@ export default function MaterialsScreen() {
         >
           <View style={styles.cardHeader}>
             <View style={styles.vendorInfo}>
-              <Ionicons name="business" size={40} color=Colors.secondary />
+              <Ionicons name="business" size={40} color={Colors.secondary} />
               <View style={styles.vendorDetails}>
                 <Text style={styles.vendorName}>{vendor.business_name}</Text>
                 <Text style={styles.vendorContact}>{vendor.contact_person}</Text>
@@ -135,12 +135,12 @@ export default function MaterialsScreen() {
           
           <View style={styles.cardFooter}>
             <View style={styles.infoItem}>
-              <Ionicons name="call-outline" size={16} color=Colors.textSecondary />
+              <Ionicons name="call-outline" size={16} color={Colors.textSecondary} />
               <Text style={styles.infoText}>{vendor.phone}</Text>
             </View>
             {vendor.email && (
               <View style={styles.infoItem}>
-                <Ionicons name="mail-outline" size={16} color=Colors.textSecondary />
+                <Ionicons name="mail-outline" size={16} color={Colors.textSecondary} />
                 <Text style={styles.infoText}>{vendor.email}</Text>
               </View>
             )}
@@ -251,7 +251,7 @@ export default function MaterialsScreen() {
   const renderReports = () => {
     return (
       <View style={styles.reportsContainer}>
-        <Ionicons name="stats-chart" size={80} color=Colors.secondary />
+        <Ionicons name="stats-chart" size={80} color={Colors.secondary} />
         <Text style={styles.reportsTitle}>Material Reports</Text>
         <Text style={styles.reportsText}>
           View spending analysis, inventory reports, and purchase order summaries
@@ -260,7 +260,7 @@ export default function MaterialsScreen() {
           style={styles.viewReportsButton}
           onPress={() => router.push('/materials/reports' as any)}
         >
-          <Ionicons name="document-text" size={20} color=Colors.surface />
+          <Ionicons name="document-text" size={20} color={Colors.surface} />
           <Text style={styles.viewReportsText}>View Reports</Text>
         </TouchableOpacity>
       </View>
@@ -276,7 +276,7 @@ export default function MaterialsScreen() {
             style={styles.scanButton}
             onPress={() => router.push('/materials/scan' as any)}
           >
-            <Ionicons name="qr-code" size={24} color=Colors.surface />
+            <Ionicons name="qr-code" size={24} color={Colors.surface} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButton}
@@ -290,7 +290,7 @@ export default function MaterialsScreen() {
               }
             }}
           >
-            <Ionicons name="add" size={24} color=Colors.surface />
+            <Ionicons name="add" size={24} color={Colors.surface} />
           </TouchableOpacity>
         </View>
       </View>

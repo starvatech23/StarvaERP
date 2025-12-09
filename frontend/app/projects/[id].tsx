@@ -108,7 +108,7 @@ export default function ProjectDetailsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -122,7 +122,7 @@ export default function ProjectDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Project Details</Text>
         <View style={styles.headerActions}>
@@ -130,20 +130,20 @@ export default function ProjectDetailsScreen() {
             style={styles.iconButton}
             onPress={() => router.push(`/projects/${id}/chat` as any)}
           >
-            <Ionicons name="chatbubbles" size={20} color=Colors.secondary />
+            <Ionicons name="chatbubbles" size={20} color={Colors.secondary} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => router.push(`/projects/timeline/${id}` as any)}
           >
-            <Ionicons name="stats-chart" size={20} color=Colors.secondary />
+            <Ionicons name="stats-chart" size={20} color={Colors.secondary} />
           </TouchableOpacity>
           {canEdit && (
             <TouchableOpacity
               style={styles.iconButton}
               onPress={() => router.push(`/projects/edit/${id}` as any)}
             >
-              <Ionicons name="create" size={20} color=Colors.secondary />
+              <Ionicons name="create" size={20} color={Colors.secondary} />
             </TouchableOpacity>
           )}
         </View>
@@ -167,12 +167,12 @@ export default function ProjectDetailsScreen() {
 
           <View style={styles.infoSection}>
             <View style={styles.infoRow}>
-              <Ionicons name="location" size={18} color=Colors.textSecondary />
+              <Ionicons name="location" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>{project.location}</Text>
             </View>
             {project.address && (
               <View style={styles.infoRow}>
-                <Ionicons name="map" size={18} color=Colors.textSecondary />
+                <Ionicons name="map" size={18} color={Colors.textSecondary} />
                 <Text style={styles.infoText}>{project.address}</Text>
               </View>
             )}
@@ -182,12 +182,12 @@ export default function ProjectDetailsScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Client Information</Text>
           <View style={styles.infoRow}>
-            <Ionicons name="person" size={18} color=Colors.textSecondary />
+            <Ionicons name="person" size={18} color={Colors.textSecondary} />
             <Text style={styles.infoText}>{project.client_name}</Text>
           </View>
           {project.client_contact && (
             <View style={styles.infoRow}>
-              <Ionicons name="call" size={18} color=Colors.textSecondary />
+              <Ionicons name="call" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>{project.client_contact}</Text>
             </View>
           )}
@@ -197,7 +197,7 @@ export default function ProjectDetailsScreen() {
           <Text style={styles.cardTitle}>Project Details</Text>
           {project.budget && (
             <View style={styles.infoRow}>
-              <Ionicons name="cash" size={18} color=Colors.textSecondary />
+              <Ionicons name="cash" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>
                 Budget: ${project.budget.toLocaleString()}
               </Text>
@@ -205,7 +205,7 @@ export default function ProjectDetailsScreen() {
           )}
           {project.project_manager_name && (
             <View style={styles.infoRow}>
-              <Ionicons name="briefcase" size={18} color=Colors.textSecondary />
+              <Ionicons name="briefcase" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>PM: {project.project_manager_name}</Text>
             </View>
           )}
@@ -225,7 +225,7 @@ export default function ProjectDetailsScreen() {
               onPress={() => router.push(`/projects/${id}/contacts` as any)}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: '#EFF6FF' }]}>
-                <Ionicons name="people" size={24} color=Colors.primary />
+                <Ionicons name="people" size={24} color={Colors.primary} />
               </View>
               <Text style={styles.quickActionLabel}>Contacts</Text>
               <Text style={styles.quickActionSubtext}>Manage hierarchy</Text>
@@ -301,7 +301,7 @@ export default function ProjectDetailsScreen() {
                 style={styles.addTaskButton}
                 onPress={() => router.push(`/projects/${id}/team` as any)}
               >
-                <Ionicons name="people" size={20} color=Colors.primary />
+                <Ionicons name="people" size={20} color={Colors.primary} />
                 <Text style={[styles.addTaskText, { color: 'Colors.primary }]}>Manage</Text>
               </TouchableOpacity>
             )}
@@ -314,7 +314,7 @@ export default function ProjectDetailsScreen() {
               {project?.team_members?.map((member: any) => (
                 <View key={member.user_id} style={styles.teamMemberCard}>
                   <View style={styles.teamMemberAvatar}>
-                    <Ionicons name="person" size={18} color=Colors.primary />
+                    <Ionicons name="person" size={18} color={Colors.primary} />
                   </View>
                   <View style={styles.teamMemberInfo}>
                     <Text style={styles.teamMemberName}>{member.full_name}</Text>
@@ -362,7 +362,7 @@ export default function ProjectDetailsScreen() {
                 style={styles.addTaskButton}
                 onPress={() => router.push(`/tasks/create?projectId=${id}` as any)}
               >
-                <Ionicons name="add" size={20} color=Colors.secondary />
+                <Ionicons name="add" size={20} color={Colors.secondary} />
                 <Text style={styles.addTaskText}>Add Task</Text>
               </TouchableOpacity>
             )}

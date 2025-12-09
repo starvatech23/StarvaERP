@@ -158,7 +158,7 @@ export default function MoveToProjectScreen() {
       <SafeAreaView style={styles.container}>
         <BackToHome />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -170,7 +170,7 @@ export default function MoveToProjectScreen() {
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Convert to Project</Text>
@@ -254,7 +254,7 @@ export default function MoveToProjectScreen() {
               <Text style={styles.sectionTitle}>Bank Transaction Details</Text>
               
               <View style={styles.infoCard}>
-                <Ionicons name="information-circle" size={20} color=Colors.primary />
+                <Ionicons name="information-circle" size={20} color={Colors.primary} />
                 <Text style={styles.infoText}>
                   All bank transaction fields are mandatory to proceed
                 </Text>
@@ -327,10 +327,10 @@ export default function MoveToProjectScreen() {
             disabled={submitting}
           >
             {submitting ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <>
-                <Ionicons name="arrow-forward-circle" size={20} color=Colors.surface />
+                <Ionicons name="arrow-forward-circle" size={20} color={Colors.surface} />
                 <Text style={styles.submitButtonText}>Convert to Project</Text>
               </>
             )}

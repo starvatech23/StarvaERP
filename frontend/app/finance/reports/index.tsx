@@ -100,7 +100,7 @@ export default function FinancialReportsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -110,7 +110,7 @@ export default function FinancialReportsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Financial Reports</Text>
         <View style={{ width: 40 }} />
@@ -189,8 +189,7 @@ export default function FinancialReportsScreen() {
                     <Ionicons 
                       name={showPieChart.category ? 'list-outline' : 'pie-chart-outline'} 
                       size={24} 
-                      color=Colors.primary 
-                    />
+                      color={Colors.primary} />
                   </TouchableOpacity>
                 </View>
 

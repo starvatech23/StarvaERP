@@ -131,7 +131,7 @@ export default function CreateInvoiceScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Create Invoice</Text>
         <View style={{ width: 40 }} />
@@ -209,7 +209,7 @@ export default function CreateInvoiceScreen() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Line Items</Text>
               <TouchableOpacity onPress={addLineItem} style={styles.addItemButton}>
-                <Ionicons name="add-circle" size={24} color=Colors.primary />
+                <Ionicons name="add-circle" size={24} color={Colors.primary} />
                 <Text style={styles.addItemText}>Add Item</Text>
               </TouchableOpacity>
             </View>

@@ -203,7 +203,7 @@ export default function ImportExportScreen() {
             >
               <View style={styles.optionLeft}>
                 <View style={[styles.optionIcon, { backgroundColor: Colors.primary20 }]}>
-                  <Ionicons name="document-text" size={24} color=Colors.primary />
+                  <Ionicons name="document-text" size={24} color={Colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.optionTitle}>CSV File</Text>
@@ -211,7 +211,7 @@ export default function ImportExportScreen() {
                 </View>
               </View>
               {importing ? (
-                <ActivityIndicator size="small" color=Colors.primary />
+                <ActivityIndicator size="small" color={Colors.primary} />
               ) : (
                 <Ionicons name="chevron-forward" size={24} color="#CBD5E0" />
               )}
@@ -300,7 +300,7 @@ export default function ImportExportScreen() {
             <Text style={styles.historyTitle}>Recent Imports</Text>
             {importHistory.reverse().slice(0, 5).map((item, index) => (
               <View key={index} style={styles.historyCard}>
-                <Ionicons name="time" size={20} color=Colors.textSecondary />
+                <Ionicons name="time" size={20} color={Colors.textSecondary} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.historyText}>
                     {item.count} leads from {item.source}
@@ -316,7 +316,7 @@ export default function ImportExportScreen() {
 
         {/* Help Section */}
         <View style={styles.helpCard}>
-          <Ionicons name="help-circle" size={24} color=Colors.primary />
+          <Ionicons name="help-circle" size={24} color={Colors.primary} />
           <View style={{ flex: 1 }}>
             <Text style={styles.helpTitle}>CSV Format Guidelines</Text>
             <Text style={styles.helpText}>

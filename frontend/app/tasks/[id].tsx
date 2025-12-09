@@ -102,7 +102,7 @@ export default function TaskDetailsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -116,7 +116,7 @@ export default function TaskDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Task Details</Text>
         <View style={{ width: 40 }} />
@@ -151,7 +151,7 @@ export default function TaskDetailsScreen() {
           
           {task.due_date && (
             <View style={styles.infoRow}>
-              <Ionicons name="calendar" size={18} color=Colors.textSecondary />
+              <Ionicons name="calendar" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>
                 Due: {format(new Date(task.due_date), 'MMM dd, yyyy')}
               </Text>
@@ -159,12 +159,12 @@ export default function TaskDetailsScreen() {
           )}
 
           <View style={styles.infoRow}>
-            <Ionicons name="person" size={18} color=Colors.textSecondary />
+            <Ionicons name="person" size={18} color={Colors.textSecondary} />
             <Text style={styles.infoText}>Created by: {task.created_by_name}</Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Ionicons name="time" size={18} color=Colors.textSecondary />
+            <Ionicons name="time" size={18} color={Colors.textSecondary} />
             <Text style={styles.infoText}>
               Created: {format(new Date(task.created_at), 'MMM dd, yyyy')}
             </Text>
@@ -176,7 +176,7 @@ export default function TaskDetailsScreen() {
             <Text style={styles.cardTitle}>Assigned To</Text>
             {task.assigned_users.map((user: any) => (
               <View key={user.id} style={styles.userChip}>
-                <Ionicons name="person-circle" size={24} color=Colors.secondary />
+                <Ionicons name="person-circle" size={24} color={Colors.secondary} />
                 <Text style={styles.userName}>{user.name}</Text>
               </View>
             ))}
@@ -192,7 +192,7 @@ export default function TaskDetailsScreen() {
                   style={styles.actionButton}
                   onPress={() => handleStatusChange('in_progress')}
                 >
-                  <Ionicons name="play-circle" size={24} color=Colors.primary />
+                  <Ionicons name="play-circle" size={24} color={Colors.primary} />
                   <Text style={styles.actionText}>Start Task</Text>
                 </TouchableOpacity>
               )}

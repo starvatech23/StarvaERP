@@ -69,11 +69,11 @@ export default function OTPVerifyScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
 
           <View style={styles.iconContainer}>
-            <Ionicons name="mail-open" size={64} color=Colors.secondary />
+            <Ionicons name="mail-open" size={64} color={Colors.secondary} />
           </View>
 
           <Text style={styles.title}>Verify OTP</Text>
@@ -113,7 +113,7 @@ export default function OTPVerifyScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <Text style={styles.verifyButtonText}>Verify & Continue</Text>
             )}

@@ -127,7 +127,7 @@ export default function AddWorkerScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Add Labourer</Text>
           <View style={styles.placeholder} />
@@ -301,7 +301,7 @@ export default function AddWorkerScreen() {
               style={styles.uploadButton}
               onPress={() => pickImage('aadhaar')}
             >
-              <Ionicons name="cloud-upload" size={20} color=Colors.secondary />
+              <Ionicons name="cloud-upload" size={20} color={Colors.secondary} />
               <Text style={styles.uploadText}>
                 {formData.aadhaar_photo ? 'Aadhaar Photo Selected ✓' : 'Upload Aadhaar Photo'}
               </Text>
@@ -323,7 +323,7 @@ export default function AddWorkerScreen() {
               style={styles.uploadButton}
               onPress={() => pickImage('pan')}
             >
-              <Ionicons name="cloud-upload" size={20} color=Colors.secondary />
+              <Ionicons name="cloud-upload" size={20} color={Colors.secondary} />
               <Text style={styles.uploadText}>
                 {formData.pan_photo ? 'PAN Photo Selected ✓' : 'Upload PAN Photo'}
               </Text>
@@ -404,7 +404,7 @@ export default function AddWorkerScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <Text style={styles.submitButtonText}>Add Worker</Text>
             )}

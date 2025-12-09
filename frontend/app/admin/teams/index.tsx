@@ -67,7 +67,7 @@ export default function TeamsListScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -77,14 +77,14 @@ export default function TeamsListScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Team Management</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/admin/teams/create' as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
@@ -140,7 +140,7 @@ export default function TeamsListScreen() {
 
                 <View style={styles.teamFooter}>
                   <View style={styles.memberCount}>
-                    <Ionicons name="person" size={16} color=Colors.textSecondary />
+                    <Ionicons name="person" size={16} color={Colors.textSecondary} />
                     <Text style={styles.memberCountText}>
                       {team.member_count} member{team.member_count !== 1 ? 's' : ''}
                     </Text>
@@ -151,7 +151,7 @@ export default function TeamsListScreen() {
                       style={styles.editButton}
                       onPress={() => router.push(`/admin/teams/edit/${team.id}` as any)}
                     >
-                      <Ionicons name="create-outline" size={18} color=Colors.primary />
+                      <Ionicons name="create-outline" size={18} color={Colors.primary} />
                       <Text style={styles.editButtonText}>Edit</Text>
                     </TouchableOpacity>
 

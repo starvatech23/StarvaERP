@@ -73,7 +73,7 @@ export default function PurchaseOrdersScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -83,14 +83,14 @@ export default function PurchaseOrdersScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Purchase Orders</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/materials/purchase-orders/create' as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
@@ -162,19 +162,19 @@ export default function PurchaseOrdersScreen() {
 
               <View style={styles.orderDetails}>
                 <View style={styles.detailRow}>
-                  <Ionicons name="cube-outline" size={16} color=Colors.textSecondary />
+                  <Ionicons name="cube-outline" size={16} color={Colors.textSecondary} />
                   <Text style={styles.detailText}>
                     {order.items?.length || 0} items
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="cash-outline" size={16} color=Colors.textSecondary />
+                  <Ionicons name="cash-outline" size={16} color={Colors.textSecondary} />
                   <Text style={styles.detailText}>
                     {formatCurrency(order.total_amount || 0)}
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="calendar-outline" size={16} color=Colors.textSecondary />
+                  <Ionicons name="calendar-outline" size={16} color={Colors.textSecondary} />
                   <Text style={styles.detailText}>
                     {new Date(order.order_date).toLocaleDateString()}
                   </Text>

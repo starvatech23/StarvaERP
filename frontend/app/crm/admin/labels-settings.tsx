@@ -117,7 +117,7 @@ export default function LabelsSettingsScreen() {
           <Text style={styles.headerSubtitle}>Customize terminology for your team</Text>
         </View>
         <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-          <Ionicons name="refresh" size={20} color=Colors.textSecondary />
+          <Ionicons name="refresh" size={20} color={Colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -162,7 +162,7 @@ export default function LabelsSettingsScreen() {
             style={styles.saveButton}
             onPress={handleSave}
           >
-            <Ionicons name="checkmark-circle" size={24} color=Colors.surface />
+            <Ionicons name="checkmark-circle" size={24} color={Colors.surface} />
             <Text style={styles.saveButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </View>

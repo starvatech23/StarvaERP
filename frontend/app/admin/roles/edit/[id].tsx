@@ -132,7 +132,7 @@ export default function EditRoleScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -147,7 +147,7 @@ export default function EditRoleScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit Role</Text>
           <View style={{ width: 40 }} />
@@ -255,10 +255,10 @@ export default function EditRoleScreen() {
             disabled={saving}
           >
             {saving ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <>
-                <Ionicons name="save" size={20} color=Colors.surface />
+                <Ionicons name="save" size={20} color={Colors.surface} />
                 <Text style={styles.saveButtonText}>Save Changes</Text>
               </>
             )}

@@ -285,7 +285,7 @@ export default function ProjectChatScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
           <Text style={styles.loadingText}>Loading chat...</Text>
         </View>
       </SafeAreaView>
@@ -302,7 +302,7 @@ export default function ProjectChatScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle}>{conversation?.project_name}</Text>
@@ -311,7 +311,7 @@ export default function ProjectChatScreen() {
             </Text>
           </View>
           <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
-            <Ionicons name="share-outline" size={24} color=Colors.secondary />
+            <Ionicons name="share-outline" size={24} color={Colors.secondary} />
           </TouchableOpacity>
         </View>
 
@@ -337,7 +337,7 @@ export default function ProjectChatScreen() {
           <View style={styles.attachmentsPreview}>
             {attachments.map((att, idx) => (
               <View key={idx} style={styles.attachmentPreviewItem}>
-                <Ionicons name="document" size={16} color=Colors.secondary />
+                <Ionicons name="document" size={16} color={Colors.secondary} />
                 <Text style={styles.attachmentPreviewText} numberOfLines={1}>
                   {att.file_name}
                 </Text>
@@ -368,7 +368,7 @@ export default function ProjectChatScreen() {
               );
             }}
           >
-            <Ionicons name="attach" size={24} color=Colors.textSecondary />
+            <Ionicons name="attach" size={24} color={Colors.textSecondary} />
           </TouchableOpacity>
           
           <TextInput
@@ -387,9 +387,9 @@ export default function ProjectChatScreen() {
             disabled={sending || (!newMessage.trim() && attachments.length === 0)}
           >
             {sending ? (
-              <ActivityIndicator size="small" color=Colors.surface />
+              <ActivityIndicator size="small" color={Colors.surface} />
             ) : (
-              <Ionicons name="send" size={20} color=Colors.surface />
+              <Ionicons name="send" size={20} color={Colors.surface} />
             )}
           </TouchableOpacity>
         </View>

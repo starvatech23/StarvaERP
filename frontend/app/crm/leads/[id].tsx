@@ -91,7 +91,7 @@ export default function LeadDetailScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -102,7 +102,7 @@ export default function LeadDetailScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Lead Not Found</Text>
         </View>
@@ -114,11 +114,11 @@ export default function LeadDetailScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{lead.name}</Text>
         <TouchableOpacity style={styles.editButton}>
-          <Ionicons name="pencil" size={20} color=Colors.secondary />
+          <Ionicons name="pencil" size={20} color={Colors.secondary} />
         </TouchableOpacity>
       </View>
 
@@ -141,7 +141,7 @@ export default function LeadDetailScreen() {
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
           <TouchableOpacity style={styles.actionButton} onPress={handleCall}>
-            <Ionicons name="call" size={24} color=Colors.primary />
+            <Ionicons name="call" size={24} color={Colors.primary} />
             <Text style={styles.actionButtonText}>Call</Text>
           </TouchableOpacity>
           
@@ -166,7 +166,7 @@ export default function LeadDetailScreen() {
             style={styles.moveToProjectButton}
             onPress={() => router.push(`/crm/leads/${id}/move-to-project`)}
           >
-            <Ionicons name="arrow-forward-circle" size={20} color=Colors.surface />
+            <Ionicons name="arrow-forward-circle" size={20} color={Colors.surface} />
             <Text style={styles.moveToProjectText}>Convert to Project</Text>
           </TouchableOpacity>
         )}
@@ -183,14 +183,14 @@ export default function LeadDetailScreen() {
           <Text style={styles.cardTitle}>Contact Information</Text>
           
           <View style={styles.infoRow}>
-            <Ionicons name="call" size={16} color=Colors.textSecondary />
+            <Ionicons name="call" size={16} color={Colors.textSecondary} />
             <Text style={styles.infoLabel}>Primary Phone:</Text>
             <Text style={styles.infoValue}>{lead.primary_phone}</Text>
           </View>
 
           {lead.alternate_phone && (
             <View style={styles.infoRow}>
-              <Ionicons name="call-outline" size={16} color=Colors.textSecondary />
+              <Ionicons name="call-outline" size={16} color={Colors.textSecondary} />
               <Text style={styles.infoLabel}>Alternate:</Text>
               <Text style={styles.infoValue}>{lead.alternate_phone}</Text>
             </View>
@@ -198,7 +198,7 @@ export default function LeadDetailScreen() {
 
           {lead.email && (
             <View style={styles.infoRow}>
-              <Ionicons name="mail" size={16} color=Colors.textSecondary />
+              <Ionicons name="mail" size={16} color={Colors.textSecondary} />
               <Text style={styles.infoLabel}>Email:</Text>
               <Text style={styles.infoValue}>{lead.email}</Text>
             </View>
@@ -206,7 +206,7 @@ export default function LeadDetailScreen() {
 
           {lead.city && (
             <View style={styles.infoRow}>
-              <Ionicons name="location" size={16} color=Colors.textSecondary />
+              <Ionicons name="location" size={16} color={Colors.textSecondary} />
               <Text style={styles.infoLabel}>City:</Text>
               <Text style={styles.infoValue}>{lead.city}</Text>
             </View>
@@ -219,7 +219,7 @@ export default function LeadDetailScreen() {
           
           {lead.budget && (
             <View style={styles.infoRow}>
-              <Ionicons name="cash" size={16} color=Colors.textSecondary />
+              <Ionicons name="cash" size={16} color={Colors.textSecondary} />
               <Text style={styles.infoLabel}>Budget:</Text>
               <Text style={styles.infoValue}>
                 {lead.budget_currency} {lead.budget.toLocaleString()}

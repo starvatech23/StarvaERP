@@ -130,7 +130,7 @@ export default function SiteTransferScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Transfer Worker</Text>
         <View style={{ width: 40 }} />
@@ -223,7 +223,7 @@ export default function SiteTransferScreen() {
                 style={styles.dateButton}
                 onPress={() => setShowDatePicker(true)}
               >
-                <Ionicons name="calendar-outline" size={20} color=Colors.secondary />
+                <Ionicons name="calendar-outline" size={20} color={Colors.secondary} />
                 <Text style={styles.dateText}>{moment(formData.transfer_date).format('DD MMM YYYY')}</Text>
               </TouchableOpacity>
               {showDatePicker && (
@@ -242,7 +242,7 @@ export default function SiteTransferScreen() {
             </View>
 
             <View style={styles.noteCard}>
-              <Ionicons name="information-circle" size={20} color=Colors.primary />
+              <Ionicons name="information-circle" size={20} color={Colors.primary} />
               <Text style={styles.noteText}>
                 Split wage calculation: If you specify hours worked at each site, wages will be
                 calculated proportionally based on the worker's daily rate.
@@ -252,7 +252,7 @@ export default function SiteTransferScreen() {
             <View style={styles.formGroup}>
               <Text style={styles.label}>Hours at From Site (Optional)</Text>
               <View style={styles.hoursInputContainer}>
-                <Ionicons name="time-outline" size={20} color=Colors.textSecondary />
+                <Ionicons name="time-outline" size={20} color={Colors.textSecondary} />
                 <TextInput
                   style={styles.hoursInput}
                   value={formData.hours_at_from_site}
@@ -268,7 +268,7 @@ export default function SiteTransferScreen() {
             <View style={styles.formGroup}>
               <Text style={styles.label}>Hours at To Site (Optional)</Text>
               <View style={styles.hoursInputContainer}>
-                <Ionicons name="time-outline" size={20} color=Colors.textSecondary />
+                <Ionicons name="time-outline" size={20} color={Colors.textSecondary} />
                 <TextInput
                   style={styles.hoursInput}
                   value={formData.hours_at_to_site}

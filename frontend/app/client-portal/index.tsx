@@ -76,7 +76,7 @@ export default function ClientPortalIndexScreen() {
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Ionicons name="business-outline" size={48} color=Colors.primary />
+          <Ionicons name="business-outline" size={48} color={Colors.primary} />
           <Text style={styles.title}>Client Portal</Text>
           <Text style={styles.subtitle}>
             Access your project timeline and chat with your team
@@ -123,7 +123,7 @@ export default function ClientPortalIndexScreen() {
             <Text style={styles.accessButtonText}>Logging in...</Text>
           ) : (
             <>
-              <Ionicons name="arrow-forward" size={20} color=Colors.surface />
+              <Ionicons name="arrow-forward" size={20} color={Colors.surface} />
               <Text style={styles.accessButtonText}>Access Portal</Text>
             </>
           )}
@@ -151,7 +151,7 @@ export default function ClientPortalIndexScreen() {
             <Text style={styles.featureText}>View project timeline and milestones</Text>
           </View>
           <View style={styles.feature}>
-            <Ionicons name="chatbubble-outline" size={20} color=Colors.primary />
+            <Ionicons name="chatbubble-outline" size={20} color={Colors.primary} />
             <Text style={styles.featureText}>Chat with your project team</Text>
           </View>
           <View style={styles.feature}>

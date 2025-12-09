@@ -86,14 +86,14 @@ export default function MilestonesScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Milestones</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push(`/projects/${id}/milestones/create` as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
@@ -127,13 +127,13 @@ export default function MilestonesScreen() {
 
               <View style={styles.milestoneInfo}>
                 <View style={styles.infoRow}>
-                  <Ionicons name="calendar-outline" size={16} color=Colors.textSecondary />
+                  <Ionicons name="calendar-outline" size={16} color={Colors.textSecondary} />
                   <Text style={styles.infoText}>
                     Due: {new Date(milestone.due_date).toLocaleDateString()}
                   </Text>
                 </View>
                 <View style={styles.infoRow}>
-                  <Ionicons name="trending-up-outline" size={16} color=Colors.textSecondary />
+                  <Ionicons name="trending-up-outline" size={16} color={Colors.textSecondary} />
                   <Text style={styles.infoText}>
                     Progress: {milestone.completion_percentage}%
                   </Text>

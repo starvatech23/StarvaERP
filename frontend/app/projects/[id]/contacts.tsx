@@ -224,7 +224,7 @@ export default function ProjectContactsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -234,11 +234,11 @@ export default function ProjectContactsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Project Contacts</Text>
         <TouchableOpacity style={styles.addButton} onPress={() => setShowAddForm(!showAddForm)}>
-          <Ionicons name={showAddForm ? "close" : "add"} size={24} color=Colors.surface />
+          <Ionicons name={showAddForm ? "close" : "add"} size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
@@ -395,8 +395,7 @@ export default function ProjectContactsScreen() {
                 <Ionicons
                   name={formData.is_primary ? "checkbox" : "square-outline"}
                   size={24}
-                  color=Colors.primary
-                />
+                  color={Colors.primary} />
                 <Text style={styles.checkboxLabel}>Set as Primary Contact for this role</Text>
               </TouchableOpacity>
 
@@ -453,8 +452,7 @@ export default function ProjectContactsScreen() {
                   <Ionicons
                     name={isExpanded ? "chevron-up" : "chevron-down"}
                     size={24}
-                    color=Colors.textSecondary
-                  />
+                    color={Colors.textSecondary} />
                 </TouchableOpacity>
 
                 {isExpanded && (
@@ -484,7 +482,7 @@ export default function ProjectContactsScreen() {
                               <TouchableOpacity
                                 onPress={() => startEdit(contact, contacts.indexOf(contact))}
                               >
-                                <Ionicons name="pencil" size={20} color=Colors.primary />
+                                <Ionicons name="pencil" size={20} color={Colors.primary} />
                               </TouchableOpacity>
                               <TouchableOpacity
                                 onPress={() => handleDeleteContact(contacts.indexOf(contact))}
@@ -507,20 +505,20 @@ export default function ProjectContactsScreen() {
                               style={styles.contactRow}
                               onPress={() => handleEmail(contact.email)}
                             >
-                              <Ionicons name="mail" size={18} color=Colors.primary />
+                              <Ionicons name="mail" size={18} color={Colors.primary} />
                               <Text style={styles.contactText}>{contact.email}</Text>
                             </TouchableOpacity>
 
                             {contact.phone_alternate && (
                               <View style={styles.contactRow}>
-                                <Ionicons name="call-outline" size={18} color=Colors.textSecondary />
+                                <Ionicons name="call-outline" size={18} color={Colors.textSecondary} />
                                 <Text style={styles.contactText}>{contact.phone_alternate}</Text>
                               </View>
                             )}
 
                             {contact.working_hours && (
                               <View style={styles.contactRow}>
-                                <Ionicons name="time-outline" size={18} color=Colors.textSecondary />
+                                <Ionicons name="time-outline" size={18} color={Colors.textSecondary} />
                                 <Text style={styles.contactText}>{contact.working_hours}</Text>
                               </View>
                             )}
@@ -537,7 +535,7 @@ export default function ProjectContactsScreen() {
                               style={styles.quickActionButton}
                               onPress={() => handleCall(contact.phone_mobile)}
                             >
-                              <Ionicons name="call" size={16} color=Colors.surface />
+                              <Ionicons name="call" size={16} color={Colors.surface} />
                               <Text style={styles.quickActionText}>Call</Text>
                             </TouchableOpacity>
 
@@ -545,7 +543,7 @@ export default function ProjectContactsScreen() {
                               style={[styles.quickActionButton, { backgroundColor: 'Colors.primary }]}
                               onPress={() => handleEmail(contact.email)}
                             >
-                              <Ionicons name="mail" size={16} color=Colors.surface />
+                              <Ionicons name="mail" size={16} color={Colors.surface} />
                               <Text style={styles.quickActionText}>Email</Text>
                             </TouchableOpacity>
 
@@ -553,7 +551,7 @@ export default function ProjectContactsScreen() {
                               style={[styles.quickActionButton, { backgroundColor: '#25D366' }]}
                               onPress={() => handleWhatsApp(contact.phone_mobile)}
                             >
-                              <Ionicons name="logo-whatsapp" size={16} color=Colors.surface />
+                              <Ionicons name="logo-whatsapp" size={16} color={Colors.surface} />
                               <Text style={styles.quickActionText}>WhatsApp</Text>
                             </TouchableOpacity>
                           </View>

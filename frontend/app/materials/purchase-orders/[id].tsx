@@ -99,11 +99,11 @@ export default function PurchaseOrderDetailScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>PO Details</Text>
         <TouchableOpacity style={styles.iconButton} onPress={showStatusOptions}>
-          <Ionicons name="ellipsis-horizontal" size={24} color=Colors.textPrimary />
+          <Ionicons name="ellipsis-horizontal" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -129,12 +129,12 @@ export default function PurchaseOrderDetailScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Vendor Information</Text>
           <View style={styles.infoRow}>
-            <Ionicons name="business-outline" size={20} color=Colors.textSecondary />
+            <Ionicons name="business-outline" size={20} color={Colors.textSecondary} />
             <Text style={styles.infoText}>{order.vendor_name || 'Unknown Vendor'}</Text>
           </View>
           {order.expected_delivery_date && (
             <View style={styles.infoRow}>
-              <Ionicons name="calendar-outline" size={20} color=Colors.textSecondary />
+              <Ionicons name="calendar-outline" size={20} color={Colors.textSecondary} />
               <Text style={styles.infoText}>
                 Expected Delivery: {new Date(order.expected_delivery_date).toLocaleDateString()}
               </Text>
@@ -182,7 +182,7 @@ export default function PurchaseOrderDetailScreen() {
             style={styles.actionButton}
             onPress={() => handleStatusUpdate('pending')}
           >
-            <Ionicons name="send-outline" size={20} color=Colors.surface />
+            <Ionicons name="send-outline" size={20} color={Colors.surface} />
             <Text style={styles.actionButtonText}>Submit for Approval</Text>
           </TouchableOpacity>
         )}
@@ -192,7 +192,7 @@ export default function PurchaseOrderDetailScreen() {
             style={[styles.actionButton, { backgroundColor: '#10B981' }]}
             onPress={() => handleStatusUpdate('approved')}
           >
-            <Ionicons name="checkmark-circle-outline" size={20} color=Colors.surface />
+            <Ionicons name="checkmark-circle-outline" size={20} color={Colors.surface} />
             <Text style={styles.actionButtonText}>Approve</Text>
           </TouchableOpacity>
         )}
@@ -202,7 +202,7 @@ export default function PurchaseOrderDetailScreen() {
             style={[styles.actionButton, { backgroundColor: '#8B5CF6' }]}
             onPress={() => handleStatusUpdate('ordered')}
           >
-            <Ionicons name="cart-outline" size={20} color=Colors.surface />
+            <Ionicons name="cart-outline" size={20} color={Colors.surface} />
             <Text style={styles.actionButtonText}>Mark as Ordered</Text>
           </TouchableOpacity>
         )}
@@ -212,7 +212,7 @@ export default function PurchaseOrderDetailScreen() {
             style={[styles.actionButton, { backgroundColor: '#10B981' }]}
             onPress={() => handleStatusUpdate('received')}
           >
-            <Ionicons name="checkmark-done-outline" size={20} color=Colors.surface />
+            <Ionicons name="checkmark-done-outline" size={20} color={Colors.surface} />
             <Text style={styles.actionButtonText}>Mark as Received</Text>
           </TouchableOpacity>
         )}

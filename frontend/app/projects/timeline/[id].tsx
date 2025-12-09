@@ -94,7 +94,7 @@ export default function ProjectTimelineScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -112,7 +112,7 @@ export default function ProjectTimelineScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Project Timeline</Text>
         <View style={styles.placeholder} />
@@ -127,14 +127,14 @@ export default function ProjectTimelineScreen() {
           {project.start_date && project.end_date && (
             <View style={styles.dateRange}>
               <View style={styles.dateItem}>
-                <Ionicons name="calendar-outline" size={16} color=Colors.textSecondary />
+                <Ionicons name="calendar-outline" size={16} color={Colors.textSecondary} />
                 <Text style={styles.dateLabel}>Start:</Text>
                 <Text style={styles.dateValue}>
                   {moment(project.start_date).format('MMM DD, YYYY')}
                 </Text>
               </View>
               <View style={styles.dateItem}>
-                <Ionicons name="calendar" size={16} color=Colors.textSecondary />
+                <Ionicons name="calendar" size={16} color={Colors.textSecondary} />
                 <Text style={styles.dateLabel}>End:</Text>
                 <Text style={styles.dateValue}>
                   {moment(project.end_date).format('MMM DD, YYYY')}
@@ -159,7 +159,7 @@ export default function ProjectTimelineScreen() {
             
             <View style={styles.statCard}>
               <View style={[styles.statIcon, { backgroundColor: '#EFF6FF' }]}>
-                <Ionicons name="sync-circle" size={24} color=Colors.primary />
+                <Ionicons name="sync-circle" size={24} color={Colors.primary} />
               </View>
               <Text style={styles.statValue}>{stats.inProgress}</Text>
               <Text style={styles.statLabel}>In Progress</Text>
@@ -270,7 +270,7 @@ export default function ProjectTimelineScreen() {
                   </View>
                   {task.due_date && (
                     <View style={styles.taskMeta}>
-                      <Ionicons name="calendar-outline" size={14} color=Colors.textSecondary />
+                      <Ionicons name="calendar-outline" size={14} color={Colors.textSecondary} />
                       <Text style={styles.taskMetaText}>
                         Due: {moment(task.due_date).format('MMM DD, YYYY')}
                       </Text>
@@ -278,7 +278,7 @@ export default function ProjectTimelineScreen() {
                   )}
                   {task.assigned_users && task.assigned_users.length > 0 && (
                     <View style={styles.taskMeta}>
-                      <Ionicons name="people-outline" size={14} color=Colors.textSecondary />
+                      <Ionicons name="people-outline" size={14} color={Colors.textSecondary} />
                       <Text style={styles.taskMetaText}>
                         {task.assigned_users.map((u: any) => u.name).join(', ')}
                       </Text>

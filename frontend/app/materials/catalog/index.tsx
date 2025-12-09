@@ -94,20 +94,20 @@ export default function MaterialCatalogScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Material Catalog</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/materials/catalog/add' as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
       {/* Search */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color=Colors.textSecondary />
+        <Ionicons name="search" size={20} color={Colors.textSecondary} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search materials..."

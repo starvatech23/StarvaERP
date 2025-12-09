@@ -68,7 +68,7 @@ export default function VendorsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -78,20 +78,20 @@ export default function VendorsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Vendors</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/materials/vendors/add' as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
       {/* Search */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color=Colors.textSecondary />
+        <Ionicons name="search" size={20} color={Colors.textSecondary} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search vendors..."
@@ -125,7 +125,7 @@ export default function VendorsScreen() {
             <View key={vendor.id} style={styles.vendorCard}>
               <View style={styles.vendorHeader}>
                 <View style={styles.vendorIcon}>
-                  <Ionicons name="business" size={24} color=Colors.primary />
+                  <Ionicons name="business" size={24} color={Colors.primary} />
                 </View>
                 <View style={styles.vendorInfo}>
                   <Text style={styles.vendorName}>{vendor.business_name}</Text>
@@ -141,19 +141,19 @@ export default function VendorsScreen() {
               <View style={styles.vendorDetails}>
                 {vendor.phone && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="call" size={16} color=Colors.textSecondary />
+                    <Ionicons name="call" size={16} color={Colors.textSecondary} />
                     <Text style={styles.detailText}>{vendor.phone}</Text>
                   </View>
                 )}
                 {vendor.email && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="mail" size={16} color=Colors.textSecondary />
+                    <Ionicons name="mail" size={16} color={Colors.textSecondary} />
                     <Text style={styles.detailText}>{vendor.email}</Text>
                   </View>
                 )}
                 {vendor.address && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="location" size={16} color=Colors.textSecondary />
+                    <Ionicons name="location" size={16} color={Colors.textSecondary} />
                     <Text style={styles.detailText}>{vendor.address}</Text>
                   </View>
                 )}

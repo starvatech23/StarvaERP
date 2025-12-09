@@ -67,7 +67,7 @@ export default function VendorDetailsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -81,7 +81,7 @@ export default function VendorDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Vendor Details</Text>
         <View style={{ width: 40 }} />
@@ -90,7 +90,7 @@ export default function VendorDetailsScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
           <View style={styles.iconContainer}>
-            <Ionicons name="business" size={48} color=Colors.secondary />
+            <Ionicons name="business" size={48} color={Colors.secondary} />
           </View>
           <Text style={styles.companyName}>{vendor.company_name}</Text>
           <Text style={styles.contactPerson}>{vendor.contact_person}</Text>
@@ -100,20 +100,20 @@ export default function VendorDetailsScreen() {
           <Text style={styles.cardTitle}>Contact Information</Text>
           
           <View style={styles.infoRow}>
-            <Ionicons name="call" size={18} color=Colors.textSecondary />
+            <Ionicons name="call" size={18} color={Colors.textSecondary} />
             <Text style={styles.infoText}>{vendor.phone}</Text>
           </View>
 
           {vendor.email && (
             <View style={styles.infoRow}>
-              <Ionicons name="mail" size={18} color=Colors.textSecondary />
+              <Ionicons name="mail" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>{vendor.email}</Text>
             </View>
           )}
 
           {vendor.address && (
             <View style={styles.infoRow}>
-              <Ionicons name="location" size={18} color=Colors.textSecondary />
+              <Ionicons name="location" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>{vendor.address}</Text>
             </View>
           )}
@@ -125,7 +125,7 @@ export default function VendorDetailsScreen() {
             
             {vendor.payment_terms && (
               <View style={styles.infoRow}>
-                <Ionicons name="cash" size={18} color=Colors.textSecondary />
+                <Ionicons name="cash" size={18} color={Colors.textSecondary} />
                 <Text style={styles.infoText}>{vendor.payment_terms}</Text>
               </View>
             )}

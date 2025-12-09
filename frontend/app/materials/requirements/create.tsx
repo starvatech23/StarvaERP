@@ -98,7 +98,7 @@ export default function CreateMaterialRequirementScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Material Requirement</Text>
         <View style={{ width: 40 }} />
@@ -139,11 +139,11 @@ export default function CreateMaterialRequirementScreen() {
                   <Text style={styles.infoText}>{selectedMaterial.name}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                  <Ionicons name="pricetag-outline" size={20} color=Colors.textSecondary />
+                  <Ionicons name="pricetag-outline" size={20} color={Colors.textSecondary} />
                   <Text style={styles.infoText}>Category: {selectedMaterial.category}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                  <Ionicons name="resize-outline" size={20} color=Colors.textSecondary />
+                  <Ionicons name="resize-outline" size={20} color={Colors.textSecondary} />
                   <Text style={styles.infoText}>Unit: {selectedMaterial.unit}</Text>
                 </View>
                 {selectedMaterial.minimum_stock && (
@@ -233,7 +233,7 @@ export default function CreateMaterialRequirementScreen() {
             onPress={handleSubmit}
             disabled={loading}
           >
-            <Ionicons name="checkmark-circle-outline" size={20} color=Colors.surface />
+            <Ionicons name="checkmark-circle-outline" size={20} color={Colors.surface} />
             <Text style={styles.submitButtonText}>
               {loading ? 'Creating...' : 'Create Requirement'}
             </Text>

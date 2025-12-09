@@ -92,7 +92,7 @@ export default function FunnelsScreen() {
       <SafeAreaView style={styles.container}>
         <BackToHome />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -111,7 +111,7 @@ export default function FunnelsScreen() {
           style={styles.addButton}
           onPress={() => router.push('/crm/admin/create-funnel' as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
@@ -142,7 +142,7 @@ export default function FunnelsScreen() {
                   )}
                   {funnel.category_names && funnel.category_names.length > 0 && (
                     <View style={styles.categoriesRow}>
-                      <Ionicons name="pricetags" size={14} color=Colors.textSecondary />
+                      <Ionicons name="pricetags" size={14} color={Colors.textSecondary} />
                       <Text style={styles.categoriesText}>
                         {funnel.category_names.join(', ')}
                       </Text>
@@ -153,7 +153,7 @@ export default function FunnelsScreen() {
 
               <View style={styles.statsRow}>
                 <View style={styles.statItem}>
-                  <Ionicons name="people" size={20} color=Colors.primary />
+                  <Ionicons name="people" size={20} color={Colors.primary} />
                   <Text style={styles.statValue}>{funnel.lead_count}</Text>
                   <Text style={styles.statLabel}>Leads</Text>
                 </View>
@@ -194,7 +194,7 @@ export default function FunnelsScreen() {
                   style={[styles.actionButton, { backgroundColor: Colors.primary20 }]}
                   onPress={() => handleClone(funnel)}
                 >
-                  <Ionicons name="copy" size={16} color=Colors.primary />
+                  <Ionicons name="copy" size={16} color={Colors.primary} />
                   <Text style={[styles.actionButtonText, { color: 'Colors.primary }]}>Clone</Text>
                 </TouchableOpacity>
                 <TouchableOpacity

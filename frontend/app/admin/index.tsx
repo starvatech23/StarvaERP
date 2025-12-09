@@ -115,7 +115,7 @@ export default function AdminDashboard() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Admin Dashboard</Text>
         <View style={{ width: 40 }} />
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
       <ScrollView style={styles.content}>
         {/* Welcome Section */}
         <View style={styles.welcomeCard}>
-          <Ionicons name="shield-checkmark-outline" size={48} color=Colors.secondary />
+          <Ionicons name="shield-checkmark-outline" size={48} color={Colors.secondary} />
           <Text style={styles.welcomeTitle}>Admin Control Panel</Text>
           <Text style={styles.welcomeText}>
             Manage users, roles, permissions, and system settings
@@ -189,7 +189,7 @@ export default function AdminDashboard() {
 
         {/* Info Card */}
         <View style={styles.infoCard}>
-          <Ionicons name="information-circle" size={24} color=Colors.primary />
+          <Ionicons name="information-circle" size={24} color={Colors.primary} />
           <View style={styles.infoTextContainer}>
             <Text style={styles.infoTitle}>Admin Limit</Text>
             <Text style={styles.infoText}>

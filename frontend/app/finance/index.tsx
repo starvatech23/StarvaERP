@@ -82,7 +82,7 @@ export default function FinanceMainScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.push('/(tabs)' as any)}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Financial Management</Text>
         <View style={{ width: 40 }} />
@@ -134,7 +134,7 @@ export default function FinanceMainScreen() {
             onPress={() => router.push('/finance/reports' as any)}
           >
             <View style={[styles.moduleIcon, { backgroundColor: Colors.primary20 }]}>
-              <Ionicons name="bar-chart" size={28} color=Colors.primary />
+              <Ionicons name="bar-chart" size={28} color={Colors.primary} />
             </View>
             <View style={styles.moduleInfo}>
               <Text style={styles.moduleTitle}>Financial Reports</Text>

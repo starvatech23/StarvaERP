@@ -59,7 +59,7 @@ export default function CRMSettingsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -69,7 +69,7 @@ export default function CRMSettingsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>CRM Settings</Text>
         <View style={{ width: 40 }} />
@@ -134,7 +134,7 @@ export default function CRMSettingsScreen() {
           
           <View style={styles.switchCard}>
             <View style={styles.switchLeft}>
-              <Ionicons name="call" size={24} color=Colors.primary />
+              <Ionicons name="call" size={24} color={Colors.primary} />
               <Text style={styles.switchLabel}>Enable Telephony</Text>
             </View>
             <Switch
@@ -223,7 +223,7 @@ export default function CRMSettingsScreen() {
           disabled={saving}
         >
           {saving ? (
-            <ActivityIndicator color=Colors.surface />
+            <ActivityIndicator color={Colors.surface} />
           ) : (
             <Text style={styles.saveButtonText}>Save Settings</Text>
           )}

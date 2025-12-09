@@ -99,7 +99,7 @@ export default function PendingUsersScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -110,7 +110,7 @@ export default function PendingUsersScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Pending Approvals</Text>
         <View style={{ width: 40 }} />
@@ -139,7 +139,7 @@ export default function PendingUsersScreen() {
                 {/* User Info */}
                 <View style={styles.userHeader}>
                   <View style={styles.avatarContainer}>
-                    <Ionicons name="person" size={24} color=Colors.secondary />
+                    <Ionicons name="person" size={24} color={Colors.secondary} />
                   </View>
                   <View style={styles.userInfo}>
                     <Text style={styles.userName}>{user.full_name}</Text>
@@ -152,13 +152,13 @@ export default function PendingUsersScreen() {
                 {/* User Details */}
                 {user.address && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="location" size={16} color=Colors.textSecondary />
+                    <Ionicons name="location" size={16} color={Colors.textSecondary} />
                     <Text style={styles.detailText}>{user.address}</Text>
                   </View>
                 )}
 
                 <View style={styles.detailRow}>
-                  <Ionicons name="calendar" size={16} color=Colors.textSecondary />
+                  <Ionicons name="calendar" size={16} color={Colors.textSecondary} />
                   <Text style={styles.detailText}>
                     Requested: {new Date(user.date_joined).toLocaleDateString()}
                   </Text>
@@ -176,14 +176,13 @@ export default function PendingUsersScreen() {
                       style={styles.picker}
                       dropdownIconColor=Colors.textPrimary
                     >
-                      <Picker.Item label="Select a role" value="" color=Colors.textSecondary />
+                      <Picker.Item label="Select a role" value="" color={Colors.textSecondary} />
                       {roles.map((role: any) => (
                         <Picker.Item
                           key={role.id}
                           label={role.name}
                           value={role.id}
-                          color=Colors.textPrimary
-                        />
+                          color={Colors.textPrimary} />
                       ))}
                     </Picker>
                   </View>
@@ -203,7 +202,7 @@ export default function PendingUsersScreen() {
                     style={styles.approveButton}
                     onPress={() => handleApprove(user.id)}
                   >
-                    <Ionicons name="checkmark-circle" size={20} color=Colors.surface />
+                    <Ionicons name="checkmark-circle" size={20} color={Colors.surface} />
                     <Text style={styles.approveButtonText}>Approve</Text>
                   </TouchableOpacity>
                 </View>

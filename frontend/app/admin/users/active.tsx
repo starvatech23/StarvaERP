@@ -69,7 +69,7 @@ export default function ActiveUsersScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -80,7 +80,7 @@ export default function ActiveUsersScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Active Users</Text>
         <View style={{ width: 40 }} />
@@ -112,7 +112,7 @@ export default function ActiveUsersScreen() {
                   {/* User Header */}
                   <View style={styles.userHeader}>
                     <View style={styles.avatarContainer}>
-                      <Ionicons name="person" size={24} color=Colors.primary />
+                      <Ionicons name="person" size={24} color={Colors.primary} />
                     </View>
                     <View style={styles.userInfo}>
                       <Text style={styles.userName}>{user.full_name}</Text>
@@ -130,14 +130,14 @@ export default function ActiveUsersScreen() {
                   <View style={styles.contactSection}>
                     {user.email && (
                       <View style={styles.contactRow}>
-                        <Ionicons name="mail" size={16} color=Colors.textSecondary />
+                        <Ionicons name="mail" size={16} color={Colors.textSecondary} />
                         <Text style={styles.contactText}>{user.email}</Text>
                       </View>
                     )}
                     
                     {user.phone && (
                       <View style={styles.contactRow}>
-                        <Ionicons name="call" size={16} color=Colors.textSecondary />
+                        <Ionicons name="call" size={16} color={Colors.textSecondary} />
                         <Text style={styles.contactText}>{user.phone}</Text>
                         <TouchableOpacity
                           style={styles.callButton}
@@ -150,7 +150,7 @@ export default function ActiveUsersScreen() {
 
                     {user.address && (
                       <View style={styles.contactRow}>
-                        <Ionicons name="location" size={16} color=Colors.textSecondary />
+                        <Ionicons name="location" size={16} color={Colors.textSecondary} />
                         <Text style={styles.contactText} numberOfLines={2}>
                           {user.address}
                         </Text>

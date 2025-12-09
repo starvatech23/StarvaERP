@@ -106,7 +106,7 @@ export default function RegisterEmailScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
 
           <Text style={styles.title}>Create Account</Text>
@@ -184,13 +184,13 @@ export default function RegisterEmailScreen() {
                 <Picker.Item label="Select your role..." value="" color="#9CA3AF" />
                 {availableRoles.length > 0 ? (
                   availableRoles.map((r: any) => (
-                    <Picker.Item key={r.id} label={r.name} value={r.id} color=Colors.textPrimary />
+                    <Picker.Item key={r.id} label={r.name} value={r.id} color={Colors.textPrimary} />
                   ))
                 ) : (
                   <>
-                    <Picker.Item label="Worker" value="worker" color=Colors.textPrimary />
-                    <Picker.Item label="Engineer" value="engineer" color=Colors.textPrimary />
-                    <Picker.Item label="Project Manager" value="project_manager" color=Colors.textPrimary />
+                    <Picker.Item label="Worker" value="worker" color={Colors.textPrimary} />
+                    <Picker.Item label="Engineer" value="engineer" color={Colors.textPrimary} />
+                    <Picker.Item label="Project Manager" value="project_manager" color={Colors.textPrimary} />
                   </>
                 )}
               </Picker>
@@ -198,7 +198,7 @@ export default function RegisterEmailScreen() {
 
             {/* Approval Notice */}
             <View style={styles.infoCard}>
-              <Ionicons name="information-circle" size={20} color=Colors.primary />
+              <Ionicons name="information-circle" size={20} color={Colors.primary} />
               <Text style={styles.infoText}>
                 Your account will be reviewed by an admin. You'll have limited access until approved.
               </Text>
@@ -225,8 +225,7 @@ export default function RegisterEmailScreen() {
                 <Ionicons
                   name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                   size={20}
-                  color=Colors.textSecondary
-                />
+                  color={Colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -251,8 +250,7 @@ export default function RegisterEmailScreen() {
                 <Ionicons
                   name={showConfirmPassword ? 'eye-outline' : 'eye-off-outline'}
                   size={20}
-                  color=Colors.textSecondary
-                />
+                  color={Colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -262,7 +260,7 @@ export default function RegisterEmailScreen() {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color=Colors.surface />
+                <ActivityIndicator color={Colors.surface} />
               ) : (
                 <Text style={styles.registerButtonText}>Create Account</Text>
               )}

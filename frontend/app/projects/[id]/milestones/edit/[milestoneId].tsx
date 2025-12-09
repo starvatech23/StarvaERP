@@ -96,7 +96,7 @@ export default function EditMilestoneScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit Milestone</Text>
           <View style={{ width: 40 }} />
@@ -127,7 +127,7 @@ export default function EditMilestoneScreen() {
               style={styles.dateButton}
               onPress={() => setShowDatePicker(true)}
             >
-              <Ionicons name="calendar-outline" size={20} color=Colors.textSecondary />
+              <Ionicons name="calendar-outline" size={20} color={Colors.textSecondary} />
               <Text style={styles.dateText}>{dueDate.toLocaleDateString()}</Text>
             </TouchableOpacity>
 
@@ -172,7 +172,7 @@ export default function EditMilestoneScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <Text style={styles.updateButtonText}>Update Milestone</Text>
             )}

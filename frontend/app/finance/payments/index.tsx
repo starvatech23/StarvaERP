@@ -67,7 +67,7 @@ export default function PaymentsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -77,14 +77,14 @@ export default function PaymentsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Payments</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/finance/payments/create' as any)}
         >
-          <Ionicons name="add" size={24} color=Colors.surface />
+          <Ionicons name="add" size={24} color={Colors.surface} />
         </TouchableOpacity>
       </View>
 
@@ -150,25 +150,25 @@ export default function PaymentsScreen() {
               <View style={styles.paymentDetails}>
                 {payment.invoice_number && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="document-text-outline" size={16} color=Colors.textSecondary />
+                    <Ionicons name="document-text-outline" size={16} color={Colors.textSecondary} />
                     <Text style={styles.detailText}>Invoice: {payment.invoice_number}</Text>
                   </View>
                 )}
                 <View style={styles.detailRow}>
-                  <Ionicons name="calendar-outline" size={16} color=Colors.textSecondary />
+                  <Ionicons name="calendar-outline" size={16} color={Colors.textSecondary} />
                   <Text style={styles.detailText}>
                     {new Date(payment.payment_date).toLocaleDateString()}
                   </Text>
                 </View>
                 {payment.reference_number && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="pricetag-outline" size={16} color=Colors.textSecondary />
+                    <Ionicons name="pricetag-outline" size={16} color={Colors.textSecondary} />
                     <Text style={styles.detailText}>Ref: {payment.reference_number}</Text>
                   </View>
                 )}
                 {payment.notes && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="create-outline" size={16} color=Colors.textSecondary />
+                    <Ionicons name="create-outline" size={16} color={Colors.textSecondary} />
                     <Text style={styles.detailText} numberOfLines={2}>
                       {payment.notes}
                     </Text>

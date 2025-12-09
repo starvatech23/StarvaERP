@@ -56,7 +56,7 @@ export default function CreateTeamScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Create Team</Text>
           <View style={{ width: 40 }} />
@@ -106,10 +106,10 @@ export default function CreateTeamScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color=Colors.surface />
+              <ActivityIndicator color={Colors.surface} />
             ) : (
               <>
-                <Ionicons name="checkmark-circle" size={20} color=Colors.surface />
+                <Ionicons name="checkmark-circle" size={20} color={Colors.surface} />
                 <Text style={styles.createButtonText}>Create Team</Text>
               </>
             )}

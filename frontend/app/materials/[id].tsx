@@ -68,7 +68,7 @@ export default function MaterialDetailsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.secondary />
+          <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -82,7 +82,7 @@ export default function MaterialDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Material Details</Text>
         <View style={{ width: 40 }} />
@@ -106,7 +106,7 @@ export default function MaterialDetailsScreen() {
           
           {material.unit_price && (
             <View style={styles.infoRow}>
-              <Ionicons name="cash" size={18} color=Colors.textSecondary />
+              <Ionicons name="cash" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>
                 ${material.unit_price}/{material.unit}
               </Text>
@@ -115,21 +115,21 @@ export default function MaterialDetailsScreen() {
 
           {material.vendor_name && (
             <View style={styles.infoRow}>
-              <Ionicons name="business" size={18} color=Colors.textSecondary />
+              <Ionicons name="business" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>Vendor: {material.vendor_name}</Text>
             </View>
           )}
 
           {material.project_name && (
             <View style={styles.infoRow}>
-              <Ionicons name="location" size={18} color=Colors.textSecondary />
+              <Ionicons name="location" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>Project: {material.project_name}</Text>
             </View>
           )}
 
           {material.location && (
             <View style={styles.infoRow}>
-              <Ionicons name="map" size={18} color=Colors.textSecondary />
+              <Ionicons name="map" size={18} color={Colors.textSecondary} />
               <Text style={styles.infoText}>Location: {material.location}</Text>
             </View>
           )}

@@ -150,7 +150,7 @@ export default function AnalyticsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color=Colors.primary />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -160,11 +160,11 @@ export default function AnalyticsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color=Colors.textPrimary />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Analytics & Insights</Text>
         <TouchableOpacity style={styles.exportButton} onPress={() => {}}>
-          <Ionicons name="download-outline" size={24} color=Colors.primary />
+          <Ionicons name="download-outline" size={24} color={Colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -197,7 +197,7 @@ export default function AnalyticsScreen() {
           <Text style={styles.sectionTitle}>Key Metrics</Text>
           <View style={styles.metricsGrid}>
             <View style={[styles.metricCard, { backgroundColor: '#EFF6FF' }]}>
-              <Ionicons name="briefcase" size={28} color=Colors.primary />
+              <Ionicons name="briefcase" size={28} color={Colors.primary} />
               <Text style={styles.metricValue}>{stats.projects?.active}</Text>
               <Text style={styles.metricLabel}>Active Projects</Text>
             </View>

@@ -59,7 +59,7 @@ export default function AdminPanelScreen() {
 
       <ScrollView style={styles.content}>
         <View style={styles.infoCard}>
-          <Ionicons name="information-circle" size={24} color=Colors.primary />
+          <Ionicons name="information-circle" size={24} color={Colors.primary} />
           <Text style={styles.infoText}>
             Admin-only area for CRM configuration. Changes here affect all users.
           </Text>
