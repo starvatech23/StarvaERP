@@ -7302,7 +7302,8 @@ async def get_dashboard_stats(credentials: HTTPAuthorizationCredentials = Depend
                 {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
             ]
             expenses_result = await db.expenses.aggregate(expenses_pipeline).to_list(1)
-            month_expenses = expenses_result[0]["total"] if expenses_result else 0
+            month_expenses = expenses_result[0].get("total", 0) if expenses_result else 0
+            month_expenses = month_expenses or 0  # Handle None
             
             # Total payments this month
             payments_pipeline = [
@@ -7310,7 +7311,8 @@ async def get_dashboard_stats(credentials: HTTPAuthorizationCredentials = Depend
                 {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
             ]
             payments_result = await db.payments.aggregate(payments_pipeline).to_list(1)
-            month_payments = payments_result[0]["total"] if payments_result else 0
+            month_payments = payments_result[0].get("total", 0) if payments_result else 0
+            month_payments = month_payments or 0  # Handle None
             
             # Total invoices
             total_invoices = await db.invoices.count_documents({})
