@@ -34,20 +34,27 @@ class EstimationEngine:
         num_floors = estimate_input.num_floors
         floor_height = estimate_input.floor_to_floor_height
         
-        # Calculate building footprint (assume rectangular)
-        # For simplicity, assume square building, adjust perimeter for rectangular
-        footprint_sqft = area_sqft / num_floors
-        footprint_sqm = footprint_sqft * 0.0929
+        # CRITICAL: Built-up area is the FOOTPRINT (area of ONE floor)
+        # This is the primary area for all calculations
+        # Number of floors only affects repetition of elements, not the base area
+        footprint_sqft = area_sqft  # Built-up area IS the footprint
+        footprint_sqm = area_sqm
         
+        # Calculate building dimensions
         # Assume aspect ratio 1.5:1 for rectangular building
         length_m = math.sqrt(footprint_sqm * 1.5)
         width_m = length_m / 1.5
         perimeter_m = 2 * (length_m + width_m)
         
+        # Document assumptions clearly
+        assumptions["built_up_area_sqft"] = round(area_sqft, 2)
+        assumptions["built_up_area_interpretation"] = "Footprint area (area of ONE floor)"
         assumptions["building_footprint_sqm"] = round(footprint_sqm, 2)
         assumptions["building_length_m"] = round(length_m, 2)
         assumptions["building_width_m"] = round(width_m, 2)
         assumptions["perimeter_m"] = round(perimeter_m, 2)
+        assumptions["num_floors"] = num_floors
+        assumptions["floor_to_floor_height_ft"] = floor_height
         
         # ========== EXCAVATION & FOUNDATION ==========
         foundation_lines = self._calculate_foundation(
