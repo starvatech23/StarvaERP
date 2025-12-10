@@ -37,13 +37,15 @@ PM_CREDENTIALS = {
     "auth_type": "email"
 }
 
-class EstimationAPITester:
+class EstimationTester:
     def __init__(self):
         self.session = requests.Session()
-        self.admin_token = None
-        self.pm_token = None
+        self.token = None
+        self.user_id = None
         self.test_project_id = None
         self.test_estimate_id = None
+        self.test_line_id = None
+        self.results = []
         
     def login(self, credentials, user_type="admin"):
         """Login and get access token"""
