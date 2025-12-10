@@ -468,7 +468,7 @@ export const estimationAPI = {
   delete: (estimateId: string) => api.delete(`/estimates/${estimateId}`),
   getMaterialPresets: () => api.get('/material-presets'),
   getRateTables: (location?: string) => api.get('/rate-tables', { params: { location } }),
-  exportCSV: (estimateId: string) => api.get(`/estimates/${estimateId}/export/csv`, { responseType: 'blob' }),
-  exportPDF: (estimateId: string) => api.get(`/estimates/${estimateId}/export/pdf`, { responseType: 'blob' }),
+  exportCSV: (estimateId: string) => api.get(`/estimates/${estimateId}/export/csv`, { responseType: 'text' }),
+  exportPDF: (estimateId: string) => api.get(`/estimates/${estimateId}/export/pdf`, { responseType: 'text' }),
 };
 
