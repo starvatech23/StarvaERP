@@ -633,8 +633,8 @@ async def update_project(
     """Update a project"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
-        raise HTTPException(status_code=403, detail="Only admins and project managers can update projects")
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.CRM_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins, project managers, and CRM managers can update projects")
     
     existing = await db.projects.find_one({"_id": ObjectId(project_id)})
     if not existing:
