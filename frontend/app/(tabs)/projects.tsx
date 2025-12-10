@@ -238,6 +238,30 @@ export default function ProjectsScreen() {
                     </Text>
                   </View>
 
+                  {/* Quick Actions */}
+                  <View style={styles.actionButtons}>
+                    <TouchableOpacity
+                      style={styles.actionButtonSmall}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        router.push(`/projects/${project.id}/estimate/create` as any);
+                      }}
+                    >
+                      <Ionicons name="calculator" size={16} color={Colors.primary} />
+                      <Text style={styles.actionButtonText}>Estimate</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.actionButtonSmall}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        router.push(`/projects/${project.id}` as any);
+                      }}
+                    >
+                      <Ionicons name="eye" size={16} color={Colors.primary} />
+                      <Text style={styles.actionButtonText}>View Details</Text>
+                    </TouchableOpacity>
+                  </View>
+
                   {/* Client Portal Link - Only show for confirmed projects */}
                   {project.client_portal_link && typeof project.client_portal_link === 'string' && project.client_portal_link.trim() && (
                     <View style={styles.clientLinkSection}>
