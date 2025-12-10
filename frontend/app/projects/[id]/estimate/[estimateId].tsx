@@ -115,67 +115,68 @@ export default function EstimateDetailScreen() {
   };
 
   const handleExport = async (format: 'csv' | 'pdf') => {
-    try {
-      setSaving(true);
-      
-      // Show format selection if needed
-      const formatName = format === 'csv' ? 'CSV' : 'PDF';
-      
-      Alert.alert(
-        `Export ${formatName}`,
-        `This will download the estimate as a ${formatName} file.`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Export', 
-            onPress: async () => {
-              try {
-                // Call export API
-                const response = format === 'csv' 
-                  ? await estimationAPI.exportCSV(estimateId as string)
-                  : await estimationAPI.exportPDF(estimateId as string);
-                
-                // Get the blob data
-                const blob = response.data;
-                
-                // Convert blob to base64
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = async () => {
-                  const base64data = reader.result as string;
-                  const base64 = base64data.split(',')[1];
-                  
-                  // Create filename
-                  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                  const extension = format === 'csv' ? 'csv' : 'html';
-                  const filename = `estimate_${timestamp}.${extension}`;
-                  
-                  // Save file
-                  const fileUri = FileSystem.documentDirectory + filename;
-                  await FileSystem.writeAsStringAsync(fileUri, base64, {
-                    encoding: FileSystem.EncodingType.Base64,
-                  });
-                  
-                  // Share file
-                  if (await Sharing.isAvailableAsync()) {
-                    await Sharing.shareAsync(fileUri, {
-                      mimeType: format === 'csv' ? 'text/csv' : 'text/html',
-                      dialogTitle: `Export Estimate as ${formatName}`,
-                    });
-                  } else {
-                    Alert.alert('Success', `File saved to: ${fileUri}`);
-                  }
-                };
-              } catch (error: any) {
-                Alert.alert('Error', error.response?.data?.detail || `Failed to export ${formatName}`);
+    const formatName = format === 'csv' ? 'CSV' : 'PDF';
+    
+    Alert.alert(
+      `Export ${formatName}`,
+      `This will download the estimate as a ${formatName} file.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Export', 
+          onPress: async () => {
+            setSaving(true);
+            try {
+              console.log(`Starting ${formatName} export...`);
+              
+              // Call export API - response will be text data (CSV or HTML)
+              const response = format === 'csv' 
+                ? await estimationAPI.exportCSV(estimateId as string)
+                : await estimationAPI.exportPDF(estimateId as string);
+              
+              console.log('Export response received:', response.data?.length, 'bytes');
+              
+              // Get the text content directly
+              const content = response.data;
+              
+              if (!content) {
+                throw new Error('No data received from server');
               }
+              
+              // Create filename
+              const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+              const extension = format === 'csv' ? 'csv' : 'html';
+              const filename = `estimate_${timestamp}.${extension}`;
+              
+              // Save file directly (text content, not base64)
+              const fileUri = FileSystem.documentDirectory + filename;
+              await FileSystem.writeAsStringAsync(fileUri, content, {
+                encoding: FileSystem.EncodingType.UTF8,
+              });
+              
+              console.log('File saved to:', fileUri);
+              
+              // Share file
+              if (await Sharing.isAvailableAsync()) {
+                await Sharing.shareAsync(fileUri, {
+                  mimeType: format === 'csv' ? 'text/csv' : 'text/html',
+                  dialogTitle: `Export Estimate as ${formatName}`,
+                });
+                console.log('Share dialog opened');
+              } else {
+                Alert.alert('Success', `File saved to: ${fileUri}`);
+              }
+            } catch (error: any) {
+              console.error('Export error:', error);
+              const errorMsg = error.response?.data?.detail || error.message || `Failed to export ${formatName}`;
+              Alert.alert('Export Error', errorMsg);
+            } finally {
+              setSaving(false);
             }
           }
-        ]
-      );
-    } finally {
-      setSaving(false);
-    }
+        }
+      ]
+    );
   };
 
   if (loading) {
