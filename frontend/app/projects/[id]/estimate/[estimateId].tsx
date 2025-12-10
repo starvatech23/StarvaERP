@@ -278,7 +278,7 @@ export default function EstimateDetailScreen() {
                             <Text style={styles.formulaText}>{line.formula_used}</Text>
                           </View>
                         )}
-                      </View>
+                      </TouchableOpacity>
                     ))}
                   </View>
                 )}
