@@ -454,6 +454,18 @@ backend:
         agent: "testing"
         comment: "✅ ALL BUDGETING & ESTIMATION APIS WORKING PERFECTLY! Comprehensive testing completed with 100% success rate (5/5 tests passed). VERIFIED FEATURES: (1) POST /api/estimates - ✅ CRITICAL ENDPOINT WORKING: Successfully created estimate with realistic BOQ (17 line items), Grand Total: ₹4,562,097.84, Cost per sqft: ₹2,281.05. All required fields present: grand_total, cost_per_sqft, lines array with item_name, quantity, rate, amount, formula_used. (2) GET /api/estimates/{id} - ✅ Successfully retrieved full estimate with all BOQ lines and project details. (3) GET /api/projects/{project_id}/estimates - ✅ Successfully listed project estimates with version numbers and summary data. (4) GET /api/material-presets - ✅ Successfully returned empty array (expected initially). (5) GET /api/rate-tables - ✅ Successfully returned empty array (expected initially). TECHNICAL FIXES APPLIED: Fixed missing model imports (EstimateResponse, EstimateSummary, MaterialPresetResponse, RateTableResponse), corrected router inclusion order to ensure estimation endpoints are registered after definition. All estimation calculations producing reasonable costs with proper BOQ structure. Authentication working correctly (Admin access verified). Ready for frontend integration and Phase 2 implementation."
 
+  - task: "Budgeting & Estimation - Edit & Export Features"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py, /app/frontend/app/projects/[id]/estimate/[estimateId].tsx, /app/frontend/services/api.ts, /app/frontend/components/EstimateLineEditModal.tsx"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRITICAL FEATURES IMPLEMENTED: Completed Edit and Export functionality for Budgeting & Estimation module. BACKEND CHANGES: (1) Added CSV export endpoint GET /api/estimates/{estimate_id}/export/csv - exports full BOQ with project details, cost summary, and categorized line items to CSV format. (2) Added PDF export endpoint GET /api/estimates/{estimate_id}/export/pdf - exports estimate to HTML format (PDF-ready) with professional styling including header info, cost summary table, and detailed BOQ by category. (3) Added imports for csv, io, StreamingResponse modules. Both export endpoints require authentication and return files with proper Content-Disposition headers for download. FRONTEND CHANGES: (1) Completed EstimateLineEditModal integration in estimate detail screen - modal now renders when user taps on a line item. (2) Added handleSaveEdit function to process line item updates via estimationAPI.updateLine and reload estimate data. (3) Implemented handleExport function with FileSystem and Sharing support for both CSV and PDF formats. (4) Updated footer UI with separate CSV and PDF export buttons alongside Edit Estimate button. (5) Added imports for Linking, FileSystem, Sharing modules. (6) Added new styles: exportButtonsContainer, exportButton, exportButtonText for the export UI. Export functionality includes confirmation dialog, blob to base64 conversion, file saving to device, and native sharing interface. Edit modal allows quantity and rate override with real-time amount calculation, validation, and user-edited flag marking. Both features ready for backend and frontend testing."
+
 frontend:
   - task: "Invoice Create Screen"
     implemented: true
