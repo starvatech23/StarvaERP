@@ -265,20 +265,22 @@ class EstimationEngine:
         ))
         
         # 3. Slabs
-        slab_volume = area_sqm * num_floors * slab_thickness_m * (1 + self.material_preset.concrete_wastage)
-        slab_steel = slab_volume * self.material_preset.steel_kg_per_cum_slab * (1 + self.material_preset.steel_wastage)
+        # CORRECTED: Calculate slab volume per floor, then multiply by number of slabs
+        slab_volume_per_floor = area_sqm * slab_thickness_m
+        total_slab_volume = slab_volume_per_floor * num_floors * (1 + self.material_preset.concrete_wastage)
+        slab_steel = total_slab_volume * self.material_preset.steel_kg_per_cum_slab * (1 + self.material_preset.steel_wastage)
         
         lines.append(EstimateLineBase(
             category=BOQCategory.SUPERSTRUCTURE,
             item_name=f"RCC Slab (M20) - {slab_thickness_inch}\" thick",
-            description="Floor slabs",
+            description=f"Floor slabs - {num_floors} slab(s)",
             unit="cum",
-            quantity=round(slab_volume, 2),
+            quantity=round(total_slab_volume, 2),
             rate=self.rate_table.cement_per_bag * self.material_preset.cement_per_cum + 
                  self.rate_table.sand_per_cum * self.material_preset.sand_per_cum +
                  self.rate_table.aggregate_per_cum * self.material_preset.aggregate_per_cum,
             amount=0,
-            formula_used=f"Floor area × Floors × Thickness",
+            formula_used=f"Footprint({round(area_sqm,1)}m²) × Thickness({round(slab_thickness_m,3)}m) × {num_floors} slabs",
             is_user_edited=False
         ))
         lines[-1].amount = round(lines[-1].quantity * lines[-1].rate, 2)
