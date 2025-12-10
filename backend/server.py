@@ -7640,3 +7640,389 @@ async def disconnect(sid):
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+
+# ============= Budgeting & Estimation Routes =============
+
+from estimation_engine import EstimationEngine, get_default_material_preset, get_default_rate_table
+
+@api_router.post("/estimates", response_model=EstimateResponse)
+async def create_estimate(
+    estimate_data: EstimateCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Create a new estimate for a project
+    Auto-generates BOQ using calculation engine
+    """
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Verify project exists
+        project = await db.projects.find_one({"_id": ObjectId(estimate_data.project_id)})
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Get or create default material preset and rate table
+        material_preset_data = None
+        if estimate_data.material_preset_id:
+            preset = await db.material_presets.find_one({"_id": ObjectId(estimate_data.material_preset_id)})
+            if preset:
+                material_preset_data = MaterialPresetResponse(**serialize_doc(preset))
+        
+        if not material_preset_data:
+            # Use default preset
+            default_preset = get_default_material_preset()
+            material_preset_data = MaterialPresetResponse(id="default", **default_preset)
+        
+        rate_table_data = None
+        if estimate_data.rate_table_id:
+            rate_table = await db.rate_tables.find_one({"_id": ObjectId(estimate_data.rate_table_id)})
+            if rate_table:
+                rate_table_data = RateTableResponse(**serialize_doc(rate_table))
+        
+        if not rate_table_data:
+            # Use default rate table
+            default_rates = get_default_rate_table()
+            rate_table_data = RateTableResponse(
+                id="default",
+                effective_date=datetime.utcnow(),
+                **default_rates
+            )
+        
+        # Initialize calculation engine
+        engine = EstimationEngine(material_preset_data, rate_table_data)
+        
+        # Calculate BOQ
+        lines, totals, assumptions = engine.calculate_estimate(estimate_data)
+        
+        # Update estimate with calculated totals
+        estimate_dict = estimate_data.dict()
+        estimate_dict.update(totals)
+        estimate_dict["assumptions"] = assumptions
+        estimate_dict["created_by"] = str(current_user["_id"])
+        estimate_dict["created_at"] = datetime.utcnow()
+        estimate_dict["updated_at"] = datetime.utcnow()
+        
+        # Get next version number for this project
+        existing_estimates = await db.estimates.find(
+            {"project_id": estimate_data.project_id}
+        ).sort("version", -1).limit(1).to_list(1)
+        
+        if existing_estimates:
+            estimate_dict["version"] = existing_estimates[0]["version"] + 1
+        else:
+            estimate_dict["version"] = 1
+        
+        if not estimate_dict.get("version_name"):
+            estimate_dict["version_name"] = f"Estimate v{estimate_dict['version']}"
+        
+        # Insert estimate
+        result = await db.estimates.insert_one(estimate_dict)
+        estimate_dict["id"] = str(result.inserted_id)
+        
+        # Insert BOQ lines
+        line_docs = []
+        for line in lines:
+            line_dict = line.dict()
+            line_dict["estimate_id"] = str(result.inserted_id)
+            line_docs.append(line_dict)
+        
+        if line_docs:
+            await db.estimate_lines.insert_many(line_docs)
+        
+        # Fetch complete estimate with lines
+        return await get_estimate(str(result.inserted_id), credentials)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create estimate: {str(e)}")
+
+
+@api_router.get("/estimates/{estimate_id}", response_model=EstimateResponse)
+async def get_estimate(
+    estimate_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get estimate by ID with all BOQ lines"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Get all BOQ lines
+        lines = await db.estimate_lines.find({"estimate_id": estimate_id}).to_list(1000)
+        
+        estimate_dict = serialize_doc(estimate)
+        estimate_dict["lines"] = [EstimateLineResponse(**serialize_doc(line)) for line in lines]
+        
+        return EstimateResponse(**estimate_dict)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get estimate: {str(e)}")
+
+
+@api_router.get("/projects/{project_id}/estimates", response_model=List[EstimateSummary])
+async def list_project_estimates(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """List all estimates for a project"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        estimates = await db.estimates.find(
+            {"project_id": project_id}
+        ).sort("version", -1).to_list(100)
+        
+        return [EstimateSummary(**serialize_doc(est)) for est in estimates]
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list estimates: {str(e)}")
+
+
+@api_router.put("/estimates/{estimate_id}", response_model=EstimateResponse)
+async def update_estimate(
+    estimate_id: str,
+    update_data: EstimateUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update estimate metadata (not recalculating BOQ)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
+        update_dict["updated_at"] = datetime.utcnow()
+        update_dict["updated_by"] = str(current_user["_id"])
+        
+        # If adjustments changed, recalculate totals
+        if any(k in update_dict for k in ["contingency_percent", "labour_percent_of_material", "material_escalation_percent"]):
+            # Merge updates into estimate
+            for key, value in update_dict.items():
+                estimate[key] = value
+            
+            # Get material preset and rate table
+            material_preset_data = MaterialPresetResponse(id="default", **get_default_material_preset())
+            rate_table_data = RateTableResponse(id="default", effective_date=datetime.utcnow(), **get_default_rate_table())
+            
+            # Get existing lines
+            lines = await db.estimate_lines.find({"estimate_id": estimate_id}).to_list(1000)
+            line_objects = [EstimateLineBase(**serialize_doc(line)) for line in lines]
+            
+            # Recalculate totals
+            engine = EstimationEngine(material_preset_data, rate_table_data)
+            totals = engine._calculate_totals(line_objects, EstimateBase(**serialize_doc(estimate)))
+            update_dict.update(totals)
+        
+        await db.estimates.update_one(
+            {"_id": ObjectId(estimate_id)},
+            {"$set": update_dict}
+        )
+        
+        return await get_estimate(estimate_id, credentials)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update estimate: {str(e)}")
+
+
+@api_router.put("/estimates/{estimate_id}/lines/{line_id}")
+async def update_estimate_line(
+    estimate_id: str,
+    line_id: str,
+    quantity: Optional[float] = None,
+    rate: Optional[float] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a specific BOQ line item (user override)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        line = await db.estimate_lines.find_one({"_id": ObjectId(line_id), "estimate_id": estimate_id})
+        if not line:
+            raise HTTPException(status_code=404, detail="Line item not found")
+        
+        update_dict = {"is_user_edited": True}
+        if quantity is not None:
+            update_dict["quantity"] = quantity
+        if rate is not None:
+            update_dict["rate"] = rate
+        
+        # Recalculate amount
+        new_quantity = quantity if quantity is not None else line["quantity"]
+        new_rate = rate if rate is not None else line["rate"]
+        update_dict["amount"] = round(new_quantity * new_rate, 2)
+        
+        await db.estimate_lines.update_one(
+            {"_id": ObjectId(line_id)},
+            {"$set": update_dict}
+        )
+        
+        # Recalculate estimate totals
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        lines = await db.estimate_lines.find({"estimate_id": estimate_id}).to_list(1000)
+        
+        material_cost = sum(line["amount"] for line in lines if line["category"] in [
+            "excavation_foundation", "superstructure", "masonry", "finishes"
+        ])
+        services_cost = sum(line["amount"] for line in lines if line["category"] == "services")
+        
+        labour_cost = material_cost * (estimate["labour_percent_of_material"] / 100.0)
+        subtotal = material_cost + services_cost + labour_cost
+        overhead_cost = subtotal * 0.10  # 10% overhead
+        contingency_cost = (subtotal + overhead_cost) * (estimate["contingency_percent"] / 100.0)
+        grand_total = subtotal + overhead_cost + contingency_cost
+        cost_per_sqft = grand_total / estimate["built_up_area_sqft"]
+        
+        await db.estimates.update_one(
+            {"_id": ObjectId(estimate_id)},
+            {"$set": {
+                "total_material_cost": round(material_cost, 2),
+                "total_labour_cost": round(labour_cost, 2),
+                "total_services_cost": round(services_cost, 2),
+                "total_overhead_cost": round(overhead_cost, 2),
+                "contingency_cost": round(contingency_cost, 2),
+                "grand_total": round(grand_total, 2),
+                "cost_per_sqft": round(cost_per_sqft, 2),
+                "updated_at": datetime.utcnow(),
+                "updated_by": str(current_user["_id"])
+            }}
+        )
+        
+        return {"message": "Line updated successfully", "new_total": round(grand_total, 2)}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update line: {str(e)}")
+
+
+@api_router.delete("/estimates/{estimate_id}")
+async def delete_estimate(
+    estimate_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete an estimate and its BOQ lines"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Only admin or project manager can delete
+        if current_user["role"] not in ["admin", "project_manager"]:
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Delete lines first
+        await db.estimate_lines.delete_many({"estimate_id": estimate_id})
+        
+        # Delete estimate
+        await db.estimates.delete_one({"_id": ObjectId(estimate_id)})
+        
+        return {"message": "Estimate deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete estimate: {str(e)}")
+
+
+# ============= Material Presets (Admin) =============
+
+@api_router.post("/material-presets", response_model=MaterialPresetResponse)
+async def create_material_preset(
+    preset_data: MaterialPresetCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create new material preset (Admin only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Admin access required")
+        
+        preset_dict = preset_data.dict()
+        preset_dict["created_by"] = str(current_user["_id"])
+        preset_dict["created_at"] = datetime.utcnow()
+        preset_dict["updated_at"] = datetime.utcnow()
+        
+        result = await db.material_presets.insert_one(preset_dict)
+        preset_dict["id"] = str(result.inserted_id)
+        
+        return MaterialPresetResponse(**preset_dict)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create preset: {str(e)}")
+
+
+@api_router.get("/material-presets", response_model=List[MaterialPresetResponse])
+async def list_material_presets(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """List all active material presets"""
+    try:
+        presets = await db.material_presets.find({"is_active": True}).to_list(100)
+        return [MaterialPresetResponse(**serialize_doc(p)) for p in presets]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list presets: {str(e)}")
+
+
+# ============= Rate Tables (Admin) =============
+
+@api_router.post("/rate-tables", response_model=RateTableResponse)
+async def create_rate_table(
+    rate_data: RateTableCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create new rate table (Admin only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Admin access required")
+        
+        rate_dict = rate_data.dict()
+        rate_dict["created_by"] = str(current_user["_id"])
+        rate_dict["created_at"] = datetime.utcnow()
+        rate_dict["updated_at"] = datetime.utcnow()
+        
+        result = await db.rate_tables.insert_one(rate_dict)
+        rate_dict["id"] = str(result.inserted_id)
+        
+        return RateTableResponse(**rate_dict)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create rate table: {str(e)}")
+
+
+@api_router.get("/rate-tables", response_model=List[RateTableResponse])
+async def list_rate_tables(
+    location: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """List all active rate tables"""
+    try:
+        query = {"is_active": True}
+        if location:
+            query["location"] = location
+        
+        rate_tables = await db.rate_tables.find(query).sort("effective_date", -1).to_list(100)
+        return [RateTableResponse(**serialize_doc(rt)) for rt in rate_tables]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list rate tables: {str(e)}")
+
