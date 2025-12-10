@@ -2010,3 +2010,181 @@ class CRMDashboardStats(BaseModel):
     avg_lead_value: float
     top_sources: List[Dict[str, Any]]
 
+
+
+# ============= Budgeting & Estimation Models =============
+
+class PackageType(str, Enum):
+    STANDARD = "standard"
+    PREMIUM = "premium"
+    CUSTOM = "custom"
+
+class EstimateStatus(str, Enum):
+    DRAFT = "draft"
+    APPROVED = "approved"
+    REVISED = "revised"
+    ARCHIVED = "archived"
+
+class BOQCategory(str, Enum):
+    EXCAVATION_FOUNDATION = "excavation_foundation"
+    SUPERSTRUCTURE = "superstructure"
+    MASONRY = "masonry"
+    FINISHES = "finishes"
+    SERVICES = "services"
+    LABOUR = "labour"
+    OVERHEADS = "overheads"
+    CONTINGENCY = "contingency"
+
+# Material Preset - Admin configurable coefficients
+class MaterialPresetBase(BaseModel):
+    name: str  # e.g., "Standard Mix 1:2:4"
+    description: Optional[str] = None
+    # Concrete mix ratios
+    cement_per_cum: float = 7.0  # bags per cubic meter
+    sand_per_cum: float = 0.42  # cum per cum of concrete
+    aggregate_per_cum: float = 0.84  # cum per cum of concrete
+    # Steel coefficients
+    steel_kg_per_cum_foundation: float = 80.0  # kg/m³
+    steel_kg_per_cum_column: float = 150.0
+    steel_kg_per_cum_beam: float = 120.0
+    steel_kg_per_cum_slab: float = 100.0
+    # Masonry
+    blocks_per_sqm: float = 12.5  # for 8" block
+    mortar_per_sqm: float = 0.02  # cum per sqm
+    # Wastage factors
+    concrete_wastage: float = 0.05  # 5%
+    steel_wastage: float = 0.08  # 8%
+    block_wastage: float = 0.05  # 5%
+    is_active: bool = True
+
+class MaterialPresetCreate(MaterialPresetBase):
+    pass
+
+class MaterialPresetResponse(MaterialPresetBase):
+    id: str
+    created_by: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+# Rate Table - Admin configurable rates by location/date
+class RateTableBase(BaseModel):
+    name: str  # e.g., "Bangalore Q4 2025"
+    location: str
+    effective_date: datetime
+    # Material rates (per unit)
+    cement_per_bag: float = 400.0  # INR
+    sand_per_cum: float = 1200.0
+    aggregate_per_cum: float = 1400.0
+    steel_per_kg: float = 65.0
+    block_8inch_per_unit: float = 45.0
+    brick_per_unit: float = 8.0
+    # Labour rates
+    labour_per_sqft: float = 45.0
+    # Services
+    electrical_per_sqft: float = 120.0
+    plumbing_per_sqft: float = 80.0
+    painting_per_sqft: float = 35.0
+    # Overheads
+    contractor_overhead_percent: float = 10.0
+    is_active: bool = True
+
+class RateTableCreate(RateTableBase):
+    pass
+
+class RateTableResponse(RateTableBase):
+    id: str
+    created_by: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+# Estimate Line Item (BOQ Item)
+class EstimateLineBase(BaseModel):
+    category: BOQCategory
+    item_name: str  # e.g., "Excavation for foundation"
+    description: Optional[str] = None
+    unit: str  # cum, sqm, sqft, kg, nos, etc.
+    quantity: float
+    rate: float  # rate per unit
+    amount: float  # quantity * rate
+    formula_used: Optional[str] = None  # e.g., "Length × Width × Depth"
+    is_user_edited: bool = False  # Track if user overrode auto-calculation
+    notes: Optional[str] = None
+
+class EstimateLineCreate(EstimateLineBase):
+    pass
+
+class EstimateLineResponse(EstimateLineBase):
+    id: str
+
+# Main Estimate Model
+class EstimateBase(BaseModel):
+    project_id: str
+    version: int = 1
+    version_name: Optional[str] = None  # e.g., "Initial Estimate", "Revised v2"
+    status: EstimateStatus = EstimateStatus.DRAFT
+    
+    # Input parameters
+    built_up_area_sqft: float
+    package_type: PackageType
+    num_floors: int = 1
+    floor_to_floor_height: float = 10.0  # feet
+    
+    # Optional advanced inputs
+    foundation_depth: Optional[float] = 4.0  # feet
+    plinth_beam_height: Optional[float] = 1.5  # feet
+    external_wall_thickness: Optional[float] = 9.0  # inches
+    internal_wall_thickness: Optional[float] = 4.5  # inches
+    slab_thickness: Optional[float] = 5.0  # inches
+    column_spacing: Optional[float] = 15.0  # feet (bay size)
+    
+    # Coefficients & assumptions
+    material_preset_id: Optional[str] = None
+    rate_table_id: Optional[str] = None
+    
+    # Adjustments (user can modify)
+    contingency_percent: float = 10.0
+    labour_percent_of_material: float = 40.0
+    material_escalation_percent: float = 0.0
+    
+    # Calculated totals (populated by backend)
+    total_material_cost: float = 0.0
+    total_labour_cost: float = 0.0
+    total_services_cost: float = 0.0
+    total_overhead_cost: float = 0.0
+    contingency_cost: float = 0.0
+    grand_total: float = 0.0
+    cost_per_sqft: float = 0.0
+    
+    # Metadata
+    assumptions: Optional[Dict[str, Any]] = None
+    notes: Optional[str] = None
+
+class EstimateCreate(EstimateBase):
+    pass
+
+class EstimateUpdate(BaseModel):
+    version_name: Optional[str] = None
+    status: Optional[EstimateStatus] = None
+    contingency_percent: Optional[float] = None
+    labour_percent_of_material: Optional[float] = None
+    material_escalation_percent: Optional[float] = None
+    notes: Optional[str] = None
+
+class EstimateResponse(EstimateBase):
+    id: str
+    lines: List[EstimateLineResponse] = []  # BOQ line items
+    created_by: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    updated_by: Optional[str] = None
+
+class EstimateSummary(BaseModel):
+    id: str
+    project_id: str
+    version: int
+    version_name: Optional[str] = None
+    status: EstimateStatus
+    grand_total: float
+    cost_per_sqft: float
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
