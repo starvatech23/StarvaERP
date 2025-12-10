@@ -48,7 +48,7 @@ from models import (
     PaymentMethod,
     # Estimation Models
     EstimateCreate, EstimateUpdate, EstimateResponse, EstimateSummary, EstimateStatus,
-    EstimateLineCreate, EstimateLineUpdate, EstimateLineResponse, BOQCategory,
+    EstimateLineCreate, EstimateLineResponse, BOQCategory,
     MaterialPresetCreate, MaterialPresetResponse, RateTableCreate, RateTableResponse,
     ProjectContact, ProjectContactUpdate, ProjectRole, ContactType,
     GanttShareCreate, GanttShareResponse, GanttShareToken, GanttSharePermission,
