@@ -300,7 +300,7 @@ class EstimationEngine:
         assumptions["num_columns"] = int(num_columns)
         assumptions["column_volume_cum"] = round(column_volume, 2)
         assumptions["beam_volume_cum"] = round(beam_volume, 2)
-        assumptions["slab_volume_cum"] = round(slab_volume, 2)
+        assumptions["slab_volume_cum"] = round(total_slab_volume, 2)
         assumptions["total_steel_kg"] = round(column_steel + beam_steel + slab_steel, 2)
         
         return lines
