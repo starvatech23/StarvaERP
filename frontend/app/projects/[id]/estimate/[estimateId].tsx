@@ -95,6 +95,22 @@ export default function EstimateDetailScreen() {
     return lines.reduce((sum, line) => sum + line.amount, 0);
   };
 
+  const handleSaveEdit = async (lineId: string, quantity: number, rate: number) => {
+    setSaving(true);
+    try {
+      await estimationAPI.updateLine(estimateId as string, lineId, quantity, rate);
+      
+      // Reload estimate to get updated totals
+      await loadEstimate();
+      
+      Alert.alert('Success', 'Line item updated successfully');
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || 'Failed to update line item');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
