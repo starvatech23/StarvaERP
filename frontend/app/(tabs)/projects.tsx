@@ -244,11 +244,12 @@ export default function ProjectsScreen() {
                       style={styles.actionButtonSmall}
                       onPress={(e) => {
                         e.stopPropagation();
-                        router.push(`/projects/${project.id}/estimate/create` as any);
+                        // Navigate to estimates list (will show "create new" button if none exist)
+                        router.push(`/projects/${project.id}/estimate` as any);
                       }}
                     >
                       <Ionicons name="calculator" size={16} color={Colors.primary} />
-                      <Text style={styles.actionButtonText}>Estimate</Text>
+                      <Text style={styles.actionButtonText}>Estimates</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.actionButtonSmall}
