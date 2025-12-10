@@ -18,7 +18,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://site-ops-hub.preview.emergentagent.com';
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://budget-wizard-67.preview.emergentagent.com';
 
 export default function ClientPortalScreen() {
   const { projectId } = useLocalSearchParams();
