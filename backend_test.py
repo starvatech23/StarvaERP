@@ -1,24 +1,32 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Script for Data/Model Drift Fix Verification (Round 2)
-Testing the 2 critical fixes applied:
-1. GET /api/admin/users - Fixed KeyError 'role' 
-2. GET /api/dashboard/stats - Fixed TypeError with None handling
+Backend API Testing for Budgeting & Estimation APIs
+Testing Phase 1 implementation of estimation endpoints
 """
 
 import requests
 import json
-import sys
 from datetime import datetime
+import sys
+import os
 
-# Get backend URL from frontend .env
+# Backend URL from frontend .env
 BACKEND_URL = "https://site-ops-hub.preview.emergentagent.com/api"
 
 # Test credentials
-ADMIN_EMAIL = "admin@test.com"
-ADMIN_PASSWORD = "admin123"
+ADMIN_CREDENTIALS = {
+    "identifier": "admin@test.com",
+    "password": "admin123",
+    "auth_type": "email"
+}
 
-class BackendTester:
+PM_CREDENTIALS = {
+    "identifier": "pm@test.com", 
+    "password": "pm123",
+    "auth_type": "email"
+}
+
+class EstimationAPITester:
     def __init__(self):
         self.session = requests.Session()
         self.token = None
