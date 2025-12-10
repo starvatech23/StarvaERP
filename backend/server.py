@@ -8036,10 +8036,11 @@ async def export_estimate_csv(
         
         # Prepare response
         output.seek(0)
+        csv_content = output.getvalue()
         filename = f"estimate_{project_name.replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
         
-        return StreamingResponse(
-            iter([output.getvalue()]),
+        return Response(
+            content=csv_content,
             media_type="text/csv",
             headers={
                 "Content-Disposition": f"attachment; filename={filename}"
