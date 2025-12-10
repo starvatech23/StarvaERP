@@ -240,14 +240,14 @@ class EstimationEngine:
         lines.append(EstimateLineBase(
             category=BOQCategory.SUPERSTRUCTURE,
             item_name="RCC Beams (M20)",
-            description="Main and secondary beams",
+            description=f"Main and secondary beams - {num_floors} floor(s)",
             unit="cum",
             quantity=round(beam_volume, 2),
             rate=self.rate_table.cement_per_bag * self.material_preset.cement_per_cum + 
                  self.rate_table.sand_per_cum * self.material_preset.sand_per_cum +
                  self.rate_table.aggregate_per_cum * self.material_preset.aggregate_per_cum,
             amount=0,
-            formula_used=f"Beam area({round(beam_area_m,1)}m) × 0.45m",
+            formula_used=f"Footprint({round(area_sqm,1)}m²) × 20% × {num_floors} floors × 0.45m height",
             is_user_edited=False
         ))
         lines[-1].amount = round(lines[-1].quantity * lines[-1].rate, 2)
