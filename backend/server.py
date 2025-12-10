@@ -46,6 +46,10 @@ from models import (
     BudgetCreate, BudgetUpdate, BudgetResponse, BudgetCategory,
     InvoiceCreate, InvoiceUpdate, InvoiceResponse, InvoiceStatus, InvoiceItemBase,
     PaymentMethod,
+    # Estimation Models
+    EstimateCreate, EstimateUpdate, EstimateResponse, EstimateSummary, EstimateStatus,
+    EstimateLineCreate, EstimateLineUpdate, EstimateLineResponse, BOQCategory,
+    MaterialPresetCreate, MaterialPresetResponse, RateTableCreate, RateTableResponse,
     ProjectContact, ProjectContactUpdate, ProjectRole, ContactType,
     GanttShareCreate, GanttShareResponse, GanttShareToken, GanttSharePermission,
     ContactAudit,
