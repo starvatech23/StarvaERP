@@ -652,7 +652,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Budgeting & Estimation APIs Phase 1 - COMPLETE"
+    - "Budgeting & Estimation - Edit & Export Features"
   stuck_tasks: []
   test_all: false
   test_priority: "critical_first"
