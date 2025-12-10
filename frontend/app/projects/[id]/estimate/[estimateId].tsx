@@ -13,6 +13,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../../../constants/Colors';
 import { estimationAPI } from '../../../../services/api';
+import EstimateLineEditModal from '../../../../components/EstimateLineEditModal';
 
 export default function EstimateDetailScreen() {
   const router = useRouter();
@@ -21,6 +22,8 @@ export default function EstimateDetailScreen() {
   const [estimate, setEstimate] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['excavation_foundation']));
+  const [editingLine, setEditingLine] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadEstimate();
