@@ -95,6 +95,8 @@ class EstimationTester:
                 "name": f"Test Estimation Project {datetime.now().strftime('%Y%m%d_%H%M%S')}",
                 "description": "Test project for estimation edit & export features",
                 "location": "Test Location",
+                "client_name": "Test Client Ltd",
+                "client_contact": "+91-9876543210",
                 "status": "planning",
                 "start_date": "2024-01-01",
                 "end_date": "2024-12-31",
