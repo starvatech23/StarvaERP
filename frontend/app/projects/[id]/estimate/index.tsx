@@ -16,21 +16,34 @@ import { estimationAPI } from '../../../../services/api';
 
 export default function EstimateListScreen() {
   const router = useRouter();
-  const { id: projectId } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const projectId = params.id as string;
   
   const [estimates, setEstimates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadEstimates();
+    console.log('EstimateListScreen - params:', params);
+    console.log('EstimateListScreen - projectId:', projectId);
+    
+    if (projectId) {
+      loadEstimates();
+    } else {
+      console.error('No project ID found in params');
+      setLoading(false);
+      Alert.alert('Error', 'Project ID not found');
+    }
   }, [projectId]);
 
   const loadEstimates = async () => {
     try {
-      const response = await estimationAPI.getByProject(projectId as string);
-      setEstimates(response.data);
+      console.log('Loading estimates for project:', projectId);
+      const response = await estimationAPI.getByProject(projectId);
+      console.log('Estimates loaded:', response.data?.length || 0);
+      setEstimates(response.data || []);
     } catch (error: any) {
-      Alert.alert('Error', 'Failed to load estimates');
+      console.error('Failed to load estimates:', error);
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to load estimates');
     } finally {
       setLoading(false);
     }
