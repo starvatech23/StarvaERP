@@ -90,26 +90,38 @@ class EstimationTester:
     def setup_test_data(self):
         """Create test project and estimate for testing"""
         try:
-            # Create test project
-            project_data = {
-                "name": f"Test Estimation Project {datetime.now().strftime('%Y%m%d_%H%M%S')}",
-                "description": "Test project for estimation edit & export features",
-                "location": "Test Location",
-                "client_name": "Test Client Ltd",
-                "client_contact": "+91-9876543210",
-                "status": "planning",
-                "start_date": "2024-01-01",
-                "end_date": "2024-12-31",
-                "budget": 5000000.0
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/projects", json=project_data)
+            # Try to get existing project first
+            response = self.session.get(f"{BACKEND_URL}/projects")
             if response.status_code == 200:
-                project = response.json()
-                self.test_project_id = project["id"]
-                self.log_result("Test Project Creation", True, f"Created project: {project['name']}")
+                projects = response.json()
+                if projects:
+                    self.test_project_id = projects[0]["id"]
+                    self.log_result("Test Project Selection", True, f"Using existing project: {projects[0]['name']}")
+                else:
+                    # Try to create test project if no existing projects
+                    project_data = {
+                        "name": f"Test Estimation Project {datetime.now().strftime('%Y%m%d_%H%M%S')}",
+                        "description": "Test project for estimation edit & export features",
+                        "location": "Test Location",
+                        "client_name": "Test Client Ltd",
+                        "client_contact": "+91-9876543210",
+                        "status": "planning",
+                        "start_date": "2024-01-01",
+                        "end_date": "2024-12-31",
+                        "budget": 5000000.0
+                    }
+                    
+                    response = self.session.post(f"{BACKEND_URL}/projects", json=project_data)
+                    if response.status_code == 200:
+                        project = response.json()
+                        self.test_project_id = project["id"]
+                        self.log_result("Test Project Creation", True, f"Created project: {project['name']}")
+                    else:
+                        self.log_result("Test Project Creation", False, f"Failed to create project: {response.status_code}",
+                                      {"response": response.text})
+                        return False
             else:
-                self.log_result("Test Project Creation", False, f"Failed to create project: {response.status_code}",
+                self.log_result("Test Project Selection", False, f"Failed to get projects: {response.status_code}",
                               {"response": response.text})
                 return False
             
