@@ -707,6 +707,28 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
+    alignItems: 'center',
+  },
+  exportButtonsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  exportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: Colors.background,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 12,
+  },
+  exportButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.primary,
   },
   actionButton: {
     flex: 1,
