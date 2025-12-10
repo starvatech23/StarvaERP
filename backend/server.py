@@ -14,7 +14,7 @@ import socketio
 import uuid
 import csv
 import io
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 
 # Import models and auth
 from models import (
