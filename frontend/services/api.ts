@@ -455,3 +455,18 @@ export const taskMaterialsAPI = {
 
 // Gantt Chart API (duplicate removed - see line 213 for actual implementation)
 
+
+
+// Budgeting & Estimation API
+export const estimationAPI = {
+  create: (data: any) => api.post('/estimates', data),
+  getById: (estimateId: string) => api.get(`/estimates/${estimateId}`),
+  getByProject: (projectId: string) => api.get(`/projects/${projectId}/estimates`),
+  update: (estimateId: string, data: any) => api.put(`/estimates/${estimateId}`, data),
+  updateLine: (estimateId: string, lineId: string, quantity?: number, rate?: number) => 
+    api.put(`/estimates/${estimateId}/lines/${lineId}`, { quantity, rate }),
+  delete: (estimateId: string) => api.delete(`/estimates/${estimateId}`),
+  getMaterialPresets: () => api.get('/material-presets'),
+  getRateTables: (location?: string) => api.get('/rate-tables', { params: { location } }),
+};
+
