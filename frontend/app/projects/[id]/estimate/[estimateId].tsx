@@ -150,9 +150,7 @@ export default function EstimateDetailScreen() {
               
               // Save file directly (text content, not base64)
               const fileUri = FileSystem.documentDirectory + filename;
-              await FileSystem.writeAsStringAsync(fileUri, content, {
-                encoding: FileSystem.EncodingType.UTF8,
-              });
+              await FileSystem.writeAsStringAsync(fileUri, content);
               
               console.log('File saved to:', fileUri);
               
