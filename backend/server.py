@@ -8215,8 +8215,8 @@ async def export_estimate_pdf(
         # For now, we return HTML that can be printed to PDF by the browser
         filename = f"estimate_{project_name.replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.html"
         
-        return StreamingResponse(
-            iter([html_content]),
+        return Response(
+            content=html_content,
             media_type="text/html",
             headers={
                 "Content-Disposition": f"attachment; filename={filename}"
