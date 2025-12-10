@@ -77,17 +77,23 @@ export default function CreateEstimateScreen() {
       const response = await estimationAPI.create(estimateData);
       
       console.log('Estimate created successfully:', response.data);
+      console.log('Estimate ID:', response.data.id);
+      console.log('Grand Total:', response.data.grand_total);
       
-      Alert.alert(
-        'Estimate Created!',
-        `Total Cost: ₹${response.data.grand_total.toLocaleString('en-IN')}\nCost per sqft: ₹${Math.round(response.data.cost_per_sqft)}`,
-        [
-          {
-            text: 'View Details',
-            onPress: () => router.push(`/projects/${projectId}/estimate/${response.data.id}`),
-          },
-        ]
-      );
+      const estimateId = response.data.id;
+      const grandTotal = response.data.grand_total;
+      const costPerSqft = response.data.cost_per_sqft;
+      
+      // Navigate immediately to the estimate detail page
+      router.push(`/projects/${projectId}/estimate/${estimateId}`);
+      
+      // Show success message after navigation
+      setTimeout(() => {
+        Alert.alert(
+          'Success!',
+          `Estimate created successfully!\nTotal Cost: ₹${grandTotal.toLocaleString('en-IN')}\nCost per sqft: ₹${Math.round(costPerSqft)}`
+        );
+      }, 500);
     } catch (error: any) {
       console.error('Error creating estimate:', error);
       console.error('Error response:', error.response);
