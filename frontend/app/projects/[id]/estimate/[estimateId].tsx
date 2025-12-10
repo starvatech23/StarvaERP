@@ -231,7 +231,12 @@ export default function EstimateDetailScreen() {
                 {isExpanded && (
                   <View style={styles.lineItems}>
                     {lines.map((line: any, index: number) => (
-                      <View key={line.id || index} style={styles.lineItem}>
+                      <TouchableOpacity 
+                        key={line.id || index} 
+                        style={styles.lineItem}
+                        onPress={() => setEditingLine(line)}
+                        activeOpacity={0.7}
+                      >
                         <View style={styles.lineItemHeader}>
                           <Text style={styles.lineItemName}>{line.item_name}</Text>
                           {line.is_user_edited && (
