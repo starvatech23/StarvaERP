@@ -376,19 +376,31 @@ export default function EstimateDetailScreen() {
 
       {/* Footer Actions */}
       <View style={styles.footer}>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.secondaryButton]}
-          onPress={() => Alert.alert('Coming Soon', 'Export functionality will be available soon')}
-        >
-          <Ionicons name="download" size={20} color={Colors.primary} />
-          <Text style={styles.secondaryButtonText}>Export PDF</Text>
-        </TouchableOpacity>
+        <View style={styles.exportButtonsContainer}>
+          <TouchableOpacity 
+            style={[styles.exportButton]}
+            onPress={() => handleExport('csv')}
+            disabled={saving}
+          >
+            <Ionicons name="document-text" size={18} color={Colors.primary} />
+            <Text style={styles.exportButtonText}>CSV</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.exportButton]}
+            onPress={() => handleExport('pdf')}
+            disabled={saving}
+          >
+            <Ionicons name="document" size={18} color={Colors.primary} />
+            <Text style={styles.exportButtonText}>PDF</Text>
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity 
           style={[styles.actionButton, styles.primaryButton]}
           onPress={() => router.push(`/projects/${projectId}/estimate/${estimateId}/edit`)}
+          disabled={saving}
         >
           <Ionicons name="create" size={20} color={Colors.white} />
-          <Text style={styles.primaryButtonText}>Edit</Text>
+          <Text style={styles.primaryButtonText}>Edit Estimate</Text>
         </TouchableOpacity>
       </View>
 
