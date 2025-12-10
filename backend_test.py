@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Budgeting & Estimation APIs
-Testing Phase 1 implementation of estimation endpoints
+Backend API Testing for Budgeting & Estimation - Edit & Export Features
+Tests the new endpoints:
+1. PUT /api/estimates/{estimate_id}/lines/{line_id} - Update BOQ line item
+2. GET /api/estimates/{estimate_id}/export/csv - Export to CSV
+3. GET /api/estimates/{estimate_id}/export/pdf - Export to PDF (HTML)
+4. Existing endpoints verification
 """
 
 import requests
@@ -13,7 +17,14 @@ import os
 # Backend URL from frontend .env
 BACKEND_URL = "https://budget-wizard-67.preview.emergentagent.com/api"
 
-# Test credentials
+# Test credentials - Using CRM Manager as specified in requirements
+TEST_CREDENTIALS = {
+    "identifier": "crm.manager@test.com",
+    "password": "manager123",
+    "auth_type": "email"
+}
+
+# Fallback credentials
 ADMIN_CREDENTIALS = {
     "identifier": "admin@test.com",
     "password": "admin123",
