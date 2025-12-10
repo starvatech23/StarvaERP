@@ -324,6 +324,14 @@ export default function EstimateDetailScreen() {
           <Text style={styles.primaryButtonText}>Edit</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Edit Line Modal */}
+      <EstimateLineEditModal
+        visible={!!editingLine}
+        line={editingLine}
+        onClose={() => setEditingLine(null)}
+        onSave={handleSaveEdit}
+      />
     </SafeAreaView>
   );
 }
