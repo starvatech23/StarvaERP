@@ -8029,3 +8029,7 @@ async def list_rate_tables(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list rate tables: {str(e)}")
 
+
+# Include the routers in the main app (after all routes are defined)
+app.include_router(api_router)
+
