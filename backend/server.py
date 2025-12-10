@@ -7944,6 +7944,290 @@ async def delete_estimate(
         raise HTTPException(status_code=500, detail=f"Failed to delete estimate: {str(e)}")
 
 
+@api_router.get("/estimates/{estimate_id}/export/csv")
+async def export_estimate_csv(
+    estimate_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Export estimate BOQ to CSV format"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Get estimate
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Get project details
+        project = await db.projects.find_one({"_id": ObjectId(estimate["project_id"])})
+        project_name = project.get("name", "Unknown") if project else "Unknown"
+        
+        # Get all lines
+        lines = await db.estimate_lines.find({"estimate_id": estimate_id}).to_list(1000)
+        
+        # Create CSV in memory
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write header information
+        writer.writerow(['PROJECT ESTIMATE - BILL OF QUANTITIES'])
+        writer.writerow([])
+        writer.writerow(['Project:', project_name])
+        writer.writerow(['Version:', estimate.get("version_name", f"Version {estimate.get('version', 1)}")])
+        writer.writerow(['Status:', estimate.get("status", "draft").upper()])
+        writer.writerow(['Date:', estimate.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d')])
+        writer.writerow(['Built-up Area:', f"{estimate.get('built_up_area_sqft', 0)} sqft"])
+        writer.writerow(['Number of Floors:', estimate.get('num_floors', 1)])
+        writer.writerow([])
+        
+        # Write summary
+        writer.writerow(['COST SUMMARY'])
+        writer.writerow(['Description', 'Amount (INR)'])
+        writer.writerow(['Total Material Cost', f"₹{estimate.get('total_material_cost', 0):,.2f}"])
+        writer.writerow(['Total Labour Cost', f"₹{estimate.get('total_labour_cost', 0):,.2f}"])
+        writer.writerow(['Total Services Cost', f"₹{estimate.get('total_services_cost', 0):,.2f}"])
+        writer.writerow(['Overhead Cost', f"₹{estimate.get('total_overhead_cost', 0):,.2f}"])
+        writer.writerow(['Contingency Cost', f"₹{estimate.get('contingency_cost', 0):,.2f}"])
+        writer.writerow(['GRAND TOTAL', f"₹{estimate.get('grand_total', 0):,.2f}"])
+        writer.writerow(['Cost per Sqft', f"₹{estimate.get('cost_per_sqft', 0):,.2f}"])
+        writer.writerow([])
+        
+        # Write BOQ header
+        writer.writerow(['BILL OF QUANTITIES (BOQ)'])
+        writer.writerow(['Category', 'Item Name', 'Description', 'Quantity', 'Unit', 'Rate (INR)', 'Amount (INR)', 'Formula Used', 'User Edited'])
+        
+        # Write line items grouped by category
+        category_names = {
+            'excavation_foundation': 'Excavation & Foundation',
+            'superstructure': 'Superstructure',
+            'masonry': 'Masonry',
+            'finishes': 'Finishes',
+            'services': 'Services',
+            'labour': 'Labour',
+            'overheads': 'Overheads',
+            'contingency': 'Contingency',
+        }
+        
+        # Group lines by category
+        lines_by_category = {}
+        for line in lines:
+            cat = line.get('category', 'other')
+            if cat not in lines_by_category:
+                lines_by_category[cat] = []
+            lines_by_category[cat].append(line)
+        
+        # Write each category
+        for category, category_lines in lines_by_category.items():
+            writer.writerow([])
+            writer.writerow([category_names.get(category, category.upper())])
+            
+            for line in category_lines:
+                writer.writerow([
+                    category_names.get(category, category),
+                    line.get('item_name', ''),
+                    line.get('description', ''),
+                    f"{line.get('quantity', 0):,.2f}",
+                    line.get('unit', ''),
+                    f"{line.get('rate', 0):,.2f}",
+                    f"{line.get('amount', 0):,.2f}",
+                    line.get('formula_used', ''),
+                    'Yes' if line.get('is_user_edited', False) else 'No'
+                ])
+        
+        # Prepare response
+        output.seek(0)
+        filename = f"estimate_{project_name.replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+        
+        return StreamingResponse(
+            iter([output.getvalue()]),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to export CSV: {str(e)}")
+
+
+@api_router.get("/estimates/{estimate_id}/export/pdf")
+async def export_estimate_pdf(
+    estimate_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Export estimate BOQ to PDF format (simplified HTML-based approach)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Get estimate
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Get project details
+        project = await db.projects.find_one({"_id": ObjectId(estimate["project_id"])})
+        project_name = project.get("name", "Unknown") if project else "Unknown"
+        
+        # Get all lines
+        lines = await db.estimate_lines.find({"estimate_id": estimate_id}).to_list(1000)
+        
+        # Group lines by category
+        category_names = {
+            'excavation_foundation': 'Excavation & Foundation',
+            'superstructure': 'Superstructure',
+            'masonry': 'Masonry',
+            'finishes': 'Finishes',
+            'services': 'Services',
+            'labour': 'Labour',
+            'overheads': 'Overheads',
+            'contingency': 'Contingency',
+        }
+        
+        lines_by_category = {}
+        for line in lines:
+            cat = line.get('category', 'other')
+            if cat not in lines_by_category:
+                lines_by_category[cat] = []
+            lines_by_category[cat].append(line)
+        
+        # Create HTML content
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Estimate - {project_name}</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 40px; }}
+                h1 {{ color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }}
+                h2 {{ color: #34495e; margin-top: 30px; }}
+                .header-info {{ margin: 20px 0; line-height: 1.8; }}
+                .header-info div {{ margin: 5px 0; }}
+                table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+                th {{ background-color: #3498db; color: white; padding: 12px; text-align: left; }}
+                td {{ padding: 10px; border-bottom: 1px solid #ddd; }}
+                tr:hover {{ background-color: #f5f5f5; }}
+                .summary-table {{ width: 50%; }}
+                .summary-table th {{ background-color: #2c3e50; }}
+                .total-row {{ font-weight: bold; background-color: #ecf0f1; }}
+                .category-header {{ background-color: #95a5a6; color: white; font-weight: bold; }}
+                .page-break {{ page-break-before: always; }}
+            </style>
+        </head>
+        <body>
+            <h1>PROJECT ESTIMATE - BILL OF QUANTITIES</h1>
+            
+            <div class="header-info">
+                <div><strong>Project:</strong> {project_name}</div>
+                <div><strong>Version:</strong> {estimate.get("version_name", f"Version {estimate.get('version', 1)}")}</div>
+                <div><strong>Status:</strong> {estimate.get("status", "draft").upper()}</div>
+                <div><strong>Date:</strong> {estimate.get("created_at", datetime.utcnow()).strftime('%B %d, %Y')}</div>
+                <div><strong>Built-up Area:</strong> {estimate.get('built_up_area_sqft', 0):,.0f} sqft</div>
+                <div><strong>Number of Floors:</strong> {estimate.get('num_floors', 1)}</div>
+            </div>
+            
+            <h2>COST SUMMARY</h2>
+            <table class="summary-table">
+                <tr>
+                    <th>Description</th>
+                    <th>Amount (INR)</th>
+                </tr>
+                <tr>
+                    <td>Total Material Cost</td>
+                    <td>₹{estimate.get('total_material_cost', 0):,.2f}</td>
+                </tr>
+                <tr>
+                    <td>Total Labour Cost</td>
+                    <td>₹{estimate.get('total_labour_cost', 0):,.2f}</td>
+                </tr>
+                <tr>
+                    <td>Total Services Cost</td>
+                    <td>₹{estimate.get('total_services_cost', 0):,.2f}</td>
+                </tr>
+                <tr>
+                    <td>Overhead Cost (10%)</td>
+                    <td>₹{estimate.get('total_overhead_cost', 0):,.2f}</td>
+                </tr>
+                <tr>
+                    <td>Contingency Cost</td>
+                    <td>₹{estimate.get('contingency_cost', 0):,.2f}</td>
+                </tr>
+                <tr class="total-row">
+                    <td>GRAND TOTAL</td>
+                    <td>₹{estimate.get('grand_total', 0):,.2f}</td>
+                </tr>
+                <tr>
+                    <td>Cost per Sqft</td>
+                    <td>₹{estimate.get('cost_per_sqft', 0):,.2f}</td>
+                </tr>
+            </table>
+            
+            <div class="page-break"></div>
+            <h2>BILL OF QUANTITIES (BOQ)</h2>
+            <table>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Rate (INR)</th>
+                    <th>Amount (INR)</th>
+                </tr>
+        """
+        
+        # Add BOQ lines by category
+        for category, category_lines in lines_by_category.items():
+            html_content += f"""
+                <tr class="category-header">
+                    <td colspan="6">{category_names.get(category, category.upper())}</td>
+                </tr>
+            """
+            
+            for line in category_lines:
+                edited_indicator = " ✏️" if line.get('is_user_edited', False) else ""
+                html_content += f"""
+                <tr>
+                    <td>{line.get('item_name', '')}{edited_indicator}</td>
+                    <td>{line.get('description', '')}</td>
+                    <td>{line.get('quantity', 0):,.2f}</td>
+                    <td>{line.get('unit', '')}</td>
+                    <td>₹{line.get('rate', 0):,.2f}</td>
+                    <td>₹{line.get('amount', 0):,.2f}</td>
+                </tr>
+                """
+        
+        html_content += """
+            </table>
+            
+            <div style="margin-top: 50px; padding-top: 20px; border-top: 2px solid #ccc;">
+                <p><em>Note: Items marked with ✏️ have been manually edited by user.</em></p>
+                <p><em>Generated on {}</em></p>
+            </div>
+        </body>
+        </html>
+        """.format(datetime.utcnow().strftime('%B %d, %Y at %I:%M %p'))
+        
+        # Return HTML as PDF-ready content
+        # Note: In a production environment, you'd use a library like weasyprint or pdfkit
+        # For now, we return HTML that can be printed to PDF by the browser
+        filename = f"estimate_{project_name.replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.html"
+        
+        return StreamingResponse(
+            iter([html_content]),
+            media_type="text/html",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to export PDF: {str(e)}")
+
+
 # ============= Material Presets (Admin) =============
 
 @api_router.post("/material-presets", response_model=MaterialPresetResponse)
