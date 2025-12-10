@@ -228,10 +228,12 @@ class EstimationEngine:
             is_user_edited=False
         ))
         
-        # 2. Beams (assume 20% of slab area as beam plan area)
-        beam_area_m = area_sqm * num_floors * 0.20
+        # 2. Beams (assume 20% of slab area as beam plan area per floor)
+        # CORRECTED: Use footprint area, not multiplied by floors
+        beam_area_per_floor_m = area_sqm * 0.20
+        total_beam_area_m = beam_area_per_floor_m * num_floors  # Beams repeated on each floor
         beam_height_m = 0.45  # 450mm typical
-        beam_volume = beam_area_m * beam_height_m * (1 + self.material_preset.concrete_wastage)
+        beam_volume = total_beam_area_m * beam_height_m * (1 + self.material_preset.concrete_wastage)
         
         beam_steel = beam_volume * self.material_preset.steel_kg_per_cum_beam * (1 + self.material_preset.steel_wastage)
         
