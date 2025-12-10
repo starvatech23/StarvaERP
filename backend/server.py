@@ -584,9 +584,9 @@ async def create_project(
     """Create a new project"""
     current_user = await get_current_user(credentials)
     
-    # Only admin and PM can create projects
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
-        raise HTTPException(status_code=403, detail="Only admins and project managers can create projects")
+    # Only admin, PM, and CRM Manager can create projects
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.CRM_MANAGER]:
+        raise HTTPException(status_code=403, detail="Only admins, project managers, and CRM managers can create projects")
     
     project_dict = project.dict()
     project_dict["created_at"] = datetime.utcnow()
