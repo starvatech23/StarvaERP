@@ -7629,8 +7629,7 @@ async def get_export_options(
     }
 
 
-# Include the routers in the main app (after all routes are defined)
-app.include_router(api_router)
+# Router will be included at the end after all routes are defined
 
 # Socket.IO events
 @sio.event
