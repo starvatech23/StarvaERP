@@ -59,6 +59,8 @@ export default function CreateEstimateScreen() {
   const handleCreate = async () => {
     setLoading(true);
     try {
+      console.log('Creating estimate with project ID:', projectId);
+      
       const estimateData = {
         project_id: projectId as string,
         built_up_area_sqft: parseFloat(formData.built_up_area_sqft),
@@ -70,7 +72,11 @@ export default function CreateEstimateScreen() {
         labour_percent_of_material: parseFloat(formData.labour_percent_of_material),
       };
 
+      console.log('Estimate data:', estimateData);
+      
       const response = await estimationAPI.create(estimateData);
+      
+      console.log('Estimate created successfully:', response.data);
       
       Alert.alert(
         'Estimate Created!',
@@ -83,7 +89,10 @@ export default function CreateEstimateScreen() {
         ]
       );
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to create estimate');
+      console.error('Error creating estimate:', error);
+      console.error('Error response:', error.response);
+      const errorMessage = error.response?.data?.detail || error.message || 'Failed to create estimate';
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
