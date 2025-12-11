@@ -467,6 +467,7 @@ export const estimationAPI = {
     api.put(`/estimates/${estimateId}/lines/${lineId}`, { quantity, rate }),
   delete: (estimateId: string) => api.delete(`/estimates/${estimateId}`),
   getMaterialPresets: () => api.get('/material-presets'),
+  createPreset: (data: any) => api.post('/material-presets', data),
   getRateTables: (location?: string) => api.get('/rate-tables', { params: { location } }),
   exportCSV: (estimateId: string) => api.get(`/estimates/${estimateId}/export/csv`, { responseType: 'text' }),
   exportPDF: (estimateId: string) => api.get(`/estimates/${estimateId}/export/pdf`, { responseType: 'text' }),
