@@ -150,18 +150,22 @@ export default function EstimateListScreen() {
                 <View style={styles.cardFooter}>
                   <View style={styles.footerItem}>
                     <Ionicons name="resize" size={14} color={Colors.textSecondary} />
-                    <Text style={styles.footerText}>{estimate.built_up_area_sqft} sqft</Text>
+                    <Text style={styles.footerText}>{estimate.built_up_area_sqft || 0} sqft</Text>
                   </View>
                   <View style={styles.footerDivider} />
                   <View style={styles.footerItem}>
                     <Ionicons name="layers" size={14} color={Colors.textSecondary} />
-                    <Text style={styles.footerText}>{estimate.num_floors} floor(s)</Text>
+                    <Text style={styles.footerText}>{estimate.num_floors || 1} floor(s)</Text>
                   </View>
-                  <View style={styles.footerDivider} />
-                  <View style={styles.footerItem}>
-                    <Ionicons name="pricetag" size={14} color={Colors.textSecondary} />
-                    <Text style={styles.footerText}>{estimate.package_type.toUpperCase()}</Text>
-                  </View>
+                  {estimate.package_type && (
+                    <>
+                      <View style={styles.footerDivider} />
+                      <View style={styles.footerItem}>
+                        <Ionicons name="pricetag" size={14} color={Colors.textSecondary} />
+                        <Text style={styles.footerText}>{estimate.package_type.toUpperCase()}</Text>
+                      </View>
+                    </>
+                  )}
                 </View>
               </TouchableOpacity>
             ))}
