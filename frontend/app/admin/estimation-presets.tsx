@@ -45,8 +45,21 @@ export default function EstimationPresetsScreen() {
     sand_per_cum: '1200',
     aggregate_per_cum: '1400',
     steel_per_kg: '65',
+    // Masonry - Blocks
+    block_4inch_per_unit: '28',
+    block_6inch_per_unit: '38',
     block_8inch_per_unit: '45',
-    brick_per_unit: '8',
+    block_10inch_per_unit: '52',
+    block_12inch_per_unit: '60',
+    // Masonry - Brick Types
+    brick_wirecut_red_per_unit: '12',
+    brick_standard_per_unit: '8',
+    brick_hollow_per_unit: '15',
+    brick_solid_per_unit: '10',
+    brick_flyash_per_unit: '9',
+    brick_aac_per_unit: '35',
+    brick_eco_per_unit: '7',
+    // Services
     labour_per_sqft: '45',
     electrical_per_sqft: '120',
     plumbing_per_sqft: '80',
