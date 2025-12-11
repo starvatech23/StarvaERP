@@ -504,6 +504,30 @@ const styles = StyleSheet.create({
     color: Colors.textTertiary,
     marginTop: 4,
   },
+  presetInfo: {
+    backgroundColor: Colors.primaryPale,
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  costRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 4,
+  },
+  costText: {
+    fontSize: 13,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  warningText: {
+    fontSize: 14,
+    color: Colors.warning,
+    padding: 12,
+    backgroundColor: Colors.warningPale,
+    borderRadius: 8,
+  },
   pickerContainer: {
     backgroundColor: Colors.surface,
     borderWidth: 1,
