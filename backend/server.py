@@ -8425,6 +8425,12 @@ async def update_default_rate_table(
         # Check if default rate table exists
         existing = await db.rate_tables.find_one({"name": "default"})
         
+        # Clean the data - remove any _id if present
+        if "_id" in rate_data:
+            del rate_data["_id"]
+        if "id" in rate_data:
+            del rate_data["id"]
+        
         rate_data["name"] = "default"
         rate_data["is_active"] = True
         rate_data["updated_at"] = datetime.utcnow()
@@ -8436,18 +8442,22 @@ async def update_default_rate_table(
                 {"name": "default"},
                 {"$set": rate_data}
             )
+            result_data = {**rate_data, "id": str(existing["_id"])}
         else:
             # Create new
             rate_data["created_by"] = str(current_user["_id"])
             rate_data["created_at"] = datetime.utcnow()
             rate_data["effective_date"] = datetime.utcnow()
-            await db.rate_tables.insert_one(rate_data)
+            result = await db.rate_tables.insert_one(rate_data)
+            result_data = {**rate_data, "id": str(result.inserted_id)}
         
-        return {"message": "Default rate table updated successfully", "data": rate_data}
+        return {"message": "Default rate table updated successfully", "data": result_data}
         
     except HTTPException:
         raise
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to update rate table: {str(e)}")
 
 
