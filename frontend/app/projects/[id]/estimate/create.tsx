@@ -165,6 +165,60 @@ export default function CreateEstimateScreen() {
               Enter basic project dimensions to generate estimate
             </Text>
 
+            {/* Preset Selector */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>
+                Estimation Preset <Text style={styles.required}>*</Text>
+              </Text>
+              {loadingPresets ? (
+                <ActivityIndicator size="small" color={Colors.primary} />
+              ) : presets.length > 0 ? (
+                <>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={formData.preset_id}
+                      onValueChange={(value) => updateField('preset_id', value)}
+                      style={styles.picker}
+                    >
+                      {presets.map((preset) => (
+                        <Picker.Item 
+                          key={preset.id} 
+                          label={preset.name} 
+                          value={preset.id} 
+                        />
+                      ))}
+                    </Picker>
+                  </View>
+                  {formData.preset_id && (
+                    <View style={styles.presetInfo}>
+                      <Text style={styles.hint}>Cost per sqft estimates:</Text>
+                      <View style={styles.costRow}>
+                        {presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_basic && (
+                          <Text style={styles.costText}>
+                            Basic: ₹{presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_basic}
+                          </Text>
+                        )}
+                        {presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_standard && (
+                          <Text style={styles.costText}>
+                            Standard: ₹{presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_standard}
+                          </Text>
+                        )}
+                        {presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_premium && (
+                          <Text style={styles.costText}>
+                            Premium: ₹{presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_premium}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  )}
+                </>
+              ) : (
+                <Text style={styles.warningText}>
+                  No presets available. Please create one in Admin → Estimation Presets
+                </Text>
+              )}
+            </View>
+
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
                 Built-up Area (sqft) <Text style={styles.required}>*</Text>
