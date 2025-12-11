@@ -84,9 +84,11 @@ export default function CreateEstimateScreen() {
     setLoading(true);
     try {
       console.log('Creating estimate with project ID:', projectId);
+      console.log('Selected preset ID:', formData.preset_id);
       
       const estimateData = {
         project_id: projectId as string,
+        preset_id: formData.preset_id, // Pass selected preset ID
         built_up_area_sqft: parseFloat(formData.built_up_area_sqft),
         package_type: formData.package_type,
         num_floors: parseInt(formData.num_floors),
