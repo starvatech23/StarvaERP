@@ -142,13 +142,56 @@ export default function EstimationPresetsScreen() {
         }
       }
 
+      console.log('Saving material preset...');
+      // Convert strings to numbers for material preset
+      const materialData = {
+        name: materialPreset.name,
+        cement_per_cum: parseFloat(materialPreset.cement_per_cum),
+        sand_per_cum: parseFloat(materialPreset.sand_per_cum),
+        aggregate_per_cum: parseFloat(materialPreset.aggregate_per_cum),
+        steel_kg_per_cum_foundation: parseFloat(materialPreset.steel_kg_per_cum_foundation),
+        steel_kg_per_cum_column: parseFloat(materialPreset.steel_kg_per_cum_column),
+        steel_kg_per_cum_beam: parseFloat(materialPreset.steel_kg_per_cum_beam),
+        steel_kg_per_cum_slab: parseFloat(materialPreset.steel_kg_per_cum_slab),
+        blocks_per_sqm: parseFloat(materialPreset.blocks_per_sqm),
+        mortar_per_sqm: parseFloat(materialPreset.mortar_per_sqm),
+        concrete_wastage: parseFloat(materialPreset.concrete_wastage),
+        steel_wastage: parseFloat(materialPreset.steel_wastage),
+        block_wastage: parseFloat(materialPreset.block_wastage),
+      };
+      
+      await estimationAPI.updateDefaultMaterialPreset(materialData);
+      console.log('Material preset saved successfully');
+
+      console.log('Saving rate table...');
+      // Convert strings to numbers for rate table
+      const rateData = {
+        name: rateTable.name,
+        location: rateTable.location,
+        cement_per_bag: parseFloat(rateTable.cement_per_bag),
+        sand_per_cum: parseFloat(rateTable.sand_per_cum),
+        aggregate_per_cum: parseFloat(rateTable.aggregate_per_cum),
+        steel_per_kg: parseFloat(rateTable.steel_per_kg),
+        block_8inch_per_unit: parseFloat(rateTable.block_8inch_per_unit),
+        brick_per_unit: parseFloat(rateTable.brick_per_unit),
+        labour_per_sqft: parseFloat(rateTable.labour_per_sqft),
+        electrical_per_sqft: parseFloat(rateTable.electrical_per_sqft),
+        plumbing_per_sqft: parseFloat(rateTable.plumbing_per_sqft),
+        painting_per_sqft: parseFloat(rateTable.painting_per_sqft),
+        contractor_overhead_percent: parseFloat(rateTable.contractor_overhead_percent),
+      };
+      
+      await estimationAPI.updateDefaultRateTable(rateData);
+      console.log('Rate table saved successfully');
+
       Alert.alert(
         'Success',
-        'Presets saved successfully! These will be used as defaults for new estimates.',
+        'Presets saved successfully! These will be used as defaults for all new estimates.',
         [{ text: 'OK' }]
       );
     } catch (error: any) {
-      Alert.alert('Error', 'Failed to save presets');
+      console.error('Save error:', error);
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to save presets');
     } finally {
       setSaving(false);
     }
