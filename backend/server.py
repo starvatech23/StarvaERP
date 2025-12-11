@@ -8379,6 +8379,68 @@ async def list_rate_tables(
         raise HTTPException(status_code=500, detail=f"Failed to list rate tables: {str(e)}")
 
 
+@api_router.get("/rate-tables/default")
+async def get_default_rate_table_endpoint(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get the default rate table (from DB or fallback to code defaults)"""
+    try:
+        from estimation_engine import get_default_rate_table
+        
+        # Try to get from DB first
+        rate_table = await db.rate_tables.find_one({"name": "default", "is_active": True})
+        
+        if rate_table:
+            return serialize_doc(rate_table)
+        else:
+            # Return code defaults
+            return get_default_rate_table()
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get default rate table: {str(e)}")
+
+
+@api_router.put("/rate-tables/default")
+async def update_default_rate_table(
+    rate_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update or create the default rate table (Admin only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Admin access required")
+        
+        # Check if default rate table exists
+        existing = await db.rate_tables.find_one({"name": "default"})
+        
+        rate_data["name"] = "default"
+        rate_data["is_active"] = True
+        rate_data["updated_at"] = datetime.utcnow()
+        rate_data["updated_by"] = str(current_user["_id"])
+        
+        if existing:
+            # Update existing
+            await db.rate_tables.update_one(
+                {"name": "default"},
+                {"$set": rate_data}
+            )
+        else:
+            # Create new
+            rate_data["created_by"] = str(current_user["_id"])
+            rate_data["created_at"] = datetime.utcnow()
+            rate_data["effective_date"] = datetime.utcnow()
+            await db.rate_tables.insert_one(rate_data)
+        
+        return {"message": "Default rate table updated successfully", "data": rate_data}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update rate table: {str(e)}")
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
