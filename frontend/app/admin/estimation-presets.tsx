@@ -60,11 +60,58 @@ export default function EstimationPresetsScreen() {
 
   const loadPresets = async () => {
     try {
-      // For now, using default values
-      // In future, fetch from API
+      console.log('Loading presets from API...');
+      
+      // Load material preset
+      const materialResponse = await estimationAPI.getDefaultMaterialPreset();
+      console.log('Material preset loaded:', materialResponse.data);
+      
+      if (materialResponse.data) {
+        const mp = materialResponse.data;
+        setMaterialPreset({
+          name: mp.name || 'Standard Mix',
+          cement_per_cum: mp.cement_per_cum?.toString() || '7.0',
+          sand_per_cum: mp.sand_per_cum?.toString() || '0.42',
+          aggregate_per_cum: mp.aggregate_per_cum?.toString() || '0.84',
+          steel_kg_per_cum_foundation: mp.steel_kg_per_cum_foundation?.toString() || '80.0',
+          steel_kg_per_cum_column: mp.steel_kg_per_cum_column?.toString() || '150.0',
+          steel_kg_per_cum_beam: mp.steel_kg_per_cum_beam?.toString() || '120.0',
+          steel_kg_per_cum_slab: mp.steel_kg_per_cum_slab?.toString() || '100.0',
+          blocks_per_sqm: mp.blocks_per_sqm?.toString() || '12.5',
+          mortar_per_sqm: mp.mortar_per_sqm?.toString() || '0.02',
+          concrete_wastage: mp.concrete_wastage?.toString() || '0.05',
+          steel_wastage: mp.steel_wastage?.toString() || '0.08',
+          block_wastage: mp.block_wastage?.toString() || '0.05',
+        });
+      }
+      
+      // Load rate table
+      const rateResponse = await estimationAPI.getDefaultRateTable();
+      console.log('Rate table loaded:', rateResponse.data);
+      
+      if (rateResponse.data) {
+        const rt = rateResponse.data;
+        setRateTable({
+          name: rt.name || 'Standard Rates 2025',
+          location: rt.location || 'Default',
+          cement_per_bag: rt.cement_per_bag?.toString() || '400',
+          sand_per_cum: rt.sand_per_cum?.toString() || '1200',
+          aggregate_per_cum: rt.aggregate_per_cum?.toString() || '1400',
+          steel_per_kg: rt.steel_per_kg?.toString() || '65',
+          block_8inch_per_unit: rt.block_8inch_per_unit?.toString() || '45',
+          brick_per_unit: rt.brick_per_unit?.toString() || '8',
+          labour_per_sqft: rt.labour_per_sqft?.toString() || '45',
+          electrical_per_sqft: rt.electrical_per_sqft?.toString() || '120',
+          plumbing_per_sqft: rt.plumbing_per_sqft?.toString() || '80',
+          painting_per_sqft: rt.painting_per_sqft?.toString() || '35',
+          contractor_overhead_percent: rt.contractor_overhead_percent?.toString() || '10',
+        });
+      }
+      
       setLoading(false);
     } catch (error: any) {
       console.error('Failed to load presets:', error);
+      Alert.alert('Info', 'Loading default presets. No custom presets found yet.');
       setLoading(false);
     }
   };
