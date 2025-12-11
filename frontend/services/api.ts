@@ -470,5 +470,9 @@ export const estimationAPI = {
   getRateTables: (location?: string) => api.get('/rate-tables', { params: { location } }),
   exportCSV: (estimateId: string) => api.get(`/estimates/${estimateId}/export/csv`, { responseType: 'text' }),
   exportPDF: (estimateId: string) => api.get(`/estimates/${estimateId}/export/pdf`, { responseType: 'text' }),
+  getDefaultMaterialPreset: () => api.get('/material-presets/default'),
+  updateDefaultMaterialPreset: (data: any) => api.put('/material-presets/default', data),
+  getDefaultRateTable: () => api.get('/rate-tables/default'),
+  updateDefaultRateTable: (data: any) => api.put('/rate-tables/default', data),
 };
 
