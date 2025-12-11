@@ -8324,15 +8324,13 @@ async def update_default_material_preset(
                 {"name": "default"},
                 {"$set": preset_data}
             )
-            result_data = {**preset_data, "id": str(existing["_id"])}
         else:
             # Create new
             preset_data["created_by"] = str(current_user["_id"])
             preset_data["created_at"] = datetime.utcnow()
             result = await db.material_presets.insert_one(preset_data)
-            result_data = {**preset_data, "id": str(result.inserted_id)}
         
-        return {"message": "Default material preset updated successfully", "data": result_data}
+        return {"message": "Default material preset updated successfully"}
         
     except HTTPException:
         raise
