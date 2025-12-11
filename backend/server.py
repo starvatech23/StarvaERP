@@ -8307,6 +8307,12 @@ async def update_default_material_preset(
         # Check if default preset exists
         existing = await db.material_presets.find_one({"name": "default"})
         
+        # Clean the data - remove any _id if present
+        if "_id" in preset_data:
+            del preset_data["_id"]
+        if "id" in preset_data:
+            del preset_data["id"]
+        
         preset_data["name"] = "default"
         preset_data["is_active"] = True
         preset_data["updated_at"] = datetime.utcnow()
@@ -8318,17 +8324,21 @@ async def update_default_material_preset(
                 {"name": "default"},
                 {"$set": preset_data}
             )
+            result_data = {**preset_data, "id": str(existing["_id"])}
         else:
             # Create new
             preset_data["created_by"] = str(current_user["_id"])
             preset_data["created_at"] = datetime.utcnow()
-            await db.material_presets.insert_one(preset_data)
+            result = await db.material_presets.insert_one(preset_data)
+            result_data = {**preset_data, "id": str(result.inserted_id)}
         
-        return {"message": "Default material preset updated successfully", "data": preset_data}
+        return {"message": "Default material preset updated successfully", "data": result_data}
         
     except HTTPException:
         raise
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to update preset: {str(e)}")
 
 
