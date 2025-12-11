@@ -532,10 +532,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 8,
+    borderRadius: 12,
     overflow: 'hidden',
   },
   picker: {
+    height: 50,
     color: Colors.textPrimary,
   },
   packageInfo: {
