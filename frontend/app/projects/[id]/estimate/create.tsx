@@ -22,9 +22,12 @@ export default function CreateEstimateScreen() {
   
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [presets, setPresets] = useState<any[]>([]);
+  const [loadingPresets, setLoadingPresets] = useState(true);
   
   // Form data
   const [formData, setFormData] = useState({
+    preset_id: '',
     built_up_area_sqft: '',
     package_type: 'standard',
     num_floors: '1',
@@ -33,6 +36,27 @@ export default function CreateEstimateScreen() {
     contingency_percent: '10',
     labour_percent_of_material: '40',
   });
+
+  React.useEffect(() => {
+    loadPresets();
+  }, []);
+
+  const loadPresets = async () => {
+    try {
+      const response = await estimationAPI.getMaterialPresets();
+      const presetList = response.data || [];
+      setPresets(presetList);
+      
+      // Auto-select first preset if available
+      if (presetList.length > 0) {
+        updateField('preset_id', presetList[0].id);
+      }
+    } catch (error: any) {
+      console.error('Failed to load presets:', error);
+    } finally {
+      setLoadingPresets(false);
+    }
+  };
 
   const updateField = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
