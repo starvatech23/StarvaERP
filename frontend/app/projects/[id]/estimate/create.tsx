@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.warning,
     padding: 12,
-    backgroundColor: Colors.warningPale,
+    backgroundColor: Colors.warningLight,
     borderRadius: 8,
   },
   pickerContainer: {
