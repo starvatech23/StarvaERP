@@ -8271,6 +8271,67 @@ async def list_material_presets(
         raise HTTPException(status_code=500, detail=f"Failed to list presets: {str(e)}")
 
 
+@api_router.get("/material-presets/default")
+async def get_default_material_preset_endpoint(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get the default material preset (from DB or fallback to code defaults)"""
+    try:
+        from estimation_engine import get_default_material_preset
+        
+        # Try to get from DB first
+        preset = await db.material_presets.find_one({"name": "default", "is_active": True})
+        
+        if preset:
+            return serialize_doc(preset)
+        else:
+            # Return code defaults
+            return get_default_material_preset()
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get default preset: {str(e)}")
+
+
+@api_router.put("/material-presets/default")
+async def update_default_material_preset(
+    preset_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update or create the default material preset (Admin only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Admin access required")
+        
+        # Check if default preset exists
+        existing = await db.material_presets.find_one({"name": "default"})
+        
+        preset_data["name"] = "default"
+        preset_data["is_active"] = True
+        preset_data["updated_at"] = datetime.utcnow()
+        preset_data["updated_by"] = str(current_user["_id"])
+        
+        if existing:
+            # Update existing
+            await db.material_presets.update_one(
+                {"name": "default"},
+                {"$set": preset_data}
+            )
+        else:
+            # Create new
+            preset_data["created_by"] = str(current_user["_id"])
+            preset_data["created_at"] = datetime.utcnow()
+            await db.material_presets.insert_one(preset_data)
+        
+        return {"message": "Default material preset updated successfully", "data": preset_data}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update preset: {str(e)}")
+
+
 # ============= Rate Tables (Admin) =============
 
 @api_router.post("/rate-tables", response_model=RateTableResponse)
