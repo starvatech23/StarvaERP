@@ -18,6 +18,137 @@ import { estimationAPI } from '../../services/api';
 export default function EstimationPresetsScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [presets, setPresets] = useState<any[]>([]);
+  
+  useEffect(() => {
+    loadPresets();
+  }, []);
+
+  const loadPresets = async () => {
+    try {
+      const response = await estimationAPI.getMaterialPresets();
+      setPresets(response.data || []);
+    } catch (error: any) {
+      console.error('Failed to load presets:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={Colors.primary} />
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Estimation Presets</Text>
+          <Text style={styles.headerSubtitle}>{presets.length} preset(s) available</Text>
+        </View>
+        <TouchableOpacity 
+          onPress={() => router.push('/admin/estimation-presets/create')}
+          style={styles.createButton}
+        >
+          <Ionicons name="add" size={24} color={Colors.white} />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={styles.content}>
+        {presets.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="calculator-outline" size={64} color={Colors.textTertiary} />
+            <Text style={styles.emptyTitle}>No Presets Created</Text>
+            <Text style={styles.emptyText}>Create your first estimation preset to get started</Text>
+            <TouchableOpacity 
+              style={styles.emptyButton}
+              onPress={() => router.push('/admin/estimation-presets/create')}
+            >
+              <Ionicons name="add-circle" size={20} color={Colors.white} />
+              <Text style={styles.emptyButtonText}>Create Preset</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          presets.map((preset) => (
+            <TouchableOpacity 
+              key={preset.id}
+              style={styles.presetCard}
+              onPress={() => Alert.alert('Coming Soon', 'Edit preset functionality coming soon')}
+            >
+              <View style={styles.presetHeader}>
+                <View style={styles.presetIcon}>
+                  <Ionicons name="calculator" size={24} color={Colors.primary} />
+                </View>
+                <View style={styles.presetInfo}>
+                  <Text style={styles.presetName}>{preset.name}</Text>
+                  {preset.description && (
+                    <Text style={styles.presetDescription}>{preset.description}</Text>
+                  )}
+                </View>
+              </View>
+              
+              <View style={styles.presetDetails}>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Cost per Sqft Ranges:</Text>
+                </View>
+                <View style={styles.costGrid}>
+                  {preset.cost_per_sqft_basic && (
+                    <View style={styles.costItem}>
+                      <Text style={styles.costLabel}>Basic</Text>
+                      <Text style={styles.costValue}>₹{preset.cost_per_sqft_basic}/sqft</Text>
+                    </View>
+                  )}
+                  {preset.cost_per_sqft_standard && (
+                    <View style={styles.costItem}>
+                      <Text style={styles.costLabel}>Standard</Text>
+                      <Text style={styles.costValue}>₹{preset.cost_per_sqft_standard}/sqft</Text>
+                    </View>
+                  )}
+                  {preset.cost_per_sqft_premium && (
+                    <View style={styles.costItem}>
+                      <Text style={styles.costLabel}>Premium</Text>
+                      <Text style={styles.costValue}>₹{preset.cost_per_sqft_premium}/sqft</Text>
+                    </View>
+                  )}
+                  {preset.cost_per_sqft_luxury && (
+                    <View style={styles.costItem}>
+                      <Text style={styles.costLabel}>Luxury</Text>
+                      <Text style={styles.costValue}>₹{preset.cost_per_sqft_luxury}/sqft</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              <View style={styles.presetFooter}>
+                <View style={styles.footerItem}>
+                  <Ionicons name="construct" size={14} color={Colors.textSecondary} />
+                  <Text style={styles.footerText}>Cement: {preset.cement_per_cum} bags/cum</Text>
+                </View>
+                <View style={styles.footerItem}>
+                  <Ionicons name="flash" size={14} color={Colors.textSecondary} />
+                  <Text style={styles.footerText}>Steel: {preset.steel_kg_per_cum_slab} kg/cum</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+// OLD CODE STARTS HERE - REMOVE ALL BELOW
+const _oldCode = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
   // Material Preset State
