@@ -8440,16 +8440,14 @@ async def update_default_rate_table(
                 {"name": "default"},
                 {"$set": rate_data}
             )
-            result_data = {**rate_data, "id": str(existing["_id"])}
         else:
             # Create new
             rate_data["created_by"] = str(current_user["_id"])
             rate_data["created_at"] = datetime.utcnow()
             rate_data["effective_date"] = datetime.utcnow()
             result = await db.rate_tables.insert_one(rate_data)
-            result_data = {**rate_data, "id": str(result.inserted_id)}
         
-        return {"message": "Default rate table updated successfully", "data": result_data}
+        return {"message": "Default rate table updated successfully"}
         
     except HTTPException:
         raise
