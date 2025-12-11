@@ -2039,6 +2039,11 @@ class BOQCategory(str, Enum):
 class MaterialPresetBase(BaseModel):
     name: str  # e.g., "Standard Mix 1:2:4"
     description: Optional[str] = None
+    # Cost per sqft estimates
+    cost_per_sqft_basic: Optional[float] = 1800.0  # Basic package
+    cost_per_sqft_standard: Optional[float] = 2200.0  # Standard package
+    cost_per_sqft_premium: Optional[float] = 2800.0  # Premium package
+    cost_per_sqft_luxury: Optional[float] = 3500.0  # Luxury package
     # Concrete mix ratios
     cement_per_cum: float = 7.0  # bags per cubic meter
     sand_per_cum: float = 0.42  # cum per cum of concrete
