@@ -109,6 +109,13 @@ export default function AdminDashboard() {
       count: null,
       route: '/admin/settings',
     },
+    {
+      title: 'Estimation Presets',
+      icon: 'calculator',
+      color: '#3B82F6',
+      count: null,
+      route: '/admin/estimation-presets',
+    },
   ];
 
   if (loading) {
