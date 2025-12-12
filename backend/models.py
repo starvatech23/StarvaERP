@@ -2203,8 +2203,8 @@ class ConstructionPresetBase(BaseModel):
     region: str = Field(..., min_length=2, max_length=100)
     effective_date: datetime
     rate_per_sqft: float = Field(..., ge=0)
-    currency: str = Field(default="INR", regex="^(INR|USD|EUR)$")
-    status: str = Field(default="draft", regex="^(draft|active|archived)$")
+    currency: str = Field(default="INR", pattern="^(INR|USD|EUR)$")
+    status: str = Field(default="draft", pattern="^(draft|active|archived)$")
 
 class ConstructionPresetCreate(ConstructionPresetBase):
     spec_groups: Optional[List[Dict]] = []
@@ -2215,7 +2215,7 @@ class ConstructionPresetUpdate(BaseModel):
     region: Optional[str] = Field(None, min_length=2)
     effective_date: Optional[datetime] = None
     rate_per_sqft: Optional[float] = Field(None, ge=0)
-    status: Optional[str] = Field(None, regex="^(draft|active|archived)$")
+    status: Optional[str] = Field(None, pattern="^(draft|active|archived)$")
     spec_groups: Optional[List[Dict]] = None
 
 class ConstructionPresetResponse(ConstructionPresetBase):
@@ -2237,11 +2237,11 @@ class SpecGroupBase(BaseModel):
 
 class SpecItemBase(BaseModel):
     item_name: str = Field(..., max_length=200)
-    unit: str = Field(..., regex="^(bag|kg|cubic_ft|sqft|unit|meter|liter)$")
+    unit: str = Field(..., pattern="^(bag|kg|cubic_ft|sqft|unit|meter|liter)$")
     rate_min: float = Field(..., ge=0)
     rate_max: float = Field(..., ge=0)
     currency: str = Field(default="INR")
-    material_type: str = Field(..., regex="^(Brick|Block|Cement|Steel|Finishing|Plumbing|Electrical|Aggregate|Other)$")
+    material_type: str = Field(..., pattern="^(Brick|Block|Cement|Steel|Finishing|Plumbing|Electrical|Aggregate|Other)$")
     spec_reference: Optional[str] = None
     notes: Optional[str] = Field(None, max_length=1000)
     is_mandatory: bool = True
@@ -2259,7 +2259,7 @@ class BrandBase(BaseModel):
 
 class PresetAuditLog(BaseModel):
     preset_id: str
-    action: str = Field(..., regex="^(CREATE|UPDATE|DELETE|ACTIVATE|ARCHIVE)$")
+    action: str = Field(..., pattern="^(CREATE|UPDATE|DELETE|ACTIVATE|ARCHIVE)$")
     user_id: str
     changes: Optional[Dict] = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
