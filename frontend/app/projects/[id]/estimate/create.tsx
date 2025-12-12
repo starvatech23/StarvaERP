@@ -14,7 +14,18 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import Colors from '../../../../constants/Colors';
-import { estimationAPI } from '../../../../services/api';
+import { estimationAPI, constructionPresetsAPI } from '../../../../services/api';
+
+interface ConstructionPreset {
+  id: string;
+  name: string;
+  description?: string;
+  region: string;
+  rate_per_sqft: number;
+  status: string;
+  spec_groups_count: number;
+  spec_items_count: number;
+}
 
 export default function CreateEstimateScreen() {
   const router = useRouter();
@@ -22,12 +33,12 @@ export default function CreateEstimateScreen() {
   
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [presets, setPresets] = useState<any[]>([]);
+  const [constructionPresets, setConstructionPresets] = useState<ConstructionPreset[]>([]);
   const [loadingPresets, setLoadingPresets] = useState(true);
   
   // Form data
   const [formData, setFormData] = useState({
-    preset_id: '',
+    construction_preset_id: '',
     built_up_area_sqft: '',
     package_type: 'standard',
     num_floors: '1',
@@ -38,24 +49,39 @@ export default function CreateEstimateScreen() {
   });
 
   React.useEffect(() => {
-    loadPresets();
+    loadConstructionPresets();
   }, []);
 
-  const loadPresets = async () => {
+  const loadConstructionPresets = async () => {
     try {
-      const response = await estimationAPI.getMaterialPresets();
+      const response = await constructionPresetsAPI.list({ status: 'active' });
       const presetList = response.data || [];
-      setPresets(presetList);
+      setConstructionPresets(presetList);
       
       // Auto-select first preset if available
       if (presetList.length > 0) {
-        updateField('preset_id', presetList[0].id);
+        updateField('construction_preset_id', presetList[0].id);
       }
     } catch (error: any) {
-      console.error('Failed to load presets:', error);
+      console.error('Failed to load construction presets:', error);
+      // Fallback: try to load anyway without status filter
+      try {
+        const response = await constructionPresetsAPI.list();
+        const presetList = response.data || [];
+        setConstructionPresets(presetList);
+        if (presetList.length > 0) {
+          updateField('construction_preset_id', presetList[0].id);
+        }
+      } catch (err) {
+        console.error('Failed to load presets:', err);
+      }
     } finally {
       setLoadingPresets(false);
     }
+  };
+
+  const getSelectedPreset = () => {
+    return constructionPresets.find(p => p.id === formData.construction_preset_id);
   };
 
   const updateField = (field: string, value: string) => {
