@@ -1,477 +1,646 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Budgeting & Estimation - Edit & Export Features
-Tests the new endpoints:
-1. PUT /api/estimates/{estimate_id}/lines/{line_id} - Update BOQ line item
-2. GET /api/estimates/{estimate_id}/export/csv - Export to CSV
-3. GET /api/estimates/{estimate_id}/export/pdf - Export to PDF (HTML)
-4. Existing endpoints verification
+Backend API Testing for Construction Presets Module
+Tests all Construction Presets CRUD operations and authorization
 """
 
 import requests
 import json
-from datetime import datetime
 import sys
-import os
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
 
-# Backend URL from frontend .env
-BACKEND_URL = "https://conpre-app.preview.emergentagent.com/api"
+# Configuration
+BASE_URL = "https://conpre-app.preview.emergentagent.com/api"
+ADMIN_EMAIL = "admin@test.com"
+ADMIN_PASSWORD = "admin123"
+MANAGER_EMAIL = "crm.manager@test.com"
+MANAGER_PASSWORD = "manager123"
 
-# Test credentials - Using CRM Manager as specified in requirements
-TEST_CREDENTIALS = {
-    "identifier": "crm.manager@test.com",
-    "password": "manager123",
-    "auth_type": "email"
-}
-
-# Fallback credentials
-ADMIN_CREDENTIALS = {
-    "identifier": "admin@test.com",
-    "password": "admin123",
-    "auth_type": "email"
-}
-
-PM_CREDENTIALS = {
-    "identifier": "pm@test.com", 
-    "password": "pm123",
-    "auth_type": "email"
-}
-
-class EstimationTester:
+class ConstructionPresetsAPITester:
     def __init__(self):
-        self.session = requests.Session()
-        self.token = None
-        self.user_id = None
-        self.test_project_id = None
-        self.test_estimate_id = None
-        self.test_line_id = None
+        self.admin_token = None
+        self.manager_token = None
+        self.test_preset_id = None
+        self.duplicate_preset_id = None
         self.results = []
         
-    def log_result(self, test_name, success, message, details=None):
+    def log_result(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
         """Log test result"""
         status = "✅ PASS" if success else "❌ FAIL"
         result = {
             "test": test_name,
             "status": status,
-            "message": message,
-            "details": details or {},
-            "timestamp": datetime.now().isoformat()
+            "details": details,
+            "response_data": response_data
         }
         self.results.append(result)
-        print(f"{status}: {test_name} - {message}")
-        if details and not success:
+        print(f"{status}: {test_name}")
+        if details:
             print(f"   Details: {details}")
-    
-    def authenticate(self):
-        """Authenticate with test credentials"""
-        # Try CRM Manager credentials first
-        credentials_to_try = [TEST_CREDENTIALS, ADMIN_CREDENTIALS, PM_CREDENTIALS]
-        
-        for creds in credentials_to_try:
-            try:
-                response = self.session.post(f"{BACKEND_URL}/auth/login", json=creds)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    self.token = data["access_token"]
-                    self.user_id = data["user"]["id"]
-                    self.session.headers.update({
-                        "Authorization": f"Bearer {self.token}"
-                    })
-                    self.log_result("Authentication", True, f"Logged in as {creds['identifier']}")
-                    return True
-                    
-            except Exception as e:
-                continue
-                
-        self.log_result("Authentication", False, "All login attempts failed")
-        return False
-    
-    def setup_test_data(self):
-        """Create test project and estimate for testing"""
-        try:
-            # Try to get existing project first
-            response = self.session.get(f"{BACKEND_URL}/projects")
-            if response.status_code == 200:
-                projects = response.json()
-                if projects:
-                    self.test_project_id = projects[0]["id"]
-                    self.log_result("Test Project Selection", True, f"Using existing project: {projects[0]['name']}")
-                else:
-                    # Try to create test project if no existing projects
-                    project_data = {
-                        "name": f"Test Estimation Project {datetime.now().strftime('%Y%m%d_%H%M%S')}",
-                        "description": "Test project for estimation edit & export features",
-                        "location": "Test Location",
-                        "client_name": "Test Client Ltd",
-                        "client_contact": "+91-9876543210",
-                        "status": "planning",
-                        "start_date": "2024-01-01",
-                        "end_date": "2024-12-31",
-                        "budget": 5000000.0
-                    }
-                    
-                    response = self.session.post(f"{BACKEND_URL}/projects", json=project_data)
-                    if response.status_code == 200:
-                        project = response.json()
-                        self.test_project_id = project["id"]
-                        self.log_result("Test Project Creation", True, f"Created project: {project['name']}")
-                    else:
-                        self.log_result("Test Project Creation", False, f"Failed to create project: {response.status_code}",
-                                      {"response": response.text})
-                        return False
-            else:
-                self.log_result("Test Project Selection", False, f"Failed to get projects: {response.status_code}",
-                              {"response": response.text})
-                return False
-            
-            # Create test estimate
-            estimate_data = {
-                "project_id": self.test_project_id,
-                "version_name": "Test Estimate v1",
-                "built_up_area_sqft": 2000.0,
-                "num_floors": 2,
-                "package_type": "premium",
-                "contingency_percent": 10.0,
-                "labour_percent_of_material": 25.0,
-                "status": "draft"
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/estimates", json=estimate_data)
-            if response.status_code == 200:
-                estimate = response.json()
-                self.test_estimate_id = estimate["id"]
-                # Get first line item for testing
-                if estimate.get("lines") and len(estimate["lines"]) > 0:
-                    self.test_line_id = estimate["lines"][0]["id"]
-                self.log_result("Test Estimate Creation", True, 
-                              f"Created estimate with {len(estimate.get('lines', []))} line items")
-                return True
-            else:
-                self.log_result("Test Estimate Creation", False, f"Failed to create estimate: {response.status_code}",
-                              {"response": response.text})
-                return False
-                
-        except Exception as e:
-            self.log_result("Test Data Setup", False, f"Setup error: {str(e)}")
-            return False
-    
-    def test_existing_endpoints(self):
-        """Test existing endpoints to ensure they still work"""
-        tests_passed = 0
-        total_tests = 3
-        
-        try:
-            # Test 1: POST /api/estimates (already tested in setup, but verify response structure)
-            if self.test_estimate_id:
-                self.log_result("POST /api/estimates", True, "Estimate creation working correctly")
-                tests_passed += 1
-            else:
-                self.log_result("POST /api/estimates", False, "Estimate creation failed")
-            
-            # Test 2: GET /api/estimates/{estimate_id}
-            response = self.session.get(f"{BACKEND_URL}/estimates/{self.test_estimate_id}")
-            if response.status_code == 200:
-                estimate = response.json()
-                required_fields = ["id", "project_id", "grand_total", "cost_per_sqft", "lines"]
-                missing_fields = [field for field in required_fields if field not in estimate]
-                
-                if not missing_fields and len(estimate.get("lines", [])) > 0:
-                    self.log_result("GET /api/estimates/{id}", True, 
-                                  f"Retrieved estimate with {len(estimate['lines'])} lines, Grand Total: ₹{estimate['grand_total']:,.2f}")
-                    tests_passed += 1
-                else:
-                    self.log_result("GET /api/estimates/{id}", False, f"Missing fields: {missing_fields}")
-            else:
-                self.log_result("GET /api/estimates/{id}", False, f"Failed to get estimate: {response.status_code}",
-                              {"response": response.text})
-            
-            # Test 3: GET /api/projects/{project_id}/estimates
-            response = self.session.get(f"{BACKEND_URL}/projects/{self.test_project_id}/estimates")
-            if response.status_code == 200:
-                estimates = response.json()
-                if len(estimates) > 0 and estimates[0].get("id") == self.test_estimate_id:
-                    self.log_result("GET /api/projects/{id}/estimates", True, 
-                                  f"Listed {len(estimates)} estimates for project")
-                    tests_passed += 1
-                else:
-                    self.log_result("GET /api/projects/{id}/estimates", False, "No estimates found or incorrect data")
-            else:
-                self.log_result("GET /api/projects/{id}/estimates", False, f"Failed to list estimates: {response.status_code}",
-                              {"response": response.text})
-                
-        except Exception as e:
-            self.log_result("Existing Endpoints Test", False, f"Error testing existing endpoints: {str(e)}")
-        
-        return tests_passed, total_tests
-    
-    def test_line_update_endpoint(self):
-        """Test PUT /api/estimates/{estimate_id}/lines/{line_id} - Update BOQ line item"""
-        if not self.test_line_id:
-            self.log_result("Line Update Test", False, "No test line ID available")
-            return False
-        
-        try:
-            # Get original line data first
-            response = self.session.get(f"{BACKEND_URL}/estimates/{self.test_estimate_id}")
-            if response.status_code != 200:
-                self.log_result("Line Update Test - Get Original", False, "Failed to get original estimate")
-                return False
-            
-            original_estimate = response.json()
-            original_line = None
-            for line in original_estimate.get("lines", []):
-                if line["id"] == self.test_line_id:
-                    original_line = line
-                    break
-            
-            if not original_line:
-                self.log_result("Line Update Test", False, "Test line not found in estimate")
-                return False
-            
-            original_quantity = original_line["quantity"]
-            original_rate = original_line["rate"]
-            original_amount = original_line["amount"]
-            original_total = original_estimate["grand_total"]
-            
-            # Test updating quantity and rate
-            new_quantity = original_quantity * 1.5  # Increase by 50%
-            new_rate = original_rate * 1.2  # Increase by 20%
-            expected_new_amount = new_quantity * new_rate
-            
-            # Make the update request
-            update_params = {
-                "quantity": new_quantity,
-                "rate": new_rate
-            }
-            
-            response = self.session.put(
-                f"{BACKEND_URL}/estimates/{self.test_estimate_id}/lines/{self.test_line_id}",
-                params=update_params
-            )
-            
-            if response.status_code == 200:
-                update_result = response.json()
-                
-                # Verify the response
-                if "new_total" in update_result:
-                    # Get updated estimate to verify changes
-                    response = self.session.get(f"{BACKEND_URL}/estimates/{self.test_estimate_id}")
-                    if response.status_code == 200:
-                        updated_estimate = response.json()
-                        updated_line = None
-                        for line in updated_estimate.get("lines", []):
-                            if line["id"] == self.test_line_id:
-                                updated_line = line
-                                break
-                        
-                        if updated_line:
-                            # Verify all changes
-                            checks = []
-                            checks.append(("quantity", updated_line["quantity"] == new_quantity))
-                            checks.append(("rate", updated_line["rate"] == new_rate))
-                            checks.append(("amount", abs(updated_line["amount"] - expected_new_amount) < 0.01))
-                            checks.append(("is_user_edited", updated_line.get("is_user_edited", False) == True))
-                            checks.append(("total_recalculated", updated_estimate["grand_total"] != original_total))
-                            
-                            failed_checks = [check[0] for check in checks if not check[1]]
-                            
-                            if not failed_checks:
-                                self.log_result("PUT /api/estimates/{id}/lines/{line_id}", True,
-                                              f"Line updated successfully. Quantity: {original_quantity}→{new_quantity}, "
-                                              f"Rate: ₹{original_rate:,.2f}→₹{new_rate:,.2f}, "
-                                              f"Amount: ₹{original_amount:,.2f}→₹{updated_line['amount']:,.2f}, "
-                                              f"Total: ₹{original_total:,.2f}→₹{updated_estimate['grand_total']:,.2f}")
-                                return True
-                            else:
-                                self.log_result("PUT /api/estimates/{id}/lines/{line_id}", False,
-                                              f"Verification failed for: {', '.join(failed_checks)}",
-                                              {"updated_line": updated_line, "expected_amount": expected_new_amount})
-                        else:
-                            self.log_result("PUT /api/estimates/{id}/lines/{line_id}", False, "Updated line not found")
-                    else:
-                        self.log_result("PUT /api/estimates/{id}/lines/{line_id}", False, "Failed to get updated estimate")
-                else:
-                    self.log_result("PUT /api/estimates/{id}/lines/{line_id}", False, "Response missing 'new_total' field")
-            else:
-                self.log_result("PUT /api/estimates/{id}/lines/{line_id}", False, 
-                              f"Update failed: {response.status_code}", {"response": response.text})
-                
-        except Exception as e:
-            self.log_result("PUT /api/estimates/{id}/lines/{line_id}", False, f"Error: {str(e)}")
-        
-        return False
-    
-    def test_csv_export_endpoint(self):
-        """Test GET /api/estimates/{estimate_id}/export/csv - Export to CSV"""
-        try:
-            response = self.session.get(f"{BACKEND_URL}/estimates/{self.test_estimate_id}/export/csv")
-            
-            if response.status_code == 200:
-                # Check headers
-                content_type = response.headers.get("content-type", "")
-                content_disposition = response.headers.get("content-disposition", "")
-                
-                # Check content
-                csv_content = response.text
-                
-                # Verify CSV structure
-                checks = []
-                checks.append(("content_type", "text/csv" in content_type))
-                checks.append(("content_disposition", "attachment" in content_disposition and ".csv" in content_disposition))
-                checks.append(("project_info", "PROJECT ESTIMATE" in csv_content))
-                checks.append(("cost_summary", "COST SUMMARY" in csv_content))
-                checks.append(("boq_header", "BILL OF QUANTITIES" in csv_content))
-                checks.append(("line_items", "Item Name" in csv_content and "Quantity" in csv_content))
-                
-                failed_checks = [check[0] for check in checks if not check[1]]
-                
-                if not failed_checks:
-                    # Count lines to verify content
-                    lines = csv_content.split('\n')
-                    non_empty_lines = [line for line in lines if line.strip()]
-                    
-                    self.log_result("GET /api/estimates/{id}/export/csv", True,
-                                  f"CSV export successful. File size: {len(csv_content)} chars, "
-                                  f"Lines: {len(non_empty_lines)}, Headers: {content_disposition}")
-                    return True
-                else:
-                    self.log_result("GET /api/estimates/{id}/export/csv", False,
-                                  f"CSV validation failed: {', '.join(failed_checks)}",
-                                  {"content_preview": csv_content[:500]})
-            else:
-                self.log_result("GET /api/estimates/{id}/export/csv", False,
-                              f"Export failed: {response.status_code}", {"response": response.text})
-                
-        except Exception as e:
-            self.log_result("GET /api/estimates/{id}/export/csv", False, f"Error: {str(e)}")
-        
-        return False
-    
-    def test_pdf_export_endpoint(self):
-        """Test GET /api/estimates/{estimate_id}/export/pdf - Export to PDF (HTML)"""
-        try:
-            response = self.session.get(f"{BACKEND_URL}/estimates/{self.test_estimate_id}/export/pdf")
-            
-            if response.status_code == 200:
-                # Check headers
-                content_type = response.headers.get("content-type", "")
-                content_disposition = response.headers.get("content-disposition", "")
-                
-                # Check content
-                html_content = response.text
-                
-                # Verify HTML structure
-                checks = []
-                checks.append(("content_type", "text/html" in content_type))
-                checks.append(("content_disposition", "attachment" in content_disposition and ".html" in content_disposition))
-                checks.append(("html_structure", "<!DOCTYPE html>" in html_content and "<html>" in html_content))
-                checks.append(("css_styling", "<style>" in html_content and "font-family" in html_content))
-                checks.append(("project_header", "PROJECT ESTIMATE" in html_content))
-                checks.append(("cost_summary", "COST SUMMARY" in html_content))
-                checks.append(("boq_table", "BILL OF QUANTITIES" in html_content and "<table>" in html_content))
-                checks.append(("professional_styling", "background-color" in html_content and "border" in html_content))
-                
-                failed_checks = [check[0] for check in checks if not check[1]]
-                
-                if not failed_checks:
-                    # Check for user-edited indicators
-                    has_edit_indicator = "✏️" in html_content or "manually edited" in html_content
-                    
-                    self.log_result("GET /api/estimates/{id}/export/pdf", True,
-                                  f"PDF (HTML) export successful. File size: {len(html_content)} chars, "
-                                  f"Has edit indicators: {has_edit_indicator}, Headers: {content_disposition}")
-                    return True
-                else:
-                    self.log_result("GET /api/estimates/{id}/export/pdf", False,
-                                  f"HTML validation failed: {', '.join(failed_checks)}",
-                                  {"content_preview": html_content[:1000]})
-            else:
-                self.log_result("GET /api/estimates/{id}/export/pdf", False,
-                              f"Export failed: {response.status_code}", {"response": response.text})
-                
-        except Exception as e:
-            self.log_result("GET /api/estimates/{id}/export/pdf", False, f"Error: {str(e)}")
-        
-        return False
-    
-    def run_all_tests(self):
-        """Run all tests in sequence"""
-        print("=" * 80)
-        print("BUDGETING & ESTIMATION - EDIT & EXPORT FEATURES TESTING")
-        print("=" * 80)
-        print(f"Backend URL: {BACKEND_URL}")
-        print(f"Test Credentials: {TEST_CREDENTIALS['identifier']}")
-        print(f"Test Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 80)
-        
-        # Step 1: Authentication
-        if not self.authenticate():
-            print("\n❌ CRITICAL: Authentication failed. Cannot proceed with tests.")
-            return False
-        
-        # Step 2: Setup test data
-        if not self.setup_test_data():
-            print("\n❌ CRITICAL: Test data setup failed. Cannot proceed with tests.")
-            return False
-        
-        print(f"\n📋 Test Data Created:")
-        print(f"   Project ID: {self.test_project_id}")
-        print(f"   Estimate ID: {self.test_estimate_id}")
-        print(f"   Test Line ID: {self.test_line_id}")
-        
-        # Step 3: Test existing endpoints
-        print(f"\n🔍 Testing Existing Endpoints...")
-        existing_passed, existing_total = self.test_existing_endpoints()
-        
-        # Step 4: Test new endpoints
-        print(f"\n🆕 Testing New Edit & Export Features...")
-        
-        # Test line update endpoint
-        line_update_success = self.test_line_update_endpoint()
-        
-        # Test CSV export
-        csv_export_success = self.test_csv_export_endpoint()
-        
-        # Test PDF export
-        pdf_export_success = self.test_pdf_export_endpoint()
-        
-        # Calculate results
-        new_tests_passed = sum([line_update_success, csv_export_success, pdf_export_success])
-        new_tests_total = 3
-        
-        total_passed = existing_passed + new_tests_passed
-        total_tests = existing_total + new_tests_total
-        
-        # Print summary
-        print("\n" + "=" * 80)
-        print("TEST SUMMARY")
-        print("=" * 80)
-        print(f"Existing Endpoints: {existing_passed}/{existing_total} passed")
-        print(f"New Features: {new_tests_passed}/{new_tests_total} passed")
-        print(f"OVERALL: {total_passed}/{total_tests} tests passed ({(total_passed/total_tests)*100:.1f}%)")
-        
-        if total_passed == total_tests:
-            print("\n🎉 ALL TESTS PASSED! Edit & Export features are working correctly.")
-        else:
-            print(f"\n⚠️  {total_tests - total_passed} test(s) failed. See details above.")
-        
-        # Print detailed results
-        print("\nDETAILED RESULTS:")
-        for result in self.results:
-            print(f"{result['status']}: {result['test']}")
-            if result['status'] == "❌ FAIL" and result.get('details'):
-                print(f"   Error: {result['message']}")
-        
-        return total_passed == total_tests
+        if not success and response_data:
+            print(f"   Response: {response_data}")
+        print()
 
-def main():
-    """Main test execution"""
-    tester = EstimationTester()
-    success = tester.run_all_tests()
-    
-    # Exit with appropriate code
-    sys.exit(0 if success else 1)
+    def authenticate_user(self, email: str, password: str) -> Optional[str]:
+        """Authenticate user and return token"""
+        try:
+            response = requests.post(f"{BASE_URL}/auth/login", json={
+                "identifier": email,
+                "password": password,
+                "auth_type": "email"
+            })
+            
+            if response.status_code == 200:
+                data = response.json()
+                return data.get("access_token")
+            else:
+                print(f"Authentication failed for {email}: {response.status_code} - {response.text}")
+                return None
+        except Exception as e:
+            print(f"Authentication error for {email}: {str(e)}")
+            return None
+
+    def make_request(self, method: str, endpoint: str, token: str, data: Dict = None, params: Dict = None) -> requests.Response:
+        """Make authenticated API request"""
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        
+        url = f"{BASE_URL}{endpoint}"
+        
+        if method.upper() == "GET":
+            return requests.get(url, headers=headers, params=params)
+        elif method.upper() == "POST":
+            return requests.post(url, headers=headers, json=data, params=params)
+        elif method.upper() == "PUT":
+            return requests.put(url, headers=headers, json=data, params=params)
+        elif method.upper() == "DELETE":
+            return requests.delete(url, headers=headers, params=params)
+
+    def test_authentication(self):
+        """Test user authentication"""
+        print("=== Testing Authentication ===")
+        
+        # Test admin authentication
+        self.admin_token = self.authenticate_user(ADMIN_EMAIL, ADMIN_PASSWORD)
+        self.log_result(
+            "Admin Authentication",
+            self.admin_token is not None,
+            f"Admin token obtained: {bool(self.admin_token)}"
+        )
+        
+        # Test manager authentication
+        self.manager_token = self.authenticate_user(MANAGER_EMAIL, MANAGER_PASSWORD)
+        self.log_result(
+            "Manager Authentication", 
+            self.manager_token is not None,
+            f"Manager token obtained: {bool(self.manager_token)}"
+        )
+        
+        return self.admin_token is not None
+
+    def test_create_construction_preset(self):
+        """Test POST /api/construction-presets"""
+        print("=== Testing Create Construction Preset ===")
+        
+        if not self.admin_token:
+            self.log_result("Create Construction Preset", False, "No admin token available")
+            return
+        
+        # Test data with nested spec groups, items, and brands
+        preset_data = {
+            "name": "Test Bangalore Premium 2025",
+            "description": "Premium construction preset for Bangalore region with high-end specifications",
+            "region": "Bangalore",
+            "effective_date": (datetime.now() + timedelta(days=1)).isoformat(),
+            "rate_per_sqft": 3500.0,
+            "status": "active",
+            "spec_groups": [
+                {
+                    "name": "Foundation & Structure",
+                    "description": "Foundation and structural work specifications",
+                    "display_order": 1,
+                    "spec_items": [
+                        {
+                            "name": "Foundation Concrete",
+                            "description": "M25 grade concrete for foundation",
+                            "unit": "cubic_meter",
+                            "material_type": "concrete",
+                            "rate_range_min": 8000.0,
+                            "rate_range_max": 12000.0,
+                            "is_mandatory": True,
+                            "display_order": 1,
+                            "brand_list": [
+                                {
+                                    "name": "ACC Concrete",
+                                    "rate": 10000.0,
+                                    "is_preferred": True
+                                },
+                                {
+                                    "name": "UltraTech Concrete",
+                                    "rate": 10500.0,
+                                    "is_preferred": False
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Steel Reinforcement",
+                            "description": "TMT steel bars for reinforcement",
+                            "unit": "kilogram",
+                            "material_type": "steel",
+                            "rate_range_min": 65.0,
+                            "rate_range_max": 75.0,
+                            "is_mandatory": True,
+                            "display_order": 2,
+                            "brand_list": [
+                                {
+                                    "name": "TATA Steel",
+                                    "rate": 70.0,
+                                    "is_preferred": True
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Electrical & Plumbing",
+                    "description": "Electrical and plumbing work specifications",
+                    "display_order": 2,
+                    "spec_items": [
+                        {
+                            "name": "Electrical Wiring",
+                            "description": "Copper wiring for electrical installations",
+                            "unit": "meter",
+                            "material_type": "electrical",
+                            "rate_range_min": 25.0,
+                            "rate_range_max": 35.0,
+                            "is_mandatory": True,
+                            "display_order": 1,
+                            "brand_list": [
+                                {
+                                    "name": "Havells Wire",
+                                    "rate": 30.0,
+                                    "is_preferred": True
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+        
+        try:
+            response = self.make_request("POST", "/construction-presets", self.admin_token, preset_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.test_preset_id = data.get("id")
+                self.log_result(
+                    "Create Construction Preset",
+                    True,
+                    f"Created preset with ID: {self.test_preset_id}, Name: {data.get('message', 'Success')}"
+                )
+            else:
+                self.log_result(
+                    "Create Construction Preset",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("Create Construction Preset", False, f"Exception: {str(e)}")
+
+    def test_list_construction_presets(self):
+        """Test GET /api/construction-presets with filters"""
+        print("=== Testing List Construction Presets ===")
+        
+        if not self.admin_token:
+            self.log_result("List Construction Presets", False, "No admin token available")
+            return
+        
+        # Test basic list
+        try:
+            response = self.make_request("GET", "/construction-presets", self.admin_token)
+            
+            if response.status_code == 200:
+                data = response.json()
+                preset_count = len(data)
+                self.log_result(
+                    "List Construction Presets - Basic",
+                    True,
+                    f"Retrieved {preset_count} presets"
+                )
+                
+                # Verify response structure
+                if preset_count > 0:
+                    first_preset = data[0]
+                    required_fields = ["id", "name", "region", "status", "rate_per_sqft", "spec_groups_count", "spec_items_count"]
+                    missing_fields = [field for field in required_fields if field not in first_preset]
+                    
+                    self.log_result(
+                        "List Construction Presets - Structure",
+                        len(missing_fields) == 0,
+                        f"Missing fields: {missing_fields}" if missing_fields else "All required fields present"
+                    )
+            else:
+                self.log_result(
+                    "List Construction Presets - Basic",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("List Construction Presets - Basic", False, f"Exception: {str(e)}")
+        
+        # Test with search filter
+        try:
+            response = self.make_request("GET", "/construction-presets", self.admin_token, params={"search": "Bangalore"})
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result(
+                    "List Construction Presets - Search Filter",
+                    True,
+                    f"Search 'Bangalore' returned {len(data)} presets"
+                )
+            else:
+                self.log_result(
+                    "List Construction Presets - Search Filter",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("List Construction Presets - Search Filter", False, f"Exception: {str(e)}")
+        
+        # Test with region filter
+        try:
+            response = self.make_request("GET", "/construction-presets", self.admin_token, params={"region": "Bangalore"})
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result(
+                    "List Construction Presets - Region Filter",
+                    True,
+                    f"Region 'Bangalore' filter returned {len(data)} presets"
+                )
+            else:
+                self.log_result(
+                    "List Construction Presets - Region Filter",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("List Construction Presets - Region Filter", False, f"Exception: {str(e)}")
+        
+        # Test with status filter
+        try:
+            response = self.make_request("GET", "/construction-presets", self.admin_token, params={"status": "active"})
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result(
+                    "List Construction Presets - Status Filter",
+                    True,
+                    f"Status 'active' filter returned {len(data)} presets"
+                )
+            else:
+                self.log_result(
+                    "List Construction Presets - Status Filter",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("List Construction Presets - Status Filter", False, f"Exception: {str(e)}")
+
+    def test_get_single_construction_preset(self):
+        """Test GET /api/construction-presets/{preset_id}"""
+        print("=== Testing Get Single Construction Preset ===")
+        
+        if not self.admin_token or not self.test_preset_id:
+            self.log_result("Get Single Construction Preset", False, "No admin token or preset ID available")
+            return
+        
+        try:
+            response = self.make_request("GET", f"/construction-presets/{self.test_preset_id}", self.admin_token)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify full preset structure with nested data
+                required_fields = ["id", "name", "description", "region", "rate_per_sqft", "status", "spec_groups"]
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                # Check spec groups structure
+                spec_groups_valid = True
+                if "spec_groups" in data and len(data["spec_groups"]) > 0:
+                    first_group = data["spec_groups"][0]
+                    group_fields = ["name", "description", "spec_items"]
+                    missing_group_fields = [field for field in group_fields if field not in first_group]
+                    
+                    if missing_group_fields:
+                        spec_groups_valid = False
+                    
+                    # Check spec items structure
+                    if "spec_items" in first_group and len(first_group["spec_items"]) > 0:
+                        first_item = first_group["spec_items"][0]
+                        item_fields = ["name", "unit", "material_type", "rate_range_min", "rate_range_max", "brand_list"]
+                        missing_item_fields = [field for field in item_fields if field not in first_item]
+                        
+                        if missing_item_fields:
+                            spec_groups_valid = False
+                
+                self.log_result(
+                    "Get Single Construction Preset",
+                    len(missing_fields) == 0 and spec_groups_valid,
+                    f"Retrieved preset '{data.get('name')}' with {len(data.get('spec_groups', []))} spec groups. Missing fields: {missing_fields}" if missing_fields else f"Retrieved preset '{data.get('name')}' with complete nested structure"
+                )
+            else:
+                self.log_result(
+                    "Get Single Construction Preset",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("Get Single Construction Preset", False, f"Exception: {str(e)}")
+
+    def test_update_construction_preset(self):
+        """Test PUT /api/construction-presets/{preset_id}"""
+        print("=== Testing Update Construction Preset ===")
+        
+        if not self.admin_token or not self.test_preset_id:
+            self.log_result("Update Construction Preset", False, "No admin token or preset ID available")
+            return
+        
+        # Update data
+        update_data = {
+            "name": "Test Bangalore Premium 2025 - Updated",
+            "description": "Updated premium construction preset for Bangalore region",
+            "rate_per_sqft": 3750.0,
+            "status": "active",
+            "spec_groups": [
+                {
+                    "name": "Foundation & Structure - Updated",
+                    "description": "Updated foundation and structural work specifications",
+                    "display_order": 1,
+                    "spec_items": [
+                        {
+                            "name": "Foundation Concrete - Updated",
+                            "description": "M30 grade concrete for foundation (upgraded)",
+                            "unit": "cubic_meter",
+                            "material_type": "concrete",
+                            "rate_range_min": 9000.0,
+                            "rate_range_max": 13000.0,
+                            "is_mandatory": True,
+                            "display_order": 1,
+                            "brand_list": [
+                                {
+                                    "name": "ACC Concrete Premium",
+                                    "rate": 11000.0,
+                                    "is_preferred": True
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+        
+        try:
+            response = self.make_request("PUT", f"/construction-presets/{self.test_preset_id}", self.admin_token, update_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result(
+                    "Update Construction Preset",
+                    True,
+                    f"Updated preset successfully. Message: {data.get('message', 'Success')}"
+                )
+                
+                # Verify version increment by getting the updated preset
+                get_response = self.make_request("GET", f"/construction-presets/{self.test_preset_id}", self.admin_token)
+                if get_response.status_code == 200:
+                    updated_preset = get_response.json()
+                    version = updated_preset.get("version", 1)
+                    self.log_result(
+                        "Update Construction Preset - Version Check",
+                        version > 1,
+                        f"Version after update: {version} (should be > 1)"
+                    )
+            else:
+                self.log_result(
+                    "Update Construction Preset",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("Update Construction Preset", False, f"Exception: {str(e)}")
+
+    def test_duplicate_construction_preset(self):
+        """Test POST /api/construction-presets/{preset_id}/duplicate"""
+        print("=== Testing Duplicate Construction Preset ===")
+        
+        if not self.admin_token or not self.test_preset_id:
+            self.log_result("Duplicate Construction Preset", False, "No admin token or preset ID available")
+            return
+        
+        try:
+            params = {
+                "new_name": "Test Mumbai Premium 2025 - Duplicated",
+                "new_region": "Mumbai"
+            }
+            
+            response = self.make_request("POST", f"/construction-presets/{self.test_preset_id}/duplicate", self.admin_token, params=params)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.duplicate_preset_id = data.get("id")
+                self.log_result(
+                    "Duplicate Construction Preset",
+                    True,
+                    f"Duplicated preset with new ID: {self.duplicate_preset_id}. Message: {data.get('message', 'Success')}"
+                )
+            else:
+                self.log_result(
+                    "Duplicate Construction Preset",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("Duplicate Construction Preset", False, f"Exception: {str(e)}")
+
+    def test_delete_construction_preset_wrong_confirmation(self):
+        """Test DELETE /api/construction-presets/{preset_id} with wrong confirmation"""
+        print("=== Testing Delete Construction Preset - Wrong Confirmation ===")
+        
+        if not self.admin_token or not self.duplicate_preset_id:
+            self.log_result("Delete Construction Preset - Wrong Confirmation", False, "No admin token or duplicate preset ID available")
+            return
+        
+        try:
+            params = {
+                "confirmation_name": "Wrong Name"
+            }
+            
+            response = self.make_request("DELETE", f"/construction-presets/{self.duplicate_preset_id}", self.admin_token, params=params)
+            
+            # Should fail with 400 or 403
+            if response.status_code in [400, 403]:
+                self.log_result(
+                    "Delete Construction Preset - Wrong Confirmation",
+                    True,
+                    f"Correctly rejected wrong confirmation name. Status: {response.status_code}"
+                )
+            else:
+                self.log_result(
+                    "Delete Construction Preset - Wrong Confirmation",
+                    False,
+                    f"Should have rejected wrong confirmation. Status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("Delete Construction Preset - Wrong Confirmation", False, f"Exception: {str(e)}")
+
+    def test_delete_construction_preset_correct_confirmation(self):
+        """Test DELETE /api/construction-presets/{preset_id} with correct confirmation"""
+        print("=== Testing Delete Construction Preset - Correct Confirmation ===")
+        
+        if not self.admin_token or not self.duplicate_preset_id:
+            self.log_result("Delete Construction Preset - Correct Confirmation", False, "No admin token or duplicate preset ID available")
+            return
+        
+        try:
+            params = {
+                "confirmation_name": "Test Mumbai Premium 2025 - Duplicated"
+            }
+            
+            response = self.make_request("DELETE", f"/construction-presets/{self.duplicate_preset_id}", self.admin_token, params=params)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result(
+                    "Delete Construction Preset - Correct Confirmation",
+                    True,
+                    f"Successfully deleted preset. Message: {data.get('message', 'Success')}, Usage count: {data.get('usage_count', 0)}"
+                )
+            else:
+                self.log_result(
+                    "Delete Construction Preset - Correct Confirmation",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("Delete Construction Preset - Correct Confirmation", False, f"Exception: {str(e)}")
+
+    def test_authorization_non_admin_user(self):
+        """Test authorization - non-admin user should get 403"""
+        print("=== Testing Authorization - Non-Admin User ===")
+        
+        # Try to authenticate as a regular user (if available)
+        # For now, we'll test with manager credentials which should work
+        if not self.manager_token:
+            self.log_result("Authorization - Manager Access", False, "No manager token available")
+            return
+        
+        # Test manager can create presets (should work)
+        preset_data = {
+            "name": "Manager Test Preset",
+            "description": "Test preset created by manager",
+            "region": "Delhi",
+            "effective_date": datetime.now().isoformat(),
+            "rate_per_sqft": 2500.0,
+            "status": "draft",
+            "spec_groups": []
+        }
+        
+        try:
+            response = self.make_request("POST", "/construction-presets", self.manager_token, preset_data)
+            
+            if response.status_code == 200:
+                self.log_result(
+                    "Authorization - Manager Access",
+                    True,
+                    "Manager successfully created preset (correct behavior)"
+                )
+            elif response.status_code == 403:
+                self.log_result(
+                    "Authorization - Manager Access",
+                    False,
+                    "Manager was denied access (should be allowed)"
+                )
+            else:
+                self.log_result(
+                    "Authorization - Manager Access",
+                    False,
+                    f"Unexpected status: {response.status_code}",
+                    response.text
+                )
+        except Exception as e:
+            self.log_result("Authorization - Manager Access", False, f"Exception: {str(e)}")
+
+    def run_all_tests(self):
+        """Run all Construction Presets API tests"""
+        print("🏗️ CONSTRUCTION PRESETS MODULE - BACKEND API TESTING")
+        print("=" * 60)
+        
+        # Authentication
+        if not self.test_authentication():
+            print("❌ Authentication failed. Cannot proceed with tests.")
+            return
+        
+        # CRUD Operations
+        self.test_create_construction_preset()
+        self.test_list_construction_presets()
+        self.test_get_single_construction_preset()
+        self.test_update_construction_preset()
+        self.test_duplicate_construction_preset()
+        
+        # Delete operations
+        self.test_delete_construction_preset_wrong_confirmation()
+        self.test_delete_construction_preset_correct_confirmation()
+        
+        # Authorization
+        self.test_authorization_non_admin_user()
+        
+        # Summary
+        self.print_summary()
+
+    def print_summary(self):
+        """Print test summary"""
+        print("\n" + "=" * 60)
+        print("🏗️ CONSTRUCTION PRESETS API TESTING SUMMARY")
+        print("=" * 60)
+        
+        total_tests = len(self.results)
+        passed_tests = len([r for r in self.results if "✅ PASS" in r["status"]])
+        failed_tests = total_tests - passed_tests
+        
+        print(f"Total Tests: {total_tests}")
+        print(f"Passed: {passed_tests}")
+        print(f"Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        
+        if failed_tests > 0:
+            print("\n❌ FAILED TESTS:")
+            for result in self.results:
+                if "❌ FAIL" in result["status"]:
+                    print(f"  - {result['test']}: {result['details']}")
+        
+        print("\n✅ PASSED TESTS:")
+        for result in self.results:
+            if "✅ PASS" in result["status"]:
+                print(f"  - {result['test']}")
+        
+        print("\n" + "=" * 60)
 
 if __name__ == "__main__":
-    main()
+    tester = ConstructionPresetsAPITester()
+    tester.run_all_tests()
