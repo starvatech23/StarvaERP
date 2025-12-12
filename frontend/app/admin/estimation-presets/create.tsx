@@ -94,7 +94,21 @@ export default function CreatePresetScreen() {
         sand_per_cum: parseFloat(rateTable.sand_per_cum),
         aggregate_per_cum: parseFloat(rateTable.aggregate_per_cum),
         steel_per_kg: parseFloat(rateTable.steel_per_kg),
+        // Block sizes
+        block_4inch_per_unit: parseFloat(rateTable.block_4inch_per_unit),
+        block_6inch_per_unit: parseFloat(rateTable.block_6inch_per_unit),
         block_8inch_per_unit: parseFloat(rateTable.block_8inch_per_unit),
+        block_10inch_per_unit: parseFloat(rateTable.block_10inch_per_unit),
+        block_12inch_per_unit: parseFloat(rateTable.block_12inch_per_unit),
+        // Brick types
+        brick_wirecut_red_per_unit: parseFloat(rateTable.brick_wirecut_red_per_unit),
+        brick_standard_per_unit: parseFloat(rateTable.brick_standard_per_unit),
+        brick_hollow_per_unit: parseFloat(rateTable.brick_hollow_per_unit),
+        brick_solid_per_unit: parseFloat(rateTable.brick_solid_per_unit),
+        brick_flyash_per_unit: parseFloat(rateTable.brick_flyash_per_unit),
+        brick_aac_per_unit: parseFloat(rateTable.brick_aac_per_unit),
+        brick_eco_per_unit: parseFloat(rateTable.brick_eco_per_unit),
+        // Services
         labour_per_sqft: parseFloat(rateTable.labour_per_sqft),
         electrical_per_sqft: parseFloat(rateTable.electrical_per_sqft),
         plumbing_per_sqft: parseFloat(rateTable.plumbing_per_sqft),
