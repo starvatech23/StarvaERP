@@ -8502,6 +8502,8 @@ async def list_construction_presets(
         # Enhance with metadata
         result = []
         for preset in presets:
+            # Save ID before serialization (serialize_doc removes _id)
+            preset_id = str(preset["_id"])
             preset_dict = serialize_doc(preset)
             
             # Count spec groups and items
@@ -8510,7 +8512,7 @@ async def list_construction_presets(
             
             # Count project usage
             usage_count = await db.project_preset_usage.count_documents({
-                "preset_id": str(preset["_id"]),
+                "preset_id": preset_id,
                 "is_active": True
             })
             
