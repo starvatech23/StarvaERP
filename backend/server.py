@@ -8460,6 +8460,337 @@ async def update_default_rate_table(
         raise HTTPException(status_code=500, detail=f"Failed to update rate table: {str(e)}")
 
 
+# ============= Construction Presets (Admin) =============
+
+@api_router.get("/construction-presets", response_model=List[ConstructionPresetResponse])
+async def list_construction_presets(
+    page: int = 1,
+    limit: int = 20,
+    search: Optional[str] = None,
+    region: Optional[str] = None,
+    status: Optional[str] = None,
+    material_type: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """List construction presets with filtering and pagination"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Build query
+        query = {}
+        if search:
+            query["$or"] = [
+                {"name": {"$regex": search, "$options": "i"}},
+                {"description": {"$regex": search, "$options": "i"}}
+            ]
+        if region:
+            query["region"] = {"$regex": region, "$options": "i"}
+        if status:
+            query["status"] = status
+            
+        # Count total documents
+        total = await db.construction_presets.count_documents(query)
+        
+        # Get presets with pagination
+        skip = (page - 1) * limit
+        presets = await db.construction_presets.find(query) \
+            .sort("updated_at", -1) \
+            .skip(skip) \
+            .limit(limit) \
+            .to_list(limit)
+        
+        # Enhance with metadata
+        result = []
+        for preset in presets:
+            preset_dict = serialize_doc(preset)
+            
+            # Count spec groups and items
+            spec_groups_count = len(preset_dict.get("spec_groups", []))
+            spec_items_count = sum(len(group.get("spec_items", [])) for group in preset_dict.get("spec_groups", []))
+            
+            # Count project usage
+            usage_count = await db.project_preset_usage.count_documents({
+                "preset_id": str(preset["_id"]),
+                "is_active": True
+            })
+            
+            preset_dict.update({
+                "spec_groups_count": spec_groups_count,
+                "spec_items_count": spec_items_count,
+                "project_usage_count": usage_count
+            })
+            
+            result.append(ConstructionPresetResponse(**preset_dict))
+            
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list presets: {str(e)}")
+
+
+@api_router.get("/construction-presets/{preset_id}")
+async def get_construction_preset(
+    preset_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a specific construction preset by ID"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        preset = await db.construction_presets.find_one({"_id": ObjectId(preset_id)})
+        if not preset:
+            raise HTTPException(status_code=404, detail="Construction preset not found")
+            
+        preset_dict = serialize_doc(preset)
+        
+        # Add metadata
+        spec_groups_count = len(preset_dict.get("spec_groups", []))
+        spec_items_count = sum(len(group.get("spec_items", [])) for group in preset_dict.get("spec_groups", []))
+        
+        usage_count = await db.project_preset_usage.count_documents({
+            "preset_id": preset_id,
+            "is_active": True
+        })
+        
+        preset_dict.update({
+            "spec_groups_count": spec_groups_count,
+            "spec_items_count": spec_items_count,
+            "project_usage_count": usage_count
+        })
+        
+        return ConstructionPresetResponse(**preset_dict)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get preset: {str(e)}")
+
+
+@api_router.post("/construction-presets")
+async def create_construction_preset(
+    preset_data: ConstructionPresetCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new construction preset (Admin/Manager only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] not in ["admin", "project_manager"]:
+            raise HTTPException(status_code=403, detail="Admin or Manager access required")
+        
+        # Check for duplicate name in same region
+        existing = await db.construction_presets.find_one({
+            "name": preset_data.name,
+            "region": preset_data.region
+        })
+        if existing:
+            raise HTTPException(status_code=400, detail=f"Preset '{preset_data.name}' already exists in {preset_data.region}")
+        
+        # Validate rate ranges in spec items
+        for group in preset_data.spec_groups or []:
+            for item in group.get("spec_items", []):
+                if item.get("rate_min", 0) > item.get("rate_max", 0):
+                    raise HTTPException(status_code=400, detail=f"Invalid rate range for {item.get('item_name')}: min > max")
+        
+        preset_dict = preset_data.dict()
+        preset_dict.update({
+            "version": 1,
+            "created_by": str(current_user["_id"]),
+            "created_at": datetime.utcnow()
+        })
+        
+        result = await db.construction_presets.insert_one(preset_dict)
+        
+        # Audit log
+        await db.preset_audit_log.insert_one({
+            "preset_id": str(result.inserted_id),
+            "action": "CREATE",
+            "user_id": str(current_user["_id"]),
+            "changes": {"created": preset_data.name},
+            "timestamp": datetime.utcnow()
+        })
+        
+        return {"message": "Construction preset created successfully", "id": str(result.inserted_id)}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create preset: {str(e)}")
+
+
+@api_router.put("/construction-presets/{preset_id}")
+async def update_construction_preset(
+    preset_id: str,
+    preset_data: ConstructionPresetUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a construction preset (Admin/Manager only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] not in ["admin", "project_manager"]:
+            raise HTTPException(status_code=403, detail="Admin or Manager access required")
+        
+        preset = await db.construction_presets.find_one({"_id": ObjectId(preset_id)})
+        if not preset:
+            raise HTTPException(status_code=404, detail="Construction preset not found")
+        
+        # Validate rate ranges if spec_groups provided
+        if preset_data.spec_groups:
+            for group in preset_data.spec_groups:
+                for item in group.get("spec_items", []):
+                    if item.get("rate_min", 0) > item.get("rate_max", 0):
+                        raise HTTPException(status_code=400, detail=f"Invalid rate range for {item.get('item_name')}")
+        
+        # Prepare update data
+        update_data = {k: v for k, v in preset_data.dict(exclude_unset=True).items() if v is not None}
+        update_data.update({
+            "updated_by": str(current_user["_id"]),
+            "updated_at": datetime.utcnow()
+        })
+        
+        # Check if this is a major change (increment version)
+        major_changes = ["rate_per_sqft", "spec_groups"]
+        if any(field in update_data for field in major_changes):
+            update_data["version"] = preset.get("version", 1) + 1
+        
+        await db.construction_presets.update_one(
+            {"_id": ObjectId(preset_id)},
+            {"$set": update_data}
+        )
+        
+        # Audit log
+        await db.preset_audit_log.insert_one({
+            "preset_id": preset_id,
+            "action": "UPDATE",
+            "user_id": str(current_user["_id"]),
+            "changes": update_data,
+            "timestamp": datetime.utcnow()
+        })
+        
+        return {"message": "Construction preset updated successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update preset: {str(e)}")
+
+
+@api_router.delete("/construction-presets/{preset_id}")
+async def delete_construction_preset(
+    preset_id: str,
+    confirmation_name: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a construction preset with confirmation (Admin/Manager only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Role check
+        if current_user["role"] not in ["admin", "project_manager"]:
+            raise HTTPException(status_code=403, detail="Insufficient permissions. Only Admins and Managers can delete presets.")
+        
+        preset = await db.construction_presets.find_one({"_id": ObjectId(preset_id)})
+        if not preset:
+            raise HTTPException(status_code=404, detail="Construction preset not found")
+        
+        # Name confirmation
+        if confirmation_name != preset["name"]:
+            raise HTTPException(status_code=400, detail="Preset name confirmation does not match")
+        
+        # Check usage
+        usage_count = await db.project_preset_usage.count_documents({
+            "preset_id": preset_id,
+            "is_active": True
+        })
+        
+        if usage_count > 0:
+            # Soft delete - mark as archived
+            await db.construction_presets.update_one(
+                {"_id": ObjectId(preset_id)},
+                {"$set": {
+                    "status": "archived", 
+                    "updated_by": str(current_user["_id"]),
+                    "updated_at": datetime.utcnow()
+                }}
+            )
+            message = f"Preset archived (was used by {usage_count} projects)"
+        else:
+            # Hard delete
+            await db.construction_presets.delete_one({"_id": ObjectId(preset_id)})
+            message = "Preset deleted successfully"
+        
+        # Audit log
+        await db.preset_audit_log.insert_one({
+            "preset_id": preset_id,
+            "action": "DELETE",
+            "user_id": str(current_user["_id"]),
+            "changes": {
+                "name": preset["name"],
+                "usage_count": usage_count,
+                "action": "archived" if usage_count > 0 else "deleted"
+            },
+            "timestamp": datetime.utcnow()
+        })
+        
+        return {"message": message, "usage_count": usage_count}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete preset: {str(e)}")
+
+
+@api_router.post("/construction-presets/{preset_id}/duplicate")
+async def duplicate_construction_preset(
+    preset_id: str,
+    new_name: str,
+    new_region: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Duplicate a construction preset with new name/region"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] not in ["admin", "project_manager"]:
+            raise HTTPException(status_code=403, detail="Admin or Manager access required")
+        
+        # Get original preset
+        original = await db.construction_presets.find_one({"_id": ObjectId(preset_id)})
+        if not original:
+            raise HTTPException(status_code=404, detail="Original preset not found")
+        
+        # Prepare duplicate data
+        duplicate_data = {k: v for k, v in original.items() if k not in ["_id", "created_at", "updated_at"]}
+        duplicate_data.update({
+            "name": new_name,
+            "region": new_region or original["region"],
+            "version": 1,
+            "status": "draft",
+            "created_by": str(current_user["_id"]),
+            "created_at": datetime.utcnow()
+        })
+        
+        # Check for duplicate
+        existing = await db.construction_presets.find_one({
+            "name": new_name,
+            "region": duplicate_data["region"]
+        })
+        if existing:
+            raise HTTPException(status_code=400, detail=f"Preset '{new_name}' already exists in {duplicate_data['region']}")
+        
+        result = await db.construction_presets.insert_one(duplicate_data)
+        
+        return {"message": "Preset duplicated successfully", "id": str(result.inserted_id)}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to duplicate preset: {str(e)}")
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
