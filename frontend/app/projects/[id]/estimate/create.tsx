@@ -201,57 +201,70 @@ export default function CreateEstimateScreen() {
               Enter basic project dimensions to generate estimate
             </Text>
 
-            {/* Preset Selector */}
+            {/* Construction Preset Selector */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
-                Estimation Preset <Text style={styles.required}>*</Text>
+                Construction Preset <Text style={styles.required}>*</Text>
               </Text>
               {loadingPresets ? (
                 <ActivityIndicator size="small" color={Colors.primary} />
-              ) : presets.length > 0 ? (
+              ) : constructionPresets.length > 0 ? (
                 <>
                   <View style={styles.pickerContainer}>
                     <Picker
-                      selectedValue={formData.preset_id}
-                      onValueChange={(value) => updateField('preset_id', value)}
+                      selectedValue={formData.construction_preset_id}
+                      onValueChange={(value) => updateField('construction_preset_id', value)}
                       style={styles.picker}
                     >
-                      {presets.map((preset) => (
+                      <Picker.Item label="-- Select Preset --" value="" />
+                      {constructionPresets.map((preset) => (
                         <Picker.Item 
                           key={preset.id} 
-                          label={preset.name} 
+                          label={`${preset.name} (${preset.region})`}
                           value={preset.id} 
                         />
                       ))}
                     </Picker>
                   </View>
-                  {formData.preset_id && (
+                  {formData.construction_preset_id && (
                     <View style={styles.presetInfo}>
-                      <Text style={styles.hint}>Cost per sqft estimates:</Text>
-                      <View style={styles.costRow}>
-                        {presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_basic && (
-                          <Text style={styles.costText}>
-                            Basic: ₹{presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_basic}
-                          </Text>
-                        )}
-                        {presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_standard && (
-                          <Text style={styles.costText}>
-                            Standard: ₹{presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_standard}
-                          </Text>
-                        )}
-                        {presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_premium && (
-                          <Text style={styles.costText}>
-                            Premium: ₹{presets.find(p => p.id === formData.preset_id)?.cost_per_sqft_premium}
-                          </Text>
-                        )}
+                      <View style={styles.presetInfoHeader}>
+                        <Ionicons name="construct" size={18} color={Colors.primary} />
+                        <Text style={styles.presetInfoTitle}>Selected Preset Details</Text>
                       </View>
+                      <View style={styles.presetDetailsGrid}>
+                        <View style={styles.presetDetailItem}>
+                          <Text style={styles.presetDetailLabel}>Region</Text>
+                          <Text style={styles.presetDetailValue}>{getSelectedPreset()?.region}</Text>
+                        </View>
+                        <View style={styles.presetDetailItem}>
+                          <Text style={styles.presetDetailLabel}>Base Rate</Text>
+                          <Text style={[styles.presetDetailValue, { color: Colors.success }]}>
+                            ₹{getSelectedPreset()?.rate_per_sqft?.toLocaleString('en-IN')}/sqft
+                          </Text>
+                        </View>
+                        <View style={styles.presetDetailItem}>
+                          <Text style={styles.presetDetailLabel}>Spec Groups</Text>
+                          <Text style={styles.presetDetailValue}>{getSelectedPreset()?.spec_groups_count || 0}</Text>
+                        </View>
+                        <View style={styles.presetDetailItem}>
+                          <Text style={styles.presetDetailLabel}>Spec Items</Text>
+                          <Text style={styles.presetDetailValue}>{getSelectedPreset()?.spec_items_count || 0}</Text>
+                        </View>
+                      </View>
+                      {getSelectedPreset()?.description && (
+                        <Text style={styles.presetDescription}>{getSelectedPreset()?.description}</Text>
+                      )}
                     </View>
                   )}
                 </>
               ) : (
-                <Text style={styles.warningText}>
-                  No presets available. Please create one in Admin → Estimation Presets
-                </Text>
+                <View style={styles.warningBox}>
+                  <Ionicons name="alert-circle" size={20} color={Colors.warning} />
+                  <Text style={styles.warningText}>
+                    No construction presets available. Please create one in Admin → Construction Presets
+                  </Text>
+                </View>
               )}
             </View>
 
