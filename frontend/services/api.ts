@@ -477,3 +477,16 @@ export const estimationAPI = {
   updateDefaultRateTable: (data: any) => api.put('/rate-tables/default', data),
 };
 
+// Construction Presets API
+export const constructionPresetsAPI = {
+  list: (params?: { page?: number; limit?: number; search?: string; region?: string; status?: string; material_type?: string }) => 
+    api.get('/construction-presets', { params }),
+  getById: (presetId: string) => api.get(`/construction-presets/${presetId}`),
+  create: (data: any) => api.post('/construction-presets', data),
+  update: (presetId: string, data: any) => api.put(`/construction-presets/${presetId}`, data),
+  delete: (presetId: string, confirmationName: string) => 
+    api.delete(`/construction-presets/${presetId}`, { data: { confirmation_name: confirmationName } }),
+  duplicate: (presetId: string, newName: string, newRegion?: string) => 
+    api.post(`/construction-presets/${presetId}/duplicate`, { new_name: newName, new_region: newRegion }),
+};
+
