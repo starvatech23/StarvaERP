@@ -1034,11 +1034,11 @@ user_problem_statement: |
 backend:
   - task: "Construction Presets CRUD APIs"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py, /app/backend/models.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -1046,6 +1046,9 @@ backend:
       - working: true
         agent: "main"
         comment: "✅ MANUAL TESTING VERIFIED: (1) POST create - Working (created 'Bangalore Standard 2025' preset), (2) GET list - Working (returns 2 presets), (3) GET single - Working (returns preset with all nested data), (4) PUT update - Working (updated rate_per_sqft from 2500 to 2600, version incremented to 2), (5) DELETE - Working (deleted 'Mumbai Standard 2025' with confirmation, returns usage_count and success message). All CRUD operations verified via curl."
+      - working: false
+        agent: "testing"
+        comment: "❌ AUTHORIZATION BUG: Comprehensive testing completed with 93.3% success rate (14/15 tests passed). ✅ WORKING FEATURES: (1) POST /api/construction-presets - Create preset working with complex nested structure (spec groups, items, brands), (2) GET /api/construction-presets - List with all filters working (search, region, status, pagination), (3) GET /api/construction-presets/{id} - Single preset retrieval with complete nested data, (4) PUT /api/construction-presets/{id} - Update working with version increment, (5) DELETE /api/construction-presets/{id} - Delete with confirmation working (rejects wrong confirmation, accepts correct). ❌ CRITICAL BUG: CRM Manager authorization failing - endpoints check for 'admin' and 'project_manager' roles but exclude 'crm_manager' role. Other endpoints (projects, etc.) correctly include UserRole.CRM_MANAGER in authorization checks. Need to add UserRole.CRM_MANAGER to all Construction Presets endpoints authorization."
 
   - task: "Construction Presets Duplicate API"
     implemented: true
