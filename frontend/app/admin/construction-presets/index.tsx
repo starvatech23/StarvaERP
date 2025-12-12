@@ -136,9 +136,9 @@ export default function ConstructionPresetsScreen() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'active': return 'checkmark-circle';
-      case 'draft': return 'create-circle';
+      case 'draft': return 'create-outline';
       case 'archived': return 'archive';
-      default: return 'help-circle';
+      default: return 'help-circle-outline';
     }
   };
 
