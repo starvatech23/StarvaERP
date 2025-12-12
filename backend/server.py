@@ -8632,7 +8632,7 @@ async def update_construction_preset(
     try:
         current_user = await get_current_user(credentials)
         
-        if current_user["role"] not in ["admin", "project_manager"]:
+        if current_user["role"] not in ["admin", "project_manager", "crm_manager"]:
             raise HTTPException(status_code=403, detail="Admin or Manager access required")
         
         preset = await db.construction_presets.find_one({"_id": ObjectId(preset_id)})
