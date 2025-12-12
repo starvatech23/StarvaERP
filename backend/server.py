@@ -8691,7 +8691,7 @@ async def delete_construction_preset(
         current_user = await get_current_user(credentials)
         
         # Role check
-        if current_user["role"] not in ["admin", "project_manager"]:
+        if current_user["role"] not in ["admin", "project_manager", "crm_manager"]:
             raise HTTPException(status_code=403, detail="Insufficient permissions. Only Admins and Managers can delete presets.")
         
         preset = await db.construction_presets.find_one({"_id": ObjectId(preset_id)})
