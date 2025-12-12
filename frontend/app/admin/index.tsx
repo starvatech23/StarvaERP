@@ -110,6 +110,13 @@ export default function AdminDashboard() {
       route: '/admin/settings',
     },
     {
+      title: 'Construction Presets',
+      icon: 'construct',
+      color: '#8B5A3C',
+      count: null,
+      route: '/admin/construction-presets',
+    },
+    {
       title: 'Estimation Presets',
       icon: 'calculator',
       color: '#3B82F6',
