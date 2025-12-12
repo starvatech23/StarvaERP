@@ -429,6 +429,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.textPrimary,
   },
+  groupTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginTop: 12,
+    marginBottom: 8,
+  },
   input: {
     backgroundColor: Colors.background,
     borderWidth: 1,
