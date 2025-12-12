@@ -41,12 +41,19 @@ export const Colors = {
   // Semantic colors for various states
   success: '#10B981', // Green
   successLight: '#D1FAE5',
+  successPale: '#ECFDF5',
   warning: '#F59E0B', // Amber
   warningLight: '#FEF3C7',
+  warningPale: '#FFFBEB',
   error: '#EF4444', // Red
   errorLight: '#FEE2E2',
+  danger: '#EF4444', // Alias for error
+  dangerPale: '#FEE2E2',
   info: '#3B82F6', // Blue
   infoLight: '#DBEAFE',
+  
+  // ============= BACKGROUND VARIANTS =============
+  backgroundAlt: '#F1F5F9', // Alternative background
   
   // ============= PROJECT STATUS =============
   planning: '#64B5F6', // Light Blue
