@@ -7672,6 +7672,13 @@ async def create_estimate(
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
         
+        # Get construction preset if specified (for rate reference)
+        construction_preset = None
+        if estimate_data.construction_preset_id:
+            construction_preset = await db.construction_presets.find_one(
+                {"_id": ObjectId(estimate_data.construction_preset_id)}
+            )
+        
         # Get or create default material preset and rate table
         material_preset_data = None
         if estimate_data.material_preset_id:
@@ -7691,8 +7698,25 @@ async def create_estimate(
                 rate_table_data = RateTableResponse(**serialize_doc(rate_table))
         
         if not rate_table_data:
-            # Use default rate table
+            # Use default rate table, potentially modified by construction preset
             default_rates = get_default_rate_table()
+            
+            # If construction preset has a rate_per_sqft, adjust base rates proportionally
+            if construction_preset and construction_preset.get("rate_per_sqft"):
+                preset_rate = construction_preset["rate_per_sqft"]
+                # Scale rates based on preset (assuming 2500 is baseline)
+                scale_factor = preset_rate / 2500.0
+                for key in default_rates:
+                    if isinstance(default_rates[key], (int, float)):
+                        default_rates[key] = round(default_rates[key] * scale_factor, 2)
+            
+            # If base_rate_per_sqft is provided explicitly, use it
+            if estimate_data.base_rate_per_sqft:
+                scale_factor = estimate_data.base_rate_per_sqft / 2500.0
+                for key in default_rates:
+                    if isinstance(default_rates[key], (int, float)):
+                        default_rates[key] = round(default_rates[key] * scale_factor, 2)
+            
             rate_table_data = RateTableResponse(
                 id="default",
                 effective_date=datetime.utcnow(),
