@@ -53,6 +53,9 @@ from models import (
     EstimateCreate, EstimateUpdate, EstimateResponse, EstimateSummary, EstimateStatus,
     EstimateLineCreate, EstimateLineResponse, EstimateLineBase, BOQCategory,
     MaterialPresetCreate, MaterialPresetResponse, RateTableCreate, RateTableResponse,
+    # Construction Preset Models
+    ConstructionPresetCreate, ConstructionPresetUpdate, ConstructionPresetResponse,
+    SpecGroupBase, SpecItemBase, BrandBase, PresetAuditLog,
     ProjectContact, ProjectContactUpdate, ProjectRole, ContactType,
     GanttShareCreate, GanttShareResponse, GanttShareToken, GanttSharePermission,
     ContactAudit,
