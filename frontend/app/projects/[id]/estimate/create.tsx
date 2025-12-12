@@ -559,6 +559,44 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 8,
   },
+  presetInfoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  presetInfoTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+  presetDetailsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  presetDetailItem: {
+    width: '50%',
+    marginBottom: 10,
+  },
+  presetDetailLabel: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginBottom: 2,
+  },
+  presetDetailValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  presetDescription: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    lineHeight: 18,
+  },
   costRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -570,12 +608,18 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '600',
   },
-  warningText: {
-    fontSize: 14,
-    color: Colors.warning,
+  warningBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
     padding: 12,
     backgroundColor: Colors.warningLight,
     borderRadius: 8,
+  },
+  warningText: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.warning,
   },
   pickerContainer: {
     backgroundColor: Colors.surface,
