@@ -1052,11 +1052,11 @@ backend:
 
   - task: "Construction Presets Duplicate API"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -1064,6 +1064,9 @@ backend:
       - working: true
         agent: "main"
         comment: "✅ MANUAL TESTING VERIFIED: POST /api/construction-presets/{id}/duplicate?new_name=Mumbai%20Standard%202025&new_region=Mumbai - Working (created duplicate preset with new ID). Query parameter syntax verified."
+      - working: false
+        agent: "testing"
+        comment: "❌ SAME AUTHORIZATION BUG: POST /api/construction-presets/{id}/duplicate endpoint working correctly for Admin users but has same authorization issue as other Construction Presets endpoints - excludes CRM Manager role. Duplication functionality tested successfully: creates new preset with different ID, copies all nested spec groups/items/brands, resets version to 1. Need to add UserRole.CRM_MANAGER to authorization check."
 
 frontend:
   - task: "Construction Presets List Screen"
