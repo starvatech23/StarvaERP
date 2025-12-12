@@ -203,6 +203,136 @@ export default function CreatePresetScreen() {
           </View>
         </View>
 
+        {/* Masonry Rates */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🧱 Masonry Rates (₹ per unit)</Text>
+          <View style={styles.card}>
+            <Text style={styles.groupTitle}>Block Sizes</Text>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>4-inch Block</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="28"
+                keyboardType="numeric"
+                value={rateTable.block_4inch_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, block_4inch_per_unit: val }))}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>6-inch Block</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="38"
+                keyboardType="numeric"
+                value={rateTable.block_6inch_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, block_6inch_per_unit: val }))}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>8-inch Block</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="45"
+                keyboardType="numeric"
+                value={rateTable.block_8inch_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, block_8inch_per_unit: val }))}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>10-inch Block</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="52"
+                keyboardType="numeric"
+                value={rateTable.block_10inch_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, block_10inch_per_unit: val }))}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>12-inch Block</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="60"
+                keyboardType="numeric"
+                value={rateTable.block_12inch_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, block_12inch_per_unit: val }))}
+              />
+            </View>
+
+            <Text style={styles.groupTitle}>Brick Types</Text>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Wire-cut Red Bricks</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="12"
+                keyboardType="numeric"
+                value={rateTable.brick_wirecut_red_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, brick_wirecut_red_per_unit: val }))}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Standard Bricks</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="8"
+                keyboardType="numeric"
+                value={rateTable.brick_standard_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, brick_standard_per_unit: val }))}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Hollow Bricks</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="15"
+                keyboardType="numeric"
+                value={rateTable.brick_hollow_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, brick_hollow_per_unit: val }))}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Solid Bricks</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="10"
+                keyboardType="numeric"
+                value={rateTable.brick_solid_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, brick_solid_per_unit: val }))}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Fly Ash Bricks</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="9"
+                keyboardType="numeric"
+                value={rateTable.brick_flyash_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, brick_flyash_per_unit: val }))}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>AAC Blocks</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="35"
+                keyboardType="numeric"
+                value={rateTable.brick_aac_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, brick_aac_per_unit: val }))}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Eco Bricks</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="7"
+                keyboardType="numeric"
+                value={rateTable.brick_eco_per_unit}
+                onChangeText={(val) => setRateTable(prev => ({ ...prev, brick_eco_per_unit: val }))}
+              />
+            </View>
+          </View>
+        </View>
+
         <View style={{ height: 100 }} />
       </ScrollView>
 
