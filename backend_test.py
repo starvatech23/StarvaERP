@@ -15,7 +15,7 @@ import sys
 import os
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://budget-wizard-67.preview.emergentagent.com/api"
+BACKEND_URL = "https://conpre-app.preview.emergentagent.com/api"
 
 # Test credentials - Using CRM Manager as specified in requirements
 TEST_CREDENTIALS = {
