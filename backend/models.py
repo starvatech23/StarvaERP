@@ -2142,6 +2142,10 @@ class EstimateBase(BaseModel):
     slab_thickness: Optional[float] = 5.0  # inches
     column_spacing: Optional[float] = 15.0  # feet (bay size)
     
+    # Construction preset for rate reference
+    construction_preset_id: Optional[str] = None
+    base_rate_per_sqft: Optional[float] = None  # Override rate from preset
+    
     # Coefficients & assumptions
     material_preset_id: Optional[str] = None
     rate_table_id: Optional[str] = None
