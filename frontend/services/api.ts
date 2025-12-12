@@ -487,6 +487,6 @@ export const constructionPresetsAPI = {
   delete: (presetId: string, confirmationName: string) => 
     api.delete(`/construction-presets/${presetId}`, { data: { confirmation_name: confirmationName } }),
   duplicate: (presetId: string, newName: string, newRegion?: string) => 
-    api.post(`/construction-presets/${presetId}/duplicate`, { new_name: newName, new_region: newRegion }),
+    api.post(`/construction-presets/${presetId}/duplicate`, null, { params: { new_name: newName, new_region: newRegion } }),
 };
 
