@@ -2193,3 +2193,73 @@ class EstimateSummary(BaseModel):
     cost_per_sqft: float
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+
+
+# ============= Construction Presets =============
+
+class ConstructionPresetBase(BaseModel):
+    name: str = Field(..., min_length=3, max_length=100)
+    description: Optional[str] = None
+    region: str = Field(..., min_length=2, max_length=100)
+    effective_date: datetime
+    rate_per_sqft: float = Field(..., ge=0)
+    currency: str = Field(default="INR", regex="^(INR|USD|EUR)$")
+    status: str = Field(default="draft", regex="^(draft|active|archived)$")
+
+class ConstructionPresetCreate(ConstructionPresetBase):
+    spec_groups: Optional[List[Dict]] = []
+
+class ConstructionPresetUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=3, max_length=100)
+    description: Optional[str] = None
+    region: Optional[str] = Field(None, min_length=2)
+    effective_date: Optional[datetime] = None
+    rate_per_sqft: Optional[float] = Field(None, ge=0)
+    status: Optional[str] = Field(None, regex="^(draft|active|archived)$")
+    spec_groups: Optional[List[Dict]] = None
+
+class ConstructionPresetResponse(ConstructionPresetBase):
+    id: str
+    version: int = 1
+    created_by: str
+    updated_by: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    spec_groups_count: int = 0
+    spec_items_count: int = 0
+    project_usage_count: int = 0
+    spec_groups: Optional[List[Dict]] = []
+
+class SpecGroupBase(BaseModel):
+    group_name: str = Field(..., max_length=100)
+    parent_group_id: Optional[str] = None
+    order_index: int = 0
+
+class SpecItemBase(BaseModel):
+    item_name: str = Field(..., max_length=200)
+    unit: str = Field(..., regex="^(bag|kg|cubic_ft|sqft|unit|meter|liter)$")
+    rate_min: float = Field(..., ge=0)
+    rate_max: float = Field(..., ge=0)
+    currency: str = Field(default="INR")
+    material_type: str = Field(..., regex="^(Brick|Block|Cement|Steel|Finishing|Plumbing|Electrical|Aggregate|Other)$")
+    spec_reference: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=1000)
+    is_mandatory: bool = True
+    supplier_source: Optional[str] = None
+    source_url: Optional[str] = None
+    source_date: Optional[datetime] = None
+
+class BrandBase(BaseModel):
+    brand_name: str = Field(..., max_length=100)
+    brand_rate_min: Optional[float] = Field(None, ge=0)
+    brand_rate_max: Optional[float] = Field(None, ge=0)
+    quality_grade: Optional[str] = None
+    supplier_name: Optional[str] = None
+    availability_regions: Optional[List[str]] = []
+
+class PresetAuditLog(BaseModel):
+    preset_id: str
+    action: str = Field(..., regex="^(CREATE|UPDATE|DELETE|ACTIVATE|ARCHIVE)$")
+    user_id: str
+    changes: Optional[Dict] = None
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
