@@ -6951,22 +6951,39 @@ async def client_portal_login(credentials: dict):
         if not project:
             raise HTTPException(status_code=401, detail="Invalid credentials")
         
-        # Check if mobile matches client_phone or owner's phone
-        client_phone = project.get("client_phone", "").replace(" ", "").replace("-", "").replace("+", "")
+        # Check if mobile matches client_contact, client_phone or owner's phone
+        # Normalize the input mobile
         input_mobile = mobile.replace(" ", "").replace("-", "").replace("+", "")
+        # Remove leading country code if present (e.g., 91 for India)
+        if len(input_mobile) > 10 and input_mobile.startswith("91"):
+            input_mobile = input_mobile[2:]
+        
+        # Get client phone from either client_contact or client_phone field
+        client_phone = project.get("client_contact") or project.get("client_phone") or ""
+        client_phone = str(client_phone).replace(" ", "").replace("-", "").replace("+", "")
+        if len(client_phone) > 10 and client_phone.startswith("91"):
+            client_phone = client_phone[2:]
+        
+        phone_matched = False
+        
+        # Check client phone
+        if client_phone and client_phone == input_mobile:
+            phone_matched = True
         
         # Also check owner's phone if client_phone doesn't match
-        if client_phone != input_mobile:
-            # Try to get owner's phone
+        if not phone_matched:
             owner_id = project.get("owner_id")
             if owner_id:
                 owner = await db.users.find_one({"_id": ObjectId(owner_id)})
                 if owner:
-                    owner_phone = owner.get("phone", "").replace(" ", "").replace("-", "").replace("+", "")
-                    if owner_phone != input_mobile:
-                        raise HTTPException(status_code=401, detail="Invalid credentials")
-            else:
-                raise HTTPException(status_code=401, detail="Invalid credentials")
+                    owner_phone = str(owner.get("phone", "")).replace(" ", "").replace("-", "").replace("+", "")
+                    if len(owner_phone) > 10 and owner_phone.startswith("91"):
+                        owner_phone = owner_phone[2:]
+                    if owner_phone and owner_phone == input_mobile:
+                        phone_matched = True
+        
+        if not phone_matched:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
         
         # Create a simple token (project_id:mobile)
         import base64
