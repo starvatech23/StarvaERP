@@ -466,18 +466,19 @@ export const estimationAPI = {
   updateLine: (estimateId: string, lineId: string, quantity?: number, rate?: number) => 
     api.put(`/estimates/${estimateId}/lines/${lineId}`, { quantity, rate }),
   delete: (estimateId: string) => api.delete(`/estimates/${estimateId}`),
-  getMaterialPresets: () => api.get('/material-presets'),
-  createPreset: (data: any) => api.post('/material-presets', data),
   getRateTables: (location?: string) => api.get('/rate-tables', { params: { location } }),
   exportCSV: (estimateId: string) => api.get(`/estimates/${estimateId}/export/csv`, { responseType: 'text' }),
   exportPDF: (estimateId: string) => api.get(`/estimates/${estimateId}/export/pdf`, { responseType: 'text' }),
-  getDefaultMaterialPreset: () => api.get('/material-presets/default'),
-  updateDefaultMaterialPreset: (data: any) => api.put('/material-presets/default', data),
   getDefaultRateTable: () => api.get('/rate-tables/default'),
   updateDefaultRateTable: (data: any) => api.put('/rate-tables/default', data),
+  // DEPRECATED: Use constructionPresetsAPI instead - kept for backward compatibility
+  getMaterialPresets: () => api.get('/material-presets'),
+  createPreset: (data: any) => api.post('/material-presets', data),
+  getDefaultMaterialPreset: () => api.get('/material-presets/default'),
+  updateDefaultMaterialPreset: (data: any) => api.put('/material-presets/default', data),
 };
 
-// Construction Presets API
+// Construction Presets API - Primary preset system for estimation
 export const constructionPresetsAPI = {
   list: (params?: { page?: number; limit?: number; search?: string; region?: string; status?: string; material_type?: string }) => 
     api.get('/construction-presets', { params }),
