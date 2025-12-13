@@ -113,15 +113,53 @@ export default function ProjectsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Projects</Text>
-        {canCreateProject && (
+        <View style={styles.headerActions}>
+          {/* Sort Button */}
           <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => router.push('/projects/create' as any)}
+            style={styles.sortButton}
+            onPress={() => setShowSortMenu(!showSortMenu)}
           >
-            <Ionicons name="add" size={24} color="#FFFFFF" />
+            <Ionicons name="swap-vertical" size={20} color={Colors.textPrimary} />
           </TouchableOpacity>
-        )}
+          {canCreateProject && (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => router.push('/projects/create' as any)}
+            >
+              <Ionicons name="add" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
+
+      {/* Sort Menu Dropdown */}
+      {showSortMenu && (
+        <View style={styles.sortMenu}>
+          <Text style={styles.sortMenuTitle}>Sort by</Text>
+          {sortOptions.map((option) => (
+            <TouchableOpacity
+              key={option.key}
+              style={[styles.sortOption, sortBy === option.key && styles.sortOptionActive]}
+              onPress={() => {
+                setSortBy(option.key);
+                setShowSortMenu(false);
+              }}
+            >
+              <Ionicons 
+                name={option.icon as any} 
+                size={18} 
+                color={sortBy === option.key ? Colors.primary : Colors.textSecondary} 
+              />
+              <Text style={[styles.sortOptionText, sortBy === option.key && styles.sortOptionTextActive]}>
+                {option.label}
+              </Text>
+              {sortBy === option.key && (
+                <Ionicons name="checkmark" size={18} color={Colors.primary} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
