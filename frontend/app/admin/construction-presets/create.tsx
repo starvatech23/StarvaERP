@@ -337,6 +337,120 @@ export default function CreateConstructionPresetScreen() {
     });
   };
 
+  // Materials Library Functions
+  const openMaterialsLibrary = async (groupId: string) => {
+    setTargetGroupId(groupId);
+    setSelectedMaterials(new Set());
+    setMaterialSearchQuery('');
+    setSelectedLibraryCategory('');
+    setShowMaterialsModal(true);
+    await loadMaterialsLibrary();
+  };
+
+  const loadMaterialsLibrary = async () => {
+    setMaterialsLoading(true);
+    try {
+      const response = await constructionPresetsAPI.getMaterialsLibrary({
+        category: selectedLibraryCategory || undefined,
+        region: region,
+      });
+      setLibraryMaterials(response.data.materials || []);
+      setLibraryCategories(response.data.categories || {});
+    } catch (error: any) {
+      console.error('Failed to load materials library:', error);
+      Alert.alert('Error', 'Failed to load materials library');
+    } finally {
+      setMaterialsLoading(false);
+    }
+  };
+
+  const toggleMaterialSelection = (itemName: string) => {
+    setSelectedMaterials(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemName)) {
+        newSet.delete(itemName);
+      } else {
+        newSet.add(itemName);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllFilteredMaterials = () => {
+    const filtered = getFilteredMaterials();
+    const allNames = new Set(filtered.map(m => m.item_name));
+    setSelectedMaterials(allNames);
+  };
+
+  const clearMaterialSelection = () => {
+    setSelectedMaterials(new Set());
+  };
+
+  const getFilteredMaterials = () => {
+    return libraryMaterials.filter(material => {
+      const matchesSearch = !materialSearchQuery || 
+        material.item_name.toLowerCase().includes(materialSearchQuery.toLowerCase()) ||
+        material.category.toLowerCase().includes(materialSearchQuery.toLowerCase());
+      const matchesCategory = !selectedLibraryCategory || material.category === selectedLibraryCategory;
+      return matchesSearch && matchesCategory;
+    });
+  };
+
+  const importSelectedMaterials = () => {
+    if (!targetGroupId || selectedMaterials.size === 0) {
+      Alert.alert('No Selection', 'Please select at least one material to import');
+      return;
+    }
+
+    const materialsToImport = libraryMaterials.filter(m => selectedMaterials.has(m.item_name));
+    
+    const newSpecItems: SpecItem[] = materialsToImport.map(material => ({
+      id: generateId(),
+      item_name: material.item_name,
+      unit: material.unit,
+      rate_min: material.rate_min,
+      rate_max: material.rate_max,
+      material_type: mapCategoryToMaterialType(material.category),
+      is_mandatory: material.is_mandatory,
+      notes: material.description,
+      brands: material.brands.map(b => ({
+        id: generateId(),
+        brand_name: b.name,
+        brand_rate_min: b.rate,
+        brand_rate_max: b.rate,
+        quality_grade: b.grade,
+      })),
+    }));
+
+    setSpecGroups(groups =>
+      groups.map(g =>
+        g.id === targetGroupId
+          ? { ...g, spec_items: [...g.spec_items, ...newSpecItems] }
+          : g
+      )
+    );
+
+    setShowMaterialsModal(false);
+    Alert.alert('Success', `${newSpecItems.length} material(s) imported successfully`);
+  };
+
+  const mapCategoryToMaterialType = (category: string): string => {
+    const mapping: Record<string, string> = {
+      'Cement & Binding Materials': 'Cement',
+      'Steel & Reinforcement': 'Steel',
+      'Aggregates & Sand': 'Aggregate',
+      'Bricks, Blocks & Masonry': 'Brick',
+      'Flooring & Tiles': 'Finishing',
+      'Paints & Coatings': 'Finishing',
+      'Plumbing Materials': 'Plumbing',
+      'Electrical Materials': 'Electrical',
+      'Waterproofing & Insulation': 'Other',
+      'Doors & Windows': 'Other',
+      'Structural Materials': 'Other',
+    };
+    return mapping[category] || 'Other';
+  };
+
   const moveGroup = (index: number, direction: 'up' | 'down') => {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= specGroups.length) return;
