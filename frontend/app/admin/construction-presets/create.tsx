@@ -11,12 +11,27 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../../constants/Colors';
 import { constructionPresetsAPI } from '../../../services/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+// Material Library Item interface
+interface LibraryMaterial {
+  item_name: string;
+  category: string;
+  description: string;
+  unit: string;
+  specifications: string;
+  rate_min: number;
+  rate_max: number;
+  brands: Array<{ name: string; rate: number; grade: string }>;
+  is_mandatory: boolean;
+}
 
 interface SpecItem {
   id: string;
