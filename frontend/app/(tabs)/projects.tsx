@@ -18,20 +18,22 @@ import { projectsAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Colors from '../../constants/Colors';
 
+type SortOption = 'name' | 'date' | 'region' | 'city' | 'status';
+
 export default function ProjectsScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('date');
+  const [showSortMenu, setShowSortMenu] = useState(false);
 
   const canCreateProject = user?.role === 'admin' || user?.role === 'project_manager';
 
   const loadProjects = async () => {
     try {
       const response = await projectsAPI.getAll();
-      console.log('Projects loaded:', response.data);
-      console.log('First project:', JSON.stringify(response.data[0], null, 2));
       setProjects(response.data);
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to load projects');
@@ -49,6 +51,32 @@ export default function ProjectsScreen() {
     setRefreshing(true);
     loadProjects();
   }, []);
+
+  // Sort projects based on selected option
+  const sortedProjects = [...projects].sort((a: any, b: any) => {
+    switch (sortBy) {
+      case 'name':
+        return (a.name || '').localeCompare(b.name || '');
+      case 'date':
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      case 'region':
+        return (a.region || '').localeCompare(b.region || '');
+      case 'city':
+        return (a.location || '').localeCompare(b.location || '');
+      case 'status':
+        return (a.status || '').localeCompare(b.status || '');
+      default:
+        return 0;
+    }
+  });
+
+  const sortOptions: { key: SortOption; label: string; icon: string }[] = [
+    { key: 'name', label: 'Alphabetical (A-Z)', icon: 'text' },
+    { key: 'date', label: 'Date Created', icon: 'calendar' },
+    { key: 'region', label: 'Region', icon: 'globe' },
+    { key: 'city', label: 'City/Location', icon: 'location' },
+    { key: 'status', label: 'Status', icon: 'flag' },
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
