@@ -8817,6 +8817,495 @@ async def duplicate_construction_preset(
         raise HTTPException(status_code=500, detail=f"Failed to duplicate preset: {str(e)}")
 
 
+# ==================== MATERIALS LIBRARY & UPLOAD ENDPOINTS ====================
+
+@api_router.get("/materials-library")
+async def get_materials_library(
+    category: Optional[str] = None,
+    region: str = "Bangalore",
+    quality: str = "Standard",
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Get comprehensive materials library with 300+ construction materials
+    Optionally filter by category, apply regional pricing, and quality preference
+    """
+    try:
+        await get_current_user(credentials)
+        
+        from materials_library import (
+            get_comprehensive_materials_library,
+            apply_regional_pricing,
+            CATEGORIES
+        )
+        
+        materials = get_comprehensive_materials_library()
+        
+        # Filter by category if specified
+        if category:
+            materials = [m for m in materials if m["category"] == category]
+        
+        # Apply regional pricing
+        materials = apply_regional_pricing(materials, region)
+        
+        return {
+            "materials": materials,
+            "total_count": len(materials),
+            "categories": CATEGORIES,
+            "region": region,
+            "quality": quality
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load materials library: {str(e)}")
+
+
+@api_router.get("/materials-library/templates")
+async def get_preset_templates(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Get available preset templates for different project types
+    """
+    try:
+        await get_current_user(credentials)
+        
+        from materials_library import get_preset_templates, CATEGORIES
+        
+        templates = get_preset_templates()
+        
+        return {
+            "templates": templates,
+            "categories": CATEGORIES
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load templates: {str(e)}")
+
+
+@api_router.post("/materials-library/load-template")
+async def load_materials_from_template(
+    template_name: str,
+    region: str = "Bangalore",
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Load materials from a preset template and apply regional pricing
+    """
+    try:
+        await get_current_user(credentials)
+        
+        from materials_library import (
+            get_comprehensive_materials_library,
+            get_preset_templates,
+            filter_materials_by_template,
+            apply_regional_pricing
+        )
+        
+        # Find template
+        templates = get_preset_templates()
+        template = next((t for t in templates if t["name"] == template_name), None)
+        
+        if not template:
+            raise HTTPException(status_code=404, detail=f"Template '{template_name}' not found")
+        
+        # Get and filter materials
+        all_materials = get_comprehensive_materials_library()
+        filtered_materials = filter_materials_by_template(all_materials, template)
+        
+        # Apply regional pricing
+        priced_materials = apply_regional_pricing(filtered_materials, region)
+        
+        return {
+            "template": template,
+            "materials": priced_materials,
+            "total_count": len(priced_materials),
+            "region": region
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load template: {str(e)}")
+
+
+@api_router.post("/construction-presets/{preset_id}/import-materials")
+async def import_materials_to_preset(
+    preset_id: str,
+    template_name: Optional[str] = None,
+    region: str = "Bangalore",
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Import materials from library template into a construction preset
+    Creates spec groups and items based on the template
+    """
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] not in ["admin", "project_manager", "crm_manager"]:
+            raise HTTPException(status_code=403, detail="Admin or Manager access required")
+        
+        # Verify preset exists
+        preset = await db.construction_presets.find_one({"_id": ObjectId(preset_id)})
+        if not preset:
+            raise HTTPException(status_code=404, detail="Preset not found")
+        
+        from materials_library import (
+            get_comprehensive_materials_library,
+            get_preset_templates,
+            filter_materials_by_template,
+            apply_regional_pricing,
+            CATEGORIES
+        )
+        
+        # Get materials
+        if template_name:
+            templates = get_preset_templates()
+            template = next((t for t in templates if t["name"] == template_name), None)
+            if not template:
+                raise HTTPException(status_code=404, detail=f"Template '{template_name}' not found")
+            
+            all_materials = get_comprehensive_materials_library()
+            materials = filter_materials_by_template(all_materials, template)
+        else:
+            materials = get_comprehensive_materials_library()
+        
+        # Apply regional pricing
+        materials = apply_regional_pricing(materials, region)
+        
+        # Group materials by category
+        from collections import defaultdict
+        grouped = defaultdict(list)
+        for mat in materials:
+            grouped[mat["category"]].append(mat)
+        
+        # Create spec groups and items
+        spec_groups = []
+        for idx, (category, items) in enumerate(grouped.items()):
+            category_name = CATEGORIES.get(category, category)
+            
+            spec_items = []
+            for item_idx, item in enumerate(items):
+                brands = []
+                for brand in item.get("brands", []):
+                    brands.append({
+                        "brand_id": str(uuid.uuid4())[:8],
+                        "brand_name": brand["name"],
+                        "brand_rate_min": brand.get("rate", item["rate_min"]) * 0.95,
+                        "brand_rate_max": brand.get("rate", item["rate_max"]) * 1.05,
+                        "quality_grade": brand.get("grade", "Standard"),
+                        "supplier_name": None
+                    })
+                
+                spec_items.append({
+                    "item_id": str(uuid.uuid4())[:8],
+                    "item_name": item["item_name"],
+                    "unit": item["unit"],
+                    "rate_min": item["rate_min"],
+                    "rate_max": item["rate_max"],
+                    "material_type": category,
+                    "spec_reference": item.get("specifications", ""),
+                    "notes": item.get("description", ""),
+                    "is_mandatory": item.get("is_mandatory", False),
+                    "order_index": item_idx,
+                    "brand_list": brands
+                })
+            
+            spec_groups.append({
+                "group_id": str(uuid.uuid4())[:8],
+                "group_name": category_name,
+                "parent_group_id": None,
+                "order_index": idx,
+                "spec_items": spec_items
+            })
+        
+        # Update preset with new spec groups
+        await db.construction_presets.update_one(
+            {"_id": ObjectId(preset_id)},
+            {
+                "$set": {
+                    "spec_groups": spec_groups,
+                    "updated_at": datetime.utcnow(),
+                    "version": preset.get("version", 1) + 1
+                }
+            }
+        )
+        
+        return {
+            "message": "Materials imported successfully",
+            "groups_created": len(spec_groups),
+            "items_created": sum(len(g["spec_items"]) for g in spec_groups)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to import materials: {str(e)}")
+
+
+@api_router.post("/construction-presets/upload/excel")
+async def upload_specifications_excel(
+    file: UploadFile = File(...),
+    preset_id: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Upload specification details from Excel file
+    If preset_id provided, imports into existing preset
+    Otherwise returns parsed data for preview
+    """
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] not in ["admin", "project_manager", "crm_manager"]:
+            raise HTTPException(status_code=403, detail="Admin or Manager access required")
+        
+        # Validate file type
+        if not file.filename.endswith(('.xlsx', '.xls')):
+            raise HTTPException(status_code=400, detail="Only Excel files (.xlsx, .xls) are supported")
+        
+        import openpyxl
+        
+        # Read file content
+        content = await file.read()
+        
+        # Parse Excel
+        workbook = openpyxl.load_workbook(io.BytesIO(content))
+        sheet = workbook.active
+        
+        # Parse headers (first row)
+        headers = []
+        for cell in sheet[1]:
+            headers.append(str(cell.value).lower().strip() if cell.value else "")
+        
+        # Map expected columns
+        column_map = {
+            "item_name": ["item name", "item", "name", "material", "description"],
+            "category": ["category", "group", "type"],
+            "unit": ["unit", "uom", "measure"],
+            "rate_min": ["rate min", "min rate", "rate_min", "minimum rate", "rate"],
+            "rate_max": ["rate max", "max rate", "rate_max", "maximum rate"],
+            "brand": ["brand", "brands", "manufacturer"],
+            "specifications": ["specifications", "specs", "spec", "details"],
+            "is_mandatory": ["mandatory", "required", "is_mandatory"],
+        }
+        
+        # Find column indices
+        col_indices = {}
+        for field, aliases in column_map.items():
+            for idx, header in enumerate(headers):
+                if header in aliases:
+                    col_indices[field] = idx
+                    break
+        
+        if "item_name" not in col_indices:
+            raise HTTPException(status_code=400, detail="Excel must have an 'Item Name' or 'Material' column")
+        
+        # Parse rows
+        items = []
+        for row_idx, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
+            if not row[col_indices["item_name"]]:
+                continue
+            
+            item = {
+                "item_name": str(row[col_indices["item_name"]]),
+                "category": str(row[col_indices.get("category", 0)] or "General") if "category" in col_indices else "General",
+                "unit": str(row[col_indices.get("unit", 0)] or "nos") if "unit" in col_indices else "nos",
+                "rate_min": float(row[col_indices.get("rate_min", 0)] or 0) if "rate_min" in col_indices else 0,
+                "rate_max": float(row[col_indices.get("rate_max", 0)] or 0) if "rate_max" in col_indices else 0,
+                "specifications": str(row[col_indices.get("specifications", 0)] or "") if "specifications" in col_indices else "",
+                "is_mandatory": bool(row[col_indices.get("is_mandatory", 0)]) if "is_mandatory" in col_indices else False,
+                "brands": []
+            }
+            
+            # Parse brands if column exists
+            if "brand" in col_indices and row[col_indices["brand"]]:
+                brand_str = str(row[col_indices["brand"]])
+                brand_names = [b.strip() for b in brand_str.split(",")]
+                for brand_name in brand_names:
+                    if brand_name:
+                        item["brands"].append({
+                            "brand_id": str(uuid.uuid4())[:8],
+                            "brand_name": brand_name,
+                            "quality_grade": "Standard"
+                        })
+            
+            items.append(item)
+        
+        # If preset_id provided, import into preset
+        if preset_id:
+            preset = await db.construction_presets.find_one({"_id": ObjectId(preset_id)})
+            if not preset:
+                raise HTTPException(status_code=404, detail="Preset not found")
+            
+            # Group items by category
+            from collections import defaultdict
+            grouped = defaultdict(list)
+            for item in items:
+                grouped[item["category"]].append(item)
+            
+            # Create spec groups
+            spec_groups = preset.get("spec_groups", [])
+            existing_group_names = {g["group_name"] for g in spec_groups}
+            
+            for category, cat_items in grouped.items():
+                if category not in existing_group_names:
+                    spec_items = []
+                    for idx, item in enumerate(cat_items):
+                        spec_items.append({
+                            "item_id": str(uuid.uuid4())[:8],
+                            "item_name": item["item_name"],
+                            "unit": item["unit"],
+                            "rate_min": item["rate_min"],
+                            "rate_max": item["rate_max"] or item["rate_min"],
+                            "material_type": category,
+                            "spec_reference": item["specifications"],
+                            "notes": "",
+                            "is_mandatory": item["is_mandatory"],
+                            "order_index": idx,
+                            "brand_list": item["brands"]
+                        })
+                    
+                    spec_groups.append({
+                        "group_id": str(uuid.uuid4())[:8],
+                        "group_name": category,
+                        "parent_group_id": None,
+                        "order_index": len(spec_groups),
+                        "spec_items": spec_items
+                    })
+            
+            # Update preset
+            await db.construction_presets.update_one(
+                {"_id": ObjectId(preset_id)},
+                {
+                    "$set": {
+                        "spec_groups": spec_groups,
+                        "updated_at": datetime.utcnow(),
+                        "version": preset.get("version", 1) + 1
+                    }
+                }
+            )
+            
+            return {
+                "message": "Excel data imported successfully",
+                "items_imported": len(items),
+                "groups_created": len(grouped)
+            }
+        
+        # Return parsed data for preview
+        return {
+            "message": "Excel parsed successfully",
+            "items": items,
+            "total_count": len(items),
+            "columns_found": list(col_indices.keys())
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to process Excel: {str(e)}")
+
+
+@api_router.post("/construction-presets/upload/pdf")
+async def upload_specifications_pdf(
+    file: UploadFile = File(...),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Upload specification details from PDF file
+    Extracts text and tables from PDF for preview/import
+    """
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] not in ["admin", "project_manager", "crm_manager"]:
+            raise HTTPException(status_code=403, detail="Admin or Manager access required")
+        
+        # Validate file type
+        if not file.filename.endswith('.pdf'):
+            raise HTTPException(status_code=400, detail="Only PDF files are supported")
+        
+        import pdfplumber
+        
+        # Read file content
+        content = await file.read()
+        
+        # Parse PDF
+        extracted_data = {
+            "text": "",
+            "tables": [],
+            "items": []
+        }
+        
+        with pdfplumber.open(io.BytesIO(content)) as pdf:
+            for page_num, page in enumerate(pdf.pages):
+                # Extract text
+                text = page.extract_text()
+                if text:
+                    extracted_data["text"] += f"\n--- Page {page_num + 1} ---\n{text}"
+                
+                # Extract tables
+                tables = page.extract_tables()
+                for table in tables:
+                    if table and len(table) > 1:
+                        # Try to identify table headers
+                        headers = [str(cell).lower().strip() if cell else "" for cell in table[0]]
+                        
+                        # Check if this looks like a materials table
+                        material_keywords = ["item", "material", "description", "rate", "unit", "qty", "quantity"]
+                        is_materials_table = any(any(kw in h for kw in material_keywords) for h in headers)
+                        
+                        if is_materials_table:
+                            # Find relevant columns
+                            name_col = next((i for i, h in enumerate(headers) if any(k in h for k in ["item", "material", "description"])), 0)
+                            unit_col = next((i for i, h in enumerate(headers) if "unit" in h), None)
+                            rate_col = next((i for i, h in enumerate(headers) if "rate" in h), None)
+                            
+                            for row in table[1:]:
+                                if row and row[name_col]:
+                                    item = {
+                                        "item_name": str(row[name_col]),
+                                        "unit": str(row[unit_col]) if unit_col and row[unit_col] else "nos",
+                                        "rate_min": 0,
+                                        "rate_max": 0,
+                                        "category": "Imported",
+                                        "brands": []
+                                    }
+                                    
+                                    # Try to parse rate
+                                    if rate_col and row[rate_col]:
+                                        try:
+                                            rate_str = str(row[rate_col]).replace(",", "").replace("₹", "").strip()
+                                            item["rate_min"] = float(rate_str)
+                                            item["rate_max"] = float(rate_str)
+                                        except:
+                                            pass
+                                    
+                                    extracted_data["items"].append(item)
+                        
+                        extracted_data["tables"].append({
+                            "page": page_num + 1,
+                            "headers": headers,
+                            "rows": len(table) - 1
+                        })
+        
+        return {
+            "message": "PDF parsed successfully",
+            "filename": file.filename,
+            "pages_processed": len(pdf.pages) if 'pdf' in dir() else 0,
+            "tables_found": len(extracted_data["tables"]),
+            "items_extracted": len(extracted_data["items"]),
+            "items": extracted_data["items"],
+            "text_preview": extracted_data["text"][:2000] + "..." if len(extracted_data["text"]) > 2000 else extracted_data["text"]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to process PDF: {str(e)}")
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
