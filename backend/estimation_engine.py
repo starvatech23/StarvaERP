@@ -362,10 +362,23 @@ class EstimationEngine:
         lines = []
         
         floor_height_m = floor_height_ft * 0.3048
+        area_sqm = area_sqft * 0.0929
+        perimeter_ft = perimeter_m * 3.281  # Convert perimeter to feet
         
-        # Plastering (internal walls + ceiling)
-        plaster_area_m = (area_sqft * 0.0929) * num_floors * 2  # Both sides of walls
-        plaster_area_m += (area_sqft * 0.0929) * num_floors  # Ceiling
+        # ========== PLASTERING ==========
+        # Wall area for plastering (internal walls - both sides)
+        # Estimate internal wall length as ~60% of perimeter for partitions
+        internal_wall_length_m = perimeter_m * 0.6
+        internal_wall_area_m = internal_wall_length_m * floor_height_m * num_floors * 2  # Both sides
+        
+        # External wall area (internal face only for plastering)
+        external_wall_area_m = perimeter_m * floor_height_m * num_floors
+        
+        # Ceiling area
+        ceiling_area_m = area_sqm * num_floors
+        
+        # Total plaster area
+        plaster_area_m = internal_wall_area_m + external_wall_area_m + ceiling_area_m
         
         lines.append(EstimateLineBase(
             category=BOQCategory.FINISHES,
@@ -375,40 +388,59 @@ class EstimationEngine:
             quantity=round(plaster_area_m, 2),
             rate=180.0,  # Typical rate per sqm
             amount=round(plaster_area_m * 180.0, 2),
-            formula_used=f"(Floor area × 2 for walls + Floor area for ceiling) × {num_floors} floors",
+            formula_used=f"Wall area ({round(internal_wall_area_m + external_wall_area_m, 2)} sqm) + Ceiling ({round(ceiling_area_m, 2)} sqm)",
             is_user_edited=False
         ))
         
-        # Flooring
+        # ========== FLOORING ==========
+        # Flooring covers the floor area of all floors
+        flooring_area_sqft = area_sqft * num_floors
+        
         lines.append(EstimateLineBase(
             category=BOQCategory.FINISHES,
             item_name="Flooring - Vitrified tiles",
             description="600×600mm tiles with adhesive",
             unit="sqft",
-            quantity=round(area_sqft * num_floors, 2),
+            quantity=round(flooring_area_sqft, 2),
             rate=85.0,  # Per sqft installed
-            amount=round(area_sqft * num_floors * 85.0, 2),
-            formula_used=f"Total floor area × {num_floors} floors",
+            amount=round(flooring_area_sqft * 85.0, 2),
+            formula_used=f"Floor area ({area_sqft} sqft) × {num_floors} floors = {round(flooring_area_sqft, 2)} sqft",
             is_user_edited=False
         ))
         
-        # Painting
-        paint_area_sqft = area_sqft * num_floors * 3  # Walls + ceiling
+        # ========== PAINTING ==========
+        # Painting area = Wall area + Ceiling area (in sqft)
+        # Wall area = Perimeter × Floor height × Number of floors
+        # Deduct ~15% for doors and windows
+        wall_area_sqft = perimeter_ft * floor_height_ft * num_floors * 0.85  # 15% deduction for openings
+        
+        # Internal partition walls (estimate ~60% of perimeter length, both sides)
+        internal_wall_area_sqft = (perimeter_ft * 0.6) * floor_height_ft * num_floors * 2
+        
+        # Ceiling area
+        ceiling_area_sqft = area_sqft * num_floors
+        
+        # Total painting area
+        total_paint_area_sqft = wall_area_sqft + internal_wall_area_sqft + ceiling_area_sqft
+        
         lines.append(EstimateLineBase(
             category=BOQCategory.FINISHES,
             item_name="Interior painting - 2 coats",
             description="Acrylic emulsion paint",
             unit="sqft",
-            quantity=round(paint_area_sqft, 2),
+            quantity=round(total_paint_area_sqft, 2),
             rate=self.rate_table.painting_per_sqft,
-            amount=round(paint_area_sqft * self.rate_table.painting_per_sqft, 2),
-            formula_used=f"Paintable area (walls + ceiling) × {num_floors} floors",
+            amount=round(total_paint_area_sqft * self.rate_table.painting_per_sqft, 2),
+            formula_used=f"Walls ({round(wall_area_sqft + internal_wall_area_sqft, 2)} sqft) + Ceiling ({round(ceiling_area_sqft, 2)} sqft)",
             is_user_edited=False
         ))
         
+        # Store assumptions
         assumptions["plaster_area_sqm"] = round(plaster_area_m, 2)
-        assumptions["flooring_area_sqft"] = round(area_sqft * num_floors, 2)
-        assumptions["painting_area_sqft"] = round(paint_area_sqft, 2)
+        assumptions["flooring_area_sqft"] = round(flooring_area_sqft, 2)
+        assumptions["painting_wall_area_sqft"] = round(wall_area_sqft + internal_wall_area_sqft, 2)
+        assumptions["painting_ceiling_area_sqft"] = round(ceiling_area_sqft, 2)
+        assumptions["painting_total_area_sqft"] = round(total_paint_area_sqft, 2)
         
         return lines
     
