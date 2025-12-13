@@ -104,7 +104,7 @@ export default function CreateEstimateScreen() {
 
   const handleBack = () => {
     if (step === 1) {
-      router.back();
+      router.replace(`/projects/${projectId}`);
     } else {
       setStep(step - 1);
     }
