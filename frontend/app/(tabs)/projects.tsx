@@ -618,4 +618,44 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.primary,
   },
+  // Sort Menu Styles
+  sortMenu: {
+    backgroundColor: Colors.surface,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  sortMenuTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  sortOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    gap: 10,
+  },
+  sortOptionActive: {
+    backgroundColor: Colors.primaryPale,
+  },
+  sortOptionText: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.textPrimary,
+  },
+  sortOptionTextActive: {
+    fontWeight: '600',
+    color: Colors.primary,
+  },
 });
