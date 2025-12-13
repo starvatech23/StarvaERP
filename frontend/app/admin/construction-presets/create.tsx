@@ -895,6 +895,139 @@ export default function CreateConstructionPresetScreen() {
           {activeTab === 'preview' && renderPreviewTab()}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Materials Library Modal */}
+      <Modal
+        visible={showMaterialsModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowMaterialsModal(false)}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          {/* Modal Header */}
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setShowMaterialsModal(false)} style={styles.modalCloseButton}>
+              <Ionicons name="close" size={24} color={Colors.textPrimary} />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Materials Library</Text>
+            <TouchableOpacity 
+              onPress={importSelectedMaterials} 
+              style={[styles.modalImportButton, selectedMaterials.size === 0 && styles.modalImportButtonDisabled]}
+              disabled={selectedMaterials.size === 0}
+            >
+              <Text style={[styles.modalImportButtonText, selectedMaterials.size === 0 && styles.modalImportButtonTextDisabled]}>
+                Import ({selectedMaterials.size})
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Search Bar */}
+          <View style={styles.modalSearchContainer}>
+            <Ionicons name="search" size={20} color={Colors.textSecondary} />
+            <TextInput
+              style={styles.modalSearchInput}
+              placeholder="Search materials..."
+              value={materialSearchQuery}
+              onChangeText={setMaterialSearchQuery}
+              placeholderTextColor={Colors.textTertiary}
+            />
+            {materialSearchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setMaterialSearchQuery('')}>
+                <Ionicons name="close-circle" size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Category Filters */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.modalCategoryScroll}>
+            <View style={styles.modalCategoryContainer}>
+              <TouchableOpacity
+                style={[styles.modalCategoryChip, !selectedLibraryCategory && styles.modalCategoryChipActive]}
+                onPress={() => setSelectedLibraryCategory('')}
+              >
+                <Text style={[styles.modalCategoryText, !selectedLibraryCategory && styles.modalCategoryTextActive]}>
+                  All ({libraryMaterials.length})
+                </Text>
+              </TouchableOpacity>
+              {Object.entries(libraryCategories).map(([cat, count]) => (
+                <TouchableOpacity
+                  key={cat}
+                  style={[styles.modalCategoryChip, selectedLibraryCategory === cat && styles.modalCategoryChipActive]}
+                  onPress={() => setSelectedLibraryCategory(cat)}
+                >
+                  <Text style={[styles.modalCategoryText, selectedLibraryCategory === cat && styles.modalCategoryTextActive]}>
+                    {cat.split(' ')[0]} ({count})
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+
+          {/* Selection Actions */}
+          <View style={styles.modalSelectionBar}>
+            <Text style={styles.modalSelectionText}>
+              {selectedMaterials.size} selected
+            </Text>
+            <View style={styles.modalSelectionActions}>
+              <TouchableOpacity onPress={selectAllFilteredMaterials} style={styles.modalSelectionButton}>
+                <Text style={styles.modalSelectionButtonText}>Select All</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={clearMaterialSelection} style={styles.modalSelectionButton}>
+                <Text style={styles.modalSelectionButtonText}>Clear</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Materials List */}
+          {materialsLoading ? (
+            <View style={styles.modalLoader}>
+              <ActivityIndicator size="large" color={Colors.primary} />
+              <Text style={styles.modalLoaderText}>Loading materials...</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={getFilteredMaterials()}
+              keyExtractor={(item) => item.item_name}
+              renderItem={({ item }) => {
+                const isSelected = selectedMaterials.has(item.item_name);
+                return (
+                  <TouchableOpacity
+                    style={[styles.materialCard, isSelected && styles.materialCardSelected]}
+                    onPress={() => toggleMaterialSelection(item.item_name)}
+                  >
+                    <View style={styles.materialCheckbox}>
+                      <Ionicons
+                        name={isSelected ? 'checkbox' : 'square-outline'}
+                        size={24}
+                        color={isSelected ? Colors.primary : Colors.textSecondary}
+                      />
+                    </View>
+                    <View style={styles.materialInfo}>
+                      <Text style={styles.materialName}>{item.item_name}</Text>
+                      <Text style={styles.materialCategory}>{item.category}</Text>
+                      <View style={styles.materialMeta}>
+                        <Text style={styles.materialRate}>
+                          ₹{item.rate_min.toLocaleString()} - ₹{item.rate_max.toLocaleString()}/{item.unit}
+                        </Text>
+                        {item.brands.length > 0 && (
+                          <Text style={styles.materialBrands}>{item.brands.length} brand(s)</Text>
+                        )}
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                );
+              }}
+              contentContainerStyle={styles.materialsList}
+              ListEmptyComponent={
+                <View style={styles.modalEmpty}>
+                  <Ionicons name="cube-outline" size={48} color={Colors.textTertiary} />
+                  <Text style={styles.modalEmptyText}>No materials found</Text>
+                </View>
+              }
+            />
+          )}
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
