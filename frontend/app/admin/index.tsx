@@ -28,15 +28,16 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    // Check if user is admin
+    // Check if user is admin - defer navigation to avoid mount issues
     if (user?.role !== 'admin') {
-      Alert.alert('Access Denied', 'Only admins can access this page');
-      router.back();
+      Alert.alert('Access Denied', 'Only admins can access this page', [
+        { text: 'OK', onPress: () => router.back() }
+      ]);
       return;
     }
 
     loadDashboardData();
-  }, []);
+  }, [user]);
 
   const loadDashboardData = async () => {
     try {
