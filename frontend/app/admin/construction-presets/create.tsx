@@ -203,12 +203,27 @@ export default function CreateConstructionPresetScreen() {
 
       if (isEditing) {
         await constructionPresetsAPI.update(params.id as string, data);
-        Alert.alert('Success', 'Preset updated successfully');
+        Alert.alert('Success', 'Preset updated successfully', [
+          { text: 'OK', onPress: () => {
+            try {
+              router.back();
+            } catch {
+              router.replace('/admin/construction-presets');
+            }
+          }}
+        ]);
       } else {
         await constructionPresetsAPI.create(data);
-        Alert.alert('Success', 'Preset created successfully');
+        Alert.alert('Success', 'Preset created successfully', [
+          { text: 'OK', onPress: () => {
+            try {
+              router.back();
+            } catch {
+              router.replace('/admin/construction-presets');
+            }
+          }}
+        ]);
       }
-      router.back();
     } catch (error: any) {
       console.error('Save preset error:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Failed to save preset';
