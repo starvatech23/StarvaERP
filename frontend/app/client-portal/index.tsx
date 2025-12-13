@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,14 +9,21 @@ import {
   Alert,
 } from 'react-native';
 import Colors from '../../constants/Colors';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ClientPortalIndexScreen() {
+  const params = useLocalSearchParams();
   const [projectId, setProjectId] = useState('');
-
   const [mobile, setMobile] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Pre-fill project ID from URL params
+  useEffect(() => {
+    if (params.projectId) {
+      setProjectId(params.projectId as string);
+    }
+  }, [params.projectId]);
 
   const handleAccessPortal = async () => {
     if (!projectId.trim()) {
