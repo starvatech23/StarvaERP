@@ -187,20 +187,10 @@ export default function ProjectsScreen() {
           </View>
         ) : (
           <View style={styles.projectsList}>
-            {projects.map((project: any) => {
+            {sortedProjects.map((project: any) => {
               const completedTasks = project.task_count?.completed || 0;
               const totalTasks = project.task_count?.total || 0;
               const progressPercent = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-              
-              // Debug logging
-              console.log(`Project ${project.name}:`, {
-                has_manager_id: !!project.project_manager_id,
-                manager_name: project.project_manager_name,
-                manager_phone: project.manager_phone,
-                client_portal_link: project.client_portal_link,
-                has_client_portal_link: !!project.client_portal_link,
-                status: project.status
-              });
               
               return (
                 <TouchableOpacity
