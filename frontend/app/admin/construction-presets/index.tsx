@@ -581,4 +581,38 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: Colors.danger,
   },
+  materialsLibraryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.primaryPale,
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 4,
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  materialsLibraryIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  materialsLibraryContent: {
+    flex: 1,
+  },
+  materialsLibraryTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  materialsLibrarySubtitle: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
 });
