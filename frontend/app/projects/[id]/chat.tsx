@@ -36,6 +36,12 @@ export default function ProjectChatScreen() {
   
   const flatListRef = useRef<FlatList>(null);
   const pollingInterval = useRef<any>(null);
+  const messagesRef = useRef<any[]>([]); // Track messages for polling comparison
+
+  // Keep messagesRef in sync
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   useEffect(() => {
     loadConversation();
