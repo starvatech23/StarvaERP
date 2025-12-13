@@ -116,7 +116,33 @@ export default function CreateConstructionPresetScreen() {
       setEffectiveDate(new Date(preset.effective_date));
       setRatePerSqft(preset.rate_per_sqft.toString());
       setStatus(preset.status);
-      setSpecGroups(preset.spec_groups || []);
+      
+      // Transform spec_groups to match frontend structure (group_id -> id, item_id -> id, brand_id -> id)
+      const transformedGroups: SpecGroup[] = (preset.spec_groups || []).map((group: any) => ({
+        id: group.group_id || group.id || generateId(),
+        group_name: group.group_name,
+        order_index: group.order_index || 0,
+        spec_items: (group.spec_items || []).map((item: any) => ({
+          id: item.item_id || item.id || generateId(),
+          item_name: item.item_name,
+          unit: item.unit,
+          rate_min: item.rate_min || 0,
+          rate_max: item.rate_max || 0,
+          material_type: item.material_type || 'Other',
+          is_mandatory: item.is_mandatory || false,
+          notes: item.notes || '',
+          brands: (item.brand_list || item.brands || []).map((brand: any) => ({
+            id: brand.brand_id || brand.id || generateId(),
+            brand_name: brand.brand_name,
+            brand_rate_min: brand.brand_rate_min || 0,
+            brand_rate_max: brand.brand_rate_max || 0,
+            quality_grade: brand.quality_grade || '',
+            supplier_name: brand.supplier_name || '',
+          })),
+        })),
+      }));
+      
+      setSpecGroups(transformedGroups);
     } catch (error: any) {
       Alert.alert('Error', 'Failed to load preset');
       router.back();
