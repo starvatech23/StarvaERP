@@ -77,7 +77,7 @@ export default function EditEstimateScreen() {
       Alert.alert('Success', 'Estimate updated successfully', [
         {
           text: 'OK',
-          onPress: () => router.back(),
+          onPress: () => router.replace(`/projects/${projectId}`),
         },
       ]);
     } catch (error: any) {
