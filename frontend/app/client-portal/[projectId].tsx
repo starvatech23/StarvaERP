@@ -21,7 +21,7 @@ import axios from 'axios';
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://construcsync.preview.emergentagent.com';
 
 export default function ClientPortalScreen() {
-  const { projectId } = useLocalSearchParams();
+  const { projectId, token, clientName: clientNameParam } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState(null);
   const [milestones, setMilestones] = useState([]);
@@ -34,20 +34,33 @@ export default function ClientPortalScreen() {
   // Chat states
   const [newMessage, setNewMessage] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
-  const [clientName, setClientName] = useState('Client');
+  const [clientName, setClientName] = useState(clientNameParam as string || 'Client');
   const [refreshing, setRefreshing] = useState(false);
   
   const scrollViewRef = useRef(null);
   const messagesScrollRef = useRef(null);
 
+  // Create axios instance with auth header
+  const getAuthHeaders = () => {
+    if (token) {
+      return { Authorization: `Bearer ${token}` };
+    }
+    return {};
+  };
+
   useEffect(() => {
+    if (clientNameParam) {
+      setClientName(clientNameParam as string);
+    }
     loadPortalData();
   }, []);
 
   const loadPortalData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/client-portal/${projectId}`);
+      const response = await axios.get(`${API_URL}/api/client-portal/${projectId}`, {
+        headers: getAuthHeaders()
+      });
       const data = response.data;
       
       setProject(data.project);
@@ -58,7 +71,7 @@ export default function ClientPortalScreen() {
       if (data.has_chat && data.conversation_id) {
         await loadMessages(data.conversation_id);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading portal data:', err);
       setError(err.response?.data?.detail || 'Failed to load project data');
     } finally {
@@ -66,10 +79,11 @@ export default function ClientPortalScreen() {
     }
   };
 
-  const loadMessages = async (convId) => {
+  const loadMessages = async (convId: string) => {
     try {
       const response = await axios.get(
-        `${API_URL}/api/client-portal/conversation/${convId}/messages?limit=50`
+        `${API_URL}/api/client-portal/conversation/${convId}/messages?limit=50`,
+        { headers: getAuthHeaders() }
       );
       setMessages(response.data || []);
       
@@ -77,7 +91,7 @@ export default function ClientPortalScreen() {
       setTimeout(() => {
         messagesScrollRef.current?.scrollToEnd({ animated: true });
       }, 100);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading messages:', err);
     }
   };
