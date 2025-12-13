@@ -489,5 +489,23 @@ export const constructionPresetsAPI = {
     api.delete(`/construction-presets/${presetId}`, { params: { confirmation_name: confirmationName } }),
   duplicate: (presetId: string, newName: string, newRegion?: string) => 
     api.post(`/construction-presets/${presetId}/duplicate`, null, { params: { new_name: newName, new_region: newRegion } }),
+  // Materials Library
+  getMaterialsLibrary: (params?: { category?: string; region?: string; quality?: string }) =>
+    api.get('/materials-library', { params }),
+  getTemplates: () => api.get('/materials-library/templates'),
+  loadTemplate: (templateName: string, region?: string) =>
+    api.post('/materials-library/load-template', null, { params: { template_name: templateName, region } }),
+  importMaterials: (presetId: string, templateName?: string, region?: string) =>
+    api.post(`/construction-presets/${presetId}/import-materials`, null, { params: { template_name: templateName, region } }),
+  // Upload
+  uploadExcel: (file: FormData, presetId?: string) =>
+    api.post('/construction-presets/upload/excel', file, { 
+      headers: { 'Content-Type': 'multipart/form-data' },
+      params: presetId ? { preset_id: presetId } : {}
+    }),
+  uploadPDF: (file: FormData) =>
+    api.post('/construction-presets/upload/pdf', file, { 
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
 };
 
