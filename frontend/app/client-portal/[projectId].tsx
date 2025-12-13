@@ -18,7 +18,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://conpre-app.preview.emergentagent.com';
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://construcsync.preview.emergentagent.com';
 
 export default function ClientPortalScreen() {
   const { projectId } = useLocalSearchParams();

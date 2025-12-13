@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import uuid
 
 # Configuration
-BASE_URL = "https://conpre-app.preview.emergentagent.com/api"
+BASE_URL = "https://construcsync.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 class ComprehensiveAPITester:
