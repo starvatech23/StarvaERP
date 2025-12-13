@@ -134,35 +134,51 @@ export default function EstimateDetailScreen() {
                 ? await estimationAPI.exportCSV(estimateId as string)
                 : await estimationAPI.exportPDF(estimateId as string);
               
-              console.log('Export response received:', response.data?.length, 'bytes');
-              
-              // Get the text content directly
               const content = response.data;
               
               if (!content) {
                 throw new Error('No data received from server');
               }
               
+              console.log(`Export response received: ${content.length} characters`);
+              
               // Create filename
               const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
               const extension = format === 'csv' ? 'csv' : 'html';
               const filename = `estimate_${timestamp}.${extension}`;
               
-              // Save file directly (text content, not base64)
-              const fileUri = FileSystem.documentDirectory + filename;
-              await FileSystem.writeAsStringAsync(fileUri, content);
+              // Check if we're on web or native
+              const isWeb = typeof document !== 'undefined' && typeof window !== 'undefined';
               
-              console.log('File saved to:', fileUri);
-              
-              // Share file
-              if (await Sharing.isAvailableAsync()) {
-                await Sharing.shareAsync(fileUri, {
-                  mimeType: format === 'csv' ? 'text/csv' : 'text/html',
-                  dialogTitle: `Export Estimate as ${formatName}`,
-                });
-                console.log('Share dialog opened');
+              if (isWeb) {
+                // Web download approach
+                const mimeType = format === 'csv' ? 'text/csv' : 'text/html';
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                Alert.alert('Success', `${formatName} file downloaded: ${filename}`);
               } else {
-                Alert.alert('Success', `File saved to: ${fileUri}`);
+                // Native approach using expo-file-system
+                const fileUri = FileSystem.documentDirectory + filename;
+                await FileSystem.writeAsStringAsync(fileUri, content);
+                
+                console.log('File saved to:', fileUri);
+                
+                // Share file
+                if (await Sharing.isAvailableAsync()) {
+                  await Sharing.shareAsync(fileUri, {
+                    mimeType: format === 'csv' ? 'text/csv' : 'text/html',
+                    dialogTitle: `Export Estimate as ${formatName}`,
+                  });
+                } else {
+                  Alert.alert('Success', `File saved to: ${fileUri}`);
+                }
               }
             } catch (error: any) {
               console.error('Export error:', error);
