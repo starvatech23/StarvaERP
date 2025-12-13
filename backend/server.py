@@ -139,7 +139,9 @@ async def get_user_by_id(user_id: str):
     """Get user by ID"""
     try:
         user = await db.users.find_one({"_id": ObjectId(user_id)})
-        return user
+        if user:
+            return serialize_doc(user)
+        return None
     except:
         return None
 
