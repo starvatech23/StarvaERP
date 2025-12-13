@@ -184,7 +184,9 @@ export default function CreateConstructionPresetScreen() {
       }
       router.back();
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to save preset');
+      console.error('Save preset error:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Failed to save preset';
+      Alert.alert('Error', errorMessage);
     } finally {
       setSaving(false);
     }
