@@ -1393,23 +1393,6 @@ const styles = StyleSheet.create({
     padding: 6,
     fontSize: 12,
   },
-  addItemButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    paddingVertical: 10,
-    backgroundColor: Colors.primaryPale,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    borderStyle: 'dashed',
-  },
-  addItemText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: Colors.primary,
-  },
   previewCard: {
     backgroundColor: Colors.surface,
     borderRadius: 12,
