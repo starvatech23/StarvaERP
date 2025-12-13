@@ -52,21 +52,14 @@ export default function ClientPortalIndexScreen() {
       const data = await response.json();
       
       if (response.ok) {
-        // Store token and navigate
-        Alert.alert('Success', `Welcome ${data.client_name}!`, [
-          {
-            text: 'OK',
-            onPress: () => {
-              router.push({
-                pathname: `/client-portal/${projectId.trim()}`,
-                params: {
-                  token: data.access_token,
-                  clientName: data.client_name
-                }
-              });
-            }
+        // Navigate directly to the client portal dashboard
+        router.push({
+          pathname: `/client-portal/${projectId.trim()}`,
+          params: {
+            token: data.access_token,
+            clientName: data.client_name
           }
-        ]);
+        });
       } else {
         Alert.alert('Login Failed', data.detail || 'Invalid credentials. Please check your Project ID and mobile number.');
       }
