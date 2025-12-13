@@ -112,16 +112,10 @@ export default function AdminDashboard() {
     {
       title: 'Construction Presets',
       icon: 'construct',
-      color: '#8B5A3C',
+      color: Colors.secondary,
       count: null,
       route: '/admin/construction-presets',
-    },
-    {
-      title: 'Estimation Presets',
-      icon: 'calculator',
-      color: '#3B82F6',
-      count: null,
-      route: '/admin/estimation-presets',
+      description: 'Manage estimation & construction presets',
     },
   ];
 
