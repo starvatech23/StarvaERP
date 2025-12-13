@@ -204,6 +204,21 @@ export default function ConstructionPresetsScreen() {
         </View>
       </View>
 
+      {/* Materials Library Button */}
+      <TouchableOpacity 
+        style={styles.materialsLibraryButton}
+        onPress={() => router.push('/admin/construction-presets/materials-library')}
+      >
+        <View style={styles.materialsLibraryIcon}>
+          <Ionicons name="library" size={20} color={Colors.primary} />
+        </View>
+        <View style={styles.materialsLibraryContent}>
+          <Text style={styles.materialsLibraryTitle}>Materials Library</Text>
+          <Text style={styles.materialsLibrarySubtitle}>Browse 300+ materials, templates & upload specs</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+      </TouchableOpacity>
+
       {/* Presets List */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {presets.length === 0 ? (
