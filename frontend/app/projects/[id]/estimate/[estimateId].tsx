@@ -148,10 +148,8 @@ export default function EstimateDetailScreen() {
               const extension = format === 'csv' ? 'csv' : 'html';
               const filename = `estimate_${timestamp}.${extension}`;
               
-              // Check if we're on web or native
-              const isWeb = typeof document !== 'undefined' && typeof window !== 'undefined';
-              
-              if (isWeb) {
+              // Check if we're on web or native using Platform
+              if (Platform.OS === 'web') {
                 // Web download approach
                 const mimeType = format === 'csv' ? 'text/csv' : 'text/html';
                 const blob = new Blob([content], { type: mimeType });
@@ -165,9 +163,11 @@ export default function EstimateDetailScreen() {
                 URL.revokeObjectURL(url);
                 Alert.alert('Success', `${formatName} file downloaded: ${filename}`);
               } else {
-                // Native approach using expo-file-system
+                // Native approach using expo-file-system legacy API
                 const fileUri = FileSystem.documentDirectory + filename;
-                await FileSystem.writeAsStringAsync(fileUri, content);
+                await FileSystem.writeAsStringAsync(fileUri, content, {
+                  encoding: FileSystem.EncodingType.UTF8,
+                });
                 
                 console.log('File saved to:', fileUri);
                 
