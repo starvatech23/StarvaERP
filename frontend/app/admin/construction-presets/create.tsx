@@ -88,6 +88,16 @@ export default function CreateConstructionPresetScreen() {
   const [specGroups, setSpecGroups] = useState<SpecGroup[]>([]);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
+  // Materials Library Modal
+  const [showMaterialsModal, setShowMaterialsModal] = useState(false);
+  const [materialsLoading, setMaterialsLoading] = useState(false);
+  const [libraryMaterials, setLibraryMaterials] = useState<LibraryMaterial[]>([]);
+  const [libraryCategories, setLibraryCategories] = useState<Record<string, number>>({});
+  const [selectedLibraryCategory, setSelectedLibraryCategory] = useState('');
+  const [materialSearchQuery, setMaterialSearchQuery] = useState('');
+  const [selectedMaterials, setSelectedMaterials] = useState<Set<string>>(new Set());
+  const [targetGroupId, setTargetGroupId] = useState<string | null>(null);
+
   useEffect(() => {
     if (isEditing) {
       loadPreset();
