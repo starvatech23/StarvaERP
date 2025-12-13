@@ -733,13 +733,23 @@ export default function CreateConstructionPresetScreen() {
                   </View>
                 ))}
 
-                <TouchableOpacity
-                  style={styles.addItemButton}
-                  onPress={() => addSpecItem(group.id)}
-                >
-                  <Ionicons name="add" size={18} color={Colors.primary} />
-                  <Text style={styles.addItemText}>Add Spec Item</Text>
-                </TouchableOpacity>
+                <View style={styles.addItemActions}>
+                  <TouchableOpacity
+                    style={styles.addItemButton}
+                    onPress={() => addSpecItem(group.id)}
+                  >
+                    <Ionicons name="add" size={18} color={Colors.primary} />
+                    <Text style={styles.addItemText}>Add Item</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={styles.importLibraryButton}
+                    onPress={() => openMaterialsLibrary(group.id)}
+                  >
+                    <Ionicons name="library" size={18} color={Colors.white} />
+                    <Text style={styles.importLibraryText}>Import from Library</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
           </View>
