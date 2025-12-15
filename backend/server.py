@@ -1592,7 +1592,7 @@ async def get_schedules(
         for user_id in schedule_dict.get("assigned_to", []):
             user = await get_user_by_id(user_id)
             if user:
-                assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
+                assigned_users.append({"id": user["id"], "name": user["full_name"]})
         schedule_dict["assigned_users"] = assigned_users
         
         creator = await get_user_by_id(schedule_dict["created_by"])
