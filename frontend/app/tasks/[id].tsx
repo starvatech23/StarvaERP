@@ -289,6 +289,61 @@ export default function TaskDetailsScreen() {
           </TouchableOpacity>
         )}
       </ScrollView>
+
+      {/* Actual Cost Edit Modal */}
+      <Modal
+        visible={showCostModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowCostModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Update Actual Cost</Text>
+              <TouchableOpacity onPress={() => setShowCostModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.modalLabel}>Enter actual cost (₹)</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={actualCost}
+              onChangeText={setActualCost}
+              keyboardType="numeric"
+              placeholder="0"
+              autoFocus
+            />
+            
+            {task?.estimated_cost > 0 && (
+              <Text style={styles.modalHint}>
+                Estimated cost: {formatCurrency(task.estimated_cost)}
+              </Text>
+            )}
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalCancelButton}
+                onPress={() => setShowCostModal(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.modalSaveButton}
+                onPress={handleUpdateActualCost}
+                disabled={saving}
+              >
+                {saving ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <Text style={styles.modalSaveText}>Save</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
