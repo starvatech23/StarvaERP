@@ -39,12 +39,32 @@ export default function TaskDetailsScreen() {
     try {
       const response = await tasksAPI.getById(id as string);
       setTask(response.data);
+      setActualCost(String(response.data.actual_cost || ''));
     } catch (error: any) {
       Alert.alert('Error', 'Failed to load task details');
       router.back();
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleUpdateActualCost = async () => {
+    setSaving(true);
+    try {
+      const newCost = parseFloat(actualCost) || 0;
+      await tasksAPI.update(id as string, { actual_cost: newCost });
+      setTask({ ...task, actual_cost: newCost });
+      setShowCostModal(false);
+      Alert.alert('Success', 'Actual cost updated');
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to update cost');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return `₹${(amount || 0).toLocaleString('en-IN')}`;
   };
 
   const handleDelete = () => {
