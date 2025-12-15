@@ -29,12 +29,18 @@ export default function LeadsScreen() {
 
   const loadData = async () => {
     try {
-      const [leadsRes, catsRes] = await Promise.all([
-        crmLeadsAPI.getAll(),
-        crmCategoriesAPI.getAll(),
-      ]);
+      // Load leads
+      const leadsRes = await crmLeadsAPI.getAll();
       setLeads(leadsRes.data);
-      setCategories(catsRes.data);
+      
+      // Try to load categories (may fail for non-admin users)
+      try {
+        const catsRes = await crmCategoriesAPI.getAll();
+        setCategories(catsRes.data);
+      } catch (catError) {
+        console.log('Categories not available for this user role');
+        setCategories([]);
+      }
     } catch (error: any) {
       if (error.response?.status === 403) {
         Alert.alert('Access Denied', 'Only admins and project managers can access CRM');
