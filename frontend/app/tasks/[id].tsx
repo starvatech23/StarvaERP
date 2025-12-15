@@ -142,7 +142,15 @@ export default function TaskDetailsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
+          <Ionicons name="arrow-back" size={24} color="#374151" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Task Details</Text>
+        {canEdit && (
+          <TouchableOpacity 
+            style={styles.editHeaderButton} 
+            onPress={() => router.push(`/tasks/edit/${id}` as any)}
+          >
+            <Ionicons name="create-outline" size={24} color={Colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Task Details</Text>
         <View style={{ width: 40 }} />
