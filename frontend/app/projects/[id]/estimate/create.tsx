@@ -322,17 +322,20 @@ export default function CreateEstimateScreen() {
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Package Type</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={formData.package_type}
-                  onValueChange={(value) => updateField('package_type', value)}
-                  style={styles.picker}
-                >
-                  <Picker.Item label="Standard - Basic finishes" value="standard" />
-                  <Picker.Item label="Premium - High-quality finishes" value="premium" />
-                  <Picker.Item label="Custom - Customized specifications" value="custom" />
-                </Picker>
-              </View>
+              <TouchableOpacity 
+                style={styles.selectorButton}
+                onPress={() => setShowPackagePicker(true)}
+              >
+                <Ionicons 
+                  name={formData.package_type === 'premium' ? 'star' : formData.package_type === 'custom' ? 'construct' : 'apps'} 
+                  size={20} 
+                  color={Colors.primary} 
+                />
+                <Text style={styles.selectorButtonText}>
+                  {packageOptions.find(p => p.value === formData.package_type)?.label || 'Select Package'}
+                </Text>
+                <Ionicons name="chevron-down" size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
             </View>
 
             <View style={styles.packageInfo}>
