@@ -19,6 +19,7 @@ interface Task {
   title: string;
   status: string;
   priority: string;
+  milestone_id?: string;
   progress_percentage: number;
   assigned_users: { id: string; name: string }[];
   estimated_cost: number;
