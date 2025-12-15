@@ -12,7 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import Colors from '../../constants/Colors';
+import Colors from '../../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { tasksAPI, milestonesAPI, usersAPI } from '../../services/api';
