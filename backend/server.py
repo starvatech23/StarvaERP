@@ -5011,8 +5011,8 @@ async def get_lead_categories(
     """Get all lead categories with lead counts"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
-        raise HTTPException(status_code=403, detail="Only admins and PMs can access CRM")
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, "crm_manager"]:
+        raise HTTPException(status_code=403, detail="Only admins, PMs and CRM managers can access CRM")
     
     categories = await db.lead_categories.find({"is_active": True}).sort("order", 1).to_list(100)
     
