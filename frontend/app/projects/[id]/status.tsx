@@ -645,7 +645,23 @@ export default function ProjectStatusScreen() {
                 ))}
               </View>
 
-              <Text style={styles.inputLabel}>Photos ({newUpdate.photos.length}/10)</Text>
+              {/* Task Selector */}
+              <Text style={styles.inputLabel}>Select Tasks to Include ({newUpdate.selected_tasks.length} selected)</Text>
+              <TouchableOpacity 
+                style={styles.taskSelectorButton}
+                onPress={() => setShowTaskSelector(true)}
+              >
+                <Ionicons name="checkbox-outline" size={20} color={Colors.primary} />
+                <Text style={styles.taskSelectorButtonText} numberOfLines={1}>
+                  {newUpdate.selected_tasks.length > 0 
+                    ? getSelectedTasksSummary() 
+                    : 'Tap to select tasks'
+                  }
+                </Text>
+                <Ionicons name="chevron-forward" size={18} color="#6B7280" />
+              </TouchableOpacity>
+
+              <Text style={styles.inputLabel}>Photos ({newUpdate.photos.length}/10) - Auto-compressed</Text>
               <View style={styles.photoActions}>
                 <TouchableOpacity style={styles.photoButton} onPress={takePhoto}>
                   <Ionicons name="camera" size={24} color={Colors.primary} />
