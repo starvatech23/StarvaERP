@@ -1237,6 +1237,64 @@ class DocumentResponse(DocumentBase):
     uploader_name: Optional[str] = None  # Populated from user data
 
 
+# Project Status Update Models (for daily/weekly/monthly status sharing)
+class StatusUpdateFrequency(str, Enum):
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+
+class StatusUpdateBase(BaseModel):
+    project_id: str
+    title: str
+    description: Optional[str] = None
+    frequency: StatusUpdateFrequency = StatusUpdateFrequency.DAILY
+    photos: List[str] = []  # Base64 encoded images or URLs
+    # Progress summary
+    overall_progress: float = 0  # 0-100
+    milestones_summary: Optional[str] = None
+    tasks_completed: int = 0
+    tasks_in_progress: int = 0
+    tasks_pending: int = 0
+    # Cost summary
+    budget_spent: Optional[float] = 0
+    budget_remaining: Optional[float] = 0
+    # Issues/blockers
+    issues: Optional[str] = None
+    next_steps: Optional[str] = None
+    # Weather conditions (for construction)
+    weather: Optional[str] = None
+    # Visibility
+    is_public: bool = False  # If true, visible to clients
+
+class StatusUpdateCreate(StatusUpdateBase):
+    pass
+
+class StatusUpdateUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    frequency: Optional[StatusUpdateFrequency] = None
+    photos: Optional[List[str]] = None
+    overall_progress: Optional[float] = None
+    milestones_summary: Optional[str] = None
+    tasks_completed: Optional[int] = None
+    tasks_in_progress: Optional[int] = None
+    tasks_pending: Optional[int] = None
+    budget_spent: Optional[float] = None
+    budget_remaining: Optional[float] = None
+    issues: Optional[str] = None
+    next_steps: Optional[str] = None
+    weather: Optional[str] = None
+    is_public: Optional[bool] = None
+
+class StatusUpdateResponse(StatusUpdateBase):
+    id: str
+    created_by: str
+    created_by_name: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    project_name: Optional[str] = None
+
+
 # Budget Category Enum
 class BudgetCategory(str, Enum):
     LABOR = "labor"
