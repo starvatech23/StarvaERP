@@ -37,6 +37,10 @@ export default function CreateEstimateScreen() {
   const [constructionPresets, setConstructionPresets] = useState<ConstructionPreset[]>([]);
   const [loadingPresets, setLoadingPresets] = useState(true);
   
+  // Modal pickers state
+  const [showPresetPicker, setShowPresetPicker] = useState(false);
+  const [showPackagePicker, setShowPackagePicker] = useState(false);
+  
   // Form data
   const [formData, setFormData] = useState({
     construction_preset_id: '',
@@ -48,6 +52,12 @@ export default function CreateEstimateScreen() {
     contingency_percent: '10',
     labour_percent_of_material: '40',
   });
+
+  const packageOptions = [
+    { value: 'standard', label: 'Standard', description: 'Basic cement blocks, standard tiles, regular fittings' },
+    { value: 'premium', label: 'Premium', description: 'Premium blocks, vitrified tiles, branded fittings' },
+    { value: 'custom', label: 'Custom', description: 'Customized specifications' },
+  ];
 
   React.useEffect(() => {
     loadConstructionPresets();
