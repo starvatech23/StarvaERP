@@ -221,22 +221,18 @@ export default function CreateEstimateScreen() {
                 <ActivityIndicator size="small" color={Colors.primary} />
               ) : constructionPresets.length > 0 ? (
                 <>
-                  <View style={styles.pickerContainer}>
-                    <Picker
-                      selectedValue={formData.construction_preset_id}
-                      onValueChange={(value) => updateField('construction_preset_id', value)}
-                      style={styles.picker}
-                    >
-                      <Picker.Item label="-- Select Preset --" value="" />
-                      {constructionPresets.map((preset) => (
-                        <Picker.Item 
-                          key={preset.id} 
-                          label={`${preset.name} (${preset.region})`}
-                          value={preset.id} 
-                        />
-                      ))}
-                    </Picker>
-                  </View>
+                  <TouchableOpacity 
+                    style={styles.selectorButton}
+                    onPress={() => setShowPresetPicker(true)}
+                  >
+                    <Ionicons name="construct" size={20} color={Colors.primary} />
+                    <Text style={styles.selectorButtonText}>
+                      {formData.construction_preset_id 
+                        ? constructionPresets.find(p => p.id === formData.construction_preset_id)?.name 
+                        : 'Select Construction Preset'}
+                    </Text>
+                    <Ionicons name="chevron-down" size={20} color={Colors.textSecondary} />
+                  </TouchableOpacity>
                   {formData.construction_preset_id && (
                     <View style={styles.presetInfo}>
                       <View style={styles.presetInfoHeader}>
