@@ -6633,13 +6633,48 @@ async def move_lead_to_project(
     }
     await db.lead_activities.insert_one(activity)
     
+    # Transfer estimates from lead to project
+    estimates_transferred = 0
+    try:
+        # Find all estimates linked to this lead
+        lead_estimates = await db.estimates.find({"lead_id": request.lead_id}).to_list(100)
+        
+        if lead_estimates:
+            # Update estimates to link to the new project
+            for estimate in lead_estimates:
+                await db.estimates.update_one(
+                    {"_id": estimate["_id"]},
+                    {"$set": {
+                        "project_id": project_id,
+                        "updated_at": datetime.utcnow(),
+                        "notes": f"{estimate.get('notes', '') or ''}\n[Transferred from Lead on {datetime.utcnow().strftime('%Y-%m-%d')}]".strip()
+                    }}
+                )
+                estimates_transferred += 1
+            
+            # Create audit log for estimate transfer
+            await create_audit_log(
+                action_type=AuditActionType.DATA_MIGRATION,
+                description=f"Transferred {estimates_transferred} estimate(s) from lead to project",
+                entity_type="estimate",
+                entity_id=project_id,
+                user=current_user,
+                new_data={"estimates_count": estimates_transferred, "project_id": project_id}
+            )
+    except Exception as e:
+        print(f"Warning: Failed to transfer estimates: {e}")
+    
+    message = f"Lead successfully converted to project{' (bank transaction bypassed)' if request.bypass_transaction else ''}"
+    if estimates_transferred > 0:
+        message += f". {estimates_transferred} estimate(s) transferred."
+    
     return MoveLeadToProjectResponse(
         success=True,
         project_id=project_id,
         project_name=request.project_name,
         transaction_id=transaction_id,
         bypassed=request.bypass_transaction,
-        message=f"Lead successfully converted to project{' (bank transaction bypassed)' if request.bypass_transaction else ''}"
+        message=message
     )
 
 @api_router.get("/crm/leads/{lead_id}/can-convert")
