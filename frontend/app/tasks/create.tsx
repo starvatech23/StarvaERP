@@ -48,12 +48,28 @@ export default function CreateTaskScreen() {
     loadUsers();
   }, []);
 
+  useEffect(() => {
+    if (selectedProjectId) {
+      loadMilestones(selectedProjectId);
+    }
+  }, [selectedProjectId]);
+
   const loadProjects = async () => {
     try {
       const response = await projectsAPI.getAll();
       setProjects(response.data);
     } catch (error) {
       console.error('Error loading projects:', error);
+    }
+  };
+
+  const loadMilestones = async (projectId: string) => {
+    try {
+      const response = await milestonesAPI.getAll(projectId);
+      setMilestones(response.data || []);
+    } catch (error) {
+      console.error('Error loading milestones:', error);
+      setMilestones([]);
     }
   };
 
