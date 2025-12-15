@@ -4267,6 +4267,29 @@ async def get_milestones(
     result = []
     for milestone in milestones:
         milestone_dict = serialize_doc(milestone)
+        
+        # Count tasks under this milestone
+        task_count = await db.tasks.count_documents({"milestone_id": milestone_dict["id"]})
+        completed_task_count = await db.tasks.count_documents({
+            "milestone_id": milestone_dict["id"],
+            "status": TaskStatus.COMPLETED
+        })
+        milestone_dict["task_count"] = task_count
+        milestone_dict["completed_task_count"] = completed_task_count
+        
+        # Calculate actual cost from task costs
+        pipeline = [
+            {"$match": {"milestone_id": milestone_dict["id"]}},
+            {"$group": {"_id": None, "total": {"$sum": {"$ifNull": ["$actual_cost", 0]}}}}
+        ]
+        cost_result = await db.tasks.aggregate(pipeline).to_list(1)
+        milestone_dict["actual_cost"] = cost_result[0]["total"] if cost_result else 0
+        
+        # Calculate budget variance
+        estimated = milestone_dict.get("estimated_cost", 0) or 0
+        actual = milestone_dict.get("actual_cost", 0) or 0
+        milestone_dict["budget_variance"] = estimated - actual
+        
         result.append(milestone_dict)
     
     return result
