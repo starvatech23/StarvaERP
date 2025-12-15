@@ -57,6 +57,14 @@ export default function DashboardScreen() {
         const data = await response.json();
         setStats(data);
       }
+      
+      // Load recent status updates
+      try {
+        const updatesRes = await statusUpdatesAPI.getAll(undefined, 5);
+        setStatusUpdates(updatesRes.data || []);
+      } catch (err) {
+        console.log('Status updates not available');
+      }
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {
