@@ -810,4 +810,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.white,
   },
+  goToProjectButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    backgroundColor: Colors.primaryPale,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  goToProjectButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primary,
+    flex: 1,
+  },
 });
