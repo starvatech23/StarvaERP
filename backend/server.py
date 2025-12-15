@@ -1268,6 +1268,13 @@ async def get_tasks(
         creator = await get_user_by_id(task_dict["created_by"])
         task_dict["created_by_name"] = creator["full_name"] if creator else None
         
+        # Get milestone name if linked
+        if task_dict.get("milestone_id"):
+            milestone = await db.milestones.find_one({"_id": ObjectId(task_dict["milestone_id"])})
+            task_dict["milestone_name"] = milestone["name"] if milestone else None
+        else:
+            task_dict["milestone_name"] = None
+        
         # Get assigned users - handle both string and list cases
         assigned_to = task_dict.get("assigned_to", [])
         if isinstance(assigned_to, str):
