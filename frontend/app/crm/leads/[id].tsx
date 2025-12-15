@@ -308,6 +308,46 @@ export default function LeadDetailScreen() {
           )}
         </View>
 
+        {/* Estimates Section */}
+        <View style={styles.card}>
+          <View style={styles.timelineHeader}>
+            <Text style={styles.cardTitle}>Estimates</Text>
+            <Text style={styles.activityCount}>{estimates.length} estimate{estimates.length !== 1 ? 's' : ''}</Text>
+          </View>
+          
+          {estimates.length === 0 ? (
+            <View style={styles.emptyEstimatesContainer}>
+              <Ionicons name="calculator-outline" size={40} color={Colors.textSecondary} />
+              <Text style={styles.emptyText}>No estimates created yet</Text>
+              <Text style={styles.emptySubtext}>Use "Quick Estimate" above to create one</Text>
+            </View>
+          ) : (
+            estimates.map((estimate, index) => (
+              <TouchableOpacity
+                key={estimate.id || index}
+                style={styles.estimateItem}
+                onPress={() => router.push(`/projects/${estimate.project_id || 'none'}/estimate/${estimate.id}`)}
+              >
+                <View style={styles.estimateIconContainer}>
+                  <Ionicons name="document-text" size={24} color={Colors.primary} />
+                </View>
+                <View style={styles.estimateContent}>
+                  <Text style={styles.estimateTitle}>
+                    {estimate.name || `Estimate v${estimate.version || 1}`}
+                  </Text>
+                  <Text style={styles.estimateAmount}>
+                    ₹{(estimate.grand_total || estimate.total_cost || 0).toLocaleString('en-IN')}
+                  </Text>
+                  <Text style={styles.estimateMeta}>
+                    {estimate.status || 'draft'} • {new Date(estimate.created_at).toLocaleDateString()}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            ))
+          )}
+        </View>
+
         <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
