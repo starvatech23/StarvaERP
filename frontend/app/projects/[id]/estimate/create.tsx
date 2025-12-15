@@ -460,6 +460,96 @@ export default function CreateEstimateScreen() {
           </TouchableOpacity>
         )}
       </View>
+
+      {/* Preset Picker Modal */}
+      <Modal
+        visible={showPresetPicker}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowPresetPicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Construction Preset</Text>
+              <TouchableOpacity onPress={() => setShowPresetPicker(false)}>
+                <Ionicons name="close" size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={constructionPresets}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.modalOption,
+                    formData.construction_preset_id === item.id && styles.modalOptionSelected
+                  ]}
+                  onPress={() => {
+                    updateField('construction_preset_id', item.id);
+                    setShowPresetPicker(false);
+                  }}
+                >
+                  <View style={styles.modalOptionContent}>
+                    <Text style={styles.modalOptionTitle}>{item.name}</Text>
+                    <Text style={styles.modalOptionSubtitle}>
+                      {item.region} • ₹{item.rate_per_sqft?.toLocaleString('en-IN')}/sqft
+                    </Text>
+                  </View>
+                  {formData.construction_preset_id === item.id && (
+                    <Ionicons name="checkmark-circle" size={24} color={Colors.primary} />
+                  )}
+                </TouchableOpacity>
+              )}
+              contentContainerStyle={styles.modalList}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Package Picker Modal */}
+      <Modal
+        visible={showPackagePicker}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowPackagePicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Package Type</Text>
+              <TouchableOpacity onPress={() => setShowPackagePicker(false)}>
+                <Ionicons name="close" size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={packageOptions}
+              keyExtractor={(item) => item.value}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.modalOption,
+                    formData.package_type === item.value && styles.modalOptionSelected
+                  ]}
+                  onPress={() => {
+                    updateField('package_type', item.value);
+                    setShowPackagePicker(false);
+                  }}
+                >
+                  <View style={styles.modalOptionContent}>
+                    <Text style={styles.modalOptionTitle}>{item.label}</Text>
+                    <Text style={styles.modalOptionSubtitle}>{item.description}</Text>
+                  </View>
+                  {formData.package_type === item.value && (
+                    <Ionicons name="checkmark-circle" size={24} color={Colors.primary} />
+                  )}
+                </TouchableOpacity>
+              )}
+              contentContainerStyle={styles.modalList}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
