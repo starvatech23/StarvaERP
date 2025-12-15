@@ -305,4 +305,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.surface,
   },
+  colorPicker: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 4,
+  },
+  colorOption: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  colorOptionSelected: {
+    borderWidth: 3,
+    borderColor: Colors.textPrimary,
+  },
 });
