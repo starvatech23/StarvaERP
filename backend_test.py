@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://construcsync.preview.emergentagent.com/api"
+BASE_URL = "https://build-tracker-75.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@test.com"
 ADMIN_PASSWORD = "admin123"
 MANAGER_EMAIL = "crm.manager@test.com"

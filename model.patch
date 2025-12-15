@@ -415,7 +415,7 @@ index f639a670..e69de29b 100644
 ------------------+def generate_client_portal_link(project_id: str, base_url: str = None) -> str:
 ------------------+    """Generate a client portal access link for a project"""
 ------------------+    if not base_url:
-------------------+        base_url = "https://construcsync.preview.emergentagent.com"
+------------------+        base_url = "https://build-tracker-75.preview.emergentagent.com"
 ------------------+    return f"{base_url}/client-portal/?projectId={project_id}"
 ------------------+
 ------------------+
@@ -457,7 +457,7 @@ index f639a670..e69de29b 100644
 -------------------+    try {
 -------------------+      setIsLoading(true);
 -------------------+      
--------------------+      const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://construcsync.preview.emergentagent.com';
+-------------------+      const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://build-tracker-75.preview.emergentagent.com';
 -------------------+      const response = await fetch(`${API_URL}/api/client-portal/login`, {
 -------------------+        method: 'POST',
 -------------------+        headers: { 'Content-Type': 'application/json' },
@@ -715,7 +715,7 @@ index f639a670..e69de29b 100644
 ---------------------+import { Ionicons } from '@expo/vector-icons';
 ---------------------+import axios from 'axios';
 ---------------------+
----------------------+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://construcsync.preview.emergentagent.com';
+---------------------+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://build-tracker-75.preview.emergentagent.com';
 ---------------------+
 ---------------------+export default function ClientPortalScreen() {
 ---------------------+  const { projectId } = useLocalSearchParams();
@@ -2907,7 +2907,7 @@ index f639a670..e69de29b 100644
 ---------------------------------+from typing import Dict, Any, List, Optional
 ---------------------------------+
 ---------------------------------+# Configuration
----------------------------------+BASE_URL = "https://construcsync.preview.emergentagent.com/api"
+---------------------------------+BASE_URL = "https://build-tracker-75.preview.emergentagent.com/api"
 ---------------------------------+TEST_USER_EMAIL = "admin@test.com"
 ---------------------------------+TEST_USER_PASSWORD = "admin123"
 ---------------------------------+
@@ -3539,7 +3539,7 @@ index f639a670..e69de29b 100644
 ----------------------------------+import uuid
 ----------------------------------+
 ----------------------------------+# Configuration
-----------------------------------+BASE_URL = "https://construcsync.preview.emergentagent.com/api"
+----------------------------------+BASE_URL = "https://build-tracker-75.preview.emergentagent.com/api"
 ----------------------------------+HEADERS = {"Content-Type": "application/json"}
 ----------------------------------+
 ----------------------------------+class ComprehensiveAPITester:
@@ -4464,7 +4464,7 @@ index f639a670..e69de29b 100644
 ----------------------------------+from datetime import datetime, timedelta
 ----------------------------------+import uuid
 ----------------------------------+
-----------------------------------+BASE_URL = "https://construcsync.preview.emergentagent.com/api"
+----------------------------------+BASE_URL = "https://build-tracker-75.preview.emergentagent.com/api"
 ----------------------------------+HEADERS = {"Content-Type": "application/json"}
 ----------------------------------+
 ----------------------------------+class FinalComprehensiveTest:
@@ -6719,7 +6719,7 @@ index f639a670..e69de29b 100644
 ----------------------------------------------+from typing import Dict, Any, Optional, List
 ----------------------------------------------+
 ----------------------------------------------+# Configuration
-----------------------------------------------+BACKEND_URL = "https://construcsync.preview.emergentagent.com/api"
+----------------------------------------------+BACKEND_URL = "https://build-tracker-75.preview.emergentagent.com/api"
 ----------------------------------------------+TEST_USER_EMAIL = "admin@buildflow.com"
 ----------------------------------------------+TEST_USER_PASSWORD = "admin123"
 ----------------------------------------------+
@@ -7719,7 +7719,7 @@ index f639a670..e69de29b 100644
 -----------------------------------+import json
 -----------------------------------+from datetime import datetime, timedelta
 -----------------------------------+
------------------------------------+BASE_URL = "https://construcsync.preview.emergentagent.com/api"
+-----------------------------------+BASE_URL = "https://build-tracker-75.preview.emergentagent.com/api"
 -----------------------------------+HEADERS = {"Content-Type": "application/json"}
 -----------------------------------+
 -----------------------------------+def test_payments_api():
@@ -8183,7 +8183,7 @@ index f639a670..e69de29b 100644
 ---------------         comment: "All project endpoints (GET /api/projects, GET /api/projects/{id}, PUT /api/projects/{id}) now return client_portal_link field through ProjectResponse model. The serialize_doc function automatically includes this field if it exists in the database. Link generation happens automatically in PUT /api/projects/{id} endpoint when status changes to confirmed/active/in_progress."
 ---------------+      - working: true
 ---------------+        agent: "testing"
----------------+        comment: "✅ CLIENT PORTAL LINK APIS WORKING PERFECTLY: Comprehensive testing completed with 100% success rate (4/4 tests passed). VERIFIED FEATURES: (1) GET /api/projects - All 30 projects include client_portal_link field, existing in_progress projects show warnings for missing links (expected for pre-implementation projects), (2) GET /api/projects/{id} - Single project endpoint correctly includes client_portal_link field, (3) PUT /api/projects/{id} - Link generation working perfectly: created test project with status 'planning' (no link), updated to 'in_progress' (link generated correctly), updated to 'completed' (link preserved), verified link persists in database, (4) Link format verification - All generated links follow correct format: https://construcsync.preview.emergentagent.com/client-portal/?projectId={project_id}, (5) Non-qualifying status testing - Confirmed no links generated for planning/on_hold/cancelled/completed statuses. Link generation logic working as specified: only triggers for in_progress status (confirmed/active not in ProjectStatus enum but in_progress works). All client portal link functionality is fully operational."
+---------------+        comment: "✅ CLIENT PORTAL LINK APIS WORKING PERFECTLY: Comprehensive testing completed with 100% success rate (4/4 tests passed). VERIFIED FEATURES: (1) GET /api/projects - All 30 projects include client_portal_link field, existing in_progress projects show warnings for missing links (expected for pre-implementation projects), (2) GET /api/projects/{id} - Single project endpoint correctly includes client_portal_link field, (3) PUT /api/projects/{id} - Link generation working perfectly: created test project with status 'planning' (no link), updated to 'in_progress' (link generated correctly), updated to 'completed' (link preserved), verified link persists in database, (4) Link format verification - All generated links follow correct format: https://build-tracker-75.preview.emergentagent.com/client-portal/?projectId={project_id}, (5) Non-qualifying status testing - Confirmed no links generated for planning/on_hold/cancelled/completed statuses. Link generation logic working as specified: only triggers for in_progress status (confirmed/active not in ProjectStatus enum but in_progress works). All client portal link functionality is fully operational."
 --------------- 
 --------------- frontend:
 ---------------   - task: "Display Client Portal Link on Project Cards"
@@ -8203,7 +8203,7 @@ index f639a670..e69de29b 100644
 ---------------   - agent: "main"
 ---------------     message: "✅ CLIENT PORTAL LINK FEATURE IMPLEMENTED - Completed full implementation of client portal link display feature. BACKEND CHANGES: (1) Added client_portal_link field to ProjectResponse model in models.py as Optional[str], (2) Verified existing link generation logic in server.py - generate_client_portal_link function creates links and PUT /api/projects/{id} automatically stores them when status changes to confirmed/active/in_progress. FRONTEND CHANGES: (1) Installed expo-clipboard package for clipboard functionality, (2) Updated projects.tsx to display client portal link section on project cards when link exists, (3) Added copy-to-clipboard button with success alert, (4) Styled link section with blue theme, monospace font for URL, and proper spacing. READY FOR TESTING: Need to test backend API responses include client_portal_link field and frontend clipboard functionality works correctly. Both backend and expo services have been restarted."
 ---------------+  - agent: "testing"
----------------+    message: "✅ CLIENT PORTAL LINK BACKEND TESTING COMPLETE - Comprehensive testing of Client Portal Link feature completed with 100% success rate (4/4 tests passed). VERIFIED FUNCTIONALITY: (1) GET /api/projects - All projects include client_portal_link field with correct format, (2) GET /api/projects/{id} - Single project endpoint includes client_portal_link field, (3) PUT /api/projects/{id} - Link generation working perfectly: status change from 'planning' to 'in_progress' generates correct link format (https://construcsync.preview.emergentagent.com/client-portal/?projectId={id}), subsequent status changes preserve existing link, link persists in database, (4) Non-qualifying statuses (planning/on_hold/cancelled/completed) correctly do not generate links. IMPORTANT FINDING: Server.py checks for 'confirmed'/'active'/'in_progress' statuses but ProjectStatus enum only includes 'in_progress' - this works correctly as 'in_progress' is the valid trigger status. All backend client portal link functionality is fully operational and ready for frontend integration."
+---------------+    message: "✅ CLIENT PORTAL LINK BACKEND TESTING COMPLETE - Comprehensive testing of Client Portal Link feature completed with 100% success rate (4/4 tests passed). VERIFIED FUNCTIONALITY: (1) GET /api/projects - All projects include client_portal_link field with correct format, (2) GET /api/projects/{id} - Single project endpoint includes client_portal_link field, (3) PUT /api/projects/{id} - Link generation working perfectly: status change from 'planning' to 'in_progress' generates correct link format (https://build-tracker-75.preview.emergentagent.com/client-portal/?projectId={id}), subsequent status changes preserve existing link, link persists in database, (4) Non-qualifying statuses (planning/on_hold/cancelled/completed) correctly do not generate links. IMPORTANT FINDING: Server.py checks for 'confirmed'/'active'/'in_progress' statuses but ProjectStatus enum only includes 'in_progress' - this works correctly as 'in_progress' is the valid trigger status. All backend client portal link functionality is fully operational and ready for frontend integration."
 --------------- 
 -------------diff --git a/test_result.md b/test_result.md
 -------------index 9e3abaa..6fda87c 100644
