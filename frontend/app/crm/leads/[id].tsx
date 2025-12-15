@@ -46,9 +46,6 @@ export default function LeadDetailScreen() {
       } catch (estError) {
         console.log('Estimates not available');
         setEstimates([]);
-      } catch (actError) {
-        console.log('Activities not available');
-        setActivities([]);
       }
     } catch (error) {
       console.error('Error loading lead:', error);
