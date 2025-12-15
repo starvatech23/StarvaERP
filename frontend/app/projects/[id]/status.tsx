@@ -436,11 +436,28 @@ export default function ProjectStatusScreen() {
         ))}
       </View>
 
+      {/* Selection Info & Share Button */}
+      {newUpdate.selected_tasks.length > 0 && (
+        <View style={styles.selectionBar}>
+          <Text style={styles.selectionText}>
+            {newUpdate.selected_tasks.length} task{newUpdate.selected_tasks.length > 1 ? 's' : ''} selected
+          </Text>
+          <TouchableOpacity 
+            style={styles.shareSelectedButton}
+            onPress={() => setShowCreateModal(true)}
+          >
+            <Ionicons name="share-social" size={16} color="#FFF" />
+            <Text style={styles.shareSelectedText}>Share Status</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {ganttData && (
         <>
           {/* Summary Card */}
           <View style={styles.summaryCard}>
             <Text style={styles.summaryTitle}>Project Summary</Text>
+            <Text style={styles.summaryHint}>Tap tasks to select for sharing</Text>
             <View style={styles.summaryStats}>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryValue}>{ganttData.summary?.total_milestones || 0}</Text>
@@ -465,68 +482,83 @@ export default function ProjectStatusScreen() {
             </View>
           </View>
 
-          {/* Gantt Items */}
-          {ganttData.items?.map((item: GanttItem) => (
-            <View 
-              key={item.id} 
-              style={[
-                styles.ganttItem,
-                item.type === 'milestone' && styles.ganttMilestone,
-                item.parent_id && styles.ganttTask
-              ]}
-            >
-              <View style={styles.ganttItemHeader}>
-                {item.type === 'milestone' ? (
-                  <Ionicons name="flag" size={18} color={item.color || '#8B5CF6'} />
-                ) : (
-                  <View style={[styles.ganttTaskDot, { backgroundColor: getStatusColor(item.status) }]} />
-                )}
-                <Text style={[
-                  styles.ganttItemName,
-                  item.type === 'milestone' && styles.ganttMilestoneName
-                ]} numberOfLines={1}>
-                  {item.name}
-                </Text>
-                <View style={[styles.ganttStatusBadge, { backgroundColor: getStatusColor(item.status) + '20' }]}>
-                  <Text style={[styles.ganttStatusText, { color: getStatusColor(item.status) }]}>
-                    {item.status?.replace('_', ' ')}
+          {/* Gantt Items - Tasks are now selectable */}
+          {ganttData.items?.map((item: GanttItem) => {
+            const isTask = item.type === 'task';
+            const isSelected = newUpdate.selected_tasks.includes(item.id);
+            
+            return (
+              <TouchableOpacity
+                key={item.id} 
+                style={[
+                  styles.ganttItem,
+                  item.type === 'milestone' && styles.ganttMilestone,
+                  item.parent_id && styles.ganttTask,
+                  isTask && isSelected && styles.ganttItemSelected
+                ]}
+                onPress={() => isTask && toggleTaskSelection(item.id)}
+                activeOpacity={isTask ? 0.7 : 1}
+              >
+                <View style={styles.ganttItemHeader}>
+                  {item.type === 'milestone' ? (
+                    <Ionicons name="flag" size={18} color={item.color || '#8B5CF6'} />
+                  ) : (
+                    <View style={styles.ganttTaskSelectRow}>
+                      <Ionicons 
+                        name={isSelected ? 'checkbox' : 'square-outline'} 
+                        size={20} 
+                        color={isSelected ? Colors.primary : '#D1D5DB'} 
+                      />
+                      <View style={[styles.ganttTaskDot, { backgroundColor: getStatusColor(item.status) }]} />
+                    </View>
+                  )}
+                  <Text style={[
+                    styles.ganttItemName,
+                    item.type === 'milestone' && styles.ganttMilestoneName
+                  ]} numberOfLines={1}>
+                    {item.name}
                   </Text>
+                  <View style={[styles.ganttStatusBadge, { backgroundColor: getStatusColor(item.status) + '20' }]}>
+                    <Text style={[styles.ganttStatusText, { color: getStatusColor(item.status) }]}>
+                      {item.status?.replace('_', ' ')}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-              
-              {/* Progress Bar */}
-              <View style={styles.ganttProgressContainer}>
-                <View style={styles.ganttProgressBar}>
-                  <View 
-                    style={[
-                      styles.ganttProgressFill, 
-                      { 
-                        width: `${item.progress || 0}%`,
-                        backgroundColor: item.type === 'milestone' ? (item.color || '#8B5CF6') : getStatusColor(item.status)
-                      }
-                    ]} 
-                  />
+                
+                {/* Progress Bar */}
+                <View style={styles.ganttProgressContainer}>
+                  <View style={styles.ganttProgressBar}>
+                    <View 
+                      style={[
+                        styles.ganttProgressFill, 
+                        { 
+                          width: `${item.progress || 0}%`,
+                          backgroundColor: item.type === 'milestone' ? (item.color || '#8B5CF6') : getStatusColor(item.status)
+                        }
+                      ]} 
+                    />
+                  </View>
+                  <Text style={styles.ganttProgressText}>{item.progress || 0}%</Text>
                 </View>
-                <Text style={styles.ganttProgressText}>{item.progress || 0}%</Text>
-              </View>
 
-              {/* Dates */}
-              {(item.start_date || item.end_date) && (
-                <View style={styles.ganttDates}>
-                  {item.start_date && (
-                    <Text style={styles.ganttDateText}>
-                      Start: {new Date(item.start_date).toLocaleDateString()}
-                    </Text>
-                  )}
-                  {item.end_date && (
-                    <Text style={styles.ganttDateText}>
-                      End: {new Date(item.end_date).toLocaleDateString()}
-                    </Text>
-                  )}
-                </View>
-              )}
-            </View>
-          ))}
+                {/* Dates */}
+                {(item.start_date || item.end_date) && (
+                  <View style={styles.ganttDates}>
+                    {item.start_date && (
+                      <Text style={styles.ganttDateText}>
+                        Start: {new Date(item.start_date).toLocaleDateString()}
+                      </Text>
+                    )}
+                    {item.end_date && (
+                      <Text style={styles.ganttDateText}>
+                        End: {new Date(item.end_date).toLocaleDateString()}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </>
       )}
       <View style={{ height: 100 }} />
