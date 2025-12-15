@@ -7680,16 +7680,22 @@ async def create_estimate(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """
-    Create a new estimate for a project
+    Create a new estimate for a project or lead
     Auto-generates BOQ using calculation engine
     """
     try:
         current_user = await get_current_user(credentials)
         
-        # Verify project exists
-        project = await db.projects.find_one({"_id": ObjectId(estimate_data.project_id)})
-        if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
+        # Verify project or lead exists
+        if estimate_data.project_id:
+            project = await db.projects.find_one({"_id": ObjectId(estimate_data.project_id)})
+            if not project:
+                raise HTTPException(status_code=404, detail="Project not found")
+        elif estimate_data.lead_id:
+            lead = await db.leads.find_one({"_id": ObjectId(estimate_data.lead_id)})
+            if not lead:
+                raise HTTPException(status_code=404, detail="Lead not found")
+        # Allow estimates without project or lead for quick calculations
         
         # Get construction preset if specified (for rate reference)
         construction_preset = None
