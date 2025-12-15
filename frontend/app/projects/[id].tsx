@@ -322,6 +322,57 @@ export default function ProjectDetailsScreen() {
           </View>
         )}
 
+        {/* Saved Status Updates Card */}
+        {statusUpdates.length > 0 && (
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Saved Updates ({statusUpdates.length})</Text>
+              <TouchableOpacity onPress={() => router.push(`/projects/${id}/status` as any)}>
+                <Text style={styles.seeAllLink}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {statusUpdates.map((update) => (
+                <TouchableOpacity
+                  key={update.id}
+                  style={styles.savedUpdateCard}
+                  onPress={() => router.push(`/projects/${id}/status` as any)}
+                >
+                  {update.photos && update.photos.length > 0 && (
+                    <Image 
+                      source={{ uri: update.photos[0] }} 
+                      style={styles.savedUpdateImage}
+                    />
+                  )}
+                  <View style={styles.savedUpdateContent}>
+                    <View style={[styles.savedUpdateBadge, {
+                      backgroundColor: update.frequency === 'daily' ? '#DBEAFE' :
+                        update.frequency === 'weekly' ? '#D1FAE5' : '#FEF3C7'
+                    }]}>
+                      <Text style={[styles.savedUpdateBadgeText, {
+                        color: update.frequency === 'daily' ? '#1D4ED8' :
+                          update.frequency === 'weekly' ? '#047857' : '#B45309'
+                      }]}>
+                        {update.frequency.toUpperCase()}
+                      </Text>
+                    </View>
+                    <Text style={styles.savedUpdateTitle} numberOfLines={2}>{update.title}</Text>
+                    <View style={styles.savedUpdateProgress}>
+                      <View style={styles.savedUpdateProgressBar}>
+                        <View style={[styles.savedUpdateProgressFill, { width: `${update.overall_progress}%` }]} />
+                      </View>
+                      <Text style={styles.savedUpdateProgressText}>{update.overall_progress}%</Text>
+                    </View>
+                    <Text style={styles.savedUpdateDate}>
+                      {new Date(update.created_at).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
         {/* Project Timeline Card */}
         {tasks.length > 0 && (
           <TimelineCard
