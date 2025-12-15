@@ -401,6 +401,17 @@ export default function ProjectDetailsScreen() {
             )}
           </View>
 
+          {/* Data Integrity Warning - Show if some team members couldn't be loaded */}
+          {project?.team_member_ids?.length > 0 && 
+           project?.team_members?.length < project?.team_member_ids?.length && (
+            <View style={styles.dataWarningBanner}>
+              <Ionicons name="warning" size={16} color="#B45309" />
+              <Text style={styles.dataWarningText}>
+                {project.team_member_ids.length - project.team_members.length} team member(s) could not be loaded (may have been removed)
+              </Text>
+            </View>
+          )}
+
           {project?.team_members?.length === 0 ? (
             <Text style={styles.emptyText}>No team members assigned</Text>
           ) : (
