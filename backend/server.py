@@ -1263,9 +1263,14 @@ async def get_tasks(
         creator = await get_user_by_id(task_dict["created_by"])
         task_dict["created_by_name"] = creator["full_name"] if creator else None
         
-        # Get assigned users
+        # Get assigned users - handle both string and list cases
+        assigned_to = task_dict.get("assigned_to", [])
+        if isinstance(assigned_to, str):
+            assigned_to = [assigned_to] if assigned_to else []
+        task_dict["assigned_to"] = assigned_to
+        
         assigned_users = []
-        for user_id in task_dict.get("assigned_to", []):
+        for user_id in assigned_to:
             user = await get_user_by_id(user_id)
             if user:
                 assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
