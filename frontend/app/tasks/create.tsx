@@ -255,6 +255,52 @@ export default function CreateTaskScreen() {
                 }}
               />
             )}
+
+            <Text style={styles.label}>Start Date</Text>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowStartDatePicker(true)}
+            >
+              <Ionicons name="calendar" size={20} color={Colors.textSecondary} />
+              <Text style={styles.dateText}>{plannedStartDate.toLocaleDateString()}</Text>
+            </TouchableOpacity>
+
+            {showStartDatePicker && (
+              <DateTimePicker
+                value={plannedStartDate}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setShowStartDatePicker(false);
+                  if (selectedDate) {
+                    setPlannedStartDate(selectedDate);
+                  }
+                }}
+              />
+            )}
+          </View>
+
+          {/* Cost Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Cost Tracking</Text>
+            
+            <Text style={styles.label}>Estimated Cost (₹)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter estimated cost"
+              value={estimatedCost}
+              onChangeText={setEstimatedCost}
+              keyboardType="numeric"
+            />
+
+            <Text style={styles.label}>Actual Cost (₹)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter actual cost (if known)"
+              value={actualCost}
+              onChangeText={setActualCost}
+              keyboardType="numeric"
+            />
           </View>
 
           <View style={styles.section}>
