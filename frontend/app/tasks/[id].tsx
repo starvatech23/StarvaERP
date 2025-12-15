@@ -151,9 +151,9 @@ export default function TaskDetailsScreen() {
             onPress={() => router.push(`/tasks/edit/${id}` as any)}
           >
             <Ionicons name="create-outline" size={24} color={Colors.primary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Task Details</Text>
-        <View style={{ width: 40 }} />
+          </TouchableOpacity>
+        )}
+        {!canEdit && <View style={{ width: 40 }} />}
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
