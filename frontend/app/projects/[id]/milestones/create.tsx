@@ -128,6 +128,55 @@ export default function CreateMilestoneScreen() {
               />
             )}
 
+            <Text style={styles.label}>Start Date (Optional)</Text>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowStartDatePicker(true)}
+            >
+              <Ionicons name="calendar-outline" size={20} color={Colors.textSecondary} />
+              <Text style={styles.dateText}>{startDate.toLocaleDateString()}</Text>
+            </TouchableOpacity>
+
+            {showStartDatePicker && (
+              <DateTimePicker
+                value={startDate}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setShowStartDatePicker(false);
+                  if (selectedDate) setStartDate(selectedDate);
+                }}
+              />
+            )}
+
+            <Text style={styles.label}>Estimated Cost (₹)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter estimated cost"
+              value={estimatedCost}
+              onChangeText={setEstimatedCost}
+              keyboardType="numeric"
+            />
+
+            <Text style={styles.label}>Milestone Color</Text>
+            <View style={styles.colorPicker}>
+              {colorOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.color}
+                  style={[
+                    styles.colorOption,
+                    { backgroundColor: option.color },
+                    selectedColor === option.color && styles.colorOptionSelected,
+                  ]}
+                  onPress={() => setSelectedColor(option.color)}
+                >
+                  {selectedColor === option.color && (
+                    <Ionicons name="checkmark" size={16} color="#FFF" />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+
             <Text style={styles.label}>Status</Text>
             <ModalSelector
               options={[
