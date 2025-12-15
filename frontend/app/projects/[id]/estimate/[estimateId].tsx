@@ -430,6 +430,16 @@ export default function EstimateDetailScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Go to Project Button */}
+      <TouchableOpacity 
+        style={styles.goToProjectButton}
+        onPress={() => router.push(`/projects/${projectId}`)}
+      >
+        <Ionicons name="folder-open" size={20} color={Colors.primary} />
+        <Text style={styles.goToProjectButtonText}>Go to Project Card</Text>
+        <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
+      </TouchableOpacity>
+
       {/* Edit Line Modal */}
       <EstimateLineEditModal
         visible={!!editingLine}
