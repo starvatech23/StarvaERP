@@ -510,3 +510,17 @@ export const constructionPresetsAPI = {
     }),
 };
 
+// Status Updates API
+export const statusUpdatesAPI = {
+  create: (projectId: string, data: any) => api.post(`/projects/${projectId}/status-updates`, data),
+  getByProject: (projectId: string, frequency?: string, limit?: number) => 
+    api.get(`/projects/${projectId}/status-updates`, { params: { frequency, limit } }),
+  getAll: (frequency?: string, limit?: number) => 
+    api.get('/status-updates/all', { params: { frequency, limit } }),
+  getById: (id: string) => api.get(`/status-updates/${id}`),
+  update: (id: string, data: any) => api.put(`/status-updates/${id}`, data),
+  delete: (id: string) => api.delete(`/status-updates/${id}`),
+  getGanttData: (projectId: string, view?: string) => 
+    api.get(`/projects/${projectId}/gantt-data`, { params: { view } }),
+};
+
