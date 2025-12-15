@@ -16,15 +16,24 @@ import {
 import Colors from '../../../constants/Colors';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { statusUpdatesAPI, projectsAPI } from '../../../services/api';
+import { statusUpdatesAPI, projectsAPI, tasksAPI } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type ViewMode = 'updates' | 'gantt';
 type GanttView = 'daily' | 'weekly' | 'monthly';
 type FrequencyFilter = 'all' | 'daily' | 'weekly' | 'monthly';
+
+interface Task {
+  id: string;
+  title: string;
+  status: string;
+  progress_percentage: number;
+  milestone_name?: string;
+}
 
 interface StatusUpdate {
   id: string;
@@ -41,6 +50,7 @@ interface StatusUpdate {
   issues?: string;
   next_steps?: string;
   weather?: string;
+  selected_tasks?: string[];
   created_by_name?: string;
   created_at: string;
 }
@@ -68,8 +78,10 @@ export default function ProjectStatusScreen() {
   const [frequencyFilter, setFrequencyFilter] = useState<FrequencyFilter>('all');
   const [project, setProject] = useState<any>(null);
   const [updates, setUpdates] = useState<StatusUpdate[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [ganttData, setGanttData] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showTaskSelector, setShowTaskSelector] = useState(false);
   const [showPhotoViewer, setShowPhotoViewer] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -84,6 +96,7 @@ export default function ProjectStatusScreen() {
     next_steps: '',
     weather: '',
     is_public: false,
+    selected_tasks: [] as string[],
   });
   const [creating, setCreating] = useState(false);
 
@@ -95,15 +108,17 @@ export default function ProjectStatusScreen() {
 
   const loadData = async () => {
     try {
-      const [projectRes, updatesRes] = await Promise.all([
+      const [projectRes, updatesRes, tasksRes] = await Promise.all([
         projectsAPI.getById(id as string),
         statusUpdatesAPI.getByProject(
           id as string, 
           frequencyFilter === 'all' ? undefined : frequencyFilter
         ),
+        tasksAPI.getAll(id as string),
       ]);
       setProject(projectRes.data);
       setUpdates(updatesRes.data || []);
+      setTasks(tasksRes.data || []);
       
       // Load Gantt data
       const ganttRes = await statusUpdatesAPI.getGanttData(id as string, ganttView);
@@ -129,21 +144,36 @@ export default function ProjectStatusScreen() {
     loadGanttData(view);
   };
 
+  // Compress image to save space
+  const compressImage = async (uri: string): Promise<string> => {
+    try {
+      const manipulated = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 1200 } }], // Resize to max 1200px width
+        { compress: 0.6, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+      );
+      return `data:image/jpeg;base64,${manipulated.base64}`;
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      return uri;
+    }
+  };
+
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
-      quality: 0.7,
-      base64: true,
+      quality: 0.8,
     });
 
     if (!result.canceled) {
-      const newPhotos = result.assets.map(asset => 
-        `data:image/jpeg;base64,${asset.base64}`
+      // Compress each image
+      const compressedPhotos = await Promise.all(
+        result.assets.map(async (asset) => await compressImage(asset.uri))
       );
       setNewUpdate(prev => ({
         ...prev,
-        photos: [...prev.photos, ...newPhotos].slice(0, 10), // Max 10 photos
+        photos: [...prev.photos, ...compressedPhotos].slice(0, 10),
       }));
     }
   };
