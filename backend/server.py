@@ -5421,8 +5421,8 @@ async def get_lead_activities(
     """Get activity timeline for a lead"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
-        raise HTTPException(status_code=403, detail="Only admins and PMs can access CRM")
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, "crm_manager"]:
+        raise HTTPException(status_code=403, detail="Only admins, PMs and CRM managers can access CRM")
     
     activities = await db.lead_activities.find({"lead_id": lead_id}).sort("created_at", -1).to_list(1000)
     
