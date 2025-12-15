@@ -115,11 +115,16 @@ export default function CreateTaskScreen() {
         title,
         description: description || null,
         project_id: selectedProjectId,
+        milestone_id: selectedMilestoneId || null,
         status,
         priority,
         due_date: dueDate.toISOString(),
+        planned_start_date: plannedStartDate.toISOString(),
+        planned_end_date: dueDate.toISOString(),
         assigned_to: assignedTo,
         attachments: [],
+        estimated_cost: parseFloat(estimatedCost) || 0,
+        actual_cost: parseFloat(actualCost) || 0,
       });
 
       Alert.alert('Success', 'Task created successfully');
