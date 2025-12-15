@@ -80,7 +80,9 @@ from models import (
     MoveLeadToProjectRequest, MoveLeadToProjectResponse,
     AuditActionType, AuditLogCreate, AuditLogResponse, AuditLogFilter,
     # Chat/Messaging Models
-    ConversationCreate, ConversationResponse, MessageCreate, MessageResponse, MessageAttachment
+    ConversationCreate, ConversationResponse, MessageCreate, MessageResponse, MessageAttachment,
+    # Status Update Models
+    StatusUpdateCreate, StatusUpdateUpdate, StatusUpdateResponse, StatusUpdateFrequency
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
