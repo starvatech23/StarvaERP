@@ -1312,7 +1312,7 @@ async def get_my_tasks(credentials: HTTPAuthorizationCredentials = Depends(secur
         for user_id in assigned_to:
             user = await get_user_by_id(user_id)
             if user:
-                assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
+                assigned_users.append({"id": user["id"], "name": user["full_name"]})
         task_dict["assigned_users"] = assigned_users
         
         result.append(TaskResponse(**task_dict))
