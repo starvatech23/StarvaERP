@@ -795,6 +795,20 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: Colors.primary,
   },
+  addTaskRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    padding: 12,
+    paddingLeft: 48,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  addTaskRowText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: Colors.primary,
+  },
 
   // Kanban Styles
   kanbanContainer: {
