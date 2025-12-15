@@ -1255,6 +1255,8 @@ class StatusUpdateBase(BaseModel):
     tasks_completed: int = 0
     tasks_in_progress: int = 0
     tasks_pending: int = 0
+    # Selected tasks for this update
+    selected_tasks: List[str] = []  # Task IDs included in this update
     # Cost summary
     budget_spent: Optional[float] = 0
     budget_remaining: Optional[float] = 0
