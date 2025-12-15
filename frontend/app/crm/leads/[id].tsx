@@ -624,4 +624,50 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     flex: 1,
   },
+  // Estimates Section Styles
+  emptyEstimatesContainer: {
+    alignItems: 'center',
+    paddingVertical: 24,
+  },
+  emptySubtext: {
+    fontSize: 13,
+    color: '#A0AEC0',
+    marginTop: 4,
+  },
+  estimateItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  estimateIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.primaryPale,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  estimateContent: {
+    flex: 1,
+  },
+  estimateTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 2,
+  },
+  estimateAmount: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.secondary,
+    marginBottom: 2,
+  },
+  estimateMeta: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    textTransform: 'capitalize',
+  },
 });
