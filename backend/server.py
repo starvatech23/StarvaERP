@@ -664,6 +664,10 @@ async def update_project(
     updated_project = await db.projects.find_one({"_id": ObjectId(project_id)})
     project_dict = serialize_doc(updated_project)
     
+    # Remove gantt_share_tokens to avoid ObjectId serialization issues
+    if "gantt_share_tokens" in project_dict:
+        del project_dict["gantt_share_tokens"]
+    
     # Get project manager info
     if project_dict.get("project_manager_id"):
         pm = await get_user_by_id(project_dict["project_manager_id"])
@@ -717,6 +721,10 @@ async def update_project_team(
     
     updated_project = await db.projects.find_one({"_id": ObjectId(project_id)})
     project_dict = serialize_doc(updated_project)
+    
+    # Remove gantt_share_tokens to avoid ObjectId serialization issues
+    if "gantt_share_tokens" in project_dict:
+        del project_dict["gantt_share_tokens"]
     
     # Get project manager info
     if project_dict.get("project_manager_id"):
