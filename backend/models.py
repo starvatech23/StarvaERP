@@ -2123,7 +2123,8 @@ class EstimateLineResponse(EstimateLineBase):
 
 # Main Estimate Model
 class EstimateBase(BaseModel):
-    project_id: str
+    project_id: Optional[str] = None  # Optional - can be linked to project or lead
+    lead_id: Optional[str] = None  # Optional - for estimates created from leads
     version: int = 1
     version_name: Optional[str] = None  # e.g., "Initial Estimate", "Revised v2"
     status: EstimateStatus = EstimateStatus.DRAFT
