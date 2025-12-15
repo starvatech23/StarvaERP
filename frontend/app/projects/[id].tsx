@@ -255,6 +255,17 @@ export default function ProjectDetailsScreen() {
 
             <TouchableOpacity
               style={styles.quickActionButton}
+              onPress={() => router.push(`/projects/${id}/project-chart` as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#E0E7FF' }]}>
+                <Ionicons name="git-branch" size={24} color="#6366F1" />
+              </View>
+              <Text style={styles.quickActionLabel}>Project Chart</Text>
+              <Text style={styles.quickActionSubtext}>Gantt & Kanban</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
               onPress={() => router.push(`/projects/${id}/documents` as any)}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: '#FEE2E2' }]}>
