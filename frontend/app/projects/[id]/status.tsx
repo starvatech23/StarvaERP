@@ -972,6 +972,14 @@ const styles = StyleSheet.create({
   taskSelectMeta: { fontSize: 12, color: '#6B7280', textTransform: 'capitalize' },
   taskSelectDoneButton: { backgroundColor: Colors.primary, paddingVertical: 14, margin: 16, borderRadius: 12, alignItems: 'center' },
   taskSelectDoneText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
+  // Gantt Selection Styles
+  ganttItemSelected: { backgroundColor: '#EEF2FF', borderColor: Colors.primary, borderWidth: 2 },
+  ganttTaskSelectRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  selectionBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#EEF2FF', padding: 12, borderRadius: 10, marginBottom: 12, borderWidth: 1, borderColor: Colors.primary },
+  selectionText: { fontSize: 14, fontWeight: '600', color: Colors.primary },
+  shareSelectedButton: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.primary, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 },
+  shareSelectedText: { color: '#FFFFFF', fontSize: 13, fontWeight: '600' },
+  summaryHint: { fontSize: 12, color: '#6B7280', marginBottom: 12 },
   // Photo Viewer
   photoViewerOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'center', alignItems: 'center' },
   photoViewerClose: { position: 'absolute', top: 50, right: 20, zIndex: 10 },
