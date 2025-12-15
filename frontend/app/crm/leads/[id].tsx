@@ -171,6 +171,16 @@ export default function LeadDetailScreen() {
           </TouchableOpacity>
         )}
 
+        {/* Quick Estimate Button */}
+        <TouchableOpacity
+          style={styles.quickEstimateButton}
+          onPress={() => router.push(`/crm/leads/${id}/quick-estimate`)}
+        >
+          <Ionicons name="calculator" size={20} color={Colors.primary} />
+          <Text style={styles.quickEstimateText}>Quick Estimate</Text>
+          <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
+        </TouchableOpacity>
+
         {lead.converted_to_project_id && (
           <View style={styles.convertedBanner}>
             <Ionicons name="checkmark-circle" size={20} color="#10B981" />
