@@ -858,4 +858,22 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: Colors.textSecondary,
   },
+  // Data integrity warning styles
+  dataWarningBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#F59E0B',
+  },
+  dataWarningText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#92400E',
+    lineHeight: 16,
+  },
 });
