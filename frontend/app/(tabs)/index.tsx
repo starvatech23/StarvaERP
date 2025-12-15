@@ -9,20 +9,35 @@ import {
   Dimensions,
   RefreshControl,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'expo-router';
 import { PieChart, BarChart } from 'react-native-chart-kit';
 import Colors from '../../constants/Colors';
+import { statusUpdatesAPI } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+interface StatusUpdate {
+  id: string;
+  title: string;
+  description?: string;
+  frequency: string;
+  photos: string[];
+  overall_progress: number;
+  project_name?: string;
+  created_by_name?: string;
+  created_at: string;
+}
 
 export default function DashboardScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);
+  const [statusUpdates, setStatusUpdates] = useState<StatusUpdate[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
