@@ -9462,6 +9462,340 @@ async def upload_specifications_pdf(
         raise HTTPException(status_code=500, detail=f"Failed to process PDF: {str(e)}")
 
 
+# ==================== PROJECT STATUS UPDATES API ====================
+
+@api_router.post("/projects/{project_id}/status-updates", response_model=StatusUpdateResponse)
+async def create_status_update(
+    project_id: str,
+    update_data: StatusUpdateCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new project status update with photos"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Verify project exists
+        project = await db.projects.find_one({"_id": ObjectId(project_id)})
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Get task statistics
+        total_tasks = await db.tasks.count_documents({"project_id": project_id})
+        completed_tasks = await db.tasks.count_documents({"project_id": project_id, "status": "completed"})
+        in_progress_tasks = await db.tasks.count_documents({"project_id": project_id, "status": "in_progress"})
+        pending_tasks = total_tasks - completed_tasks - in_progress_tasks
+        
+        update_dict = update_data.dict()
+        update_dict["project_id"] = project_id
+        update_dict["created_by"] = str(current_user["_id"])
+        update_dict["created_at"] = datetime.utcnow()
+        update_dict["tasks_completed"] = completed_tasks
+        update_dict["tasks_in_progress"] = in_progress_tasks
+        update_dict["tasks_pending"] = pending_tasks
+        
+        # Calculate overall progress if not provided
+        if total_tasks > 0 and update_dict.get("overall_progress", 0) == 0:
+            update_dict["overall_progress"] = round((completed_tasks / total_tasks) * 100, 1)
+        
+        result = await db.status_updates.insert_one(update_dict)
+        
+        created = await db.status_updates.find_one({"_id": result.inserted_id})
+        response = serialize_doc(created)
+        response["created_by_name"] = current_user["full_name"]
+        response["project_name"] = project.get("name")
+        
+        return StatusUpdateResponse(**response)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create status update: {str(e)}")
+
+
+@api_router.get("/projects/{project_id}/status-updates", response_model=List[StatusUpdateResponse])
+async def get_project_status_updates(
+    project_id: str,
+    frequency: Optional[str] = None,
+    limit: int = 50,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all status updates for a project"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        query = {"project_id": project_id}
+        if frequency:
+            query["frequency"] = frequency
+        
+        updates = await db.status_updates.find(query).sort("created_at", -1).limit(limit).to_list(limit)
+        
+        # Get project info
+        project = await db.projects.find_one({"_id": ObjectId(project_id)})
+        
+        result = []
+        for update in updates:
+            update_dict = serialize_doc(update)
+            
+            # Get creator name
+            creator = await get_user_by_id(update_dict["created_by"])
+            update_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+            update_dict["project_name"] = project.get("name") if project else None
+            
+            result.append(StatusUpdateResponse(**update_dict))
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get status updates: {str(e)}")
+
+
+@api_router.get("/status-updates/all", response_model=List[StatusUpdateResponse])
+async def get_all_status_updates(
+    frequency: Optional[str] = None,
+    limit: int = 100,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all status updates across all projects (for dashboard)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        query = {}
+        if frequency:
+            query["frequency"] = frequency
+        
+        # For vendors, only show public updates
+        if current_user["role"] == UserRole.VENDOR:
+            query["is_public"] = True
+        
+        updates = await db.status_updates.find(query).sort("created_at", -1).limit(limit).to_list(limit)
+        
+        result = []
+        for update in updates:
+            update_dict = serialize_doc(update)
+            
+            # Get creator and project info
+            creator = await get_user_by_id(update_dict["created_by"])
+            project = await db.projects.find_one({"_id": ObjectId(update_dict["project_id"])})
+            
+            update_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+            update_dict["project_name"] = project.get("name") if project else None
+            
+            result.append(StatusUpdateResponse(**update_dict))
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get status updates: {str(e)}")
+
+
+@api_router.get("/status-updates/{update_id}", response_model=StatusUpdateResponse)
+async def get_status_update(
+    update_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a specific status update"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        update = await db.status_updates.find_one({"_id": ObjectId(update_id)})
+        if not update:
+            raise HTTPException(status_code=404, detail="Status update not found")
+        
+        update_dict = serialize_doc(update)
+        
+        # Get creator and project info
+        creator = await get_user_by_id(update_dict["created_by"])
+        project = await db.projects.find_one({"_id": ObjectId(update_dict["project_id"])})
+        
+        update_dict["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        update_dict["project_name"] = project.get("name") if project else None
+        
+        return StatusUpdateResponse(**update_dict)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get status update: {str(e)}")
+
+
+@api_router.put("/status-updates/{update_id}", response_model=StatusUpdateResponse)
+async def update_status_update(
+    update_id: str,
+    update_data: StatusUpdateUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a status update"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        existing = await db.status_updates.find_one({"_id": ObjectId(update_id)})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Status update not found")
+        
+        # Only creator or admin can update
+        if str(existing["created_by"]) != str(current_user["_id"]) and current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Not authorized to update this status")
+        
+        update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
+        update_dict["updated_at"] = datetime.utcnow()
+        
+        await db.status_updates.update_one(
+            {"_id": ObjectId(update_id)},
+            {"$set": update_dict}
+        )
+        
+        updated = await db.status_updates.find_one({"_id": ObjectId(update_id)})
+        response = serialize_doc(updated)
+        
+        creator = await get_user_by_id(response["created_by"])
+        project = await db.projects.find_one({"_id": ObjectId(response["project_id"])})
+        
+        response["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        response["project_name"] = project.get("name") if project else None
+        
+        return StatusUpdateResponse(**response)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update status: {str(e)}")
+
+
+@api_router.delete("/status-updates/{update_id}")
+async def delete_status_update(
+    update_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a status update"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        existing = await db.status_updates.find_one({"_id": ObjectId(update_id)})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Status update not found")
+        
+        # Only creator or admin can delete
+        if str(existing["created_by"]) != str(current_user["_id"]) and current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Not authorized to delete this status")
+        
+        await db.status_updates.delete_one({"_id": ObjectId(update_id)})
+        
+        return {"message": "Status update deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete status: {str(e)}")
+
+
+@api_router.get("/projects/{project_id}/gantt-data")
+async def get_project_gantt_data(
+    project_id: str,
+    view: str = "weekly",  # daily, weekly, monthly
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get Gantt chart data for a project (milestones and tasks with timeline)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Get project
+        project = await db.projects.find_one({"_id": ObjectId(project_id)})
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Get milestones
+        milestones = await db.milestones.find({"project_id": project_id}).sort("order", 1).to_list(100)
+        
+        # Get tasks
+        tasks = await db.tasks.find({"project_id": project_id}).to_list(500)
+        
+        # Build Gantt data structure
+        gantt_items = []
+        
+        for milestone in milestones:
+            m_dict = serialize_doc(milestone)
+            
+            # Get tasks for this milestone
+            milestone_tasks = [t for t in tasks if t.get("milestone_id") == m_dict["id"]]
+            
+            gantt_items.append({
+                "id": m_dict["id"],
+                "type": "milestone",
+                "name": m_dict["name"],
+                "start_date": m_dict.get("start_date") or m_dict.get("created_at"),
+                "end_date": m_dict.get("due_date"),
+                "progress": m_dict.get("completion_percentage", 0),
+                "status": m_dict.get("status"),
+                "color": m_dict.get("color", "#8B5CF6"),
+                "children": [serialize_doc(t)["id"] for t in milestone_tasks]
+            })
+            
+            # Add tasks under this milestone
+            for task in milestone_tasks:
+                t_dict = serialize_doc(task)
+                gantt_items.append({
+                    "id": t_dict["id"],
+                    "type": "task",
+                    "name": t_dict["title"],
+                    "start_date": t_dict.get("planned_start_date") or t_dict.get("created_at"),
+                    "end_date": t_dict.get("planned_end_date") or t_dict.get("due_date"),
+                    "progress": t_dict.get("progress_percentage", 0),
+                    "status": t_dict.get("status"),
+                    "parent_id": m_dict["id"],
+                    "assigned_to": t_dict.get("assigned_to", [])
+                })
+        
+        # Add unassigned tasks
+        unassigned_tasks = [t for t in tasks if not t.get("milestone_id")]
+        for task in unassigned_tasks:
+            t_dict = serialize_doc(task)
+            gantt_items.append({
+                "id": t_dict["id"],
+                "type": "task",
+                "name": t_dict["title"],
+                "start_date": t_dict.get("planned_start_date") or t_dict.get("created_at"),
+                "end_date": t_dict.get("planned_end_date") or t_dict.get("due_date"),
+                "progress": t_dict.get("progress_percentage", 0),
+                "status": t_dict.get("status"),
+                "parent_id": None,
+                "assigned_to": t_dict.get("assigned_to", [])
+            })
+        
+        # Calculate date range based on view
+        now = datetime.utcnow()
+        if view == "daily":
+            start_range = now - timedelta(days=7)
+            end_range = now + timedelta(days=7)
+        elif view == "weekly":
+            start_range = now - timedelta(weeks=4)
+            end_range = now + timedelta(weeks=8)
+        else:  # monthly
+            start_range = now - timedelta(days=90)
+            end_range = now + timedelta(days=180)
+        
+        return {
+            "project_id": project_id,
+            "project_name": project.get("name"),
+            "view": view,
+            "date_range": {
+                "start": start_range.isoformat(),
+                "end": end_range.isoformat()
+            },
+            "items": gantt_items,
+            "summary": {
+                "total_milestones": len(milestones),
+                "total_tasks": len(tasks),
+                "completed_tasks": len([t for t in tasks if t.get("status") == "completed"]),
+                "in_progress_tasks": len([t for t in tasks if t.get("status") == "in_progress"])
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get Gantt data: {str(e)}")
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
