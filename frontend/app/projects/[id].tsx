@@ -14,11 +14,21 @@ import {
 import Colors from '../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { projectsAPI, tasksAPI } from '../../services/api';
+import { projectsAPI, tasksAPI, statusUpdatesAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import TimelineCard from '../../components/TimelineCard';
 
 const { width } = Dimensions.get('window');
+
+interface StatusUpdate {
+  id: string;
+  title: string;
+  frequency: string;
+  photos: string[];
+  overall_progress: number;
+  created_at: string;
+  created_by_name?: string;
+}
 
 export default function ProjectDetailsScreen() {
   const router = useRouter();
@@ -26,6 +36,7 @@ export default function ProjectDetailsScreen() {
   const { user } = useAuth();
   const [project, setProject] = useState<any>(null);
   const [tasks, setTasks] = useState([]);
+  const [statusUpdates, setStatusUpdates] = useState<StatusUpdate[]>([]);
   const [loading, setLoading] = useState(true);
 
   const canEdit = user?.role === 'admin' || user?.role === 'project_manager';
@@ -33,7 +44,17 @@ export default function ProjectDetailsScreen() {
   useEffect(() => {
     loadProject();
     loadTasks();
+    loadStatusUpdates();
   }, [id]);
+
+  const loadStatusUpdates = async () => {
+    try {
+      const response = await statusUpdatesAPI.getByProject(id as string, undefined, 5);
+      setStatusUpdates(response.data || []);
+    } catch (error) {
+      console.log('Status updates not available');
+    }
+  };
 
   const loadProject = async () => {
     try {
