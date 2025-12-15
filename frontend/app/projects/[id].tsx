@@ -780,4 +780,71 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
   },
+  // Saved Updates styles
+  seeAllLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+  savedUpdateCard: {
+    width: 200,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 10,
+    marginRight: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  savedUpdateImage: {
+    width: '100%',
+    height: 100,
+    backgroundColor: '#E5E7EB',
+  },
+  savedUpdateContent: {
+    padding: 10,
+  },
+  savedUpdateBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginBottom: 6,
+  },
+  savedUpdateBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+  },
+  savedUpdateTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 8,
+  },
+  savedUpdateProgress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  savedUpdateProgressBar: {
+    flex: 1,
+    height: 4,
+    backgroundColor: Colors.border,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  savedUpdateProgressFill: {
+    height: '100%',
+    backgroundColor: Colors.primary,
+    borderRadius: 2,
+  },
+  savedUpdateProgressText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  savedUpdateDate: {
+    fontSize: 10,
+    color: Colors.textSecondary,
+  },
 });
