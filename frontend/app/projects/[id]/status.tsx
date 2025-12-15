@@ -244,6 +244,7 @@ export default function ProjectStatusScreen() {
         next_steps: '',
         weather: '',
         is_public: false,
+        selected_tasks: [],
       });
       loadData();
     } catch (error: any) {
