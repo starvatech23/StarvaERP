@@ -134,6 +134,21 @@ export default function ProjectTeamScreen() {
               </View>
             </View>
 
+            {/* Data Integrity Warning */}
+            {project?.team_member_ids?.length > 0 && 
+             currentTeamMembers.length < project?.team_member_ids?.length && (
+              <View style={styles.dataWarningBanner}>
+                <Ionicons name="warning" size={18} color="#B45309" />
+                <View style={styles.dataWarningContent}>
+                  <Text style={styles.dataWarningTitle}>Some members unavailable</Text>
+                  <Text style={styles.dataWarningText}>
+                    {project.team_member_ids.length - currentTeamMembers.length} team member(s) could not be loaded. 
+                    They may have been removed from the system. Consider updating the team list.
+                  </Text>
+                </View>
+              </View>
+            )}
+
             {currentTeamMembers.length === 0 ? (
               <View style={styles.emptyState}>
                 <Ionicons name="people-outline" size={48} color="#CBD5E0" />
