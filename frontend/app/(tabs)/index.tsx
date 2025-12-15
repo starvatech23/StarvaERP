@@ -382,6 +382,58 @@ export default function DashboardScreen() {
             </View>
           </View>
         )}
+
+        {/* Project Status Updates */}
+        {statusUpdates.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Latest Status Updates</Text>
+              <TouchableOpacity onPress={() => router.push('/dashboard/status-feed' as any)}>
+                <Text style={styles.seeAllText}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statusCarousel}>
+              {statusUpdates.map((update) => (
+                <TouchableOpacity 
+                  key={update.id} 
+                  style={styles.statusCard}
+                  onPress={() => router.push(`/projects/${update.project_id}/status` as any)}
+                >
+                  {update.photos && update.photos.length > 0 && (
+                    <Image 
+                      source={{ uri: update.photos[0] }} 
+                      style={styles.statusCardImage}
+                    />
+                  )}
+                  <View style={styles.statusCardContent}>
+                    <View style={[styles.frequencyChip, { 
+                      backgroundColor: update.frequency === 'daily' ? '#DBEAFE' : 
+                        update.frequency === 'weekly' ? '#D1FAE5' : '#FEF3C7' 
+                    }]}>
+                      <Text style={[styles.frequencyChipText, { 
+                        color: update.frequency === 'daily' ? '#1D4ED8' : 
+                          update.frequency === 'weekly' ? '#047857' : '#B45309' 
+                      }]}>
+                        {update.frequency.toUpperCase()}
+                      </Text>
+                    </View>
+                    <Text style={styles.statusCardTitle} numberOfLines={2}>{update.title}</Text>
+                    <Text style={styles.statusCardProject} numberOfLines={1}>{update.project_name}</Text>
+                    <View style={styles.statusCardFooter}>
+                      <View style={styles.progressMini}>
+                        <View style={[styles.progressMiniFill, { width: `${update.overall_progress}%` }]} />
+                      </View>
+                      <Text style={styles.progressMiniText}>{update.overall_progress}%</Text>
+                    </View>
+                    <Text style={styles.statusCardMeta}>
+                      By {update.created_by_name} • {new Date(update.created_at).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
