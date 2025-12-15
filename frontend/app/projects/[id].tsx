@@ -244,6 +244,17 @@ export default function ProjectDetailsScreen() {
 
             <TouchableOpacity
               style={styles.quickActionButton}
+              onPress={() => router.push(`/projects/${id}/status` as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#DBEAFE' }]}>
+                <Ionicons name="megaphone" size={24} color="#3B82F6" />
+              </View>
+              <Text style={styles.quickActionLabel}>Status Update</Text>
+              <Text style={styles.quickActionSubtext}>Share progress</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
               onPress={() => router.push(`/projects/${id}/milestones` as any)}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: '#FEF3C7' }]}>
