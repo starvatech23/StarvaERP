@@ -1372,8 +1372,14 @@ async def create_task(
     task_dict = serialize_doc(task_dict)
     task_dict["created_by_name"] = current_user["full_name"]
     
+    # Get assigned users - handle both string and list cases
+    assigned_to = task_dict.get("assigned_to", [])
+    if isinstance(assigned_to, str):
+        assigned_to = [assigned_to] if assigned_to else []
+    task_dict["assigned_to"] = assigned_to
+    
     assigned_users = []
-    for user_id in task_dict.get("assigned_to", []):
+    for user_id in assigned_to:
         user = await get_user_by_id(user_id)
         if user:
             assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
