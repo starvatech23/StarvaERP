@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  TextInput,
+  Modal,
 } from 'react-native';
 import Colors from '../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -22,8 +24,12 @@ export default function TaskDetailsScreen() {
   const { user } = useAuth();
   const [task, setTask] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showCostModal, setShowCostModal] = useState(false);
+  const [actualCost, setActualCost] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const canEdit = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'engineer';
+  const canEditCost = canEdit; // PM and Engineer can edit actual cost
 
   useEffect(() => {
     loadTask();
