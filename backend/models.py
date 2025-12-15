@@ -1140,15 +1140,24 @@ class MilestoneStatus(str, Enum):
     COMPLETED = "completed"
     DELAYED = "delayed"
 
-# Project Milestone Models
+# Project Milestone Models (Enhanced with Cost Tracking and Dependencies)
 class MilestoneBase(BaseModel):
     name: str
     description: Optional[str] = None
     project_id: str
     due_date: datetime
+    start_date: Optional[datetime] = None
     status: MilestoneStatus = MilestoneStatus.PENDING
     completion_percentage: float = 0  # 0-100
     order: int = 0  # For ordering milestones
+    # Cost Tracking
+    estimated_cost: Optional[float] = 0.0  # From BOQ/Estimate
+    actual_cost: Optional[float] = 0.0  # Sum of actual task costs
+    budget_variance: Optional[float] = 0.0  # estimated - actual
+    # Dependencies
+    depends_on: List[str] = []  # List of milestone IDs this depends on
+    # Color for UI display
+    color: Optional[str] = "#3B82F6"
 
 class MilestoneCreate(MilestoneBase):
     pass
@@ -1157,15 +1166,22 @@ class MilestoneUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     due_date: Optional[datetime] = None
+    start_date: Optional[datetime] = None
     status: Optional[MilestoneStatus] = None
     completion_percentage: Optional[float] = None
     order: Optional[int] = None
+    estimated_cost: Optional[float] = None
+    actual_cost: Optional[float] = None
+    depends_on: Optional[List[str]] = None
+    color: Optional[str] = None
 
 class MilestoneResponse(MilestoneBase):
     id: str
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
+    task_count: int = 0  # Number of tasks under this milestone
+    completed_task_count: int = 0  # Number of completed tasks
 
 # Document Type Enum
 class DocumentType(str, Enum):
