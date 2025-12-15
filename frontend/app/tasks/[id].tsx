@@ -209,6 +209,53 @@ export default function TaskDetailsScreen() {
           </View>
         )}
 
+        {/* Cost Tracking Card */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Cost Tracking</Text>
+            {task.milestone_name && (
+              <View style={styles.milestoneBadge}>
+                <Ionicons name="flag" size={12} color="#8B5CF6" />
+                <Text style={styles.milestoneBadgeText}>{task.milestone_name}</Text>
+              </View>
+            )}
+          </View>
+          
+          <View style={styles.costGrid}>
+            <View style={styles.costItem}>
+              <Text style={styles.costLabel}>Estimated</Text>
+              <Text style={styles.costValue}>{formatCurrency(task.estimated_cost || 0)}</Text>
+            </View>
+            <View style={styles.costItem}>
+              <Text style={styles.costLabel}>Actual</Text>
+              <View style={styles.costValueRow}>
+                <Text style={styles.costValue}>{formatCurrency(task.actual_cost || 0)}</Text>
+                {canEditCost && (
+                  <TouchableOpacity 
+                    style={styles.editCostButton}
+                    onPress={() => setShowCostModal(true)}
+                  >
+                    <Ionicons name="pencil" size={16} color={Colors.primary} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          </View>
+          
+          {(task.estimated_cost > 0 || task.actual_cost > 0) && (
+            <View style={styles.varianceContainer}>
+              <Text style={styles.varianceLabel}>Variance</Text>
+              <Text style={[
+                styles.varianceValue,
+                { color: (task.estimated_cost - task.actual_cost) >= 0 ? '#10B981' : '#EF4444' }
+              ]}>
+                {formatCurrency((task.estimated_cost || 0) - (task.actual_cost || 0))}
+                {(task.estimated_cost - task.actual_cost) >= 0 ? ' under budget' : ' over budget'}
+              </Text>
+            </View>
+          )}
+        </View>
+
         {canEdit && task.status !== 'completed' && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Quick Actions</Text>
