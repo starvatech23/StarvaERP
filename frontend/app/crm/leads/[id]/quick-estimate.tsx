@@ -79,7 +79,7 @@ export default function LeadQuickEstimateScreen() {
 
   const loadConstructionPresets = async () => {
     try {
-      const response = await constructionPresetsAPI.getAll({ status: 'active' });
+      const response = await constructionPresetsAPI.list({ status: 'active' });
       setConstructionPresets(response.data || []);
       if (response.data?.length > 0) {
         setFormData(prev => ({ ...prev, construction_preset_id: response.data[0].id }));
