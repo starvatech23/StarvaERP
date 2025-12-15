@@ -580,4 +580,30 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.surface,
   },
+  // Data integrity warning styles
+  dataWarningBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#FEF3C7',
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 16,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: '#F59E0B',
+  },
+  dataWarningContent: {
+    flex: 1,
+  },
+  dataWarningTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#92400E',
+    marginBottom: 4,
+  },
+  dataWarningText: {
+    fontSize: 13,
+    color: '#A16207',
+    lineHeight: 18,
+  },
 });
