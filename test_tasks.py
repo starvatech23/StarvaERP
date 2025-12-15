@@ -9,7 +9,7 @@ def test_tasks_endpoint():
     
     # First, let's try to login to get a token
     login_data = {
-        "identifier": "admin@example.com",
+        "identifier": "admin@test.com",
         "password": "admin123",
         "auth_type": "email"
     }
