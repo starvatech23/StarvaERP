@@ -3492,55 +3492,6 @@ async def complete_task_work(
         "material_summary": summary
     }
 
-@api_router.get("/projects/{project_id}/gantt-data")
-async def get_project_gantt_data(
-    project_id: str,
-    current_user: dict = Depends(get_current_user)
-):
-    """Get all tasks with timeline data for Gantt chart"""
-    tasks = await db.tasks.find({"project_id": project_id}).to_list(length=1000)
-    
-    gantt_data = []
-    for task in tasks:
-        task = serialize_doc(task)
-        
-        # Get assigned user names
-        assigned_names = []
-        if task.get("assigned_to"):
-            for user_id in task["assigned_to"]:
-                user = await db.users.find_one({"_id": ObjectId(user_id)})
-                if user:
-                    assigned_names.append(user["full_name"])
-        
-        # Get dependency task titles
-        dep_titles = []
-        if task.get("dependencies"):
-            for dep_id in task["dependencies"]:
-                dep_task = await db.tasks.find_one({"_id": ObjectId(dep_id)})
-                if dep_task:
-                    dep_titles.append(dep_task["title"])
-        
-        gantt_item = {
-            "id": task["id"],
-            "title": task["title"],
-            "planned_start": task.get("planned_start_date"),
-            "planned_end": task.get("planned_end_date"),
-            "actual_start": task.get("actual_start_date"),
-            "actual_end": task.get("actual_end_date"),
-            "progress": task.get("progress_percentage", 0),
-            "status": task.get("status", "todo"),
-            "assigned_to": assigned_names,
-            "dependencies": dep_titles,
-            "work_type": task.get("work_type"),
-            "priority": task.get("priority", "medium")
-        }
-        gantt_data.append(gantt_item)
-    
-    return {
-        "project_id": project_id,
-        "tasks": gantt_data
-    }
-
 # ============= Vendor Payment Dues Route =============
 
 @api_router.get("/vendors/{vendor_id}/payment-dues")
