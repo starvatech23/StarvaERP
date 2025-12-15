@@ -174,7 +174,10 @@ export default function CreateTaskScreen() {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={selectedProjectId}
-                onValueChange={setSelectedProjectId}
+                onValueChange={(value) => {
+                  setSelectedProjectId(value);
+                  setSelectedMilestoneId('');
+                }}
                 style={styles.picker}
               >
                 <Picker.Item label="Select Project" value="" />
@@ -183,6 +186,24 @@ export default function CreateTaskScreen() {
                 ))}
               </Picker>
             </View>
+
+            {selectedProjectId && milestones.length > 0 && (
+              <>
+                <Text style={styles.label}>Milestone (Optional)</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={selectedMilestoneId}
+                    onValueChange={setSelectedMilestoneId}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="No Milestone" value="" />
+                    {milestones.map((milestone: any) => (
+                      <Picker.Item key={milestone.id} label={milestone.name} value={milestone.id} />
+                    ))}
+                  </Picker>
+                </View>
+              </>
+            )}
 
             <Text style={styles.label}>Status</Text>
             <View style={styles.pickerContainer}>
