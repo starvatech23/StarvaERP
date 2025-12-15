@@ -616,4 +616,85 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Colors.textTertiary,
   },
+  // Status Updates Widget Styles
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  seeAllText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+  statusCarousel: {
+    marginHorizontal: -8,
+  },
+  statusCard: {
+    width: width * 0.7,
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    marginHorizontal: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  statusCardImage: {
+    width: '100%',
+    height: 120,
+    backgroundColor: '#E5E7EB',
+  },
+  statusCardContent: {
+    padding: 12,
+  },
+  frequencyChip: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+  frequencyChipText: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  statusCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  statusCardProject: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginBottom: 8,
+  },
+  statusCardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  progressMini: {
+    flex: 1,
+    height: 4,
+    backgroundColor: Colors.border,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressMiniFill: {
+    height: '100%',
+    backgroundColor: Colors.primary,
+    borderRadius: 2,
+  },
+  progressMiniText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  statusCardMeta: {
+    fontSize: 11,
+    color: Colors.textTertiary,
+  },
 });
