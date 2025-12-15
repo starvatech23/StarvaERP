@@ -707,6 +707,8 @@ const styles = StyleSheet.create({
   },
   modalTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
   modalList: { padding: 8 },
+  modalEmpty: { padding: 20, alignItems: 'center' },
+  modalEmptyText: { fontSize: 14, color: Colors.textSecondary },
   modalOption: {
     flexDirection: 'row',
     alignItems: 'center',
