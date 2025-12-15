@@ -186,16 +186,31 @@ export default function ProjectStatusScreen() {
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      quality: 0.7,
-      base64: true,
+      quality: 0.8,
     });
 
     if (!result.canceled) {
+      // Compress the photo
+      const compressedPhoto = await compressImage(result.assets[0].uri);
       setNewUpdate(prev => ({
         ...prev,
-        photos: [...prev.photos, `data:image/jpeg;base64,${result.assets[0].base64}`].slice(0, 10),
+        photos: [...prev.photos, compressedPhoto].slice(0, 10),
       }));
     }
+  };
+
+  const toggleTaskSelection = (taskId: string) => {
+    setNewUpdate(prev => ({
+      ...prev,
+      selected_tasks: prev.selected_tasks.includes(taskId)
+        ? prev.selected_tasks.filter(id => id !== taskId)
+        : [...prev.selected_tasks, taskId],
+    }));
+  };
+
+  const getSelectedTasksSummary = () => {
+    const selected = tasks.filter(t => newUpdate.selected_tasks.includes(t.id));
+    return selected.map(t => t.title).join(', ');
   };
 
   const removePhoto = (index: number) => {
