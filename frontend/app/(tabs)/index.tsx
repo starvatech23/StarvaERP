@@ -28,6 +28,7 @@ interface StatusUpdate {
   frequency: string;
   photos: string[];
   overall_progress: number;
+  project_id: string;
   project_name?: string;
   created_by_name?: string;
   created_at: string;
