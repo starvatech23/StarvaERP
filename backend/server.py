@@ -7879,6 +7879,31 @@ async def list_project_estimates(
         raise HTTPException(status_code=500, detail=f"Failed to list estimates: {str(e)}")
 
 
+@api_router.get("/estimates/by-lead/{lead_id}", response_model=List[EstimateSummary])
+async def list_lead_estimates(
+    lead_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """List all estimates for a lead"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Allow CRM users to view estimates for their leads
+        if not is_crm_user(current_user):
+            raise HTTPException(status_code=403, detail="CRM access required")
+        
+        estimates = await db.estimates.find(
+            {"lead_id": lead_id}
+        ).sort("created_at", -1).to_list(100)
+        
+        return [EstimateSummary(**serialize_doc(est)) for est in estimates]
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list lead estimates: {str(e)}")
+
+
 @api_router.put("/estimates/{estimate_id}", response_model=EstimateResponse)
 async def update_estimate(
     estimate_id: str,
