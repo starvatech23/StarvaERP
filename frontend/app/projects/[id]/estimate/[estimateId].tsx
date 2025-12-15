@@ -430,15 +430,17 @@ export default function EstimateDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Go to Project Button */}
-      <TouchableOpacity 
-        style={styles.goToProjectButton}
-        onPress={() => router.push(`/projects/${projectId}`)}
-      >
-        <Ionicons name="folder-open" size={20} color={Colors.primary} />
-        <Text style={styles.goToProjectButtonText}>Go to Project Card</Text>
-        <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
-      </TouchableOpacity>
+      {/* Go to Project Button - Only show if estimate is linked to a project (not a lead) */}
+      {estimate.project_id && projectId !== 'none' && (
+        <TouchableOpacity 
+          style={styles.goToProjectButton}
+          onPress={() => router.push(`/projects/${projectId}`)}
+        >
+          <Ionicons name="folder-open" size={20} color={Colors.primary} />
+          <Text style={styles.goToProjectButtonText}>Go to Project Card</Text>
+          <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
+        </TouchableOpacity>
+      )}
 
       {/* Edit Line Modal */}
       <EstimateLineEditModal
