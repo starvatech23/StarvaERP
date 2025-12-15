@@ -393,16 +393,17 @@ class TaskBase(BaseModel):
     title: str
     description: Optional[str] = None
     project_id: str
+    milestone_id: Optional[str] = None  # Link to parent milestone
     status: TaskStatus = TaskStatus.PENDING
     priority: TaskPriority = TaskPriority.MEDIUM
     due_date: Optional[datetime] = None
-    assigned_to: List[str] = []  # User IDs
+    assigned_to: List[str] = []  # User IDs (supports multiple)
     attachments: List[str] = []  # base64 or URLs
     parent_task_id: Optional[str] = None  # For subtasks
     # Construction-specific fields
     work_type: Optional[ConstructionWorkType] = None
     measurement_type: Optional[MeasurementType] = None
-    # Gantt chart fields
+    # Gantt chart fields / Timeline
     planned_start_date: Optional[datetime] = None
     planned_end_date: Optional[datetime] = None
     actual_start_date: Optional[datetime] = None
@@ -415,6 +416,11 @@ class TaskBase(BaseModel):
     work_height: Optional[float] = None  # Feet
     work_count: Optional[int] = None  # Number of items
     dependencies: List[str] = []  # Task IDs that must complete before this one
+    # Cost Tracking (from BOQ/Estimate)
+    estimated_cost: Optional[float] = 0.0  # From project estimate/BOQ
+    actual_cost: Optional[float] = 0.0  # Actual cost (editable by PM/Engineer)
+    cost_variance: Optional[float] = 0.0  # estimated - actual
+    boq_reference_id: Optional[str] = None  # Link to BOQ/Estimate line item
 
 class TaskCreate(TaskBase):
     pass
@@ -422,11 +428,19 @@ class TaskCreate(TaskBase):
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
+    milestone_id: Optional[str] = None
     status: Optional[TaskStatus] = None
     priority: Optional[TaskPriority] = None
     due_date: Optional[datetime] = None
     assigned_to: Optional[List[str]] = None
     attachments: Optional[List[str]] = None
+    planned_start_date: Optional[datetime] = None
+    planned_end_date: Optional[datetime] = None
+    actual_start_date: Optional[datetime] = None
+    actual_end_date: Optional[datetime] = None
+    progress_percentage: Optional[float] = None
+    estimated_cost: Optional[float] = None
+    actual_cost: Optional[float] = None
 
 class TaskResponse(TaskBase):
     id: str
@@ -434,6 +448,7 @@ class TaskResponse(TaskBase):
     created_by_name: Optional[str] = None
     assigned_users: List[Dict[str, str]] = []  # [{"id": "", "name": ""}]
     subtasks: List[Dict[str, Any]] = []  # Subtasks
+    milestone_name: Optional[str] = None  # Populated from milestone_id
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
