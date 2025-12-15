@@ -25,10 +25,23 @@ export default function CreateMilestoneScreen() {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date());
+  const [dueDate, setDueDate] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)); // 1 week from now
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [status, setStatus] = useState('pending');
   const [completionPercentage, setCompletionPercentage] = useState('0');
+  const [estimatedCost, setEstimatedCost] = useState('');
+  const [selectedColor, setSelectedColor] = useState('#3B82F6');
+
+  const colorOptions = [
+    { color: '#3B82F6', name: 'Blue' },
+    { color: '#10B981', name: 'Green' },
+    { color: '#F59E0B', name: 'Orange' },
+    { color: '#8B5CF6', name: 'Purple' },
+    { color: '#EF4444', name: 'Red' },
+    { color: '#EC4899', name: 'Pink' },
+  ];
 
   const handleCreate = async () => {
     if (!name.trim()) {
@@ -42,9 +55,12 @@ export default function CreateMilestoneScreen() {
         name: name.trim(),
         description: description.trim() || null,
         project_id: id,
+        start_date: startDate.toISOString(),
         due_date: dueDate.toISOString(),
         status,
         completion_percentage: parseFloat(completionPercentage) || 0,
+        estimated_cost: parseFloat(estimatedCost) || 0,
+        color: selectedColor,
         order: 0,
       });
 
