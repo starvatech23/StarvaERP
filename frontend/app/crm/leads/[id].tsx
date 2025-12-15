@@ -14,13 +14,14 @@ import {
 import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { crmLeadsAPI, crmActivitiesAPI } from '../../../services/api';
+import { crmLeadsAPI, crmActivitiesAPI, estimationAPI } from '../../../services/api';
 
 export default function LeadDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const [lead, setLead] = useState(null);
   const [activities, setActivities] = useState([]);
+  const [estimates, setEstimates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -33,6 +34,18 @@ export default function LeadDetailScreen() {
       try {
         const activitiesRes = await crmActivitiesAPI.getByLead(String(id));
         setActivities(activitiesRes.data);
+      } catch (actError) {
+        console.log('Activities not available');
+        setActivities([]);
+      }
+      
+      // Try to load estimates for this lead
+      try {
+        const estimatesRes = await estimationAPI.getByLead(String(id));
+        setEstimates(estimatesRes.data || []);
+      } catch (estError) {
+        console.log('Estimates not available');
+        setEstimates([]);
       } catch (actError) {
         console.log('Activities not available');
         setActivities([]);
