@@ -214,14 +214,23 @@ export default function ProjectChartScreen() {
                   <Text style={styles.emptyTasksText}>No tasks in this milestone</Text>
                   <TouchableOpacity 
                     style={styles.addTaskMiniButton}
-                    onPress={() => router.push(`/projects/${id}/tasks/create?milestone_id=${milestone.id}` as any)}
+                    onPress={() => router.push(`/tasks/create?projectId=${id}&milestone_id=${milestone.id}` as any)}
                   >
                     <Ionicons name="add" size={16} color={Colors.primary} />
                     <Text style={styles.addTaskMiniText}>Add Task</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
-                getTasksForMilestone(milestone.id).map(task => renderTreeTask(task))
+                <>
+                  {getTasksForMilestone(milestone.id).map(task => renderTreeTask(task))}
+                  <TouchableOpacity 
+                    style={styles.addTaskRow}
+                    onPress={() => router.push(`/tasks/create?projectId=${id}&milestone_id=${milestone.id}` as any)}
+                  >
+                    <Ionicons name="add-circle-outline" size={18} color={Colors.primary} />
+                    <Text style={styles.addTaskRowText}>Add another task</Text>
+                  </TouchableOpacity>
+                </>
               )}
             </View>
           )}
