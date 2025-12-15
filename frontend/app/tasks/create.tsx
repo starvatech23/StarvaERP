@@ -16,7 +16,7 @@ import Colors from '../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import { tasksAPI, projectsAPI, usersAPI } from '../../services/api';
+import { tasksAPI, projectsAPI, usersAPI, milestonesAPI } from '../../services/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function CreateTaskScreen() {
