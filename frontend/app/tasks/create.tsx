@@ -21,19 +21,25 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function CreateTaskScreen() {
   const router = useRouter();
-  const { projectId } = useLocalSearchParams();
+  const { projectId, milestone_id } = useLocalSearchParams();
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedProjectId, setSelectedProjectId] = useState(projectId as string || '');
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState(milestone_id as string || '');
   const [status, setStatus] = useState('pending');
   const [priority, setPriority] = useState('medium');
   const [dueDate, setDueDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [plannedStartDate, setPlannedStartDate] = useState(new Date());
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [assignedTo, setAssignedTo] = useState<string[]>([]);
   const [selectedUser, setSelectedUser] = useState('');
+  const [estimatedCost, setEstimatedCost] = useState('');
+  const [actualCost, setActualCost] = useState('');
   
   const [projects, setProjects] = useState([]);
+  const [milestones, setMilestones] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
