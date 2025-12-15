@@ -771,6 +771,65 @@ export default function ProjectStatusScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Task Selector Modal */}
+      <Modal visible={showTaskSelector} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: '80%' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Tasks</Text>
+              <TouchableOpacity onPress={() => setShowTaskSelector(false)}>
+                <Ionicons name="close" size={24} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.taskList}>
+              {tasks.length === 0 ? (
+                <View style={styles.emptyTasksBox}>
+                  <Ionicons name="clipboard-outline" size={40} color="#CBD5E0" />
+                  <Text style={styles.emptyTasksText}>No tasks in this project</Text>
+                </View>
+              ) : (
+                tasks.map(task => (
+                  <TouchableOpacity 
+                    key={task.id}
+                    style={[
+                      styles.taskSelectItem,
+                      newUpdate.selected_tasks.includes(task.id) && styles.taskSelectItemActive
+                    ]}
+                    onPress={() => toggleTaskSelection(task.id)}
+                  >
+                    <View style={styles.taskSelectLeft}>
+                      <View style={[styles.taskSelectDot, { backgroundColor: getStatusColor(task.status) }]} />
+                      <View style={styles.taskSelectInfo}>
+                        <Text style={styles.taskSelectTitle} numberOfLines={1}>{task.title}</Text>
+                        <Text style={styles.taskSelectMeta}>
+                          {task.status.replace('_', ' ')} • {task.progress_percentage}%
+                          {task.milestone_name ? ` • ${task.milestone_name}` : ''}
+                        </Text>
+                      </View>
+                    </View>
+                    <Ionicons 
+                      name={newUpdate.selected_tasks.includes(task.id) ? 'checkbox' : 'square-outline'} 
+                      size={24} 
+                      color={newUpdate.selected_tasks.includes(task.id) ? Colors.primary : '#D1D5DB'} 
+                    />
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+            
+            <TouchableOpacity 
+              style={styles.taskSelectDoneButton}
+              onPress={() => setShowTaskSelector(false)}
+            >
+              <Text style={styles.taskSelectDoneText}>
+                Done ({newUpdate.selected_tasks.length} selected)
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
