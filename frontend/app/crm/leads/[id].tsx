@@ -26,15 +26,19 @@ export default function LeadDetailScreen() {
 
   const loadData = useCallback(async () => {
     try {
-      const [leadRes, activitiesRes] = await Promise.all([
-        crmLeadsAPI.getById(String(id)),
-        crmActivitiesAPI.getByLead(String(id)),
-      ]);
+      const leadRes = await crmLeadsAPI.getById(String(id));
       setLead(leadRes.data);
-      setActivities(activitiesRes.data);
+      
+      // Try to load activities (may fail)
+      try {
+        const activitiesRes = await crmActivitiesAPI.getByLead(String(id));
+        setActivities(activitiesRes.data);
+      } catch (actError) {
+        console.log('Activities not available');
+        setActivities([]);
+      }
     } catch (error) {
       console.error('Error loading lead:', error);
-      Alert.alert('Error', 'Failed to load lead details');
     } finally {
       setLoading(false);
       setRefreshing(false);
