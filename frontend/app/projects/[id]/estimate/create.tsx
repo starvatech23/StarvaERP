@@ -808,4 +808,76 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.white,
   },
+  // Selector Button Styles
+  selectorButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 10,
+    padding: 14,
+    gap: 12,
+  },
+  selectorButtonText: {
+    flex: 1,
+    fontSize: 15,
+    color: Colors.textPrimary,
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Colors.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  modalList: {
+    padding: 8,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    marginHorizontal: 8,
+    marginVertical: 4,
+    borderRadius: 10,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  modalOptionSelected: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primaryPale,
+  },
+  modalOptionContent: {
+    flex: 1,
+  },
+  modalOptionTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 2,
+  },
+  modalOptionSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+  },
 });
