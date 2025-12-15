@@ -551,4 +551,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
+  quickEstimateButton: {
+    backgroundColor: Colors.primaryPale,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  quickEstimateText: {
+    color: Colors.primary,
+    fontSize: 15,
+    fontWeight: '600',
+    marginLeft: 10,
+    flex: 1,
+  },
 });
