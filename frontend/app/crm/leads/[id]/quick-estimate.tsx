@@ -436,40 +436,54 @@ export default function LeadQuickEstimateScreen() {
         transparent={true}
         onRequestClose={() => setShowPresetPicker(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1}
+          onPress={() => setShowPresetPicker(false)}
+        >
+          <TouchableOpacity 
+            style={styles.modalContent} 
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Preset</Text>
+              <Text style={styles.modalTitle}>Select Construction Preset</Text>
               <TouchableOpacity onPress={() => setShowPresetPicker(false)}>
                 <Ionicons name="close" size={24} color={Colors.textPrimary} />
               </TouchableOpacity>
             </View>
-            <FlatList
-              data={constructionPresets}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[styles.modalOption, formData.construction_preset_id === item.id && styles.modalOptionSelected]}
-                  onPress={() => {
-                    updateField('construction_preset_id', item.id);
-                    setShowPresetPicker(false);
-                  }}
-                >
-                  <View style={styles.modalOptionContent}>
-                    <Text style={styles.modalOptionTitle}>{item.name}</Text>
-                    <Text style={styles.modalOptionSubtitle}>
-                      {item.region} • ₹{item.rate_per_sqft?.toLocaleString('en-IN')}/sqft
-                    </Text>
-                  </View>
-                  {formData.construction_preset_id === item.id && (
-                    <Ionicons name="checkmark-circle" size={24} color={Colors.primary} />
-                  )}
-                </TouchableOpacity>
-              )}
-              contentContainerStyle={styles.modalList}
-            />
-          </View>
-        </View>
+            {constructionPresets.length === 0 ? (
+              <View style={styles.modalEmpty}>
+                <Text style={styles.modalEmptyText}>No active presets available</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={constructionPresets}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[styles.modalOption, formData.construction_preset_id === item.id && styles.modalOptionSelected]}
+                    onPress={() => {
+                      updateField('construction_preset_id', item.id);
+                      setShowPresetPicker(false);
+                    }}
+                  >
+                    <View style={styles.modalOptionContent}>
+                      <Text style={styles.modalOptionTitle}>{item.name}</Text>
+                      <Text style={styles.modalOptionSubtitle}>
+                        {item.region} • ₹{item.rate_per_sqft?.toLocaleString('en-IN')}/sqft
+                      </Text>
+                    </View>
+                    {formData.construction_preset_id === item.id && (
+                      <Ionicons name="checkmark-circle" size={24} color={Colors.primary} />
+                    )}
+                  </TouchableOpacity>
+                )}
+                contentContainerStyle={styles.modalList}
+              />
+            )}
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
 
       {/* Package Picker Modal */}
