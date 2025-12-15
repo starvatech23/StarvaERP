@@ -1219,9 +1219,14 @@ async def get_task_subtasks(task_id: str):
     for subtask in subtasks:
         subtask_dict = serialize_doc(subtask)
         
-        # Get assigned users for subtask
+        # Get assigned users for subtask - handle both string and list cases
+        assigned_to = subtask_dict.get("assigned_to", [])
+        if isinstance(assigned_to, str):
+            assigned_to = [assigned_to] if assigned_to else []
+        subtask_dict["assigned_to"] = assigned_to
+        
         assigned_users = []
-        for user_id in subtask_dict.get("assigned_to", []):
+        for user_id in assigned_to:
             user = await get_user_by_id(user_id)
             if user:
                 assigned_users.append({"id": str(user["_id"]), "name": user["full_name"]})
