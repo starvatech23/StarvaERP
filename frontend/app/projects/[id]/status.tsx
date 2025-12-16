@@ -550,7 +550,17 @@ export default function ProjectStatusScreen() {
               </View>
             )}
 
-            <Text style={styles.createdBy}>By {update.created_by_name}</Text>
+            {/* Footer with Share Button */}
+            <View style={styles.updateFooter}>
+              <Text style={styles.createdBy}>By {update.created_by_name}</Text>
+              <TouchableOpacity 
+                style={styles.shareUpdateButton}
+                onPress={() => showShareOptions(update)}
+              >
+                <Ionicons name="share-social" size={16} color="#FFFFFF" />
+                <Text style={styles.shareUpdateButtonText}>Share</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         ))
       )}
