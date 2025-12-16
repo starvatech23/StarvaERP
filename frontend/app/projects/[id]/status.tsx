@@ -85,6 +85,7 @@ export default function ProjectStatusScreen() {
   const [updates, setUpdates] = useState<StatusUpdate[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [ganttData, setGanttData] = useState<any>(null);
+  const [companySettings, setCompanySettings] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showTaskSelector, setShowTaskSelector] = useState(false);
   const [showPhotoViewer, setShowPhotoViewer] = useState(false);
