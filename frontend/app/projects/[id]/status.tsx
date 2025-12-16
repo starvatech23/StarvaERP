@@ -24,7 +24,7 @@ import { useAuth } from '../../../context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
+import * as LegacyFileSystem from 'expo-file-system/legacy';
 import * as Print from 'expo-print';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
