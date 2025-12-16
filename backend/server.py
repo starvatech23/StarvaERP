@@ -7691,6 +7691,7 @@ async def get_export_options(
         pass
     
     return {
+        "counts": counts,
         "data_types": [
             {
                 "id": "leads",
@@ -7726,6 +7727,20 @@ async def get_export_options(
                 "description": "Labour/worker information",
                 "count": counts.get("workers", 0),
                 "fields": len(EXPORT_TEMPLATES["workers"]["fields"])
+            },
+            {
+                "id": "tasks",
+                "name": "Tasks",
+                "description": "Project tasks",
+                "count": counts.get("tasks", 0),
+                "fields": 13
+            },
+            {
+                "id": "estimates",
+                "name": "Estimates",
+                "description": "Project estimates/BOQ",
+                "count": counts.get("estimates", 0),
+                "fields": 14
             }
         ]
     }
