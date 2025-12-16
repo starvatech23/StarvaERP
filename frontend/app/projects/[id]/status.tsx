@@ -19,7 +19,7 @@ import {
 import Colors from '../../../constants/Colors';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { statusUpdatesAPI, projectsAPI, tasksAPI } from '../../../services/api';
+import { statusUpdatesAPI, projectsAPI, tasksAPI, companySettingsAPI } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
