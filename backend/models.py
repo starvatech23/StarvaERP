@@ -2329,14 +2329,14 @@ class CompanySettings(BaseModel):
     company_name: str
     logo_url: Optional[str] = None  # URL or base64 encoded image
     logo_base64: Optional[str] = None  # Base64 encoded logo for documents
-    address_line1: str
+    address_line1: Optional[str] = None
     address_line2: Optional[str] = None
-    city: str
-    state: str
-    pincode: str
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pincode: Optional[str] = None
     country: str = "India"
-    phone: str
-    email: EmailStr
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
     website: Optional[str] = None
     gst_number: Optional[str] = None
     pan_number: Optional[str] = None
