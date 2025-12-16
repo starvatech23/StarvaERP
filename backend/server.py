@@ -585,6 +585,34 @@ async def get_project(
     
     return ProjectResponse(**project_dict)
 
+
+async def generate_project_code() -> str:
+    """Generate unique project code in format: STC-MMYY-XXXXX"""
+    now = datetime.utcnow()
+    month_year = now.strftime("%m%y")  # e.g., "1225" for December 2025
+    prefix = f"STC-{month_year}"
+    
+    # Find the highest sequence number for this month/year
+    pattern = f"^{prefix}-"
+    last_project = await db.projects.find_one(
+        {"project_code": {"$regex": pattern}},
+        sort=[("project_code", -1)]
+    )
+    
+    if last_project and last_project.get("project_code"):
+        # Extract the sequence number from the last code
+        try:
+            last_seq = int(last_project["project_code"].split("-")[-1])
+            next_seq = last_seq + 1
+        except:
+            next_seq = 1
+    else:
+        next_seq = 1
+    
+    # Format: STC-MMYY-XXXXX (5 digit sequence)
+    return f"{prefix}-{next_seq:05d}"
+
+
 @api_router.post("/projects", response_model=ProjectResponse)
 async def create_project(
     project: ProjectCreate,
@@ -598,6 +626,10 @@ async def create_project(
         raise HTTPException(status_code=403, detail="Only admins, project managers, and CRM managers can create projects")
     
     project_dict = project.dict()
+    
+    # Generate unique project code
+    project_dict["project_code"] = await generate_project_code()
+    
     project_dict["created_at"] = datetime.utcnow()
     project_dict["updated_at"] = datetime.utcnow()
     
