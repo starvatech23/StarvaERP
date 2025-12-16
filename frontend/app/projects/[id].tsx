@@ -599,8 +599,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: Colors.textPrimary,
-    flex: 1,
     marginRight: 12,
+  },
+  projectCode: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primary,
+    marginTop: 4,
   },
   statusBadge: {
     paddingHorizontal: 12,
