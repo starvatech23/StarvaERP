@@ -90,6 +90,68 @@ export default function LaborReportsScreen() {
     }
   };
 
+  // Export labor report to CSV
+  const exportReport = async () => {
+    try {
+      const { startDate, endDate } = getDateRange();
+      const workerStats = calculateWorkerWages();
+      
+      // Create CSV content
+      const headers = ['Worker Name', 'Skill', 'Days Present', 'Days Absent', 'Total Hours', 'Overtime Days', 'Total Wages (₹)'];
+      const rows = workerStats.map((worker: any) => [
+        worker.name,
+        worker.skill || '',
+        worker.daysPresent,
+        worker.daysAbsent,
+        worker.totalHours,
+        worker.overtimeDays,
+        worker.totalWages,
+      ]);
+      
+      // Calculate totals
+      const totals = workerStats.reduce((acc: any, w: any) => ({
+        daysPresent: acc.daysPresent + w.daysPresent,
+        daysAbsent: acc.daysAbsent + w.daysAbsent,
+        totalHours: acc.totalHours + w.totalHours,
+        overtimeDays: acc.overtimeDays + w.overtimeDays,
+        totalWages: acc.totalWages + w.totalWages,
+      }), { daysPresent: 0, daysAbsent: 0, totalHours: 0, overtimeDays: 0, totalWages: 0 });
+      
+      rows.push(['TOTAL', '', totals.daysPresent, totals.daysAbsent, totals.totalHours, totals.overtimeDays, totals.totalWages]);
+      
+      // Build CSV string
+      const csvContent = [
+        `Labour Report - ${period === 'weekly' ? 'Week' : 'Month'} of ${startDate.format('DD MMM')} - ${endDate.format('DD MMM YYYY')}`,
+        `Project: ${selectedProject === 'all' ? 'All Projects' : projects.find(p => p.id === selectedProject)?.name || 'Unknown'}`,
+        '',
+        headers.join(','),
+        ...rows.map(row => row.join(',')),
+      ].join('\n');
+      
+      // Save to file
+      const filename = `labour_report_${startDate.format('YYYYMMDD')}_${endDate.format('YYYYMMDD')}.csv`;
+      const fileUri = `${FileSystem.cacheDirectory}${filename}`;
+      
+      await FileSystem.writeAsStringAsync(fileUri, csvContent, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      
+      // Share the file
+      const isSharingAvailable = await Sharing.isAvailableAsync();
+      if (isSharingAvailable) {
+        await Sharing.shareAsync(fileUri, {
+          mimeType: 'text/csv',
+          dialogTitle: 'Export Labour Report',
+        });
+      } else {
+        Alert.alert('Success', 'Report saved successfully');
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      Alert.alert('Error', 'Failed to export report');
+    }
+  };
+
   const getDateRange = () => {
     if (period === 'weekly') {
       return {
