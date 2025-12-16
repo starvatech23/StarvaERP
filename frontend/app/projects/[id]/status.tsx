@@ -14,6 +14,7 @@ import {
   Dimensions,
   Linking,
   Share,
+  Platform,
 } from 'react-native';
 import Colors from '../../../constants/Colors';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
@@ -22,6 +23,8 @@ import { statusUpdatesAPI, projectsAPI, tasksAPI } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
