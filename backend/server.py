@@ -4738,6 +4738,95 @@ async def get_expenses(
     
     return result
 
+@app.get("/api/expenses/{expense_id}")
+async def get_expense_by_id(
+    expense_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a single expense by ID"""
+    current_user = await get_current_user(credentials)
+    
+    expense = await db.expenses.find_one({"_id": ObjectId(expense_id)})
+    if not expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    
+    expense_dict = {
+        "id": str(expense["_id"]),
+        "project_id": expense.get("project_id"),
+        "category": expense.get("category"),
+        "amount": expense.get("amount"),
+        "description": expense.get("description"),
+        "expense_date": expense.get("expense_date"),
+        "vendor_name": expense.get("vendor_name"),
+        "receipt_image": expense.get("receipt_image"),
+        "payment_method": expense.get("payment_method"),
+        "reference_number": expense.get("reference_number"),
+        "notes": expense.get("notes"),
+        "created_at": expense.get("created_at"),
+        "created_by": expense.get("created_by"),
+    }
+    
+    # Optionally fetch creator name
+    if expense.get("created_by"):
+        try:
+            creator = await db.users.find_one({"_id": ObjectId(expense.get("created_by"))})
+            expense_dict["created_by_name"] = creator.get("full_name") if creator else None
+        except:
+            pass
+    
+    return expense_dict
+
+
+@app.put("/api/expenses/{expense_id}")
+async def update_expense(
+    expense_id: str,
+    expense_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update an expense"""
+    current_user = await get_current_user(credentials)
+    
+    expense = await db.expenses.find_one({"_id": ObjectId(expense_id)})
+    if not expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    
+    # Only creator or admin can update
+    user_role = current_user.get("role") or current_user.get("role_name", "")
+    if expense.get("created_by") != current_user.get("id") and user_role not in ["Admin", UserRole.ADMIN]:
+        raise HTTPException(status_code=403, detail="Only the creator or admin can edit this expense")
+    
+    # Update allowed fields
+    update_data = {}
+    allowed_fields = ["project_id", "category", "amount", "description", "expense_date", 
+                      "vendor_name", "receipt_image", "payment_method", "reference_number", "notes"]
+    for field in allowed_fields:
+        if field in expense_data:
+            update_data[field] = expense_data[field]
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.expenses.update_one(
+        {"_id": ObjectId(expense_id)},
+        {"$set": update_data}
+    )
+    
+    updated_expense = await db.expenses.find_one({"_id": ObjectId(expense_id)})
+    return {
+        "id": str(updated_expense["_id"]),
+        "project_id": updated_expense.get("project_id"),
+        "category": updated_expense.get("category"),
+        "amount": updated_expense.get("amount"),
+        "description": updated_expense.get("description"),
+        "expense_date": updated_expense.get("expense_date"),
+        "vendor_name": updated_expense.get("vendor_name"),
+        "receipt_image": updated_expense.get("receipt_image"),
+        "payment_method": updated_expense.get("payment_method"),
+        "reference_number": updated_expense.get("reference_number"),
+        "notes": updated_expense.get("notes"),
+        "message": "Expense updated successfully"
+    }
+
+
 @app.delete("/api/expenses/{expense_id}")
 async def delete_expense(
     expense_id: str,
