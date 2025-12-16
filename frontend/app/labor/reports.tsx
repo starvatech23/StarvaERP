@@ -17,6 +17,8 @@ import { Picker } from '@react-native-picker/picker';
 import moment from 'moment';
 import { PieChart } from 'react-native-chart-kit';
 import Colors from '../../constants/Colors';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 
 const screenWidth = Dimensions.get('window').width;
 
