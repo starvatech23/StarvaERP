@@ -2281,7 +2281,8 @@ class EstimateResponse(EstimateBase):
 
 class EstimateSummary(BaseModel):
     id: str
-    project_id: str
+    project_id: Optional[str] = None
+    lead_id: Optional[str] = None
     version: int
     version_name: Optional[str] = None
     status: EstimateStatus
