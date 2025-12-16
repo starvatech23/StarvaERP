@@ -382,22 +382,43 @@ export default function ProjectStatusScreen() {
     return lines.join('\n');
   };
 
-  // Save base64 image to temporary file for sharing
-  const saveImageToTemp = async (base64Data: string, index: number): Promise<string | null> => {
+  // Save image to temporary file for sharing (handles both base64 and URLs)
+  const saveImageToTemp = async (imageData: string, index: number): Promise<string | null> => {
     try {
-      const filename = `status_photo_${index}.jpg`;
+      const timestamp = Date.now();
+      const filename = `status_photo_${index}_${timestamp}.jpg`;
       const fileUri = `${FileSystem.cacheDirectory}${filename}`;
       
-      // Remove data URL prefix if present
-      const base64Content = base64Data.includes('base64,') 
-        ? base64Data.split('base64,')[1] 
-        : base64Data;
-      
-      await FileSystem.writeAsStringAsync(fileUri, base64Content, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      
-      return fileUri;
+      // Check if it's a URL or base64
+      if (imageData.startsWith('http://') || imageData.startsWith('https://')) {
+        // Download the image from URL
+        const downloadResult = await FileSystem.downloadAsync(imageData, fileUri);
+        if (downloadResult.status === 200) {
+          return downloadResult.uri;
+        }
+        return null;
+      } else {
+        // It's base64 data
+        let base64Content = imageData;
+        
+        // Remove data URL prefix if present
+        if (imageData.includes('base64,')) {
+          base64Content = imageData.split('base64,')[1];
+        }
+        
+        // Write base64 to file
+        await FileSystem.writeAsStringAsync(fileUri, base64Content, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        
+        // Verify file was created
+        const fileInfo = await FileSystem.getInfoAsync(fileUri);
+        if (fileInfo.exists) {
+          console.log('Image saved successfully:', fileUri, 'Size:', fileInfo.size);
+          return fileUri;
+        }
+        return null;
+      }
     } catch (error) {
       console.error('Error saving image:', error);
       return null;
@@ -410,46 +431,47 @@ export default function ProjectStatusScreen() {
     
     try {
       // Check if there are photos and if sharing is available
-      if (update.photos && update.photos.length > 0 && await Sharing.isAvailableAsync()) {
+      const isSharingAvailable = await Sharing.isAvailableAsync();
+      
+      if (update.photos && update.photos.length > 0 && isSharingAvailable) {
         // Save first photo to temp file and share it with the message
         const photoUri = await saveImageToTemp(update.photos[0], 0);
         
         if (photoUri) {
-          // On iOS, we can share file with a message dialog
-          if (Platform.OS === 'ios') {
-            await Sharing.shareAsync(photoUri, {
-              dialogTitle: `Project Status: ${update.title}`,
-              mimeType: 'image/jpeg',
-              UTI: 'public.jpeg',
-            });
-            // Also copy message to clipboard for user to paste
-            Alert.alert(
-              'Photo Shared',
-              'The photo has been shared. The status message has been copied - you can paste it in your chat.',
-              [{ text: 'OK' }]
-            );
-          } else {
-            // On Android, share the file
-            await Sharing.shareAsync(photoUri, {
-              dialogTitle: `Project Status: ${update.title}`,
-              mimeType: 'image/jpeg',
-            });
-          }
-          
-          // Also share text separately
-          await Share.share({
-            message: message,
-            title: `Project Status: ${update.title}`,
+          // Share the photo - the share sheet will let user choose WhatsApp or other apps
+          await Sharing.shareAsync(photoUri, {
+            dialogTitle: `Project Status: ${update.title}`,
+            mimeType: 'image/jpeg',
+            UTI: 'public.jpeg',
           });
+          
+          // After photo is shared, also share the text message
+          Alert.alert(
+            'Share Status Message',
+            'Photo shared! Would you like to also share the status message?',
+            [
+              { text: 'No', style: 'cancel' },
+              {
+                text: 'Share Message',
+                onPress: async () => {
+                  await Share.share({
+                    message: message,
+                    title: `Project Status: ${update.title}`,
+                  });
+                }
+              }
+            ]
+          );
         } else {
-          // Fallback to text only
+          // Fallback to text only if photo saving failed
+          Alert.alert('Photo Error', 'Could not process photo. Sharing text only.');
           await Share.share({
             message: message,
             title: `Project Status: ${update.title}`,
           });
         }
       } else {
-        // No photos, share text only
+        // No photos or sharing not available, share text only
         await Share.share({
           message: message,
           title: `Project Status: ${update.title}`,
@@ -465,7 +487,7 @@ export default function ProjectStatusScreen() {
     }
   };
 
-  // Share via WhatsApp with photos
+  // Share via WhatsApp with photos - simplified flow
   const shareViaWhatsAppWithPhotos = async (update: StatusUpdate) => {
     const clientPhone = project?.client_contact;
     
@@ -478,45 +500,60 @@ export default function ProjectStatusScreen() {
     const formattedPhone = formatPhoneForWhatsApp(clientPhone);
     
     try {
-      // If there are photos, share them first
-      if (update.photos && update.photos.length > 0 && await Sharing.isAvailableAsync()) {
-        // Save photos to temp
-        const photoUris: string[] = [];
-        for (let i = 0; i < Math.min(update.photos.length, 3); i++) { // Limit to 3 photos
-          const uri = await saveImageToTemp(update.photos[i], i);
-          if (uri) photoUris.push(uri);
-        }
+      const isSharingAvailable = await Sharing.isAvailableAsync();
+      
+      // If there are photos, share them first via share sheet
+      if (update.photos && update.photos.length > 0 && isSharingAvailable) {
+        // Save the first photo
+        const photoUri = await saveImageToTemp(update.photos[0], 0);
         
-        if (photoUris.length > 0) {
-          // Show instruction alert
+        if (photoUri) {
           Alert.alert(
-            'Share Photos & Message',
-            `This will:\n1. Open share sheet for ${photoUris.length} photo(s) - share to WhatsApp\n2. Then open WhatsApp with the status message\n\nReady to share?`,
+            'Share to WhatsApp',
+            'Step 1: Share the photo\nStep 2: Send the status message\n\nSelect WhatsApp when the share sheet opens.',
             [
               { text: 'Cancel', style: 'cancel' },
               {
-                text: 'Share Photos First',
+                text: 'Share Photo',
                 onPress: async () => {
                   try {
-                    // Share first photo
-                    await Sharing.shareAsync(photoUris[0], {
-                      dialogTitle: 'Share Status Photo to WhatsApp',
+                    // Open share sheet with the photo
+                    await Sharing.shareAsync(photoUri, {
+                      dialogTitle: 'Share to WhatsApp',
                       mimeType: 'image/jpeg',
+                      UTI: 'public.jpeg',
                     });
                     
-                    // Then open WhatsApp with text
-                    setTimeout(async () => {
-                      const whatsappUrl = `whatsapp://send?phone=${formattedPhone}&text=${encodeURIComponent(message)}`;
-                      const canOpen = await Linking.canOpenURL(whatsappUrl);
-                      if (canOpen) {
-                        await Linking.openURL(whatsappUrl);
-                      } else {
-                        const webUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-                        await Linking.openURL(webUrl);
-                      }
-                    }, 1000);
+                    // After user returns, prompt to send the text message
+                    setTimeout(() => {
+                      Alert.alert(
+                        'Send Status Message',
+                        'Photo shared! Now send the status message to the client.',
+                        [
+                          { text: 'Skip', style: 'cancel' },
+                          {
+                            text: 'Open WhatsApp',
+                            onPress: async () => {
+                              const whatsappUrl = `whatsapp://send?phone=${formattedPhone}&text=${encodeURIComponent(message)}`;
+                              try {
+                                const canOpen = await Linking.canOpenURL(whatsappUrl);
+                                if (canOpen) {
+                                  await Linking.openURL(whatsappUrl);
+                                } else {
+                                  const webUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+                                  await Linking.openURL(webUrl);
+                                }
+                              } catch (e) {
+                                console.error('WhatsApp open error:', e);
+                              }
+                            }
+                          }
+                        ]
+                      );
+                    }, 500);
                   } catch (e) {
                     console.error('Photo share error:', e);
+                    Alert.alert('Error', 'Failed to share photo. Try again.');
                   }
                 }
               },
@@ -530,7 +567,7 @@ export default function ProjectStatusScreen() {
         }
       }
       
-      // No photos or sharing not available - just send text
+      // No photos or photo saving failed - just send text
       shareViaWhatsApp(update);
     } catch (error) {
       console.error('WhatsApp share error:', error);
