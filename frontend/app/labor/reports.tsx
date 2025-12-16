@@ -331,7 +331,7 @@ export default function LaborReportsScreen() {
         <Text style={styles.headerTitle}>Labour Reports</Text>
         <TouchableOpacity
           style={styles.exportButton}
-          onPress={() => Alert.alert('Export', 'Export functionality coming soon')}
+          onPress={exportReport}
         >
           <Ionicons name="download-outline" size={20} color={Colors.primary} />
         </TouchableOpacity>
