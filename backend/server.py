@@ -7666,7 +7666,7 @@ async def import_data(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/admin/export/list")
+@api_router.get("/admin/export-options")
 async def get_export_options(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
