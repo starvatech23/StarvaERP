@@ -131,12 +131,35 @@ export default function DashboardScreen() {
     
     if (user?.role === 'admin') {
       actions.push(
-        { icon: 'shield-checkmark', label: 'Admin', color: Colors.error, route: '/admin' },
-        { icon: 'download', label: 'Export', color: Colors.info, route: '/admin/data-management' }
+        { icon: 'shield-checkmark', label: 'Admin', color: Colors.error, route: '/admin' }
       );
     }
     
     return actions;
+  };
+
+  // Check if user has permission for a widget
+  const hasPermission = (widget: string) => {
+    const role = user?.role || '';
+    const permissions: Record<string, string[]> = {
+      projects: ['admin', 'project_manager', 'engineer'],
+      tasks: ['admin', 'project_manager', 'engineer'],
+      crm: ['admin', 'crm_manager', 'crm_user'],
+      finance: ['admin', 'project_manager'],
+      labor: ['admin', 'project_manager'],
+      materials: ['admin', 'project_manager', 'engineer'],
+      payables: ['admin', 'project_manager'],
+      receivables: ['admin', 'project_manager'],
+    };
+    return permissions[widget]?.includes(role) || false;
+  };
+
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(1)}Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+    if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}K`;
+    return `₹${amount.toFixed(0)}`;
   };
 
   if (loading) {
