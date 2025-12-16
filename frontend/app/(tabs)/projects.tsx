@@ -471,7 +471,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: Colors.textPrimary,
-    flex: 1,
+  },
+  projectCode: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.primary,
+    marginTop: 2,
   },
   statusBadge: {
     paddingHorizontal: 10,
