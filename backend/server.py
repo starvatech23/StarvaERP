@@ -51,11 +51,13 @@ from models import (
     PaymentMethod,
     # Estimation Models
     EstimateCreate, EstimateUpdate, EstimateResponse, EstimateSummary, EstimateStatus,
-    EstimateLineCreate, EstimateLineResponse, EstimateLineBase, BOQCategory,
+    EstimateLineCreate, EstimateLineUpdate, EstimateLineResponse, EstimateLineBase, BOQCategory,
     MaterialPresetCreate, MaterialPresetResponse, RateTableCreate, RateTableResponse,
     # Construction Preset Models
     ConstructionPresetCreate, ConstructionPresetUpdate, ConstructionPresetResponse,
     SpecGroupBase, SpecItemBase, BrandBase, PresetAuditLog,
+    # Company Settings
+    CompanySettings, CompanySettingsUpdate, CompanySettingsResponse,
     ProjectContact, ProjectContactUpdate, ProjectRole, ContactType,
     GanttShareCreate, GanttShareResponse, GanttShareToken, GanttSharePermission,
     ContactAudit,
