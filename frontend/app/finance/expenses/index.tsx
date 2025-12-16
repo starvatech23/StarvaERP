@@ -180,9 +180,20 @@ export default function ExpensesScreen() {
                     <Text style={styles.expenseCategory}>{expense.category}</Text>
                   </View>
                 </View>
-                <TouchableOpacity onPress={() => handleDelete(expense.id)}>
-                  <Ionicons name="trash-outline" size={20} color="#EF4444" />
-                </TouchableOpacity>
+                <View style={styles.expenseActions}>
+                  <TouchableOpacity 
+                    style={styles.actionButton}
+                    onPress={() => router.push(`/finance/expenses/edit/${expense.id}` as any)}
+                  >
+                    <Ionicons name="pencil" size={18} color={Colors.primary} />
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.actionButton}
+                    onPress={() => handleDelete(expense.id)}
+                  >
+                    <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                  </TouchableOpacity>
+                </View>
               </View>
 
               <View style={styles.expenseDetails}>
