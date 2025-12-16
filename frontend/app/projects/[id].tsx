@@ -173,7 +173,12 @@ export default function ProjectDetailsScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
           <View style={styles.titleRow}>
-            <Text style={styles.projectName}>{project.name}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.projectName}>{project.name}</Text>
+              {project.project_code && (
+                <Text style={styles.projectCode}>{project.project_code}</Text>
+              )}
+            </View>
             <View
               style={[
                 styles.statusBadge,
