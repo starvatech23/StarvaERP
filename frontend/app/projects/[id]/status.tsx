@@ -12,6 +12,8 @@ import {
   Image,
   Modal,
   Dimensions,
+  Linking,
+  Share,
 } from 'react-native';
 import Colors from '../../../constants/Colors';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
