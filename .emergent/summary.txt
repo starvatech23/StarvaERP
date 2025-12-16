@@ -1,211 +1,225 @@
 <analysis>
 
 **original_problem_statement:**
-The user initially requested to resolve issues and enhance the Leads and Projects modules. The key requirements that evolved during the session are:
-1.  **Lead Module Estimates**: Ensure estimates created in the Leads module are saved and associated correctly. Hide the Go to Project Card button for these estimates. (Initially, this also included displaying the list of estimates on the lead detail page).
-2.  **Team Member Sync**: Fix an issue where team members added via Manage Team were not reflecting correctly on the Project Card's Team Members section.
-3.  **Project Chart Overhaul**:
-    - Redefine the project structure to be .
-    - Enhance Milestones with cost tracking (, ).
-    - Enhance Tasks to support assignment to multiple users, timeline management, and cost tracking, with the estimated cost derived from the project's estimate/BOQ.
-    - Build a new Project Chart UI with multiple views (Tree, Gantt, Kanban).
-    - Allow creating tasks directly from within a milestone on the Project Chart.
-4.  **Project Status Sharing**:
-    - Implement a new feature to share project status updates, including photos and a Gantt chart view (daily, weekly, monthly).
-    - This feature should be accessible from the project card and the main dashboard.
-    - When creating a status update, allow selecting specific tasks from the project to be included in the update.
-    - Compress uploaded photos to save space.
-    - Save created status updates for future reference on the project card.
-5.  **Bug Fixes & UI Polish**:
-    - Fix an Unmatched Route error when trying to edit a task.
-    - Redesign the Create Task page fonts to be more visible (grey tones).
-    - Redesign the Milestones page to show an expandable list of tasks under each milestone.
+The user wants to enhance a full-stack Expo/FastAPI construction management application. The key requirements from this and previous sessions are:
+
+1.  **Document Headers & Stamping**: All generated documents (like estimates) should have a company logo and address in the header. Estimates in the project section require a digital stamping feature for Reviewed by (Project Manager) and Approved by (Project Head/Director).
+2.  **Estimate Editing**: Estimates in both Project and Lead modules should be fully editable, including line-item wise editing (add, update, delete items).
+3.  **Dashboard Overhaul**:
+    *   Remove the Export quick action from the dashboard.
+    *   Add new business insight widgets for Sales, Leads, Projects, Payables, and Receivables, with role-based visibility.
+4.  **Unique Project IDs**: Implement a unique ID system for new projects with the format  (e.g., ). This ID should be used across all reports and requests.
+5.  **Project Status Sharing**:
+    *   Allow sharing status updates via WhatsApp.
+    *   When sharing, include photos. This was later updated to generate and share a PDF containing the update details and embedded photos due to sharing limitations.
+    *   The generated PDF report should have a professional header including the Starva logo, project details, team names (Project Engineer, Operations Executive), date, and location.
+6.  **Expense Management**: Make expense details editable after they have been saved.
+7.  **Import/Export Module**: Complete the import and export functionality for various data types (Leads, Projects, Tasks, Estimates). This includes building the frontend UI and providing sample download templates.
+8.  **Bug Fixes**:
+    *   Fix an issue where Quick estimates created in the leads module are not saved or displayed on the lead card.
+    *   Fix the Unable to download labour report feature.
+    *   Fix the Unable to save details in company settings issue in the admin module.
+    *   Fix the new dashboard widgets not loading.
 
 **User's preferred language**: English
 
 **what currently exists?**
-- A full-stack Expo (React Native) and FastAPI application.
-- The Estimates for Leads feature is complete. Estimates can be created for leads, and they are correctly listed on the lead detail page. The Go to Project button is now conditionally hidden.
-- A new, comprehensive Project Chart module has been created at . It features switchable Tree, Gantt, and Kanban views.
-- Backend models for Milestones and Tasks have been enhanced to include cost tracking fields (, ).
-- The Task creation and detail pages have been updated to support milestone association and cost management, including editing .
-- The main Milestones list page () has been redesigned to show an expandable list of tasks under each milestone.
-- A new Project Status Sharing feature has been implemented. This includes:
-    - Backend models and API endpoints for creating and retrieving status updates.
-    - A new page () for creating updates with a title, description, photos, and associated tasks.
-    - Image compression using .
-- A Recent Status Updates widget has been added to the main dashboard ().
-- Saved status updates are now listed on the project detail page ().
-- Multiple bugs were fixed, including a data type issue with task assignments, a duplicate route for Gantt data, and a critical frontend build error caused by incorrect import paths.
+The application is a full-stack Expo (React Native) and FastAPI platform. During this session, several major features and fixes were completed:
+- **Backend for Document Management**: APIs for managing Company Settings (including logo upload) and a full Review/Approve workflow for Estimates have been built.
+- **Unique Project IDs**: New projects are now automatically assigned a unique, sequential ID in the format . This code is displayed on project list and detail pages.
+- **Enhanced Status Sharing**: The Share Update feature now generates a professional PDF with a company header (logo, address), project details, team names, photos, and update text, which can then be shared via any app (including WhatsApp).
+- **Revamped Dashboard**: The main dashboard has been overhauled to include new business insight widgets for Finance (Payables/Receivables), Project Health, and Lead Conversion, with role-based permissions.
+- **Import/Export Module**: A complete import/export system is now available in the Admin panel. It supports Leads, Projects, Tasks, and Estimates. The UI allows users to download templates, see record counts, and upload CSV files for import.
+- **Bug Fixes**: The labor report download is now functional. The issue preventing lead estimates from being displayed has been resolved. A critical bug preventing the new dashboard widgets from loading (due to an incorrect auth token) was fixed.
 
 **Last working item**:
-    - Last item agent was working: Making individual tasks selectable within the **Gantt Chart view** on the **Project Status page** (). The goal is to allow users to select specific Gantt tasks to share as part of the status update. The agent added the necessary state () and was in the process of updating the JSX to handle the selection UI.
+    - Last item agent was working: Implementing the ability to edit an expense record. The agent was in the process of building the frontend for this feature. A new page file was created at , and an Edit button was added to each item in the expense list on . The next step was to add the required styles for the new UI elements.
     - Status: IN PROGRESS
     - Agent Testing Done: N
     - Which testing method agent to use? screenshot tool
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:
-  - Issue 1: Dashboard does not reflect status update changes (P1)
-  - Issue 2: Team Member Sync is a data integrity issue (P2)
+  - Issue 1: Dashboard widgets not loading (P0)
+  - Issue 2: Unreliable mobile preview (P2)
+  - Issue 3: Team Member Sync data integrity (P3)
   
   Issues Detail:
   - Issue 1: 
-     - **Description**: The user reported that The dashboard doesnt reflect the changes yet. The agent implemented a Recent Status Updates widget on the dashboard (), but never verified if it correctly fetches and displays data. The API calls and state management need to be debugged.
-     - **Attempted fixes**: None. The agent moved on to another task after implementing the initial code.
+     - **Description**: The user reported, Dashboard seems not loading the new features or widgets after the agent had already applied a fix for it. This is a high-priority recurring issue. The agent's last fix involved correcting how the auth token was retrieved, which did resolve the initial problem, but the issue has resurfaced, suggesting a deeper problem with state management, component rendering lifecycle, or authentication in the web preview.
+     - **Attempted fixes**: The agent fixed an issue where  was used instead of the token from  context. This worked initially but the user reported the problem again.
      - **Next debug checklist**:
-       1.  Log into the app as a user with access to projects.
-       2.  Create a project status update for a project.
-       3.  Navigate to the main dashboard.
-       4.  Check the browser console/app logs for the API call to . Verify it is being called and returning data.
-       5.  In , check the  state variable to see if it's being populated correctly inside .
-       6.  Debug the JSX rendering logic for the Recent Status Updates section.
-     - **Why fix this issue and what will be achieved with the fix?**: This is a direct user request and is required to complete the dashboard enhancement feature.
-     - **Status**:  NOT STARTED
-     - **Is recurring issue?** N
-     - **Should Test frontend/backend/both after fix?**: frontend
-     - **Blocked on other issue**: None.
-  - Issue 2: 
-     - **Description**: Users added to a project's team are not showing up on the project detail page. The agent investigated and found this is a data integrity problem: the  stored in the project document refer to user IDs that no longer exist in the database.
-     - **Attempted fixes**: The agent correctly identified the root cause as a data issue, not a code bug. No code fix was attempted.
-     - **Next debug checklist**:
-       1. In  and , add defensive code. Before rendering team members, check if the  array returned from the backend is empty even if  has items.
-       2. If the arrays don't match in length, display a subtle warning or message like Some team members could not be loaded.
-       3. Consider creating a backend cleanup script or endpoint (for admins) to remove dangling  from projects.
-     - **Why fix this issue and what will be achieved with the fix?**: While the core code is correct, the UI currently fails silently, which is confusing. This fix will make the application more robust and provide better feedback to the user when data is inconsistent.
-     - **Status**:  NOT STARTED
+       1. In , add extensive  statements inside  to trace the  object from the API call through to the state update.
+       2. Log the  and  from the  hook to ensure they are available when the dashboard renders.
+       3. Verify the  function is working as expected for the logged-in user's role.
+       4. Check the browser's network tab to confirm the  call is being made successfully and returning the expected data on every dashboard load/refresh.
+     - **Why fix this issue and what will be achieved with the fix?**: The dashboard is a critical, high-visibility feature. Fixing this is essential for user trust and the usability of the new insight widgets.
+     - **Status**:  IN PROGRESS
      - **Is recurring issue?** Y
      - **Should Test frontend/backend/both after fix?**: frontend
      - **Blocked on other issue**: None
+  - Issue 2: 
+     - **Description**: The user repeatedly experienced issues connecting to the mobile preview via Expo Go (unable to preview on mobile). The agent spent significant time troubleshooting ngrok tunnels and connection URLs.
+     - **Attempted fixes**: Restarted Expo, checked ngrok status, provided manual connection URLs (), and confirmed the iOS manifest was being served.
+     - **Next debug checklist**: This is likely an environment or network issue. The next step would be to re-verify all  variables related to the Expo tunnel and hostname, and perhaps try clearing the Expo Go app cache on the mobile device.
+     - **Why fix this issue and what will be achieved with the fix?**: A working mobile preview is critical for the user to test and verify the implemented features on a real device.
+     - **Status**:  NOT STARTED
+     - **Is recurring issue?** Y
+     - **Should Test frontend/backend/both after fix?**: NA (Environment issue)
+     - **Blocked on other issue**: None
+  - Issue 3: 
+     - **Description**: The backend silently filters out  from a project if the corresponding user no longer exists. The agent implemented a UI fix to show a warning, but the underlying data inconsistency remains.
+     - **Attempted fixes**: Added a warning banner in  and  that appears if the number of rendered team members doesn't match the number of IDs.
+     - **Next debug checklist**: Consider creating a one-time backend script or a secure admin endpoint to scan all projects and remove dangling  to clean up the database.
+     - **Why fix this issue and what will be achieved with the fix?**: While the UI is now robust, cleaning the data prevents potential future issues and improves data integrity.
+     - **Status**:  NOT STARTED
+     - **Is recurring issue?** Y
+     - **Should Test frontend/backend/both after fix?**: backend
+     - **Blocked on other issue**: None
 
 **In progress Task List**:
-  - Task 1:  Complete Gantt Task Selection for Status Sharing (P0)
+  - Task 1:  Complete Editable Expenses Feature (P0)
 
  Task Detail:
   - Task 1: 
-     - **Where to resume**: .
-        1. The state  has been added.
-        2. In the JSX for the Gantt Chart view, modify the rendering of each task bar (). Wrap each task in a .
-        3. Implement the  handler to toggle the task's ID in the  state array.
-        4. Add visual feedback for selected tasks (e.g., change border color, add a checkmark icon).
-        5. Add a Share Selected button within the Gantt view that uses the  state. This button's functionality needs to be connected to the status update creation logic.
-     - **What will be achieved with this?**: Fulfills the user's request to allow sharing a selection of specific tasks (with photos) from the Gantt chart view.
+     - **Where to resume**: 
+       1. Add the necessary styles for the new Edit button to the  in .
+       2. Populate the file . This involves copying the form structure from , fetching the specific expense data using its ID from the route params, pre-filling the form fields with that data, and implementing the  handler to call the  endpoint.
+     - **What will be achieved with this?**: Users will be able to modify existing expense records, fulfilling a direct user request.
      - **Status**:  IN PROGRESS
      - **Should Test frontend/backend/both after fix?**: frontend
      - **Blocked on something**: None.
 
 **Upcoming and Future Tasks**
  Upcoming Tasks:
-    - **P1 - Full Editability of Estimates:** As requested in a previous session, verify that when an estimate is in Edit mode, all fields are truly editable.
-    - **P1 - Complete Specification Upload Backend:** The backend endpoint  is a stub and needs to be fully implemented to parse Excel and PDF files.
+    - **P1 - Frontend for Document Features**: The backend is complete. The frontend UI now needs to be built for:
+        - **Company Settings Page**: In , build the form to update company name/address and a component to handle logo uploads via the  endpoint.
+        - **Estimate Review/Approval UI**: On the estimate detail page, add buttons for Review and Approve that are only visible to users with the correct roles ('project_manager'/'admin'). These buttons should call the new backend endpoints. Display the Reviewed by and Approved by information (name, date, comments) on the estimate card.
+    - **P1 - Editable Estimate Line Items**: The backend APIs are ready. The frontend for an estimate needs to be enhanced to allow adding new items, editing existing ones (description, quantity, rate), and deleting items. This will likely involve a dynamic form or a list of editable inputs.
  Future Tasks:
-    - **P2 - Advanced Preset Features:** Implement version history for presets and a check to prevent deletion of presets that are currently in use.
-    - **P2 - Add Tests:** Create unit and E2E tests for the new Project Chart, Status Sharing, and enhanced Task/Milestone features to prevent regressions.
+    - **P2 - Add E2E and Unit Tests**: Create tests for the new major features (Dashboard widgets, PDF Generation, Import/Export, Project ID Generation) to ensure stability and prevent regressions.
 
 **Completed work in this session**
-- **Feature: Lead Estimates Display**: Completed the UI to display a list of estimates on the Lead Detail page.
-- **Feature: Project Chart UI**: Built a new Project Chart page with switchable Tree, Gantt, and Kanban views.
-- **Feature: Task Creation within Milestones**: Updated the UI to allow creating tasks directly from a milestone in the Project Chart.
-- **Feature: Cost Tracking for Tasks**: Implemented UI and logic for adding/editing  and  on tasks.
-- **Feature: Milestone Page Redesign**: The milestones list is now an accordion-style view that shows nested tasks under each milestone.
-- **Feature: Project Status Sharing**: Implemented a major new feature for creating and sharing project status updates with text, photos (with compression), and Gantt chart views.
-- **Feature: Dashboard Status Widget**: Added a Recent Status Updates widget to the main dashboard.
-- **Feature: Saved Updates on Project Card**: Status updates are now saved and listed on the project detail page.
-- **Bug Fix: Task Edit Route**: Fixed an Unmatched Route error by creating the  page.
-- **Bug Fix: Backend  Type**: Fixed a backend bug where a task's  field was a string instead of a list.
-- **Bug Fix: Backend Gantt Data Serialization**: Fixed multiple backend crashes related to  serialization in project data, particularly with .
-- **UI Polish: Create Task Fonts**: Redesigned fonts and colors on the Create Task page for better readability.
+- **Feature: Unique Project ID Generation**: Implemented a system to assign unique, sequential IDs () to all new projects.
+- **Feature: Revamped Dashboard & Business Insights**: Overhauled the main dashboard, removing unused actions and adding new widgets for financial summaries, project health, and lead conversion funnels, with role-based permissions.
+- **Feature: PDF Status Reports**: Implemented on-device PDF generation for project status updates. The PDF includes a professional header with company logo, project details, team names, and embeds any associated photos.
+- **Feature: Comprehensive Import/Export Module**: Created a new admin page for importing and exporting data (Leads, Projects, Tasks, Estimates). This includes backend APIs, frontend UI, and downloadable CSV templates.
+- **Feature: Backend for Document Management**: Built all necessary backend models and API endpoints to manage company settings (logo, address) and a full review/approval workflow for estimates.
+- **Fix: Labor Report Download**: Repaired the non-functional Download Labor Report feature.
+- **Fix: Lead Estimate Display**: Solved a backend bug that prevented estimates created for a lead from being displayed on the lead's detail page.
+- **Fix: Dashboard Not Loading**: Investigated and fixed an authentication issue that was preventing dashboard stats from loading.
+- **Fix: Company Settings Page Not Loading**: Resolved an issue that caused the company settings page to be stuck on a loading screen.
+- **UI: Team Member Sync Warning**: Added a defensive UI warning to gracefully handle cases where project team members cannot be loaded due to inconsistent data.
 
 **Earlier issues found/mentioned but not fixed**
-   - **Issue 1**: Team Member Sync (Data Integrity Problem)
-     - **Debug checklist**: See All Pending/In progress Issue list.
-     - **Why to solve this issue and what will be achieved with this?**: To make the UI more resilient to inconsistent data and provide better user feedback.
-     - **Should Test frontend/backend/both after fix**: frontend
+   - **Issue 1**: Team Member Sync (Data Integrity)
+     - **Debug checklist**: A UI workaround is in place. The next step to truly fix this is to create a backend script or an admin-only API endpoint that iterates through all projects and removes any  that do not correspond to an existing user in the  collection.
+     - **Why to solve this issue and what will be achieved with this?**: Fixes the root cause of inconsistent data in the database, preventing this and potentially other related bugs from occurring in the future.
+     - **Should Test frontend/backend/both after fix**: backend
      - **Is recurring issue?** Y
 
 **Known issue recurrence from previous fork**
-  - **Issue recurrence in previous fork**: Client Portal Login. While not touched in this session, it's a known fragile area.
-  - **Recurrence count**: 4+
-  - **Status**: RESOLVED (in previous session)
+  - **Issue recurrence in this fork**: Dashboard Data Not Loading
+  - **Description**: The user reported Dashboard seems not loading the new features or widgets. This happened twice in the session. The agent applied one fix that worked temporarily, but the problem came back, indicating a more complex underlying issue.
+  - **Recurrence count**: 2 (in this session)
+  - **Status**: IN PROGRESS
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Backend:** FastAPI, Pydantic model extension, fixing data serialization bugs (), debugging data integrity vs. code bugs.
-- **Frontend:** React Native with Expo Router, file-based routing and layouts, complex state management for new features, creating reusable components (modals), integrating new libraries (), image compression, conditional rendering.
+- **Backend**: FastAPI, Pydantic, MongoDB, role-based access control (RBAC) on API endpoints, custom project ID generation with sequential counters, data import/export with Pandas.
+- **Frontend**: React Native with Expo Router, complex state management (, ), dynamic UI based on user roles.
+- **File & Document Handling**:
+  - PDF Generation on-device using  and dynamic HTML string templates.
+  - File Sharing using .
+  - File System access using  for writing temporary files (PDFs, CSVs).
+  - CSV parsing and generation for import/export.
 
 **key DB schema**
-  - **milestones**: { ..., : float, : float, : float, : str }
-  - **tasks**: { ..., : str, : float, : float }
-  - **project_status_updates**: { : str, : str, : str, : List[str], : str, : str, : str, : datetime, : List[str] }
+  - **projects**: { ..., : str }
+  - **estimates**: { ..., : ObjectId, : datetime, : str, : ObjectId, : datetime, : str }
+  - **company_settings**: { , : str, : str, : str, : str, : str } (single document collection)
 
 **changes in tech stack**
-  - Added  for frontend image compression.
+  - Added  and  for PDF generation.
+  - Added  for the universal share sheet.
 
 **All files of reference**
-- : Where the current  work is located.
-- : The location of the  dashboard widget bug.
-- : Contains the majority of the new backend logic and bug fixes.
-- : Defines the new data structures for all the features.
-- : The newly created project chart screen.
-- : Relevant for the data integrity issue.
+- : The file for the current  task.
+- : Location of the recurring dashboard loading bug.
+- : Stub file for the upcoming company settings UI task.
+- : Contains the new PDF generation and sharing logic.
+- : Contains all the new backend logic for recent features.
+- : Defines the new data structures.
 
 **Areas that need refactoring**:
-- The new  file is becoming very large and manages multiple complex states (Gantt data, new update form, task selection, modals). It could be broken down into smaller components like , , .
-- The dashboard file  is also very large. The new Recent Status Updates widget could be extracted into its own component.
+- The main dashboard file  is now extremely large and complex. Each major section (Quick Actions, Business Insights, Project Health, etc.) should be extracted into its own reusable component to improve readability and maintainability.
+- The project status page  is also very large, handling data fetching, multiple view modes, and PDF generation. The PDF HTML generation logic, in particular, could be moved to a separate utility function.
 
 **key api endpoints**
-- : Fetches all estimates for a given lead.
-- : Creates a new project status update.
-- : Gets all status updates for a project.
-- : Gets the 5 most recent status updates across all projects for the user.
-- : Deletes a status update.
-- : Fetches data for Gantt chart (bug fixed in this session).
+- : Fetches all stats for the new dashboard widgets.
+- : Manage company information.
+- : Upload company logo.
+- : Mark an estimate as reviewed.
+- : Mark an estimate as approved.
+- : Get a list of available data types for export.
+- : Export data as a CSV file.
+- : Import data from a CSV file.
+- : Updated to generate and assign a unique .
 
 **Critical Info for New Agent**
-- **Your immediate task (P0) is to finish the Gantt task selection feature.** Resume work in . You need to add  to the Gantt task items and manage their selection state in .
-- **Your next priority (P1) is to fix the dashboard widget.** The user has reported it's not showing any data. You need to debug the API call and rendering logic in .
-- **The Team Sync Issue is a DATA problem, not a code bug.** The backend correctly filters out non-existent user IDs. Your task here is to make the frontend handle this gracefully (see Pending Issues) rather than trying to fix the backend logic.
-- **Web Preview Auth:** Be aware that some pages requiring authentication (like the Milestones list) may appear broken or empty in the web preview because it lacks a login session. The code is likely correct and will work in the mobile app.
+- **Your immediate task (P0) is to complete the Editable Expenses feature.** You need to build out the form in  and add styles to .
+- **The dashboard loading issue is a recurring P0 bug.** The user has reported it twice. Your top priority after expenses should be to definitively solve this. It's likely a state management or auth issue specific to the web preview environment.
+- **The backend for major upcoming features is already complete.** You can immediately start building the frontend for the Company Settings page and the Estimate Review/Approve UI without needing to write new backend code.
+- **The mobile preview environment has been unstable.** Be prepared to troubleshoot tunnel/connectivity issues if the user reports problems with Expo Go. Do not spend too much time on it; focus on delivering features that can be verified via the web preview if necessary.
+- **A new Import/Export system exists.** You can direct the user to  for any bulk data management needs. Sample templates are located in .
 
 **documents created in this job**
   - 
   - 
   - 
   - 
+  - 
+  - 
+  - 
+  - 
+  - 
 
 **Last 10 User Messages and any pending user messages**
-- **(508) User:** Requested selectable tasks within the Gantt Chart view on the status sharing page. Also reported the dashboard isn't reflecting changes. - **Status: In Progress**
-- **(507) Agent:** Confirmed a backend serialization fix and asked for testing. - **Status: Actioned**
-- **(494) User:** continue - **Status: Actioned**
-- **(437) User:** Requested task selection, image compression, and saving updates for the Project Status feature. - **Status: Partially Completed** (Task selection is done for the form, not the Gantt view. Image compression and saving are done).
-- **(412) User:** Reported Error- There was a problem running frontend. - **Status: Completed** (Fixed).
-- **(383) User:** yes (to adding the status widget to the dashboard). - **Status: Completed** (but buggy).
-- **(294) User:** Reported Unmatched Route on task edit and requested the Project Status Sharing feature. - **Status: Completed** (Route fixed, feature implemented).
-- **(263) User:** Requested the Milestones page to show tasks underneath each milestone. - **Status: Completed**.
-- **(248) User:** Requested a font redesign on the Create Task page. - **Status: Completed**.
-- **(175) User:** Requested the ability to create tasks in milestones and add actual cost entry. - **Status: Completed**.
+-  - **IN PROGRESS**
+-  - **COMPLETED**
+-  - **IN PROGRESS (Recurring Issue)**
+-  - **COMPLETED**
+-  (re: import/export) - **COMPLETED**
+-  (re: import/export) - **COMPLETED**
+-  - **COMPLETED**
+-  - **COMPLETED**
+-  - **COMPLETED**
+-  - **COMPLETED** (by switching to PDF)
 
 **Project Health Check:**
-- **Mostly Healthy**: The application is functional and has significantly more features than at the start of the session.
-- **Broken**: The dashboard widget for status updates is not displaying data, as reported by the user.
+- **Broken**: The dashboard data loading is unreliable and a recurring bug, blocking visibility of new features. The mobile preview via Expo Go is also unstable, hindering user testing.
 - **Mocked**: None.
 
 **3rd Party Integrations**
--  - Used for compressing images on the frontend before upload.
+-  - Used for compressing images on the frontend.
+-  /  - Used for generating PDF documents from HTML.
+-  - Used for opening the native OS share sheet.
+-  - Used for managing temporary files (images, PDFs, CSVs) on the device.
 
 **Testing status**
   - Testing agent used after significant changes: NO
-  - Troubleshoot agent used after agent stuck in loop: NO
+  - Troubleshoot agent used after agent stuck in loop: YES (for mobile preview issue)
   - Test files created: []
-  - Known regressions: The dashboard status widget is not working correctly.
+  - Known regressions: Dashboard widgets not loading reliably.
 
 **Credentials to test flow:**
 - **Admin/Manager:**  / 
 - **Engineer/User:**  / 
+- **Project Manager:** (A user with this role may need to be created/assigned to test estimate reviews)
 
 **What agent forgot to execute**
-- The agent implemented the Recent Status Updates widget on the dashboard but failed to test it or verify it was displaying data. The user had to report that it was not working, indicating a gap in the agent's verification process.
+- The agent did not perform thorough verification after fixing the dashboard loading issue. The user immediately reported that the problem persisted, indicating the agent's fix was incomplete or their testing was insufficient. The agent should have used the screenshot tool and logged in as the correct user to confirm all widgets were rendering before marking it as fixed.
 
 </analysis>

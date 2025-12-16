@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://buildtrack-91.preview.emergentagent.com/api"
+BASE_URL = "https://build-track-4.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@test.com"
 ADMIN_PASSWORD = "admin123"
 MANAGER_EMAIL = "crm.manager@test.com"
