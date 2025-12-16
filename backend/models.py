@@ -2271,13 +2271,39 @@ class EstimateUpdate(BaseModel):
     material_escalation_percent: Optional[float] = None
     notes: Optional[str] = None
 
+# Model for adding/updating individual line items
+class EstimateLineCreate(BaseModel):
+    category: BOQCategory
+    item_name: str
+    description: Optional[str] = None
+    unit: str
+    quantity: float
+    rate: float
+
+class EstimateLineUpdate(BaseModel):
+    item_name: Optional[str] = None
+    description: Optional[str] = None
+    unit: Optional[str] = None
+    quantity: Optional[float] = None
+    rate: Optional[float] = None
+
 class EstimateResponse(EstimateBase):
     id: str
     lines: List[EstimateLineResponse] = []  # BOQ line items
     created_by: Optional[str] = None
+    created_by_name: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     updated_by: Optional[str] = None
+    # Review & Approval workflow
+    reviewed_by: Optional[str] = None
+    reviewed_by_name: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    review_comments: Optional[str] = None
+    approved_by: Optional[str] = None
+    approved_by_name: Optional[str] = None
+    approved_at: Optional[datetime] = None
+    approval_comments: Optional[str] = None
 
 class EstimateSummary(BaseModel):
     id: str
@@ -2290,6 +2316,71 @@ class EstimateSummary(BaseModel):
     cost_per_sqft: float
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    # Review & Approval info
+    reviewed_by_name: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    approved_by_name: Optional[str] = None
+    approved_at: Optional[datetime] = None
+
+
+# ============= Company Settings =============
+
+class CompanySettings(BaseModel):
+    company_name: str
+    logo_url: Optional[str] = None  # URL or base64 encoded image
+    logo_base64: Optional[str] = None  # Base64 encoded logo for documents
+    address_line1: str
+    address_line2: Optional[str] = None
+    city: str
+    state: str
+    pincode: str
+    country: str = "India"
+    phone: str
+    email: EmailStr
+    website: Optional[str] = None
+    gst_number: Optional[str] = None
+    pan_number: Optional[str] = None
+    # Bank details for invoices
+    bank_name: Optional[str] = None
+    bank_account_number: Optional[str] = None
+    bank_ifsc: Optional[str] = None
+    bank_branch: Optional[str] = None
+    # Document settings
+    estimate_terms: Optional[str] = None  # Default terms for estimates
+    invoice_terms: Optional[str] = None  # Default terms for invoices
+    # Branding
+    primary_color: Optional[str] = "#F97316"  # Orange
+    secondary_color: Optional[str] = "#1F2937"  # Dark gray
+
+class CompanySettingsUpdate(BaseModel):
+    company_name: Optional[str] = None
+    logo_url: Optional[str] = None
+    logo_base64: Optional[str] = None
+    address_line1: Optional[str] = None
+    address_line2: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pincode: Optional[str] = None
+    country: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    website: Optional[str] = None
+    gst_number: Optional[str] = None
+    pan_number: Optional[str] = None
+    bank_name: Optional[str] = None
+    bank_account_number: Optional[str] = None
+    bank_ifsc: Optional[str] = None
+    bank_branch: Optional[str] = None
+    estimate_terms: Optional[str] = None
+    invoice_terms: Optional[str] = None
+    primary_color: Optional[str] = None
+    secondary_color: Optional[str] = None
+
+class CompanySettingsResponse(CompanySettings):
+    id: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    updated_by: Optional[str] = None
 
 
 # ============= Construction Presets =============
