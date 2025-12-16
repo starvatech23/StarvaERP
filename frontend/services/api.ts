@@ -303,6 +303,8 @@ export const expensesAPI = {
   create: (data: any) => api.post('/expenses', data),
   getAll: (projectId?: string, category?: string, startDate?: string, endDate?: string) => 
     api.get('/expenses', { params: { project_id: projectId, category, start_date: startDate, end_date: endDate } }),
+  getById: (id: string) => api.get(`/expenses/${id}`),
+  update: (id: string, data: any) => api.put(`/expenses/${id}`, data),
   delete: (id: string) => api.delete(`/expenses/${id}`),
 };
 
