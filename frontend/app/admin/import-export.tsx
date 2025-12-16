@@ -56,7 +56,7 @@ export default function ImportExportScreen() {
 
   const loadDataCounts = async () => {
     try {
-      const response = await api.get('/admin/export/list');
+      const response = await api.get('/admin/export-options');
       setDataCounts(response.data.counts || {});
     } catch (error) {
       console.log('Failed to load counts:', error);
