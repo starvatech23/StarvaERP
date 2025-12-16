@@ -241,7 +241,7 @@ export default function ImportExportScreen() {
               <ActivityIndicator size="small" color="#3B82F6" />
             ) : (
               <>
-                <Ionicons name="upload-outline" size={18} color="#3B82F6" />
+                <Ionicons name="cloud-upload" size={18} color="#3B82F6" />
                 <Text style={[styles.actionText, { color: '#3B82F6' }]}>Import</Text>
               </>
             )}
