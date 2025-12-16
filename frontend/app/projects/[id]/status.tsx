@@ -408,12 +408,12 @@ export default function ProjectStatusScreen() {
         }
         
         // Write base64 to file using string encoding type
-        await FileSystem.writeAsStringAsync(fileUri, base64Content, {
+        await LegacyFileSystem.writeAsStringAsync(fileUri, base64Content, {
           encoding: 'base64',
         });
         
         // Verify file was created
-        const fileInfo = await FileSystem.getInfoAsync(fileUri);
+        const fileInfo = await LegacyFileSystem.getInfoAsync(fileUri);
         if (fileInfo.exists) {
           console.log('Image saved successfully:', fileUri);
           return fileUri;
