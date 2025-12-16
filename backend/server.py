@@ -7685,6 +7685,8 @@ async def get_export_options(
         counts["vendors"] = await db.vendors.count_documents({})
         counts["materials"] = await db.materials.count_documents({})
         counts["workers"] = await db.workers.count_documents({})
+        counts["tasks"] = await db.tasks.count_documents({})
+        counts["estimates"] = await db.estimates.count_documents({})
     except:
         pass
     
