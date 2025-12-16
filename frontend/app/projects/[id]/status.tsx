@@ -114,17 +114,19 @@ export default function ProjectStatusScreen() {
 
   const loadData = async () => {
     try {
-      const [projectRes, updatesRes, tasksRes] = await Promise.all([
+      const [projectRes, updatesRes, tasksRes, settingsRes] = await Promise.all([
         projectsAPI.getById(id as string),
         statusUpdatesAPI.getByProject(
           id as string, 
           frequencyFilter === 'all' ? undefined : frequencyFilter
         ),
         tasksAPI.getAll(id as string),
+        companySettingsAPI.get().catch(() => ({ data: null })),
       ]);
       setProject(projectRes.data);
       setUpdates(updatesRes.data || []);
       setTasks(tasksRes.data || []);
+      setCompanySettings(settingsRes.data);
       
       // Load Gantt data
       const ganttRes = await statusUpdatesAPI.getGanttData(id as string, ganttView);
