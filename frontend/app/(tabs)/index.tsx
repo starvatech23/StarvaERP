@@ -17,9 +17,9 @@ import { useRouter } from 'expo-router';
 import { PieChart, BarChart } from 'react-native-chart-kit';
 import Colors from '../../constants/Colors';
 import { statusUpdatesAPI } from '../../services/api';
+import api from '../../services/api';
 
 const { width } = Dimensions.get('window');
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 interface StatusUpdate {
   id: string;
@@ -48,15 +48,10 @@ export default function DashboardScreen() {
 
   const loadDashboardData = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/dashboard/stats`, {
-        headers: {
-          'Authorization': `Bearer ${global.userToken}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
+      // Use the api service which handles auth automatically
+      const response = await api.get('/dashboard/stats');
+      if (response.data) {
+        setStats(response.data);
       }
       
       // Load recent status updates
