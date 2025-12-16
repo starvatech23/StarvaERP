@@ -118,6 +118,22 @@ export default function AdminDashboard() {
       route: '/admin/construction-presets',
       description: 'Manage estimation & construction presets',
     },
+    {
+      title: 'Import & Export',
+      icon: 'swap-horizontal',
+      color: '#14B8A6',
+      count: null,
+      route: '/admin/import-export',
+      description: 'Bulk import/export data',
+    },
+    {
+      title: 'Company Settings',
+      icon: 'business',
+      color: '#F97316',
+      count: null,
+      route: '/admin/company-settings',
+      description: 'Logo, address & branding',
+    },
   ];
 
   if (loading) {
