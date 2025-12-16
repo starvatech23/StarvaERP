@@ -62,6 +62,11 @@ export default function CompanySettingsScreen() {
   });
 
   useEffect(() => {
+    // Don't block loading if user isn't loaded yet
+    if (user === null) {
+      // Wait for user to load
+      return;
+    }
     if (user?.role !== 'admin') {
       Alert.alert('Access Denied', 'Only admins can access this page', [
         { text: 'OK', onPress: () => router.back() }
@@ -79,6 +84,17 @@ export default function CompanySettingsScreen() {
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
+      // Set default values on error
+      setSettings({
+        company_name: 'Your Company',
+        address_line1: '',
+        city: '',
+        state: '',
+        pincode: '',
+        country: 'India',
+        phone: '',
+        email: '',
+      });
     } finally {
       setLoading(false);
     }
