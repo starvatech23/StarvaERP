@@ -8100,8 +8100,8 @@ async def review_estimate(
     try:
         current_user = await get_current_user(credentials)
         
-        # Only project_manager can review
-        if current_user["role"] not in ["admin", "project_manager"]:
+        # Project Manager or CRM Manager can review
+        if current_user["role"] not in ["admin", "project_manager", "crm_manager"]:
             raise HTTPException(status_code=403, detail="Only Project Manager can review estimates")
         
         estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
