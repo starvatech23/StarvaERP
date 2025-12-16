@@ -7523,6 +7523,14 @@ async def export_data(
             data = await db.workers.find({}).to_list(10000)
             fields = EXPORT_TEMPLATES["workers"]["fields"]
         
+        elif data_type == "tasks":
+            data = await db.tasks.find({}).to_list(10000)
+            fields = ["id", "title", "description", "status", "priority", "project_id", "milestone_id", "assigned_to", "start_date", "due_date", "estimated_cost", "actual_cost", "created_at"]
+        
+        elif data_type == "estimates":
+            data = await db.estimates.find({}).to_list(10000)
+            fields = ["id", "project_id", "lead_id", "version", "version_name", "status", "built_up_area_sqft", "grand_total", "cost_per_sqft", "reviewed_by_name", "reviewed_at", "approved_by_name", "approved_at", "created_at"]
+        
         else:
             raise HTTPException(status_code=400, detail=f"Unknown data type: {data_type}")
         
