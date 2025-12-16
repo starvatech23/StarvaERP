@@ -389,20 +389,54 @@ export default function ProjectStatusScreen() {
   const generateStatusPdfHtml = (update: StatusUpdate): string => {
     const projectName = project?.name || 'Project';
     const dateStr = formatDate(update.created_at);
+    const todayDate = new Date().toLocaleDateString('en-IN', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric' 
+    });
+    
+    // Company details
+    const companyName = companySettings?.company_name || 'Starva Constructions';
+    const companyLogo = companySettings?.logo_base64 || '';
+    const companyAddress = [
+      companySettings?.address_line1,
+      companySettings?.address_line2,
+      companySettings?.city,
+      companySettings?.state,
+      companySettings?.pincode
+    ].filter(Boolean).join(', ') || '';
+    const companyPhone = companySettings?.phone || '';
+    const companyEmail = companySettings?.email || '';
+    
+    // Project details
+    const projectLocation = project?.location || project?.address || '';
+    const projectManager = project?.project_manager_name || project?.manager_name || '';
+    const clientName = project?.client_name || '';
+    
+    // Get team members by role
+    const projectEngineer = project?.team_members?.find((m: any) => 
+      m.role_name?.toLowerCase().includes('engineer') || 
+      m.role?.toLowerCase().includes('engineer')
+    )?.full_name || '';
+    
+    const operationsExecutive = project?.team_members?.find((m: any) => 
+      m.role_name?.toLowerCase().includes('operations') || 
+      m.role_name?.toLowerCase().includes('executive') ||
+      m.role?.toLowerCase().includes('operations')
+    )?.full_name || '';
     
     // Generate photo HTML - photos are already base64 with data URI
     let photosHtml = '';
     if (update.photos && update.photos.length > 0) {
       const photoElements = update.photos.map((photo, index) => {
-        // Ensure proper data URI format
         const photoSrc = photo.startsWith('data:') ? photo : `data:image/jpeg;base64,${photo}`;
-        return `<img src="${photoSrc}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin: 5px;" />`;
+        return `<img src="${photoSrc}" style="width: 100%; max-width: 280px; height: auto; border-radius: 8px; margin: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />`;
       }).join('');
       
       photosHtml = `
-        <div style="margin-top: 20px;">
-          <h3 style="color: #374151; margin-bottom: 10px;">📷 Site Photos</h3>
-          <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <div style="margin-top: 20px; page-break-inside: avoid;">
+          <h3 style="color: #374151; margin-bottom: 10px; font-size: 16px;">📷 Site Photos</h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start;">
             ${photoElements}
           </div>
         </div>
@@ -416,93 +450,287 @@ export default function ProjectStatusScreen() {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; color: #1F2937; }
-            .header { background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-            .header h1 { margin: 0 0 5px 0; font-size: 20px; }
-            .header p { margin: 0; opacity: 0.9; font-size: 14px; }
-            .card { background: #F9FAFB; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #E5E7EB; }
-            .stats { display: flex; justify-content: space-between; text-align: center; }
+            * { box-sizing: border-box; }
+            body { 
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+              padding: 0; 
+              margin: 0;
+              color: #1F2937; 
+              font-size: 12px;
+            }
+            .page { padding: 20px; }
+            .company-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              padding-bottom: 15px;
+              border-bottom: 2px solid #F97316;
+              margin-bottom: 15px;
+            }
+            .company-logo-section {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+            }
+            .company-logo {
+              width: 60px;
+              height: 60px;
+              object-fit: contain;
+            }
+            .company-info h1 {
+              margin: 0 0 4px 0;
+              font-size: 20px;
+              color: #F97316;
+              font-weight: 700;
+            }
+            .company-info p {
+              margin: 0;
+              font-size: 10px;
+              color: #6B7280;
+              line-height: 1.4;
+            }
+            .report-title {
+              text-align: right;
+            }
+            .report-title h2 {
+              margin: 0 0 4px 0;
+              font-size: 16px;
+              color: #1F2937;
+              font-weight: 600;
+            }
+            .report-title p {
+              margin: 0;
+              font-size: 11px;
+              color: #6B7280;
+            }
+            .project-details {
+              background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+              border-radius: 10px;
+              padding: 15px;
+              margin-bottom: 15px;
+              border: 1px solid #FDBA74;
+            }
+            .project-details h3 {
+              margin: 0 0 10px 0;
+              font-size: 14px;
+              color: #C2410C;
+              border-bottom: 1px solid #FDBA74;
+              padding-bottom: 8px;
+            }
+            .details-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 8px;
+            }
+            .detail-item {
+              display: flex;
+              flex-direction: column;
+            }
+            .detail-label {
+              font-size: 9px;
+              color: #9A3412;
+              font-weight: 600;
+              text-transform: uppercase;
+              margin-bottom: 2px;
+            }
+            .detail-value {
+              font-size: 12px;
+              color: #1F2937;
+              font-weight: 500;
+            }
+            .card { 
+              background: #F9FAFB; 
+              border-radius: 10px; 
+              padding: 14px; 
+              margin-bottom: 12px; 
+              border: 1px solid #E5E7EB; 
+            }
+            .stats { 
+              display: flex; 
+              justify-content: space-between; 
+              text-align: center; 
+            }
             .stat { flex: 1; }
-            .stat-value { font-size: 24px; font-weight: bold; color: #1F2937; }
-            .stat-label { font-size: 12px; color: #6B7280; }
-            .progress-bar { height: 8px; background: #E5E7EB; border-radius: 4px; overflow: hidden; margin-top: 10px; }
-            .progress-fill { height: 100%; background: #10B981; border-radius: 4px; }
-            .section { margin-bottom: 16px; }
-            .section-title { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
-            .section-content { font-size: 14px; color: #4B5563; line-height: 1.5; }
-            .footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid #E5E7EB; font-size: 12px; color: #9CA3AF; }
-            .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+            .stat-value { font-size: 22px; font-weight: bold; color: #1F2937; }
+            .stat-label { font-size: 10px; color: #6B7280; }
+            .progress-bar { 
+              height: 8px; 
+              background: #E5E7EB; 
+              border-radius: 4px; 
+              overflow: hidden; 
+              margin-top: 10px; 
+            }
+            .progress-fill { 
+              height: 100%; 
+              background: linear-gradient(90deg, #10B981 0%, #059669 100%); 
+              border-radius: 4px; 
+            }
+            .section { margin-bottom: 12px; }
+            .section-title { 
+              font-size: 12px; 
+              font-weight: 600; 
+              color: #374151; 
+              margin-bottom: 6px; 
+            }
+            .section-content { 
+              font-size: 12px; 
+              color: #4B5563; 
+              line-height: 1.5; 
+            }
+            .footer { 
+              margin-top: 20px; 
+              padding-top: 12px; 
+              border-top: 1px solid #E5E7EB; 
+              font-size: 10px; 
+              color: #9CA3AF;
+              display: flex;
+              justify-content: space-between;
+            }
+            .badge { 
+              display: inline-block; 
+              padding: 3px 8px; 
+              border-radius: 10px; 
+              font-size: 10px; 
+              font-weight: 600; 
+            }
             .badge-daily { background: #DBEAFE; color: #1D4ED8; }
             .badge-weekly { background: #D1FAE5; color: #047857; }
             .badge-monthly { background: #FEF3C7; color: #B45309; }
+            .update-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 10px;
+            }
           </style>
         </head>
         <body>
-          <div class="header">
-            <h1>📊 Project Status Update</h1>
-            <p>${projectName}</p>
-          </div>
-          
-          <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <span class="badge badge-${update.frequency}">${update.frequency.toUpperCase()}</span>
-              <span style="font-size: 12px; color: #6B7280;">${dateStr}</span>
-            </div>
-            <h2 style="margin: 0 0 8px 0; font-size: 18px; color: #1F2937;">${update.title}</h2>
-            ${update.description ? `<p style="margin: 0; color: #4B5563; font-size: 14px;">${update.description}</p>` : ''}
-          </div>
-          
-          <div class="card">
-            <div class="section-title">📈 Progress Overview</div>
-            <div class="stats">
-              <div class="stat">
-                <div class="stat-value" style="color: #10B981;">${update.tasks_completed}</div>
-                <div class="stat-label">Completed</div>
+          <div class="page">
+            <!-- Company Header -->
+            <div class="company-header">
+              <div class="company-logo-section">
+                ${companyLogo ? `<img src="${companyLogo}" class="company-logo" />` : ''}
+                <div class="company-info">
+                  <h1>${companyName}</h1>
+                  ${companyAddress ? `<p>${companyAddress}</p>` : ''}
+                  ${companyPhone || companyEmail ? `<p>${[companyPhone, companyEmail].filter(Boolean).join(' | ')}</p>` : ''}
+                </div>
               </div>
-              <div class="stat">
-                <div class="stat-value" style="color: #F59E0B;">${update.tasks_in_progress}</div>
-                <div class="stat-label">In Progress</div>
-              </div>
-              <div class="stat">
-                <div class="stat-value" style="color: #6B7280;">${update.tasks_pending}</div>
-                <div class="stat-label">Pending</div>
-              </div>
-              <div class="stat">
-                <div class="stat-value" style="color: #3B82F6;">${update.overall_progress}%</div>
-                <div class="stat-label">Overall</div>
+              <div class="report-title">
+                <h2>PROJECT STATUS REPORT</h2>
+                <p>Generated: ${todayDate}</p>
               </div>
             </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: ${update.overall_progress}%;"></div>
+            
+            <!-- Project Details Section -->
+            <div class="project-details">
+              <h3>📋 Project Information</h3>
+              <div class="details-grid">
+                <div class="detail-item">
+                  <span class="detail-label">Project Name</span>
+                  <span class="detail-value">${projectName}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Client</span>
+                  <span class="detail-value">${clientName || '-'}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Location</span>
+                  <span class="detail-value">${projectLocation || '-'}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Report Date</span>
+                  <span class="detail-value">${dateStr}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Project Manager</span>
+                  <span class="detail-value">${projectManager || '-'}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Project Engineer</span>
+                  <span class="detail-value">${projectEngineer || '-'}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Operations Executive</span>
+                  <span class="detail-value">${operationsExecutive || '-'}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Update Frequency</span>
+                  <span class="detail-value">${update.frequency.charAt(0).toUpperCase() + update.frequency.slice(1)}</span>
+                </div>
+              </div>
             </div>
-          </div>
-          
-          ${update.weather ? `
-            <div class="section">
-              <div class="section-title">🌤️ Weather Conditions</div>
-              <div class="section-content">${update.weather}</div>
+            
+            <!-- Status Update Card -->
+            <div class="card">
+              <div class="update-header">
+                <span class="badge badge-${update.frequency}">${update.frequency.toUpperCase()} UPDATE</span>
+                <span style="font-size: 11px; color: #6B7280;">${dateStr}</span>
+              </div>
+              <h2 style="margin: 0 0 8px 0; font-size: 16px; color: #1F2937;">${update.title}</h2>
+              ${update.description ? `<p style="margin: 0; color: #4B5563; font-size: 12px; line-height: 1.5;">${update.description}</p>` : ''}
             </div>
-          ` : ''}
-          
-          ${update.issues ? `
-            <div class="card" style="border-color: #FECACA; background: #FEF2F2;">
-              <div class="section-title" style="color: #DC2626;">⚠️ Issues / Blockers</div>
-              <div class="section-content">${update.issues}</div>
+            
+            <!-- Progress Overview -->
+            <div class="card">
+              <div class="section-title">📈 Progress Overview</div>
+              <div class="stats">
+                <div class="stat">
+                  <div class="stat-value" style="color: #10B981;">${update.tasks_completed}</div>
+                  <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-value" style="color: #F59E0B;">${update.tasks_in_progress}</div>
+                  <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-value" style="color: #6B7280;">${update.tasks_pending}</div>
+                  <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-value" style="color: #3B82F6;">${update.overall_progress}%</div>
+                  <div class="stat-label">Overall</div>
+                </div>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${update.overall_progress}%;"></div>
+              </div>
             </div>
-          ` : ''}
-          
-          ${update.next_steps ? `
-            <div class="card" style="border-color: #BFDBFE; background: #EFF6FF;">
-              <div class="section-title" style="color: #2563EB;">➡️ Next Steps</div>
-              <div class="section-content">${update.next_steps}</div>
+            
+            ${update.weather ? `
+              <div class="section">
+                <div class="section-title">🌤️ Weather Conditions</div>
+                <div class="section-content">${update.weather}</div>
+              </div>
+            ` : ''}
+            
+            ${update.issues ? `
+              <div class="card" style="border-color: #FECACA; background: #FEF2F2;">
+                <div class="section-title" style="color: #DC2626;">⚠️ Issues / Blockers</div>
+                <div class="section-content">${update.issues}</div>
+              </div>
+            ` : ''}
+            
+            ${update.next_steps ? `
+              <div class="card" style="border-color: #BFDBFE; background: #EFF6FF;">
+                <div class="section-title" style="color: #2563EB;">➡️ Next Steps</div>
+                <div class="section-content">${update.next_steps}</div>
+              </div>
+            ` : ''}
+            
+            ${photosHtml}
+            
+            <!-- Footer -->
+            <div class="footer">
+              <div>
+                <p style="margin: 0;">Prepared by: <strong>${update.created_by_name}</strong></p>
+                <p style="margin: 2px 0 0 0;">Date: ${dateStr}</p>
+              </div>
+              <div style="text-align: right;">
+                <p style="margin: 0; color: #F97316; font-weight: 500;">${companyName}</p>
+                <p style="margin: 2px 0 0 0;">Building Dreams, Delivering Quality</p>
+              </div>
             </div>
-          ` : ''}
-          
-          ${photosHtml}
-          
-          <div class="footer">
-            <p>Created by: ${update.created_by_name}</p>
-            <p>Date: ${dateStr}</p>
           </div>
         </body>
       </html>
