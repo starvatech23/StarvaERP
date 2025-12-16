@@ -1056,6 +1056,10 @@ const styles = StyleSheet.create({
   infoItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 8 },
   infoText: { flex: 1, fontSize: 13, color: '#4B5563' },
   createdBy: { fontSize: 12, color: '#9CA3AF' },
+  // Update Footer with Share Button
+  updateFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#E5E7EB' },
+  shareUpdateButton: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#25D366', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 },
+  shareUpdateButtonText: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },
   // Gantt Styles
   ganttViewSelector: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 8, padding: 4, marginBottom: 16 },
   ganttViewButton: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
