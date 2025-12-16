@@ -388,12 +388,12 @@ export default function ProjectStatusScreen() {
     try {
       const timestamp = Date.now();
       const filename = `status_photo_${index}_${timestamp}.jpg`;
-      const fileUri = `${FileSystem.cacheDirectory}${filename}`;
+      const fileUri = `${LegacyFileSystem.cacheDirectory}${filename}`;
       
       // Check if it's a URL or base64
       if (imageData.startsWith('http://') || imageData.startsWith('https://')) {
         // Download the image from URL
-        const downloadResult = await FileSystem.downloadAsync(imageData, fileUri);
+        const downloadResult = await LegacyFileSystem.downloadAsync(imageData, fileUri);
         if (downloadResult.status === 200) {
           return downloadResult.uri;
         }
