@@ -390,4 +390,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 12,
   },
+  expenseActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  actionButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
