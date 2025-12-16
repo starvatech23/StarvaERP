@@ -524,3 +524,11 @@ export const statusUpdatesAPI = {
     api.get(`/projects/${projectId}/gantt-data`, { params: { view } }),
 };
 
+// Company Settings API
+export const companySettingsAPI = {
+  get: () => api.get('/company-settings'),
+  update: (data: any) => api.put('/company-settings', data),
+  uploadLogo: (formData: FormData) => api.post('/company-settings/logo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+};
