@@ -7421,6 +7421,47 @@ async def get_dashboard_stats(credentials: HTTPAuthorizationCredentials = Depend
                 "pending_invoices": pending_invoices,
                 "cash_flow": round(month_payments - month_expenses, 2)
             }
+            
+            # Payables & Receivables
+            try:
+                # Payables (vendor bills/purchase orders pending)
+                payables_pipeline = [
+                    {"$match": {"status": {"$in": ["pending", "partial"]}}},
+                    {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+                ]
+                payables_result = await db.purchase_orders.aggregate(payables_pipeline).to_list(1)
+                total_payables = payables_result[0].get("total", 0) if payables_result else 0
+                
+                # Receivables (pending invoices to clients)
+                receivables_pipeline = [
+                    {"$match": {"status": {"$in": ["pending", "sent", "partial"]}}},
+                    {"$group": {"_id": None, "total": {"$sum": "$total_amount"}}}
+                ]
+                receivables_result = await db.invoices.aggregate(receivables_pipeline).to_list(1)
+                total_receivables = receivables_result[0].get("total", 0) if receivables_result else 0
+                
+                # Overdue amounts
+                today = datetime.utcnow()
+                overdue_payables_pipeline = [
+                    {"$match": {"status": {"$in": ["pending", "partial"]}, "due_date": {"$lt": today}}},
+                    {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+                ]
+                overdue_payables_result = await db.purchase_orders.aggregate(overdue_payables_pipeline).to_list(1)
+                overdue_payables = overdue_payables_result[0].get("total", 0) if overdue_payables_result else 0
+                
+                overdue_receivables_pipeline = [
+                    {"$match": {"status": {"$in": ["pending", "sent", "partial"]}, "due_date": {"$lt": today}}},
+                    {"$group": {"_id": None, "total": {"$sum": "$total_amount"}}}
+                ]
+                overdue_receivables_result = await db.invoices.aggregate(overdue_receivables_pipeline).to_list(1)
+                overdue_receivables = overdue_receivables_result[0].get("total", 0) if overdue_receivables_result else 0
+                
+                stats["finance"]["payables"] = round(total_payables or 0, 2)
+                stats["finance"]["receivables"] = round(total_receivables or 0, 2)
+                stats["finance"]["overdue_payables"] = round(overdue_payables or 0, 2)
+                stats["finance"]["overdue_receivables"] = round(overdue_receivables or 0, 2)
+            except Exception as e:
+                print(f"Error calculating payables/receivables: {e}")
         
         # Recent Activity (last 10 items)
         recent_activities = []
