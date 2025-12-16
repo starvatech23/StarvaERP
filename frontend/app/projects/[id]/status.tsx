@@ -624,49 +624,6 @@ export default function ProjectStatusScreen() {
       ]
     );
   };
-            ]
-          );
-          return;
-        }
-      }
-      
-      // No photos or photo saving failed - just send text
-      shareViaWhatsApp(update);
-    } catch (error) {
-      console.error('WhatsApp share error:', error);
-      shareViaWhatsApp(update);
-    }
-  };
-
-  // Show share options modal
-  const showShareOptions = (update: StatusUpdate) => {
-    const clientPhone = project?.client_contact;
-    const hasPhotos = update.photos && update.photos.length > 0;
-    
-    const options = [
-      { text: 'Cancel', style: 'cancel' as const },
-      {
-        text: hasPhotos ? '📤 Share with Photos' : '📤 Share to Other Apps',
-        onPress: () => shareViaOtherApps(update),
-      },
-    ];
-
-    // Add WhatsApp option only if client phone exists
-    if (clientPhone) {
-      options.splice(1, 0, {
-        text: hasPhotos ? `💬 WhatsApp with Photos` : `💬 WhatsApp to Client`,
-        onPress: () => hasPhotos ? shareViaWhatsAppWithPhotos(update) : shareViaWhatsApp(update),
-      });
-    }
-
-    Alert.alert(
-      'Share Status Update',
-      hasPhotos 
-        ? `Share this update with ${update.photos?.length} photo(s)?`
-        : 'Choose how to share this update',
-      options
-    );
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
