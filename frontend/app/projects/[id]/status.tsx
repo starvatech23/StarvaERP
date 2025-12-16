@@ -284,6 +284,143 @@ export default function ProjectStatusScreen() {
     setShowPhotoViewer(true);
   };
 
+  // Format phone number for WhatsApp (remove spaces, add country code if needed)
+  const formatPhoneForWhatsApp = (phone: string): string => {
+    let cleaned = phone.replace(/[\s\-\(\)]/g, '');
+    // If starts with 0, assume Indian number and add 91
+    if (cleaned.startsWith('0')) {
+      cleaned = '91' + cleaned.substring(1);
+    }
+    // If doesn't start with +, assume it needs country code
+    if (!cleaned.startsWith('+') && !cleaned.startsWith('91') && cleaned.length === 10) {
+      cleaned = '91' + cleaned;
+    }
+    // Remove + if present
+    cleaned = cleaned.replace('+', '');
+    return cleaned;
+  };
+
+  // Share update via WhatsApp to client
+  const shareViaWhatsApp = async (update: StatusUpdate) => {
+    const clientPhone = project?.client_contact;
+    
+    if (!clientPhone) {
+      Alert.alert(
+        'No Client Contact',
+        'Client phone number is not available for this project. Please update the project details first.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Build the message
+    const message = buildShareMessage(update);
+    const formattedPhone = formatPhoneForWhatsApp(clientPhone);
+    const whatsappUrl = `whatsapp://send?phone=${formattedPhone}&text=${encodeURIComponent(message)}`;
+
+    try {
+      const canOpen = await Linking.canOpenURL(whatsappUrl);
+      if (canOpen) {
+        await Linking.openURL(whatsappUrl);
+      } else {
+        // Fallback to web WhatsApp
+        const webUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+        await Linking.openURL(webUrl);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Unable to open WhatsApp. Please make sure WhatsApp is installed.');
+    }
+  };
+
+  // Build shareable message for status update
+  const buildShareMessage = (update: StatusUpdate): string => {
+    const projectName = project?.name || 'Project';
+    const lines = [
+      `📊 *Project Status Update*`,
+      `━━━━━━━━━━━━━━━`,
+      `🏗️ *Project:* ${projectName}`,
+      `📝 *Update:* ${update.title}`,
+      ``,
+    ];
+
+    if (update.description) {
+      lines.push(`📋 *Details:*`);
+      lines.push(update.description);
+      lines.push(``);
+    }
+
+    lines.push(`📈 *Progress Summary:*`);
+    lines.push(`   ✅ Completed: ${update.tasks_completed} tasks`);
+    lines.push(`   🔄 In Progress: ${update.tasks_in_progress} tasks`);
+    lines.push(`   ⏳ Pending: ${update.tasks_pending} tasks`);
+    lines.push(`   📊 Overall: ${update.overall_progress}%`);
+    lines.push(``);
+
+    if (update.weather) {
+      lines.push(`🌤️ *Weather:* ${update.weather}`);
+    }
+
+    if (update.issues) {
+      lines.push(`⚠️ *Issues/Blockers:*`);
+      lines.push(update.issues);
+      lines.push(``);
+    }
+
+    if (update.next_steps) {
+      lines.push(`➡️ *Next Steps:*`);
+      lines.push(update.next_steps);
+      lines.push(``);
+    }
+
+    lines.push(`━━━━━━━━━━━━━━━`);
+    lines.push(`📅 ${formatDate(update.created_at)}`);
+    lines.push(`👤 By: ${update.created_by_name}`);
+
+    return lines.join('\n');
+  };
+
+  // Share via other apps (native share sheet)
+  const shareViaOtherApps = async (update: StatusUpdate) => {
+    const message = buildShareMessage(update);
+    try {
+      await Share.share({
+        message: message,
+        title: `Project Status: ${update.title}`,
+      });
+    } catch (error) {
+      console.error('Share error:', error);
+    }
+  };
+
+  // Show share options modal
+  const showShareOptions = (update: StatusUpdate) => {
+    const clientPhone = project?.client_contact;
+    
+    const options = [
+      { text: 'Cancel', style: 'cancel' as const },
+      {
+        text: '📤 Share to Other Apps',
+        onPress: () => shareViaOtherApps(update),
+      },
+    ];
+
+    // Add WhatsApp option only if client phone exists
+    if (clientPhone) {
+      options.splice(1, 0, {
+        text: `💬 WhatsApp to Client`,
+        onPress: () => shareViaWhatsApp(update),
+      });
+    }
+
+    Alert.alert(
+      'Share Status Update',
+      clientPhone 
+        ? `Share this update with ${project?.client_name || 'client'}?`
+        : 'Choose how to share this update',
+      options
+    );
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return '#10B981';
