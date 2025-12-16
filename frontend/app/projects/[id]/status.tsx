@@ -624,30 +624,6 @@ export default function ProjectStatusScreen() {
       ]
     );
   };
-                                if (canOpen) {
-                                  await Linking.openURL(whatsappUrl);
-                                } else {
-                                  const webUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-                                  await Linking.openURL(webUrl);
-                                }
-                              } catch (e) {
-                                console.error('WhatsApp open error:', e);
-                              }
-                            }
-                          }
-                        ]
-                      );
-                    }, 500);
-                  } catch (e) {
-                    console.error('Photo share error:', e);
-                    Alert.alert('Error', 'Failed to share photo. Try again.');
-                  }
-                }
-              },
-              {
-                text: 'Text Only',
-                onPress: () => shareViaWhatsApp(update),
-              }
             ]
           );
           return;
