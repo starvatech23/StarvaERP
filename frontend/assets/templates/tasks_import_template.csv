@@ -1,0 +1,6 @@
+title,description,status,priority,project_id,start_date,due_date,estimated_cost
+Foundation Excavation,Excavate foundation area as per structural drawing,pending,high,PROJECT_ID_HERE,2025-01-15,2025-01-25,150000
+RCC Footing,Cast RCC footings with proper reinforcement,pending,high,PROJECT_ID_HERE,2025-01-26,2025-02-10,250000
+Plinth Beam,Construct plinth beam around the building,pending,medium,PROJECT_ID_HERE,2025-02-11,2025-02-20,180000
+Brickwork Ground Floor,Complete brickwork for ground floor walls,pending,medium,PROJECT_ID_HERE,2025-02-21,2025-03-15,200000
+Electrical Conduit,Install electrical conduits in walls before plastering,pending,low,PROJECT_ID_HERE,2025-03-01,2025-03-10,80000

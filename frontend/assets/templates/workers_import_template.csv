@@ -1,0 +1,6 @@
+name,phone,skill_type,daily_wage,address,emergency_contact,id_proof_type,id_proof_number
+Ramu Kumar,+919876543210,mason,800,"Village Rampur, Bihar",+919876543220,aadhaar,1234-5678-9012
+Suresh Yadav,+919876543211,carpenter,750,"District Patna, Bihar",+919876543221,aadhaar,2345-6789-0123
+Mohan Lal,+919876543212,electrician,900,"Town Varanasi, UP",+919876543222,aadhaar,3456-7890-1234
+Dinesh Singh,+919876543213,plumber,850,"City Lucknow, UP",+919876543223,aadhaar,4567-8901-2345
+Prakash Verma,+919876543214,helper,500,"Village Gaya, Bihar",+919876543224,aadhaar,5678-9012-3456
