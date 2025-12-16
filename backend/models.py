@@ -331,6 +331,7 @@ class ContactAudit(BaseModel):
 # Project Models
 class ProjectBase(BaseModel):
     name: str
+    project_code: Optional[str] = None  # Unique ID: STC-MMYY-XXXXX
     location: Optional[str] = None
     address: Optional[str] = None
     client_name: str
