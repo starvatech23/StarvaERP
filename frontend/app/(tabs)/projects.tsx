@@ -201,9 +201,14 @@ export default function ProjectsScreen() {
                   <View style={styles.projectHeader}>
                     <View style={styles.projectTitleContainer}>
                       <Ionicons name="business" size={20} color={Colors.primary} />
-                      <Text style={styles.projectName} numberOfLines={1}>
-                        {project.name}
-                      </Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.projectName} numberOfLines={1}>
+                          {project.name}
+                        </Text>
+                        {project.project_code && (
+                          <Text style={styles.projectCode}>{project.project_code}</Text>
+                        )}
+                      </View>
                     </View>
                     <View
                       style={[
