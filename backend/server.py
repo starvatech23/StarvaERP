@@ -8086,6 +8086,469 @@ async def delete_estimate(
         raise HTTPException(status_code=500, detail=f"Failed to delete estimate: {str(e)}")
 
 
+# ============= Estimate Review & Approval Workflow =============
+
+@api_router.post("/estimates/{estimate_id}/review")
+async def review_estimate(
+    estimate_id: str,
+    comments: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Mark estimate as reviewed by Project Manager"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Only project_manager can review
+        if current_user["role"] not in ["admin", "project_manager"]:
+            raise HTTPException(status_code=403, detail="Only Project Manager can review estimates")
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Check if already approved - can't review after approval
+        if estimate.get("approved_by"):
+            raise HTTPException(status_code=400, detail="Cannot modify review after approval")
+        
+        update_data = {
+            "reviewed_by": str(current_user["_id"]),
+            "reviewed_by_name": current_user.get("full_name", current_user.get("email", "Unknown")),
+            "reviewed_at": datetime.utcnow(),
+            "review_comments": comments,
+            "updated_at": datetime.utcnow(),
+            "updated_by": str(current_user["_id"])
+        }
+        
+        await db.estimates.update_one(
+            {"_id": ObjectId(estimate_id)},
+            {"$set": update_data}
+        )
+        
+        return {"message": "Estimate reviewed successfully", "reviewed_by": update_data["reviewed_by_name"]}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to review estimate: {str(e)}")
+
+
+@api_router.post("/estimates/{estimate_id}/approve")
+async def approve_estimate(
+    estimate_id: str,
+    comments: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Mark estimate as approved by Project Head/Director"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Only admin (director/project head) can approve
+        if current_user["role"] not in ["admin"]:
+            raise HTTPException(status_code=403, detail="Only Project Head/Director can approve estimates")
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Must be reviewed first
+        if not estimate.get("reviewed_by"):
+            raise HTTPException(status_code=400, detail="Estimate must be reviewed before approval")
+        
+        update_data = {
+            "approved_by": str(current_user["_id"]),
+            "approved_by_name": current_user.get("full_name", current_user.get("email", "Unknown")),
+            "approved_at": datetime.utcnow(),
+            "approval_comments": comments,
+            "status": "approved",
+            "updated_at": datetime.utcnow(),
+            "updated_by": str(current_user["_id"])
+        }
+        
+        await db.estimates.update_one(
+            {"_id": ObjectId(estimate_id)},
+            {"$set": update_data}
+        )
+        
+        return {"message": "Estimate approved successfully", "approved_by": update_data["approved_by_name"]}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to approve estimate: {str(e)}")
+
+
+@api_router.delete("/estimates/{estimate_id}/review")
+async def remove_review(
+    estimate_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Remove review from estimate (admin only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Only admin can remove review")
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Can't remove review if already approved
+        if estimate.get("approved_by"):
+            raise HTTPException(status_code=400, detail="Cannot remove review after approval. Remove approval first.")
+        
+        await db.estimates.update_one(
+            {"_id": ObjectId(estimate_id)},
+            {"$unset": {"reviewed_by": "", "reviewed_by_name": "", "reviewed_at": "", "review_comments": ""}}
+        )
+        
+        return {"message": "Review removed successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to remove review: {str(e)}")
+
+
+@api_router.delete("/estimates/{estimate_id}/approval")
+async def remove_approval(
+    estimate_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Remove approval from estimate (admin only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Only admin can remove approval")
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        await db.estimates.update_one(
+            {"_id": ObjectId(estimate_id)},
+            {
+                "$unset": {"approved_by": "", "approved_by_name": "", "approved_at": "", "approval_comments": ""},
+                "$set": {"status": "draft", "updated_at": datetime.utcnow()}
+            }
+        )
+        
+        return {"message": "Approval removed successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to remove approval: {str(e)}")
+
+
+# ============= Estimate Line Item Management =============
+
+@api_router.post("/estimates/{estimate_id}/lines", response_model=EstimateLineResponse)
+async def add_estimate_line(
+    estimate_id: str,
+    line_data: EstimateLineCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Add a new line item to an estimate"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Can't modify approved estimates
+        if estimate.get("status") == "approved":
+            raise HTTPException(status_code=400, detail="Cannot modify approved estimates")
+        
+        # Calculate amount
+        amount = line_data.quantity * line_data.rate
+        
+        # Get next sequence number
+        last_line = await db.estimate_lines.find_one(
+            {"estimate_id": estimate_id},
+            sort=[("sequence", -1)]
+        )
+        sequence = (last_line.get("sequence", 0) if last_line else 0) + 1
+        
+        line_doc = {
+            "estimate_id": estimate_id,
+            "category": line_data.category,
+            "item_name": line_data.item_name,
+            "description": line_data.description,
+            "unit": line_data.unit,
+            "quantity": line_data.quantity,
+            "rate": line_data.rate,
+            "amount": amount,
+            "sequence": sequence,
+            "created_at": datetime.utcnow(),
+            "created_by": str(current_user["_id"])
+        }
+        
+        result = await db.estimate_lines.insert_one(line_doc)
+        line_doc["_id"] = result.inserted_id
+        
+        # Update estimate totals
+        await recalculate_estimate_totals(estimate_id)
+        
+        return EstimateLineResponse(**serialize_doc(line_doc))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to add line item: {str(e)}")
+
+
+@api_router.put("/estimates/{estimate_id}/lines/{line_id}", response_model=EstimateLineResponse)
+async def update_estimate_line_item(
+    estimate_id: str,
+    line_id: str,
+    line_data: EstimateLineUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update an existing line item"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Can't modify approved estimates
+        if estimate.get("status") == "approved":
+            raise HTTPException(status_code=400, detail="Cannot modify approved estimates")
+        
+        line = await db.estimate_lines.find_one({"_id": ObjectId(line_id), "estimate_id": estimate_id})
+        if not line:
+            raise HTTPException(status_code=404, detail="Line item not found")
+        
+        update_dict = {k: v for k, v in line_data.dict().items() if v is not None}
+        
+        # Recalculate amount if quantity or rate changed
+        quantity = update_dict.get("quantity", line.get("quantity"))
+        rate = update_dict.get("rate", line.get("rate"))
+        update_dict["amount"] = quantity * rate
+        update_dict["updated_at"] = datetime.utcnow()
+        update_dict["updated_by"] = str(current_user["_id"])
+        
+        await db.estimate_lines.update_one(
+            {"_id": ObjectId(line_id)},
+            {"$set": update_dict}
+        )
+        
+        # Update estimate totals
+        await recalculate_estimate_totals(estimate_id)
+        
+        updated_line = await db.estimate_lines.find_one({"_id": ObjectId(line_id)})
+        return EstimateLineResponse(**serialize_doc(updated_line))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update line item: {str(e)}")
+
+
+@api_router.delete("/estimates/{estimate_id}/lines/{line_id}")
+async def delete_estimate_line_item(
+    estimate_id: str,
+    line_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a line item from an estimate"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Can't modify approved estimates
+        if estimate.get("status") == "approved":
+            raise HTTPException(status_code=400, detail="Cannot modify approved estimates")
+        
+        line = await db.estimate_lines.find_one({"_id": ObjectId(line_id), "estimate_id": estimate_id})
+        if not line:
+            raise HTTPException(status_code=404, detail="Line item not found")
+        
+        await db.estimate_lines.delete_one({"_id": ObjectId(line_id)})
+        
+        # Update estimate totals
+        await recalculate_estimate_totals(estimate_id)
+        
+        return {"message": "Line item deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete line item: {str(e)}")
+
+
+async def recalculate_estimate_totals(estimate_id: str):
+    """Recalculate estimate totals after line item changes"""
+    estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+    if not estimate:
+        return
+    
+    lines = await db.estimate_lines.find({"estimate_id": estimate_id}).to_list(1000)
+    
+    # Calculate subtotal from lines
+    material_total = sum(line.get("amount", 0) for line in lines)
+    
+    # Apply adjustments
+    contingency = estimate.get("contingency_percent", 10.0)
+    labour_percent = estimate.get("labour_percent_of_material", 35.0)
+    escalation = estimate.get("material_escalation_percent", 0.0)
+    
+    labour_cost = material_total * (labour_percent / 100)
+    escalation_cost = material_total * (escalation / 100)
+    subtotal = material_total + labour_cost + escalation_cost
+    contingency_cost = subtotal * (contingency / 100)
+    grand_total = subtotal + contingency_cost
+    
+    # Calculate cost per sqft
+    built_up_area = estimate.get("built_up_area_sqft", 1)
+    cost_per_sqft = grand_total / built_up_area if built_up_area > 0 else 0
+    
+    await db.estimates.update_one(
+        {"_id": ObjectId(estimate_id)},
+        {"$set": {
+            "material_total": material_total,
+            "labour_cost": labour_cost,
+            "escalation_cost": escalation_cost,
+            "contingency_cost": contingency_cost,
+            "grand_total": grand_total,
+            "cost_per_sqft": cost_per_sqft,
+            "updated_at": datetime.utcnow()
+        }}
+    )
+
+
+# ============= Company Settings API =============
+
+@api_router.get("/company-settings", response_model=CompanySettingsResponse)
+async def get_company_settings(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get company settings"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        settings = await db.company_settings.find_one({})
+        if not settings:
+            # Return default settings if none exist
+            return CompanySettingsResponse(
+                id="default",
+                company_name="Your Company Name",
+                address_line1="",
+                city="",
+                state="",
+                pincode="",
+                phone="",
+                email="admin@company.com",
+                created_at=datetime.utcnow()
+            )
+        
+        return CompanySettingsResponse(**serialize_doc(settings))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get company settings: {str(e)}")
+
+
+@api_router.put("/company-settings", response_model=CompanySettingsResponse)
+async def update_company_settings(
+    settings_data: CompanySettingsUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update company settings (admin only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Only admin can update company settings
+        if current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Only admin can update company settings")
+        
+        update_dict = {k: v for k, v in settings_data.dict().items() if v is not None}
+        update_dict["updated_at"] = datetime.utcnow()
+        update_dict["updated_by"] = str(current_user["_id"])
+        
+        # Check if settings exist
+        existing = await db.company_settings.find_one({})
+        
+        if existing:
+            await db.company_settings.update_one(
+                {"_id": existing["_id"]},
+                {"$set": update_dict}
+            )
+            settings = await db.company_settings.find_one({"_id": existing["_id"]})
+        else:
+            # Create new settings
+            update_dict["created_at"] = datetime.utcnow()
+            result = await db.company_settings.insert_one(update_dict)
+            settings = await db.company_settings.find_one({"_id": result.inserted_id})
+        
+        return CompanySettingsResponse(**serialize_doc(settings))
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update company settings: {str(e)}")
+
+
+@api_router.post("/company-settings/logo")
+async def upload_company_logo(
+    file: UploadFile = File(...),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Upload company logo"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Only admin can upload logo")
+        
+        # Validate file type
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="Only image files are allowed")
+        
+        # Read and encode to base64
+        content = await file.read()
+        if len(content) > 5 * 1024 * 1024:  # 5MB limit
+            raise HTTPException(status_code=400, detail="File size must be less than 5MB")
+        
+        import base64
+        logo_base64 = f"data:{file.content_type};base64,{base64.b64encode(content).decode()}"
+        
+        # Update settings
+        existing = await db.company_settings.find_one({})
+        if existing:
+            await db.company_settings.update_one(
+                {"_id": existing["_id"]},
+                {"$set": {"logo_base64": logo_base64, "updated_at": datetime.utcnow()}}
+            )
+        else:
+            await db.company_settings.insert_one({
+                "logo_base64": logo_base64,
+                "company_name": "Your Company Name",
+                "address_line1": "",
+                "city": "",
+                "state": "",
+                "pincode": "",
+                "phone": "",
+                "email": "admin@company.com",
+                "created_at": datetime.utcnow()
+            })
+        
+        return {"message": "Logo uploaded successfully", "logo_base64": logo_base64}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload logo: {str(e)}"}
+
+
 @api_router.get("/estimates/{estimate_id}/export/csv")
 async def export_estimate_csv(
     estimate_id: str,
