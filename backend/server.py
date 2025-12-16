@@ -8548,7 +8548,7 @@ async def upload_company_logo(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to upload logo: {str(e)}"}
+        raise HTTPException(status_code=500, detail=f"Failed to upload logo: {str(e)}")
 
 
 @api_router.get("/estimates/{estimate_id}/export/csv")
