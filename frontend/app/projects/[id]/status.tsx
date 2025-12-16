@@ -383,161 +383,247 @@ export default function ProjectStatusScreen() {
     return lines.join('\n');
   };
 
-  // Save image to temporary file for sharing (handles both base64 and URLs)
-  const saveImageToTemp = async (imageData: string, index: number): Promise<string | null> => {
-    try {
-      const timestamp = Date.now();
-      const filename = `status_photo_${index}_${timestamp}.jpg`;
-      const fileUri = `${LegacyFileSystem.cacheDirectory}${filename}`;
+  // Generate HTML for PDF with status update and photos
+  const generateStatusPdfHtml = (update: StatusUpdate): string => {
+    const projectName = project?.name || 'Project';
+    const dateStr = formatDate(update.created_at);
+    
+    // Generate photo HTML - photos are already base64 with data URI
+    let photosHtml = '';
+    if (update.photos && update.photos.length > 0) {
+      const photoElements = update.photos.map((photo, index) => {
+        // Ensure proper data URI format
+        const photoSrc = photo.startsWith('data:') ? photo : `data:image/jpeg;base64,${photo}`;
+        return `<img src="${photoSrc}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin: 5px;" />`;
+      }).join('');
       
-      // Check if it's a URL or base64
-      if (imageData.startsWith('http://') || imageData.startsWith('https://')) {
-        // Download the image from URL
-        const downloadResult = await LegacyFileSystem.downloadAsync(imageData, fileUri);
-        if (downloadResult.status === 200) {
-          return downloadResult.uri;
-        }
-        return null;
-      } else {
-        // It's base64 data
-        let base64Content = imageData;
-        
-        // Remove data URL prefix if present
-        if (imageData.includes('base64,')) {
-          base64Content = imageData.split('base64,')[1];
-        }
-        
-        // Write base64 to file using string encoding type
-        await LegacyFileSystem.writeAsStringAsync(fileUri, base64Content, {
-          encoding: 'base64',
-        });
-        
-        // Verify file was created
-        const fileInfo = await LegacyFileSystem.getInfoAsync(fileUri);
-        if (fileInfo.exists) {
-          console.log('Image saved successfully:', fileUri);
-          return fileUri;
-        }
-        return null;
-      }
-    } catch (error) {
-      console.error('Error saving image:', error);
-      return null;
+      photosHtml = `
+        <div style="margin-top: 20px;">
+          <h3 style="color: #374151; margin-bottom: 10px;">📷 Site Photos</h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            ${photoElements}
+          </div>
+        </div>
+      `;
     }
+
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; color: #1F2937; }
+            .header { background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+            .header h1 { margin: 0 0 5px 0; font-size: 20px; }
+            .header p { margin: 0; opacity: 0.9; font-size: 14px; }
+            .card { background: #F9FAFB; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #E5E7EB; }
+            .stats { display: flex; justify-content: space-between; text-align: center; }
+            .stat { flex: 1; }
+            .stat-value { font-size: 24px; font-weight: bold; color: #1F2937; }
+            .stat-label { font-size: 12px; color: #6B7280; }
+            .progress-bar { height: 8px; background: #E5E7EB; border-radius: 4px; overflow: hidden; margin-top: 10px; }
+            .progress-fill { height: 100%; background: #10B981; border-radius: 4px; }
+            .section { margin-bottom: 16px; }
+            .section-title { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+            .section-content { font-size: 14px; color: #4B5563; line-height: 1.5; }
+            .footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid #E5E7EB; font-size: 12px; color: #9CA3AF; }
+            .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+            .badge-daily { background: #DBEAFE; color: #1D4ED8; }
+            .badge-weekly { background: #D1FAE5; color: #047857; }
+            .badge-monthly { background: #FEF3C7; color: #B45309; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>📊 Project Status Update</h1>
+            <p>${projectName}</p>
+          </div>
+          
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <span class="badge badge-${update.frequency}">${update.frequency.toUpperCase()}</span>
+              <span style="font-size: 12px; color: #6B7280;">${dateStr}</span>
+            </div>
+            <h2 style="margin: 0 0 8px 0; font-size: 18px; color: #1F2937;">${update.title}</h2>
+            ${update.description ? `<p style="margin: 0; color: #4B5563; font-size: 14px;">${update.description}</p>` : ''}
+          </div>
+          
+          <div class="card">
+            <div class="section-title">📈 Progress Overview</div>
+            <div class="stats">
+              <div class="stat">
+                <div class="stat-value" style="color: #10B981;">${update.tasks_completed}</div>
+                <div class="stat-label">Completed</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value" style="color: #F59E0B;">${update.tasks_in_progress}</div>
+                <div class="stat-label">In Progress</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value" style="color: #6B7280;">${update.tasks_pending}</div>
+                <div class="stat-label">Pending</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value" style="color: #3B82F6;">${update.overall_progress}%</div>
+                <div class="stat-label">Overall</div>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${update.overall_progress}%;"></div>
+            </div>
+          </div>
+          
+          ${update.weather ? `
+            <div class="section">
+              <div class="section-title">🌤️ Weather Conditions</div>
+              <div class="section-content">${update.weather}</div>
+            </div>
+          ` : ''}
+          
+          ${update.issues ? `
+            <div class="card" style="border-color: #FECACA; background: #FEF2F2;">
+              <div class="section-title" style="color: #DC2626;">⚠️ Issues / Blockers</div>
+              <div class="section-content">${update.issues}</div>
+            </div>
+          ` : ''}
+          
+          ${update.next_steps ? `
+            <div class="card" style="border-color: #BFDBFE; background: #EFF6FF;">
+              <div class="section-title" style="color: #2563EB;">➡️ Next Steps</div>
+              <div class="section-content">${update.next_steps}</div>
+            </div>
+          ` : ''}
+          
+          ${photosHtml}
+          
+          <div class="footer">
+            <p>Created by: ${update.created_by_name}</p>
+            <p>Date: ${dateStr}</p>
+          </div>
+        </body>
+      </html>
+    `;
   };
 
-  // Share via other apps (native share sheet) with photos
-  const shareViaOtherApps = async (update: StatusUpdate) => {
-    const message = buildShareMessage(update);
-    
+  // Generate and share PDF
+  const generateAndSharePdf = async (update: StatusUpdate) => {
     try {
-      // Check if there are photos and if sharing is available
+      // Show loading
+      Alert.alert('Generating PDF', 'Please wait while we create your status report...');
+      
+      const html = generateStatusPdfHtml(update);
+      
+      // Generate PDF
+      const { uri } = await Print.printToFileAsync({
+        html,
+        base64: false,
+      });
+      
+      console.log('PDF generated at:', uri);
+      
+      // Check if sharing is available
       const isSharingAvailable = await Sharing.isAvailableAsync();
       
-      if (update.photos && update.photos.length > 0 && isSharingAvailable) {
-        // Save first photo to temp file and share it with the message
-        const photoUri = await saveImageToTemp(update.photos[0], 0);
-        
-        if (photoUri) {
-          // Share the photo - the share sheet will let user choose WhatsApp or other apps
-          await Sharing.shareAsync(photoUri, {
-            dialogTitle: `Project Status: ${update.title}`,
-            mimeType: 'image/jpeg',
-            UTI: 'public.jpeg',
-          });
-          
-          // After photo is shared, also share the text message
-          Alert.alert(
-            'Share Status Message',
-            'Photo shared! Would you like to also share the status message?',
-            [
-              { text: 'No', style: 'cancel' },
-              {
-                text: 'Share Message',
-                onPress: async () => {
-                  await Share.share({
-                    message: message,
-                    title: `Project Status: ${update.title}`,
-                  });
-                }
-              }
-            ]
-          );
-        } else {
-          // Fallback to text only if photo saving failed
-          Alert.alert('Photo Error', 'Could not process photo. Sharing text only.');
-          await Share.share({
-            message: message,
-            title: `Project Status: ${update.title}`,
-          });
-        }
-      } else {
-        // No photos or sharing not available, share text only
-        await Share.share({
-          message: message,
-          title: `Project Status: ${update.title}`,
+      if (isSharingAvailable) {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: `Status Update - ${update.title}`,
+          UTI: 'com.adobe.pdf',
         });
+      } else {
+        Alert.alert('Error', 'Sharing is not available on this device');
       }
     } catch (error) {
-      console.error('Share error:', error);
-      // Fallback to text share
-      await Share.share({
-        message: message,
-        title: `Project Status: ${update.title}`,
-      });
+      console.error('PDF generation error:', error);
+      Alert.alert('Error', 'Failed to generate PDF. Please try again.');
     }
   };
 
-  // Share via WhatsApp with photos - simplified flow
-  const shareViaWhatsAppWithPhotos = async (update: StatusUpdate) => {
+  // Share via WhatsApp with PDF
+  const shareViaWhatsAppPdf = async (update: StatusUpdate) => {
     const clientPhone = project?.client_contact;
     
     if (!clientPhone) {
-      Alert.alert('No Client Contact', 'Client phone number is not available.');
+      Alert.alert('No Client Contact', 'Client phone number is not available for this project.');
       return;
     }
 
-    const message = buildShareMessage(update);
-    const formattedPhone = formatPhoneForWhatsApp(clientPhone);
-    
     try {
+      const html = generateStatusPdfHtml(update);
+      
+      // Generate PDF
+      const { uri } = await Print.printToFileAsync({
+        html,
+        base64: false,
+      });
+      
+      console.log('PDF generated at:', uri);
+      
+      // Share the PDF - user can select WhatsApp
       const isSharingAvailable = await Sharing.isAvailableAsync();
       
-      // If there are photos, share them first via share sheet
-      if (update.photos && update.photos.length > 0 && isSharingAvailable) {
-        // Save the first photo
-        const photoUri = await saveImageToTemp(update.photos[0], 0);
-        
-        if (photoUri) {
-          Alert.alert(
-            'Share to WhatsApp',
-            'Step 1: Share the photo\nStep 2: Send the status message\n\nSelect WhatsApp when the share sheet opens.',
-            [
-              { text: 'Cancel', style: 'cancel' },
-              {
-                text: 'Share Photo',
-                onPress: async () => {
-                  try {
-                    // Open share sheet with the photo
-                    await Sharing.shareAsync(photoUri, {
-                      dialogTitle: 'Share to WhatsApp',
-                      mimeType: 'image/jpeg',
-                      UTI: 'public.jpeg',
-                    });
-                    
-                    // After user returns, prompt to send the text message
-                    setTimeout(() => {
-                      Alert.alert(
-                        'Send Status Message',
-                        'Photo shared! Now send the status message to the client.',
-                        [
-                          { text: 'Skip', style: 'cancel' },
-                          {
-                            text: 'Open WhatsApp',
-                            onPress: async () => {
-                              const whatsappUrl = `whatsapp://send?phone=${formattedPhone}&text=${encodeURIComponent(message)}`;
-                              try {
-                                const canOpen = await Linking.canOpenURL(whatsappUrl);
+      if (isSharingAvailable) {
+        Alert.alert(
+          'Share to WhatsApp',
+          'The PDF will open in the share sheet. Select WhatsApp to send it to your client.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Share PDF',
+              onPress: async () => {
+                await Sharing.shareAsync(uri, {
+                  mimeType: 'application/pdf',
+                  dialogTitle: 'Share Status Report to WhatsApp',
+                  UTI: 'com.adobe.pdf',
+                });
+              }
+            }
+          ]
+        );
+      } else {
+        Alert.alert('Error', 'Sharing is not available on this device');
+      }
+    } catch (error) {
+      console.error('PDF share error:', error);
+      Alert.alert('Error', 'Failed to generate PDF. Please try again.');
+    }
+  };
+
+  // Show share options modal
+  const showShareOptions = (update: StatusUpdate) => {
+    const clientPhone = project?.client_contact;
+    const hasPhotos = update.photos && update.photos.length > 0;
+    
+    Alert.alert(
+      'Share Status Update',
+      hasPhotos 
+        ? `Share this update with ${update.photos?.length} photo(s) as PDF?`
+        : 'Share this status update',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: '📄 Share as PDF',
+          onPress: () => generateAndSharePdf(update),
+        },
+        ...(clientPhone ? [{
+          text: '💬 WhatsApp PDF',
+          onPress: () => shareViaWhatsAppPdf(update),
+        }] : []),
+        {
+          text: '📝 Text Only',
+          onPress: async () => {
+            const message = buildShareMessage(update);
+            await Share.share({
+              message: message,
+              title: `Project Status: ${update.title}`,
+            });
+          },
+        },
+      ]
+    );
+  };
                                 if (canOpen) {
                                   await Linking.openURL(whatsappUrl);
                                 } else {
