@@ -406,15 +406,15 @@ export default function ProjectStatusScreen() {
           base64Content = imageData.split('base64,')[1];
         }
         
-        // Write base64 to file
+        // Write base64 to file using string encoding type
         await FileSystem.writeAsStringAsync(fileUri, base64Content, {
-          encoding: FileSystem.EncodingType.Base64,
+          encoding: 'base64',
         });
         
         // Verify file was created
         const fileInfo = await FileSystem.getInfoAsync(fileUri);
         if (fileInfo.exists) {
-          console.log('Image saved successfully:', fileUri, 'Size:', fileInfo.size);
+          console.log('Image saved successfully:', fileUri);
           return fileUri;
         }
         return null;
