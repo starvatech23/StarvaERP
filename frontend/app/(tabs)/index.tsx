@@ -340,7 +340,7 @@ export default function DashboardScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Operations</Text>
             <View style={styles.statsRow}>
-              {stats?.materials && (
+              {stats?.materials && hasPermission('materials') && (
                 <>
                   <View style={[styles.statCard, { backgroundColor: Colors.warning + '20' }]}>
                     <Ionicons name="cube" size={28} color={Colors.warning} />
@@ -349,18 +349,125 @@ export default function DashboardScreen() {
                   </View>
                   <View style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}>
                     <Ionicons name="pricetag" size={28} color={Colors.info} />
-                    <Text style={styles.statValue}>₹{(stats.materials.inventory_value / 100000).toFixed(1)}L</Text>
+                    <Text style={styles.statValue}>{formatCurrency(stats.materials.inventory_value || 0)}</Text>
                     <Text style={styles.statLabel}>Inventory</Text>
                   </View>
                 </>
               )}
-              {stats?.finance && (
-                <View style={[styles.statCard, { backgroundColor: stats.finance.cash_flow >= 0 ? Colors.success + '20' : Colors.error + '20' }]}>
-                  <Ionicons name="trending-up" size={28} color={stats.finance.cash_flow >= 0 ? Colors.success : Colors.error} />
-                  <Text style={styles.statValue}>₹{(Math.abs(stats.finance.cash_flow) / 100000).toFixed(1)}L</Text>
-                  <Text style={styles.statLabel}>Cash Flow</Text>
+              {stats?.labor && hasPermission('labor') && (
+                <View style={[styles.statCard, { backgroundColor: '#8B5CF620' }]}>
+                  <Ionicons name="people" size={28} color="#8B5CF6" />
+                  <Text style={styles.statValue}>{stats.labor.today_attendance || 0}</Text>
+                  <Text style={styles.statLabel}>Today Attendance</Text>
                 </View>
               )}
+            </View>
+          </View>
+        )}
+
+        {/* Business Insights - Finance Overview */}
+        {stats?.finance && hasPermission('finance') && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>💰 Financial Overview</Text>
+            
+            {/* Payables & Receivables */}
+            <View style={styles.financeCards}>
+              <View style={[styles.financeCard, { borderLeftColor: '#EF4444' }]}>
+                <View style={styles.financeCardHeader}>
+                  <Ionicons name="arrow-up-circle" size={24} color="#EF4444" />
+                  <Text style={styles.financeCardTitle}>Payables</Text>
+                </View>
+                <Text style={styles.financeAmount}>{formatCurrency(stats.finance.payables || 0)}</Text>
+                {(stats.finance.overdue_payables || 0) > 0 && (
+                  <View style={styles.overdueTag}>
+                    <Ionicons name="warning" size={12} color="#DC2626" />
+                    <Text style={styles.overdueText}>
+                      {formatCurrency(stats.finance.overdue_payables)} overdue
+                    </Text>
+                  </View>
+                )}
+              </View>
+              
+              <View style={[styles.financeCard, { borderLeftColor: '#10B981' }]}>
+                <View style={styles.financeCardHeader}>
+                  <Ionicons name="arrow-down-circle" size={24} color="#10B981" />
+                  <Text style={styles.financeCardTitle}>Receivables</Text>
+                </View>
+                <Text style={styles.financeAmount}>{formatCurrency(stats.finance.receivables || 0)}</Text>
+                {(stats.finance.overdue_receivables || 0) > 0 && (
+                  <View style={[styles.overdueTag, { backgroundColor: '#FEF2F2' }]}>
+                    <Ionicons name="time" size={12} color="#DC2626" />
+                    <Text style={styles.overdueText}>
+                      {formatCurrency(stats.finance.overdue_receivables)} overdue
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* Monthly Summary */}
+            <View style={styles.monthlySummary}>
+              <Text style={styles.monthlySummaryTitle}>This Month</Text>
+              <View style={styles.monthlySummaryRow}>
+                <View style={styles.monthlySummaryItem}>
+                  <Text style={styles.monthlySummaryLabel}>Expenses</Text>
+                  <Text style={[styles.monthlySummaryValue, { color: '#EF4444' }]}>
+                    {formatCurrency(stats.finance.month_expenses || 0)}
+                  </Text>
+                </View>
+                <View style={styles.monthlySummaryDivider} />
+                <View style={styles.monthlySummaryItem}>
+                  <Text style={styles.monthlySummaryLabel}>Payments</Text>
+                  <Text style={[styles.monthlySummaryValue, { color: '#10B981' }]}>
+                    {formatCurrency(stats.finance.month_payments || 0)}
+                  </Text>
+                </View>
+                <View style={styles.monthlySummaryDivider} />
+                <View style={styles.monthlySummaryItem}>
+                  <Text style={styles.monthlySummaryLabel}>Cash Flow</Text>
+                  <Text style={[styles.monthlySummaryValue, { 
+                    color: (stats.finance.cash_flow || 0) >= 0 ? '#10B981' : '#EF4444' 
+                  }]}>
+                    {(stats.finance.cash_flow || 0) >= 0 ? '+' : ''}{formatCurrency(stats.finance.cash_flow || 0)}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Labor Insights */}
+        {stats?.labor && hasPermission('labor') && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>👷 Labor Insights</Text>
+            <View style={styles.laborCards}>
+              <View style={styles.laborCard}>
+                <View style={[styles.laborCardIcon, { backgroundColor: '#8B5CF620' }]}>
+                  <Ionicons name="people" size={24} color="#8B5CF6" />
+                </View>
+                <View style={styles.laborCardContent}>
+                  <Text style={styles.laborCardValue}>{stats.labor.total_workers || 0}</Text>
+                  <Text style={styles.laborCardLabel}>Total Workers</Text>
+                </View>
+              </View>
+              <View style={styles.laborCard}>
+                <View style={[styles.laborCardIcon, { backgroundColor: '#10B98120' }]}>
+                  <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+                </View>
+                <View style={styles.laborCardContent}>
+                  <Text style={styles.laborCardValue}>{stats.labor.today_attendance || 0}</Text>
+                  <Text style={styles.laborCardLabel}>Present Today</Text>
+                </View>
+              </View>
+              <View style={styles.laborCard}>
+                <View style={[styles.laborCardIcon, { backgroundColor: '#F59E0B20' }]}>
+                  <Ionicons name="cash" size={24} color="#F59E0B" />
+                </View>
+                <View style={styles.laborCardContent}>
+                  <Text style={styles.laborCardValue}>{formatCurrency(stats.labor.month_wages || 0)}</Text>
+                  <Text style={styles.laborCardLabel}>This Month Wages</Text>
+                </View>
+              </View>
             </View>
           </View>
         )}
