@@ -11212,19 +11212,16 @@ async def trigger_weekly_review_notification(
 async def get_scheduled_jobs(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    """Get all scheduled jobs (Admin only)"""
+    """Get all scheduled jobs from APScheduler (Admin only)"""
     try:
         user = await get_current_user(credentials)
         
         if user.get("role") != "admin":
             raise HTTPException(status_code=403, detail="Admin access required")
         
-        jobs = []
-        async for job in db.scheduled_jobs.find():
-            job["id"] = str(job.pop("_id"))
-            jobs.append(job)
-        
-        return jobs
+        # Get jobs from APScheduler
+        from scheduler import get_scheduled_jobs as get_scheduler_jobs
+        return get_scheduler_jobs()
     except HTTPException:
         raise
     except Exception as e:
