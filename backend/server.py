@@ -11228,14 +11228,54 @@ async def accept_material_transfer(
             }}
         )
         
-        # Update source material quantity
+        # Update source material quantity or remove if fully transferred
         source_material = await db.site_materials.find_one({"_id": ObjectId(transfer["site_material_id"])})
         if source_material:
             new_quantity = source_material.get("quantity", 0) - transfer["quantity"]
-            await db.site_materials.update_one(
-                {"_id": ObjectId(transfer["site_material_id"])},
-                {"$set": {"quantity": max(0, new_quantity), "updated_at": datetime.utcnow()}}
-            )
+            if new_quantity <= 0:
+                # Mark as transferred (keep for history) but set quantity to 0
+                await db.site_materials.update_one(
+                    {"_id": ObjectId(transfer["site_material_id"])},
+                    {"$set": {
+                        "quantity": 0, 
+                        "status": "transferred",
+                        "transfer_note": f"Fully transferred to {transfer.get('destination_project_name') or transfer.get('destination_type', 'another location')}",
+                        "transferred_at": datetime.utcnow(),
+                        "updated_at": datetime.utcnow()
+                    }}
+                )
+            else:
+                await db.site_materials.update_one(
+                    {"_id": ObjectId(transfer["site_material_id"])},
+                    {"$set": {"quantity": new_quantity, "updated_at": datetime.utcnow()}}
+                )
+        
+        # Track finance - check if material is from inventory (has material_id reference)
+        is_from_inventory = source_material.get("material_id") is not None if source_material else False
+        material_cost = source_material.get("cost", 0) if source_material else 0
+        unit_cost = material_cost / source_material.get("quantity", 1) if source_material and source_material.get("quantity", 0) > 0 else 0
+        transfer_cost = unit_cost * transfer["quantity"]
+        
+        # Create finance record for tracking
+        finance_record = {
+            "type": "material_transfer",
+            "transfer_id": transfer_id,
+            "material_type": transfer["material_type"],
+            "quantity": transfer["quantity"],
+            "unit": transfer["unit"],
+            "estimated_cost": transfer_cost,
+            "source_project_id": transfer.get("source_project_id"),
+            "source_project_name": transfer.get("source_project_name"),
+            "destination_type": transfer.get("destination_type"),
+            "destination_project_id": transfer.get("destination_project_id"),
+            "destination_project_name": transfer.get("destination_project_name"),
+            "is_from_inventory": is_from_inventory,
+            "classification": "project_cost" if is_from_inventory else "company_asset",
+            "accepted_by": str(user["_id"]),
+            "accepted_by_name": user.get("full_name", "Unknown"),
+            "created_at": datetime.utcnow()
+        }
+        await db.material_transfer_finance.insert_one(finance_record)
         
         # Create new material entry at destination (if project)
         if transfer.get("destination_type") == "project" and transfer.get("destination_project_id"):
