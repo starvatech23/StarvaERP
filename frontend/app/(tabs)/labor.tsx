@@ -304,37 +304,225 @@ export default function LaborScreen() {
     return colors[status] || '#6B7280';
   };
 
-  const renderPayments = () => {
-    const hasData = payments.length > 0 || advances.length > 0;
-    
-    if (!hasData) {
-      return (
-        <View style={styles.emptyState}>
-          <Ionicons name="wallet-outline" size={64} color="#CBD5E0" />
-          <Text style={styles.emptyTitle}>No Payments Yet</Text>
-          <Text style={styles.emptyText}>Weekly payments and advances will appear here</Text>
-          <TouchableOpacity
-            style={[styles.viewReportsButton, { marginTop: 20 }]}
-            onPress={() => router.push('/labor/payments/create' as any)}
-          >
-            <Ionicons name="add" size={20} color={Colors.surface} />
-            <Text style={styles.viewReportsText}>Create Payment</Text>
-          </TouchableOpacity>
-        </View>
-      );
+  const handleGeneratePayments = async () => {
+    setGenerating(true);
+    try {
+      const weekStart = moment().startOf('week').format('YYYY-MM-DD');
+      const weekEnd = moment().endOf('week').format('YYYY-MM-DD');
+      const response = await weeklyPaymentsAPI.generateWeekly(weekStart, weekEnd);
+      Alert.alert('Success', response.data?.message || 'Payments generated');
+      loadData();
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to generate payments');
+    } finally {
+      setGenerating(false);
     }
+  };
 
+  const renderPayments = () => {
+    const hasData = paymentsByWorker.length > 0 || paymentsByProject.length > 0 || advances.length > 0;
+    
     return (
       <View>
+        {/* Summary Card */}
+        {paymentSummary && (
+          <View style={styles.summaryCard}>
+            <View style={styles.summaryRow}>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryValue}>{paymentSummary.total_workers || 0}</Text>
+                <Text style={styles.summaryLabel}>Workers</Text>
+              </View>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryValue}>₹{(paymentSummary.total_net_amount || 0).toLocaleString()}</Text>
+                <Text style={styles.summaryLabel}>Total Payable</Text>
+              </View>
+            </View>
+            <View style={styles.summaryRow}>
+              <View style={[styles.summaryItem, { backgroundColor: '#10B98120' }]}>
+                <Text style={[styles.summaryValue, { color: '#10B981' }]}>{paymentSummary.paid_count || 0}</Text>
+                <Text style={styles.summaryLabel}>Paid</Text>
+              </View>
+              <View style={[styles.summaryItem, { backgroundColor: '#F59E0B20' }]}>
+                <Text style={[styles.summaryValue, { color: '#F59E0B' }]}>{paymentSummary.pending_count || 0}</Text>
+                <Text style={styles.summaryLabel}>Pending</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Generate Button */}
+        <TouchableOpacity
+          style={[styles.generateButton, generating && { opacity: 0.7 }]}
+          onPress={handleGeneratePayments}
+          disabled={generating}
+        >
+          <Ionicons name="flash" size={18} color="#FFFFFF" />
+          <Text style={styles.generateButtonText}>
+            {generating ? 'Generating...' : 'Generate Weekly Payments'}
+          </Text>
+        </TouchableOpacity>
+
+        {/* View Toggle */}
+        <View style={styles.viewToggle}>
+          <TouchableOpacity
+            style={[styles.viewToggleBtn, paymentView === 'worker' && styles.viewToggleBtnActive]}
+            onPress={() => setPaymentView('worker')}
+          >
+            <Ionicons name="person" size={16} color={paymentView === 'worker' ? '#FFF' : Colors.textSecondary} />
+            <Text style={[styles.viewToggleText, paymentView === 'worker' && styles.viewToggleTextActive]}>
+              By Labour
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.viewToggleBtn, paymentView === 'project' && styles.viewToggleBtnActive]}
+            onPress={() => setPaymentView('project')}
+          >
+            <Ionicons name="business" size={16} color={paymentView === 'project' ? '#FFF' : Colors.textSecondary} />
+            <Text style={[styles.viewToggleText, paymentView === 'project' && styles.viewToggleTextActive]}>
+              By Project
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Labour-wise View */}
+        {paymentView === 'worker' && (
+          <View>
+            <Text style={styles.paymentsSectionTitle}>Labour-wise Payments</Text>
+            {paymentsByWorker.length === 0 ? (
+              <View style={styles.emptyCard}>
+                <Ionicons name="person-outline" size={48} color="#CBD5E0" />
+                <Text style={styles.emptyCardText}>No worker payments found</Text>
+                <Text style={styles.emptyCardSubtext}>Generate payments from attendance data</Text>
+              </View>
+            ) : (
+              paymentsByWorker.map((worker: any) => (
+                <View key={worker.worker_id} style={styles.groupCard}>
+                  <View style={styles.groupHeader}>
+                    <View style={styles.workerInfo}>
+                      <Ionicons name="person-circle" size={40} color={Colors.secondary} />
+                      <View style={styles.workerDetails}>
+                        <Text style={styles.workerName}>{worker.worker_name}</Text>
+                        <Text style={styles.workerPhone}>{worker.worker_skill || 'Worker'}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.groupTotals}>
+                      <Text style={styles.groupTotalLabel}>Net Payable</Text>
+                      <Text style={styles.groupTotalValue}>₹{worker.total_net?.toLocaleString()}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.groupStats}>
+                    <View style={styles.groupStatItem}>
+                      <Text style={styles.groupStatValue}>{worker.payments?.length || 0}</Text>
+                      <Text style={styles.groupStatLabel}>Weeks</Text>
+                    </View>
+                    <View style={styles.groupStatItem}>
+                      <Text style={[styles.groupStatValue, { color: '#10B981' }]}>₹{worker.paid_amount?.toLocaleString()}</Text>
+                      <Text style={styles.groupStatLabel}>Paid</Text>
+                    </View>
+                    <View style={styles.groupStatItem}>
+                      <Text style={[styles.groupStatValue, { color: '#F59E0B' }]}>₹{worker.pending_amount?.toLocaleString()}</Text>
+                      <Text style={styles.groupStatLabel}>Pending</Text>
+                    </View>
+                  </View>
+                  {/* Individual Payments */}
+                  {worker.payments?.slice(0, 3).map((pmt: any) => (
+                    <View key={pmt.id} style={styles.subPaymentItem}>
+                      <View>
+                        <Text style={styles.subPaymentProject}>{pmt.project_name}</Text>
+                        <Text style={styles.subPaymentWeek}>
+                          {moment(pmt.week_start_date).format('DD MMM')} - {moment(pmt.week_end_date).format('DD MMM')}
+                        </Text>
+                      </View>
+                      <View style={styles.subPaymentRight}>
+                        <Text style={styles.subPaymentAmount}>₹{pmt.net_amount?.toLocaleString()}</Text>
+                        <View style={[styles.miniStatusBadge, { backgroundColor: getPaymentStatusColor(pmt.status) + '20' }]}>
+                          <Text style={[styles.miniStatusText, { color: getPaymentStatusColor(pmt.status) }]}>
+                            {pmt.status?.replace(/_/g, ' ')}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              ))
+            )}
+          </View>
+        )}
+
+        {/* Project-wise View */}
+        {paymentView === 'project' && (
+          <View>
+            <Text style={styles.paymentsSectionTitle}>Project-wise Payments</Text>
+            {paymentsByProject.length === 0 ? (
+              <View style={styles.emptyCard}>
+                <Ionicons name="business-outline" size={48} color="#CBD5E0" />
+                <Text style={styles.emptyCardText}>No project payments found</Text>
+                <Text style={styles.emptyCardSubtext}>Generate payments from attendance data</Text>
+              </View>
+            ) : (
+              paymentsByProject.map((project: any) => (
+                <View key={project.project_id} style={styles.groupCard}>
+                  <View style={styles.groupHeader}>
+                    <View style={styles.workerInfo}>
+                      <Ionicons name="business" size={40} color={Colors.primary} />
+                      <View style={styles.workerDetails}>
+                        <Text style={styles.workerName}>{project.project_name}</Text>
+                        <Text style={styles.workerPhone}>{project.total_workers} workers</Text>
+                      </View>
+                    </View>
+                    <View style={styles.groupTotals}>
+                      <Text style={styles.groupTotalLabel}>Total Payable</Text>
+                      <Text style={styles.groupTotalValue}>₹{project.total_net?.toLocaleString()}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.groupStats}>
+                    <View style={styles.groupStatItem}>
+                      <Text style={styles.groupStatValue}>{project.payments?.length || 0}</Text>
+                      <Text style={styles.groupStatLabel}>Payments</Text>
+                    </View>
+                    <View style={styles.groupStatItem}>
+                      <Text style={[styles.groupStatValue, { color: '#10B981' }]}>₹{project.paid_amount?.toLocaleString()}</Text>
+                      <Text style={styles.groupStatLabel}>Paid</Text>
+                    </View>
+                    <View style={styles.groupStatItem}>
+                      <Text style={[styles.groupStatValue, { color: '#F59E0B' }]}>₹{project.pending_amount?.toLocaleString()}</Text>
+                      <Text style={styles.groupStatLabel}>Pending</Text>
+                    </View>
+                  </View>
+                  {/* Individual Payments */}
+                  {project.payments?.slice(0, 3).map((pmt: any) => (
+                    <View key={pmt.id} style={styles.subPaymentItem}>
+                      <View>
+                        <Text style={styles.subPaymentProject}>{pmt.worker_name}</Text>
+                        <Text style={styles.subPaymentWeek}>
+                          {moment(pmt.week_start_date).format('DD MMM')} - {moment(pmt.week_end_date).format('DD MMM')}
+                        </Text>
+                      </View>
+                      <View style={styles.subPaymentRight}>
+                        <Text style={styles.subPaymentAmount}>₹{pmt.net_amount?.toLocaleString()}</Text>
+                        <View style={[styles.miniStatusBadge, { backgroundColor: getPaymentStatusColor(pmt.status) + '20' }]}>
+                          <Text style={[styles.miniStatusText, { color: getPaymentStatusColor(pmt.status) }]}>
+                            {pmt.status?.replace(/_/g, ' ')}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              ))
+            )}
+          </View>
+        )}
+
         {/* Advances Section */}
         {advances.length > 0 && (
-          <View style={{ marginBottom: 16 }}>
+          <View style={{ marginTop: 16 }}>
             <Text style={styles.paymentsSectionTitle}>Advance Payments</Text>
             {advances.map((advance: any) => (
               <View key={advance.id} style={styles.card}>
                 <View style={styles.cardHeader}>
                   <View style={styles.workerInfo}>
-                    <Ionicons name="person-circle" size={36} color={Colors.secondary} />
+                    <Ionicons name="cash" size={36} color="#8B5CF6" />
                     <View style={styles.workerDetails}>
                       <Text style={styles.workerName}>{advance.worker_name}</Text>
                       <Text style={styles.workerPhone}>{advance.project_name}</Text>
@@ -342,7 +530,7 @@ export default function LaborScreen() {
                   </View>
                   <View style={[styles.statusBadge, { backgroundColor: getAdvanceStatusColor(advance.status) + '20' }]}>
                     <Text style={[styles.statusText, { color: getAdvanceStatusColor(advance.status) }]}>
-                      {advance.status.toUpperCase()}
+                      {advance.status?.toUpperCase()}
                     </Text>
                   </View>
                 </View>
@@ -355,63 +543,10 @@ export default function LaborScreen() {
                     <Text style={styles.paymentLabel}>Recovered</Text>
                     <Text style={styles.paymentValue}>₹{advance.recovered_amount?.toLocaleString() || 0}</Text>
                   </View>
-                  <View style={styles.paymentRow}>
-                    <Text style={styles.paymentLabel}>Reason</Text>
-                    <Text style={styles.paymentValue}>{advance.reason}</Text>
-                  </View>
                 </View>
               </View>
             ))}
           </View>
-        )}
-
-        {/* Weekly Payments Section */}
-        <Text style={styles.paymentsSectionTitle}>Weekly Payments</Text>
-        {payments.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyCardText}>No weekly payments recorded</Text>
-          </View>
-        ) : (
-          payments.map((payment: any) => (
-            <TouchableOpacity 
-              key={payment.id} 
-              style={styles.card}
-              onPress={() => router.push(`/labor/payments/${payment.id}` as any)}
-            >
-              <View style={styles.cardHeader}>
-                <View style={styles.workerInfo}>
-                  <Ionicons name="person-circle" size={36} color={Colors.secondary} />
-                  <View style={styles.workerDetails}>
-                    <Text style={styles.workerName}>{payment.worker_name}</Text>
-                    <Text style={styles.workerPhone}>
-                      {moment(payment.week_start_date).format('DD MMM')} - {moment(payment.week_end_date).format('DD MMM')}
-                    </Text>
-                  </View>
-                </View>
-                <View style={[styles.statusBadge, { backgroundColor: getPaymentStatusColor(payment.status) + '20' }]}>
-                  <Text style={[styles.statusText, { color: getPaymentStatusColor(payment.status) }]}>
-                    {payment.status.replace(/_/g, ' ').toUpperCase()}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.paymentDetails}>
-                <View style={styles.paymentRow}>
-                  <Text style={styles.paymentLabel}>Days Worked</Text>
-                  <Text style={styles.paymentValue}>{payment.days_worked} days</Text>
-                </View>
-                <View style={styles.paymentRow}>
-                  <Text style={styles.paymentLabel}>Gross</Text>
-                  <Text style={styles.paymentValue}>₹{payment.gross_amount?.toLocaleString()}</Text>
-                </View>
-                <View style={styles.paymentRow}>
-                  <Text style={styles.paymentLabel}>Net Payable</Text>
-                  <Text style={[styles.paymentValue, { color: '#10B981', fontWeight: '700' }]}>
-                    ₹{payment.net_amount?.toLocaleString()}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))
         )}
       </View>
     );
