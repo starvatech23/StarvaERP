@@ -11122,6 +11122,7 @@ async def create_material_transfer(
             "destination_project_name": destination_project_name,
             "status": "pending",
             "notes": transfer.notes,
+            "media_urls": transfer.media_urls or [],  # Photos/videos of transfer
             "initiated_by": str(user["_id"]),
             "initiated_by_name": user.get("full_name", "Unknown"),
             "accepted_by": None,
