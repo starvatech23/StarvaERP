@@ -8330,12 +8330,14 @@ async def create_floor_wise_estimate_endpoint(
                 **default_rates
             )
         
-        # Generate floor-wise estimate
+        # Generate floor-wise estimate with correct rates
+        # Parking: ₹1750/sqft, Basement: ₹1800/sqft
         floors, totals, assumptions = create_floor_wise_estimate(
             estimate_data,
             material_preset_data,
             rate_table_data,
-            parking_rate_multiplier=0.6
+            parking_rate=1750.0,
+            basement_rate=1800.0
         )
         
         # Prepare estimate document
