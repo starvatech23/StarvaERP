@@ -1441,6 +1441,31 @@ async def create_task(
             assigned_users.append({"id": user["id"], "name": user["full_name"]})
     task_dict["assigned_users"] = assigned_users
     
+    # Send notifications to assigned users
+    if assigned_to:
+        try:
+            from notification_service import NotificationService
+            notification_service = NotificationService(db)
+            
+            # Get project name
+            project_name = "Unknown Project"
+            if task_dict.get("project_id"):
+                project = await db.projects.find_one({"_id": ObjectId(task_dict["project_id"])})
+                if project:
+                    project_name = project.get("name", "Unknown Project")
+            
+            for user_id in assigned_to:
+                if user_id != str(current_user["_id"]):  # Don't notify self
+                    await notification_service.notify_task_assigned(
+                        assignee_id=user_id,
+                        task_title=task_dict.get("title", "Untitled Task"),
+                        task_id=task_dict["id"],
+                        project_name=project_name,
+                        assigner_name=current_user.get("full_name", "Someone")
+                    )
+        except Exception as e:
+            logger.warning(f"Failed to send task assignment notifications: {str(e)}")
+    
     return TaskResponse(**task_dict)
 
 @api_router.put("/tasks/{task_id}", response_model=TaskResponse)
