@@ -1,6 +1,15 @@
 """
 Floor-wise Estimation Module
 Handles floor-by-floor cost estimation with proper area calculations
+
+AREA DEFINITIONS:
+- Built-up Area = Sum of all floor-wise areas (regular floors + headroom)
+- Parking Area = Calculated separately, not part of built-up area
+- Total Construction = Built-up cost + Parking cost + Basement cost
+
+COST CALCULATION:
+- Each floor's cost = Floor Area × Rate per sqft (based on floor type)
+- Total cost = Sum of all floor costs
 """
 from typing import Dict, List, Any, Optional, Tuple
 from models import (
@@ -59,8 +68,6 @@ def generate_floor_types(num_floors: int, has_parking: bool = False,
     Generate list of floor types based on configuration.
     
     Note: Parking is on the SAME floor as ground floor (not a separate floor).
-    It will be tracked separately but counted within ground floor.
-    
     Basement is a SEPARATE floor below ground.
     Terrace/Headroom is part of built-up area at package rate.
     """
@@ -70,7 +77,7 @@ def generate_floor_types(num_floors: int, has_parking: bool = False,
     if has_basement:
         floors.append("basement")
     
-    # Regular floors (parking is ON ground floor, not separate)
+    # Regular floors (parking is ON ground floor, tracked separately)
     floor_names = ["ground", "first", "second", "third", "fourth", 
                    "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"]
     floors.extend(floor_names[:num_floors])
@@ -81,25 +88,15 @@ def generate_floor_types(num_floors: int, has_parking: bool = False,
     
     return floors
 
-def divide_area_by_floors(total_area: float, num_floors: int) -> float:
-    """
-    Divide total built-up area by number of floors.
-    This is the correct interpretation for lead estimates.
-    Example: 1500 sqft with 2 floors = 750 sqft per floor
-    """
-    if num_floors <= 0:
-        return total_area
-    return total_area / num_floors
-
-def is_item_for_floor(item_name: str, floor_type: str, floor_index: int, total_floors: int) -> bool:
+def is_item_for_floor(item_name: str, floor_type: str, floor_index: int, total_regular_floors: int) -> bool:
     """
     Determine if an item should be included for a specific floor.
     
     Rules:
     - Foundation items: ground floor only
-    - Roofing items: top floor only
+    - Roofing items: top floor only (or terrace)
     - Regular items: all regular floors
-    - Parking items: parking floor only
+    - Parking items: excluded (parking handled separately)
     """
     item_lower = item_name.lower()
     
@@ -109,34 +106,22 @@ def is_item_for_floor(item_name: str, floor_type: str, floor_index: int, total_f
     if any(kw in item_lower for kw in ground_only_keywords):
         return floor_type == "ground"
     
-    # Top floor only items
-    top_only_keywords = ['roof', 'parapet', 'terrace', 'waterproofing']
+    # Top floor only items (roofing)
+    top_only_keywords = ['roof waterproof', 'parapet']
     if any(kw in item_lower for kw in top_only_keywords):
-        # Last regular floor or terrace
-        is_top = (floor_index == total_floors - 1) or floor_type == "terrace"
-        return is_top
+        # Check if this is the top regular floor or terrace
+        is_top_regular = (floor_index == total_regular_floors - 1) and floor_type not in ['basement', 'terrace']
+        return is_top_regular or floor_type == "terrace"
     
-    # Parking specific items
-    parking_keywords = ['parking', 'ramp']
-    if any(kw in item_lower for kw in parking_keywords):
-        return floor_type == "parking"
-    
-    # Basement specific
+    # Basement specific - gets structure but limited finishes
     if floor_type == "basement":
-        # Basement gets structure but not finishing
-        if any(kw in item_lower for kw in ['tile', 'paint', 'finish']):
+        if any(kw in item_lower for kw in ['paint', 'tile', 'window']):
             return False
         return True
     
-    # Parking floors don't need regular finishes
-    if floor_type == "parking":
-        if any(kw in item_lower for kw in ['tile', 'paint', 'wall', 'door', 'window']):
-            return False
-        return True
-    
-    # Terrace only gets waterproofing and flooring
+    # Terrace only gets waterproofing and basic flooring
     if floor_type == "terrace":
-        if any(kw in item_lower for kw in ['waterproof', 'floor', 'terrace']):
+        if any(kw in item_lower for kw in ['waterproof', 'floor', 'terrace', 'parapet']):
             return True
         return False
     
@@ -147,104 +132,109 @@ def calculate_floor_rate(floor_type: str, base_rate: float, parking_rate: float 
     """
     Calculate rate per sqft for a specific floor type.
     
-    Rates:
-    - Parking: ₹1750/sqft (fixed rate, on ground floor)
-    - Basement: ₹1800/sqft (fixed rate, separate floor)
-    - Headroom/Terrace: Same as package rate (part of built-up area)
-    - Regular floors: Package rate (base_rate)
+    FIXED RATES:
+    - Parking: ₹1750/sqft (separate from built-up)
+    - Basement: ₹1800/sqft (separate floor)
+    - Headroom/Terrace: Package rate (part of built-up)
+    - Regular floors: Package rate
     """
     if floor_type == "parking":
-        return parking_rate  # Fixed ₹1750/sqft
+        return parking_rate
     elif floor_type == "basement":
-        return basement_rate  # Fixed ₹1800/sqft
+        return basement_rate
     elif floor_type == "terrace":
-        return base_rate  # Headroom uses package rate (part of built-up)
+        return base_rate  # Headroom uses package rate
     return base_rate
 
 def create_floor_wise_estimate(
     estimate_input: EstimateBase,
     material_preset: MaterialPresetResponse,
     rate_table: RateTableResponse,
-    parking_rate: float = 1750.0,  # Fixed ₹1750/sqft for parking
-    basement_rate: float = 1800.0   # Fixed ₹1800/sqft for basement
+    parking_rate: float = 1750.0,
+    basement_rate: float = 1800.0
 ) -> Tuple[List[Dict], Dict, Dict]:
     """
-    Create floor-wise estimate with proper area calculations.
+    Create floor-wise estimate with CORRECT area aggregation.
+    
+    AREA LOGIC:
+    - User inputs total built-up area
+    - This is divided among regular floors (Ground, First, etc.)
+    - Headroom/Terrace is ADDED to built-up (not divided from it)
+    - Parking and Basement are SEPARATE areas (not part of built-up division)
+    
+    COST LOGIC:
+    - Each floor: Area × Rate
+    - Total Built-up Cost = Sum of all floor costs (regular + terrace)
+    - Total Parking Cost = Parking Area × Parking Rate
+    - Total Basement Cost = Basement Area × Basement Rate
+    - Grand Total = Built-up Cost + Parking Cost + Basement Cost + Overheads
     
     Returns:
         - floors: List of floor configurations with line items
-        - totals: Overall estimate totals
+        - totals: Overall estimate totals with proper aggregation
         - assumptions: Calculation assumptions
     """
     # Initialize the base estimation engine
     engine = EstimationEngine(material_preset, rate_table)
     
-    # Determine area calculation mode
-    is_lead = bool(estimate_input.lead_id)
-    is_project = bool(estimate_input.project_id)
+    # Get base rate
+    base_rate = estimate_input.base_rate_per_sqft or 2500.0
     
-    # Generate floor list
+    # Generate floor list (excludes parking as it's on ground floor)
     floor_types = generate_floor_types(
         estimate_input.num_floors,
-        estimate_input.has_parking,
+        False,  # Parking handled separately
         estimate_input.has_basement,
         estimate_input.has_terrace
     )
     
-    # Calculate area per floor
-    if estimate_input.area_mode == "auto" or (is_lead and not estimate_input.floors):
-        # Auto mode: Divide total area by number of regular floors
-        regular_floors = [f for f in floor_types if f not in ['parking', 'basement', 'terrace']]
-        area_per_floor = divide_area_by_floors(
-            estimate_input.built_up_area_sqft, 
-            len(regular_floors)
-        )
-    else:
-        # Manual mode: Use provided area or equal division
-        area_per_floor = estimate_input.built_up_area_sqft / estimate_input.num_floors
+    # Calculate areas
+    # Regular floors = floors that are not basement/terrace
+    regular_floors = [f for f in floor_types if f not in ['basement', 'terrace']]
+    num_regular_floors = len(regular_floors)
     
-    # Get base rate
-    base_rate = estimate_input.base_rate_per_sqft or 2500.0
+    # Per-floor area for regular floors (divide total built-up by number of regular floors)
+    area_per_regular_floor = estimate_input.built_up_area_sqft / num_regular_floors if num_regular_floors > 0 else estimate_input.built_up_area_sqft
     
-    # Create modified input for engine calculation (using per-floor area)
+    # Special areas (these are ADDITIONAL, not divided from built-up)
+    parking_area = estimate_input.parking_area_sqft if estimate_input.has_parking else 0
+    basement_area = estimate_input.basement_area_sqft if estimate_input.has_basement else 0
+    terrace_area = estimate_input.terrace_area_sqft if estimate_input.has_terrace else 0
+    
+    # TOTAL BUILT-UP AREA = (Per floor area × Regular floors) + Terrace
+    # Note: The input built_up_area_sqft represents total of regular floors
+    # Terrace is additional headroom space
+    total_built_up_area = estimate_input.built_up_area_sqft + terrace_area
+    
+    # Create modified input for engine calculation (calculate for total area)
+    # This gives us the base BOQ for the entire building
     modified_input = estimate_input.copy(deep=True)
-    modified_input.built_up_area_sqft = area_per_floor
-    modified_input.num_floors = 1  # Calculate for single floor
+    modified_input.built_up_area_sqft = area_per_regular_floor  # Per floor for scaling
+    modified_input.num_floors = 1
     
-    # Get BOQ lines from engine (for a single floor)
+    # Get BOQ lines from engine (for a single floor template)
     base_lines, base_totals, assumptions = engine.calculate_estimate(modified_input)
     
-    # Build floor-wise structure
+    # Track all areas and costs
     floors = []
-    grand_total = 0
+    total_floor_cost = 0
     total_material = 0
     total_labour = 0
     total_services = 0
     
+    # Process each floor type
     for idx, floor_type in enumerate(floor_types):
         # Determine floor area
-        if floor_type == "parking":
-            floor_area = estimate_input.parking_area_sqft or area_per_floor
-        elif floor_type == "basement":
-            floor_area = estimate_input.basement_area_sqft or area_per_floor
+        if floor_type == "basement":
+            floor_area = basement_area
         elif floor_type == "terrace":
-            floor_area = estimate_input.terrace_area_sqft or (area_per_floor * 0.5)  # Terrace is typically 50% of floor
+            floor_area = terrace_area
         else:
-            # Check if manual floor config provided
-            if estimate_input.floors:
-                floor_config = next((f for f in estimate_input.floors if f.get('floor_type') == floor_type), None)
-                floor_area = floor_config.get('area_sqft', area_per_floor) if floor_config else area_per_floor
-            else:
-                floor_area = area_per_floor
+            # Regular floor
+            floor_area = area_per_regular_floor
         
-        # Calculate floor rate
+        # Get floor rate
         floor_rate = calculate_floor_rate(floor_type, base_rate, parking_rate, basement_rate)
-        
-        # Check for custom rate override
-        if estimate_input.floors:
-            floor_config = next((f for f in estimate_input.floors if f.get('floor_type') == floor_type), None)
-            if floor_config and floor_config.get('rate_per_sqft'):
-                floor_rate = floor_config['rate_per_sqft']
         
         # Filter and scale line items for this floor
         floor_lines = []
@@ -253,48 +243,52 @@ def create_floor_wise_estimate(
         floor_labour = 0
         floor_services = 0
         
-        regular_floor_count = len([f for f in floor_types if f not in ['parking', 'basement', 'terrace']])
-        
-        for line in base_lines:
-            # Check if this item applies to this floor
-            if not is_item_for_floor(line.item_name, floor_type, idx, regular_floor_count):
-                continue
-            
-            # Scale quantity based on floor area ratio
-            area_ratio = floor_area / area_per_floor if area_per_floor > 0 else 1
-            
-            # Create floor-specific line
-            floor_line = {
-                "id": str(uuid.uuid4()),
-                "category": line.category.value if hasattr(line.category, 'value') else line.category,
-                "item_name": line.item_name,
-                "description": line.description,
-                "unit": line.unit,
-                "quantity": round(line.quantity * area_ratio, 2),
-                "rate": round(line.rate * (floor_rate / base_rate), 2),  # Adjust rate based on floor type
-                "amount": 0,  # Will be calculated
-                "formula_used": line.formula_used,
-                "is_user_edited": False,
-                "is_auto_assigned": True,
-                "notes": f"Auto-assigned to {get_floor_display_name(floor_type)}"
-            }
-            
-            # Calculate amount
-            floor_line["amount"] = round(floor_line["quantity"] * floor_line["rate"], 2)
-            floor_total += floor_line["amount"]
-            
-            # Track by category
-            if floor_line["category"] in ["excavation_foundation", "superstructure", "masonry"]:
-                floor_material += floor_line["amount"]
-            elif floor_line["category"] == "labour":
-                floor_labour += floor_line["amount"]
-            elif floor_line["category"] == "services":
-                floor_services += floor_line["amount"]
-            else:
-                floor_material += floor_line["amount"] * 0.6  # Assume 60% material
-                floor_labour += floor_line["amount"] * 0.4  # 40% labour
-            
-            floor_lines.append(floor_line)
+        # Only add lines if floor has area
+        if floor_area > 0:
+            for line in base_lines:
+                # Check if this item applies to this floor
+                if not is_item_for_floor(line.item_name, floor_type, idx, num_regular_floors):
+                    continue
+                
+                # Scale quantity based on floor area ratio
+                area_ratio = floor_area / area_per_regular_floor if area_per_regular_floor > 0 else 1
+                
+                # For basement/terrace, also adjust rate
+                rate_ratio = floor_rate / base_rate if base_rate > 0 else 1
+                
+                # Create floor-specific line
+                line_quantity = round(line.quantity * area_ratio, 2)
+                line_rate = round(line.rate * rate_ratio, 2)
+                line_amount = round(line_quantity * line_rate, 2)
+                
+                floor_line = {
+                    "id": str(uuid.uuid4()),
+                    "category": line.category.value if hasattr(line.category, 'value') else line.category,
+                    "item_name": line.item_name,
+                    "description": line.description,
+                    "unit": line.unit,
+                    "quantity": line_quantity,
+                    "rate": line_rate,
+                    "amount": line_amount,
+                    "formula_used": line.formula_used,
+                    "is_user_edited": False,
+                    "is_auto_assigned": True,
+                    "notes": f"Auto-assigned to {get_floor_display_name(floor_type)}"
+                }
+                
+                floor_lines.append(floor_line)
+                floor_total += line_amount
+                
+                # Track by category
+                cat = floor_line["category"]
+                if cat in ["excavation_foundation", "superstructure", "masonry", "flooring", "finishing"]:
+                    floor_material += line_amount * 0.7
+                    floor_labour += line_amount * 0.3
+                elif cat == "services":
+                    floor_services += line_amount
+                else:
+                    floor_material += line_amount * 0.6
+                    floor_labour += line_amount * 0.4
         
         # Create floor object
         floor_obj = {
@@ -304,7 +298,7 @@ def create_floor_wise_estimate(
             "floor_number": get_floor_number(floor_type),
             "area_sqft": floor_area,
             "rate_per_sqft": floor_rate,
-            "is_parking": floor_type == "parking",
+            "is_parking": False,
             "is_basement": floor_type == "basement",
             "is_terrace": floor_type == "terrace",
             "material_cost": round(floor_material, 2),
@@ -316,66 +310,100 @@ def create_floor_wise_estimate(
         
         floors.append(floor_obj)
         
-        # Update grand totals
-        grand_total += floor_total
+        # Update totals
+        total_floor_cost += floor_total
         total_material += floor_material
         total_labour += floor_labour
         total_services += floor_services
     
-    # Calculate overall totals with contingency
-    contingency = grand_total * (estimate_input.contingency_percent / 100)
-    overhead = grand_total * 0.1  # 10% overhead
+    # Add parking as a separate cost item (not a floor with BOQ)
+    parking_cost = parking_area * parking_rate if parking_area > 0 else 0
     
-    # Calculate parking and built-up totals for summary
-    parking_area = estimate_input.parking_area_sqft or 0
-    basement_area = estimate_input.basement_area_sqft or 0
-    terrace_area = estimate_input.terrace_area_sqft or 0
+    # Calculate overhead and contingency
+    subtotal = total_floor_cost + parking_cost
+    contingency = subtotal * (estimate_input.contingency_percent / 100)
+    overhead = subtotal * 0.1  # 10% overhead
     
-    # Built-up area includes terrace/headroom
-    total_built_up_with_headroom = estimate_input.built_up_area_sqft + terrace_area
+    # Grand total
+    grand_total = subtotal + contingency + overhead
     
-    # Summary calculation for client sharing
-    built_up_amount = total_built_up_with_headroom * base_rate
-    parking_amount = parking_area * parking_rate
-    basement_amount = basement_area * basement_rate
+    # Cost per sqft based on total built-up area (excluding parking)
+    cost_per_sqft = grand_total / total_built_up_area if total_built_up_area > 0 else 0
     
+    # Calculate summary for client (simple area × rate)
+    # Built-up amount = Total built-up area × Package rate
+    built_up_simple_cost = total_built_up_area * base_rate
+    parking_simple_cost = parking_area * parking_rate
+    basement_simple_cost = basement_area * basement_rate
+    total_simple_cost = built_up_simple_cost + parking_simple_cost
+    
+    # Build totals dictionary
     totals = {
         "total_material_cost": round(total_material, 2),
         "total_labour_cost": round(total_labour, 2),
         "total_services_cost": round(total_services, 2),
         "total_overhead_cost": round(overhead, 2),
         "contingency_cost": round(contingency, 2),
-        "grand_total": round(grand_total + contingency + overhead, 2),
-        "cost_per_sqft": round((grand_total + contingency + overhead) / estimate_input.built_up_area_sqft, 2),
-        "parking_total": sum(f["floor_total"] for f in floors if f["is_parking"]),
+        "grand_total": round(grand_total, 2),
+        "cost_per_sqft": round(cost_per_sqft, 2),
+        
+        # Floor totals
+        "parking_total": round(parking_cost, 2),
         "basement_total": sum(f["floor_total"] for f in floors if f["is_basement"]),
         "terrace_total": sum(f["floor_total"] for f in floors if f["is_terrace"]),
+        
         "is_floor_wise": True,
-        # Summary for client sharing
+        
+        # CLIENT SUMMARY - Simple calculation for sharing
+        # This shows: Area × Rate = Amount for each area type
         "summary": {
-            "built_up_area": estimate_input.built_up_area_sqft,
+            # Area breakdown
+            "built_up_area": estimate_input.built_up_area_sqft,  # Input by user (regular floors)
+            "area_per_floor": round(area_per_regular_floor, 2),
+            "num_regular_floors": num_regular_floors,
             "headroom_area": terrace_area,
-            "total_built_up_with_headroom": total_built_up_with_headroom,
+            "total_built_up_with_headroom": round(total_built_up_area, 2),  # Regular + Terrace
             "parking_area": parking_area,
             "basement_area": basement_area,
+            
+            # Rates
             "package_rate": base_rate,
             "parking_rate": parking_rate,
             "basement_rate": basement_rate,
-            "built_up_amount": round(built_up_amount, 2),
-            "parking_amount": round(parking_amount, 2),
-            "basement_amount": round(basement_amount, 2),
-            "total_construction_cost": round(built_up_amount + parking_amount + basement_amount, 2),
+            
+            # Simple cost calculation (Area × Rate)
+            "built_up_amount": round(built_up_simple_cost, 2),  # Total built-up × Package rate
+            "parking_amount": round(parking_simple_cost, 2),
+            "basement_amount": round(basement_simple_cost, 2),
+            "total_construction_cost": round(total_simple_cost + basement_simple_cost, 2),
+            
+            # Detailed BOQ cost (from line items)
+            "detailed_boq_total": round(total_floor_cost, 2),
+            "detailed_with_overhead": round(grand_total, 2),
         }
     }
     
     # Update assumptions
-    assumptions["area_calculation_mode"] = estimate_input.area_mode
-    assumptions["area_per_regular_floor"] = round(area_per_floor, 2)
-    assumptions["total_floors_generated"] = len(floor_types)
-    assumptions["floor_types"] = floor_types
-    assumptions["parking_rate"] = parking_rate
-    assumptions["basement_rate"] = basement_rate
-    assumptions["package_rate"] = base_rate
+    assumptions["area_calculation"] = {
+        "input_built_up_area": estimate_input.built_up_area_sqft,
+        "num_regular_floors": num_regular_floors,
+        "area_per_regular_floor": round(area_per_regular_floor, 2),
+        "terrace_area": terrace_area,
+        "total_built_up_area": round(total_built_up_area, 2),
+        "parking_area": parking_area,
+        "basement_area": basement_area,
+        "note": "Built-up = (Input area is divided among regular floors) + Terrace. Parking and Basement are separate."
+    }
+    assumptions["rate_structure"] = {
+        "package_rate": base_rate,
+        "parking_rate": parking_rate,
+        "basement_rate": basement_rate,
+    }
+    assumptions["cost_calculation"] = {
+        "method": "Sum of all floor costs + Parking cost + Overhead + Contingency",
+        "floor_cost_formula": "Each floor: Area × Rate adjusted items",
+        "parking_cost_formula": f"Parking Area ({parking_area}) × Rate ({parking_rate}) = {parking_cost}",
+    }
     
     return floors, totals, assumptions
 
@@ -401,8 +429,9 @@ def migrate_estimate_to_floor_wise(
     """
     num_floors = estimate.get("num_floors", 1)
     built_up_area = estimate.get("built_up_area_sqft", 1000)
+    base_rate = estimate.get("base_rate_per_sqft", 2500)
     
-    # Calculate area per floor (divide, not multiply)
+    # Calculate area per floor (divide total by number of floors)
     area_per_floor = built_up_area / num_floors if num_floors > 0 else built_up_area
     
     # Generate floor types
@@ -410,6 +439,7 @@ def migrate_estimate_to_floor_wise(
     
     # Distribute existing lines across floors
     floors = []
+    total_cost = 0
     
     for idx, floor_type in enumerate(floor_types):
         floor_lines = []
@@ -425,13 +455,15 @@ def migrate_estimate_to_floor_wise(
             # For ground-only or top-only items, keep full quantity
             # For repeated items, divide quantity by num_floors
             is_ground_only = any(kw in item_name.lower() for kw in ['excavation', 'foundation', 'footing', 'plinth'])
-            is_top_only = any(kw in item_name.lower() for kw in ['roof', 'parapet', 'terrace'])
+            is_top_only = any(kw in item_name.lower() for kw in ['roof', 'parapet'])
             
             if is_ground_only or is_top_only:
                 quantity = line.get("quantity", 0)
             else:
-                # Divide quantity among floors
                 quantity = line.get("quantity", 0) / num_floors
+            
+            line_rate = line.get("rate", 0)
+            line_amount = round(quantity * line_rate, 2)
             
             floor_line = {
                 "id": str(uuid.uuid4()),
@@ -440,8 +472,8 @@ def migrate_estimate_to_floor_wise(
                 "description": line.get("description"),
                 "unit": line.get("unit"),
                 "quantity": round(quantity, 2),
-                "rate": line.get("rate", 0),
-                "amount": round(quantity * line.get("rate", 0), 2),
+                "rate": line_rate,
+                "amount": line_amount,
                 "formula_used": line.get("formula_used"),
                 "is_user_edited": line.get("is_user_edited", False),
                 "is_auto_assigned": True,
@@ -449,7 +481,7 @@ def migrate_estimate_to_floor_wise(
             }
             
             floor_lines.append(floor_line)
-            floor_total += floor_line["amount"]
+            floor_total += line_amount
         
         floor_obj = {
             "id": str(uuid.uuid4()),
@@ -457,11 +489,11 @@ def migrate_estimate_to_floor_wise(
             "floor_name": get_floor_display_name(floor_type),
             "floor_number": get_floor_number(floor_type),
             "area_sqft": area_per_floor,
-            "rate_per_sqft": estimate.get("base_rate_per_sqft") or (estimate.get("grand_total", 0) / built_up_area if built_up_area > 0 else 2500),
+            "rate_per_sqft": base_rate,
             "is_parking": False,
             "is_basement": False,
             "is_terrace": False,
-            "material_cost": 0,  # Will be recalculated
+            "material_cost": 0,
             "labour_cost": 0,
             "services_cost": 0,
             "floor_total": round(floor_total, 2),
@@ -469,14 +501,35 @@ def migrate_estimate_to_floor_wise(
         }
         
         floors.append(floor_obj)
+        total_cost += floor_total
     
     # Calculate updated totals
-    grand_total = sum(f["floor_total"] for f in floors)
+    contingency = total_cost * 0.1
+    overhead = total_cost * 0.1
+    grand_total = total_cost + contingency + overhead
     
     updated_totals = {
-        "grand_total": round(grand_total * 1.2, 2),  # Add 20% for overheads/contingency
-        "cost_per_sqft": round((grand_total * 1.2) / built_up_area, 2) if built_up_area > 0 else 0,
-        "is_floor_wise": True
+        "grand_total": round(grand_total, 2),
+        "cost_per_sqft": round(grand_total / built_up_area, 2) if built_up_area > 0 else 0,
+        "is_floor_wise": True,
+        "summary": {
+            "built_up_area": built_up_area,
+            "area_per_floor": area_per_floor,
+            "num_regular_floors": num_floors,
+            "headroom_area": 0,
+            "total_built_up_with_headroom": built_up_area,
+            "parking_area": 0,
+            "basement_area": 0,
+            "package_rate": base_rate,
+            "parking_rate": 1750,
+            "basement_rate": 1800,
+            "built_up_amount": built_up_area * base_rate,
+            "parking_amount": 0,
+            "basement_amount": 0,
+            "total_construction_cost": built_up_area * base_rate,
+            "detailed_boq_total": round(total_cost, 2),
+            "detailed_with_overhead": round(grand_total, 2),
+        }
     }
     
     return floors, updated_totals
