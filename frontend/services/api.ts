@@ -546,3 +546,65 @@ export const companySettingsAPI = {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
 };
+
+// Site Materials API
+export const siteMaterialsAPI = {
+  // Create a new site material entry
+  create: (data: {
+    project_id: string;
+    material_type: string;
+    material_id?: string;
+    quantity: number;
+    unit?: string;
+    cost?: number;
+    condition: 'new' | 'good' | 'fair' | 'damaged' | 'needs_repair';
+    notes?: string;
+    media_urls: string[];
+  }) => api.post('/site-materials', data),
+  
+  // Get all site materials with optional filters
+  list: (params?: {
+    project_id?: string;
+    status?: 'pending_review' | 'approved' | 'rejected';
+    condition?: string;
+    skip?: number;
+    limit?: number;
+  }) => api.get('/site-materials', { params }),
+  
+  // Get a specific site material
+  getById: (materialId: string) => api.get(`/site-materials/${materialId}`),
+  
+  // Review (approve/reject) a site material
+  review: (materialId: string, status: 'approved' | 'rejected', reviewNotes?: string) =>
+    api.put(`/site-materials/${materialId}/review`, null, {
+      params: { status, review_notes: reviewNotes }
+    }),
+  
+  // Get stats for a project's site materials
+  getProjectStats: (projectId: string) => api.get(`/site-materials/project/${projectId}/stats`),
+};
+
+// Notifications API
+export const notificationsAPI = {
+  // Get notifications for current user
+  list: (params?: { skip?: number; limit?: number; unread_only?: boolean }) =>
+    api.get('/notifications', { params }),
+  
+  // Get notification stats (total, unread, by_type)
+  getStats: () => api.get('/notifications/stats'),
+  
+  // Mark single notification as read
+  markAsRead: (notificationId: string) => api.post(`/notifications/${notificationId}/read`),
+  
+  // Mark all notifications as read
+  markAllAsRead: () => api.post('/notifications/read-all'),
+  
+  // Delete a notification
+  delete: (notificationId: string) => api.delete(`/notifications/${notificationId}`),
+  
+  // Admin: Trigger weekly review notification manually
+  triggerWeeklyReview: () => api.post('/admin/trigger-weekly-review'),
+  
+  // Admin: Get scheduled jobs
+  getScheduledJobs: () => api.get('/admin/scheduled-jobs'),
+};
