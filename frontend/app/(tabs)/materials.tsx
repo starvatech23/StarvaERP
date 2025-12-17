@@ -411,6 +411,7 @@ export default function MaterialsScreen() {
             {activeTab === 'vendors' && renderVendors()}
             {activeTab === 'materials' && renderMaterials()}
             {activeTab === 'inventory' && renderInventory()}
+            {activeTab === 'site' && renderSiteMaterials()}
             {activeTab === 'reports' && renderReports()}
           </>
         )}
