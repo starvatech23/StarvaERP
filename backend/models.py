@@ -2227,6 +2227,19 @@ class EstimateBase(BaseModel):
     num_floors: int = 1
     floor_to_floor_height: float = 10.0  # feet
     
+    # Floor-wise configuration (NEW)
+    floors: Optional[List[Dict[str, Any]]] = None  # List of floor configurations
+    has_parking: bool = False
+    parking_floors: int = 0  # Number of parking floors
+    parking_area_sqft: float = 0.0  # Total parking area
+    has_basement: bool = False
+    basement_area_sqft: float = 0.0
+    has_terrace: bool = False
+    terrace_area_sqft: float = 0.0
+    
+    # Area calculation mode (NEW)
+    area_mode: str = "auto"  # "auto" for leads (divide total), "manual" for projects
+    
     # Optional advanced inputs
     foundation_depth: Optional[float] = 4.0  # feet
     plinth_beam_height: Optional[float] = 1.5  # feet
@@ -2238,10 +2251,12 @@ class EstimateBase(BaseModel):
     # Construction preset for rate reference
     construction_preset_id: Optional[str] = None
     base_rate_per_sqft: Optional[float] = None  # Override rate from preset
+    parking_rate_per_sqft: Optional[float] = None  # Separate rate for parking (NEW)
     
     # Coefficients & assumptions
     material_preset_id: Optional[str] = None
     rate_table_id: Optional[str] = None
+    parking_rate_table_id: Optional[str] = None  # Separate parking rate table (NEW)
     
     # Adjustments (user can modify)
     contingency_percent: float = 10.0
@@ -2257,9 +2272,17 @@ class EstimateBase(BaseModel):
     grand_total: float = 0.0
     cost_per_sqft: float = 0.0
     
+    # Floor-wise totals (NEW)
+    parking_total: float = 0.0  # Total cost for parking floors
+    basement_total: float = 0.0  # Total cost for basement
+    terrace_total: float = 0.0  # Total cost for terrace
+    
     # Metadata
     assumptions: Optional[Dict[str, Any]] = None
     notes: Optional[str] = None
+    
+    # Migration flag (NEW)
+    is_floor_wise: bool = False  # True if migrated to floor-wise format
 
 class EstimateCreate(EstimateBase):
     pass
