@@ -165,7 +165,8 @@ def create_floor_wise_estimate(
     estimate_input: EstimateBase,
     material_preset: MaterialPresetResponse,
     rate_table: RateTableResponse,
-    parking_rate_multiplier: float = 0.6
+    parking_rate: float = 1750.0,  # Fixed ₹1750/sqft for parking
+    basement_rate: float = 1800.0   # Fixed ₹1800/sqft for basement
 ) -> Tuple[List[Dict], Dict, Dict]:
     """
     Create floor-wise estimate with proper area calculations.
