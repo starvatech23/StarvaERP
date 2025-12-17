@@ -589,6 +589,7 @@ export const materialTransfersAPI = {
     destination_project_id?: string;
     quantity: number;
     notes?: string;
+    media_urls?: string[];
   }) => api.post('/material-transfers', data),
   
   // Get transfers (optionally by project)
