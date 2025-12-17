@@ -1712,4 +1712,47 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     marginBottom: 4,
   },
+  // Area Breakdown Styles
+  areaBreakdown: {
+    backgroundColor: Colors.background,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  areaBreakdownTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+    marginBottom: 12,
+  },
+  areaBreakdownRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+  },
+  areaBreakdownLabel: {
+    fontSize: 13,
+    color: Colors.textPrimary,
+  },
+  areaBreakdownValue: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: Colors.textPrimary,
+  },
+  areaBreakdownTotal: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    marginTop: 8,
+    paddingTop: 10,
+  },
+  areaBreakdownTotalLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+  areaBreakdownTotalValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
 });
