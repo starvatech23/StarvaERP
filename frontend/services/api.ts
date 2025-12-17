@@ -254,12 +254,8 @@ export const crmAuditLogsAPI = {
 // Expenses API (Old - kept for compatibility)
 // Replaced by enhanced expensesAPI below
 
-// Notifications API
-export const notificationsAPI = {
-  getAll: (unreadOnly?: boolean) => api.get('/notifications', { params: { unread_only: unreadOnly } }),
-  markAsRead: (id: string) => api.put(`/notifications/${id}/read`),
-  markAllAsRead: () => api.put('/notifications/mark-all-read'),
-};
+// Notifications API (Old - kept for compatibility)
+// Replaced by enhanced notificationsAPI below
 
 // Activity Log API
 export const activityAPI = {
