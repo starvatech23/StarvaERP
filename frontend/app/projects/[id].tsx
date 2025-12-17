@@ -198,6 +198,17 @@ export default function ProjectDetailsScreen() {
     }
   };
 
+  const getConditionColor = (condition: string) => {
+    switch (condition) {
+      case 'new': return '#10B981';
+      case 'good': return '#3B82F6';
+      case 'fair': return '#F59E0B';
+      case 'damaged': return '#EF4444';
+      case 'needs_repair': return '#8B5CF6';
+      default: return '#6B7280';
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
