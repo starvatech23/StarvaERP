@@ -2699,6 +2699,7 @@ class MaterialTransferCreate(BaseModel):
     destination_project_id: Optional[str] = None  # Required if destination_type is PROJECT
     quantity: float
     notes: Optional[str] = None
+    media_urls: Optional[List[str]] = []  # Photos/videos taken during transfer
 
 class MaterialTransferResponse(BaseModel):
     id: str
