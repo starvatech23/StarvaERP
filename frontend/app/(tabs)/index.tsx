@@ -18,6 +18,7 @@ import { PieChart, BarChart } from 'react-native-chart-kit';
 import Colors from '../../constants/Colors';
 import { statusUpdatesAPI } from '../../services/api';
 import api from '../../services/api';
+import NotificationBell from '../../components/NotificationBell';
 
 const { width } = Dimensions.get('window');
 
