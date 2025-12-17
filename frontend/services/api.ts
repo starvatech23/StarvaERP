@@ -604,6 +604,25 @@ export const materialTransfersAPI = {
   // Reject a transfer
   reject: (transferId: string, reason?: string) => 
     api.post(`/material-transfers/${transferId}/reject`, null, { params: { reason } }),
+  
+  // Get transfer history
+  getHistory: (params?: { project_id?: string; include_all_statuses?: boolean }) =>
+    api.get('/material-transfers/history', { params }),
+};
+
+// Material Finance API
+export const materialFinanceAPI = {
+  // Get finance summary
+  getSummary: (projectId?: string) => 
+    api.get('/material-finance/summary', { params: { project_id: projectId } }),
+  
+  // Get detailed finance records
+  getRecords: (params?: {
+    project_id?: string;
+    classification?: 'project_cost' | 'company_asset';
+    skip?: number;
+    limit?: number;
+  }) => api.get('/material-finance/records', { params }),
 };
 
 // Notifications API
