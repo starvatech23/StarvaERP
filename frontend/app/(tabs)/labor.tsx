@@ -447,6 +447,8 @@ export default function LaborScreen() {
                 router.push('/labor/mark-attendance' as any);
               } else if (activeTab === 'transfers') {
                 router.push('/labor/site-transfer' as any);
+              } else if (activeTab === 'payments') {
+                router.push('/labor/payments/create' as any);
               } else {
                 router.push('/labor/reports' as any);
               }
