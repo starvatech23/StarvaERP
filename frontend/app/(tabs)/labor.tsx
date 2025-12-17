@@ -569,6 +569,7 @@ export default function LaborScreen() {
             {activeTab === 'workers' && renderWorkers()}
             {activeTab === 'attendance' && renderAttendance()}
             {activeTab === 'transfers' && renderTransfers()}
+            {activeTab === 'payments' && renderPayments()}
             {activeTab === 'reports' && renderReports()}
           </>
         )}
