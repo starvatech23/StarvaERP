@@ -2527,6 +2527,586 @@ async def create_site_transfer(
     return SiteTransferResponse(**transfer_dict)
 
 
+# ============= Labour Advance Payment Routes =============
+
+@api_router.get("/labour/advances", response_model=List[AdvancePaymentResponse])
+async def get_advance_payments(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    worker_id: Optional[str] = None,
+    project_id: Optional[str] = None,
+    status: Optional[str] = None
+):
+    """Get all advance payments with optional filters"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if worker_id:
+        query["worker_id"] = worker_id
+    if project_id:
+        query["project_id"] = project_id
+    if status:
+        query["status"] = status
+    
+    advances = await db.advance_payments.find(query).sort("created_at", -1).to_list(length=500)
+    result = []
+    for adv in advances:
+        adv = serialize_doc(adv)
+        # Get worker name
+        worker = await db.workers.find_one({"_id": ObjectId(adv["worker_id"])})
+        adv["worker_name"] = worker["full_name"] if worker else "Unknown"
+        # Get project name
+        project = await db.projects.find_one({"_id": ObjectId(adv["project_id"])})
+        adv["project_name"] = project["name"] if project else "Unknown"
+        # Get approver name
+        if adv.get("approved_by"):
+            approver = await db.users.find_one({"_id": ObjectId(adv["approved_by"])})
+            adv["approved_by_name"] = approver["full_name"] if approver else "Unknown"
+        # Get disburser name
+        if adv.get("disbursed_by"):
+            disburser = await db.users.find_one({"_id": ObjectId(adv["disbursed_by"])})
+            adv["disbursed_by_name"] = disburser["full_name"] if disburser else "Unknown"
+        # Get creator name
+        if adv.get("created_by"):
+            creator = await db.users.find_one({"_id": ObjectId(adv["created_by"])})
+            adv["created_by_name"] = creator["full_name"] if creator else "Unknown"
+        result.append(AdvancePaymentResponse(**adv))
+    return result
+
+@api_router.post("/labour/advances", response_model=AdvancePaymentResponse)
+async def create_advance_payment(
+    advance: AdvancePaymentCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new advance payment request"""
+    current_user = await get_current_user(credentials)
+    
+    # Validate worker exists
+    worker = await db.workers.find_one({"_id": ObjectId(advance.worker_id)})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    
+    # Validate project exists
+    project = await db.projects.find_one({"_id": ObjectId(advance.project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Check for outstanding advances (max 25% rule)
+    outstanding = await db.advance_payments.find({
+        "worker_id": advance.worker_id,
+        "status": {"$in": ["approved", "disbursed"]}
+    }).to_list(length=100)
+    
+    total_outstanding = sum(
+        (adv.get("amount", 0) - adv.get("recovered_amount", 0))
+        for adv in outstanding
+    )
+    
+    advance_dict = advance.model_dump()
+    advance_dict["status"] = "requested"
+    advance_dict["requested_date"] = datetime.utcnow()
+    advance_dict["recovered_amount"] = 0
+    advance_dict["created_by"] = str(current_user["_id"])
+    advance_dict["created_at"] = datetime.utcnow()
+    advance_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.advance_payments.insert_one(advance_dict)
+    advance_dict["id"] = str(result.inserted_id)
+    advance_dict["worker_name"] = worker["full_name"]
+    advance_dict["project_name"] = project["name"]
+    advance_dict["created_by_name"] = current_user["full_name"]
+    
+    return AdvancePaymentResponse(**advance_dict)
+
+@api_router.put("/labour/advances/{advance_id}/approve", response_model=AdvancePaymentResponse)
+async def approve_advance_payment(
+    advance_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Approve an advance payment request"""
+    current_user = await get_current_user(credentials)
+    
+    advance = await db.advance_payments.find_one({"_id": ObjectId(advance_id)})
+    if not advance:
+        raise HTTPException(status_code=404, detail="Advance payment not found")
+    
+    if advance["status"] != "requested":
+        raise HTTPException(status_code=400, detail="Can only approve requested advances")
+    
+    update_data = {
+        "status": "approved",
+        "approved_by": str(current_user["_id"]),
+        "approved_date": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    await db.advance_payments.update_one(
+        {"_id": ObjectId(advance_id)},
+        {"$set": update_data}
+    )
+    
+    updated = await db.advance_payments.find_one({"_id": ObjectId(advance_id)})
+    updated = serialize_doc(updated)
+    
+    worker = await db.workers.find_one({"_id": ObjectId(updated["worker_id"])})
+    updated["worker_name"] = worker["full_name"] if worker else "Unknown"
+    project = await db.projects.find_one({"_id": ObjectId(updated["project_id"])})
+    updated["project_name"] = project["name"] if project else "Unknown"
+    updated["approved_by_name"] = current_user["full_name"]
+    
+    return AdvancePaymentResponse(**updated)
+
+@api_router.put("/labour/advances/{advance_id}/reject", response_model=AdvancePaymentResponse)
+async def reject_advance_payment(
+    advance_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Reject an advance payment request"""
+    current_user = await get_current_user(credentials)
+    
+    advance = await db.advance_payments.find_one({"_id": ObjectId(advance_id)})
+    if not advance:
+        raise HTTPException(status_code=404, detail="Advance payment not found")
+    
+    update_data = {
+        "status": "rejected",
+        "approved_by": str(current_user["_id"]),
+        "approved_date": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    await db.advance_payments.update_one(
+        {"_id": ObjectId(advance_id)},
+        {"$set": update_data}
+    )
+    
+    updated = await db.advance_payments.find_one({"_id": ObjectId(advance_id)})
+    updated = serialize_doc(updated)
+    
+    worker = await db.workers.find_one({"_id": ObjectId(updated["worker_id"])})
+    updated["worker_name"] = worker["full_name"] if worker else "Unknown"
+    project = await db.projects.find_one({"_id": ObjectId(updated["project_id"])})
+    updated["project_name"] = project["name"] if project else "Unknown"
+    
+    return AdvancePaymentResponse(**updated)
+
+@api_router.put("/labour/advances/{advance_id}/disburse", response_model=AdvancePaymentResponse)
+async def disburse_advance_payment(
+    advance_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Mark advance payment as disbursed"""
+    current_user = await get_current_user(credentials)
+    
+    advance = await db.advance_payments.find_one({"_id": ObjectId(advance_id)})
+    if not advance:
+        raise HTTPException(status_code=404, detail="Advance payment not found")
+    
+    if advance["status"] != "approved":
+        raise HTTPException(status_code=400, detail="Can only disburse approved advances")
+    
+    update_data = {
+        "status": "disbursed",
+        "disbursed_by": str(current_user["_id"]),
+        "disbursed_date": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    await db.advance_payments.update_one(
+        {"_id": ObjectId(advance_id)},
+        {"$set": update_data}
+    )
+    
+    updated = await db.advance_payments.find_one({"_id": ObjectId(advance_id)})
+    updated = serialize_doc(updated)
+    
+    worker = await db.workers.find_one({"_id": ObjectId(updated["worker_id"])})
+    updated["worker_name"] = worker["full_name"] if worker else "Unknown"
+    project = await db.projects.find_one({"_id": ObjectId(updated["project_id"])})
+    updated["project_name"] = project["name"] if project else "Unknown"
+    updated["disbursed_by_name"] = current_user["full_name"]
+    
+    return AdvancePaymentResponse(**updated)
+
+
+# ============= Labour Weekly Payment Routes =============
+
+@api_router.get("/labour/payments", response_model=List[WeeklyPaymentResponse])
+async def get_weekly_payments(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    worker_id: Optional[str] = None,
+    project_id: Optional[str] = None,
+    status: Optional[str] = None,
+    week_start: Optional[str] = None
+):
+    """Get all weekly payments with optional filters"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if worker_id:
+        query["worker_id"] = worker_id
+    if project_id:
+        query["project_id"] = project_id
+    if status:
+        query["status"] = status
+    if week_start:
+        query["week_start_date"] = {"$gte": datetime.fromisoformat(week_start)}
+    
+    payments = await db.weekly_payments.find(query).sort("created_at", -1).to_list(length=500)
+    result = []
+    for pmt in payments:
+        pmt = serialize_doc(pmt)
+        # Get worker info
+        worker = await db.workers.find_one({"_id": ObjectId(pmt["worker_id"])})
+        pmt["worker_name"] = worker["full_name"] if worker else "Unknown"
+        pmt["worker_phone"] = worker.get("phone", "") if worker else ""
+        # Get project name
+        project = await db.projects.find_one({"_id": ObjectId(pmt["project_id"])})
+        pmt["project_name"] = project["name"] if project else "Unknown"
+        # Get validator name
+        if pmt.get("validated_by"):
+            validator = await db.users.find_one({"_id": ObjectId(pmt["validated_by"])})
+            pmt["validated_by_name"] = validator["full_name"] if validator else "Unknown"
+        # Get payer name
+        if pmt.get("paid_by"):
+            payer = await db.users.find_one({"_id": ObjectId(pmt["paid_by"])})
+            pmt["paid_by_name"] = payer["full_name"] if payer else "Unknown"
+        result.append(WeeklyPaymentResponse(**pmt))
+    return result
+
+@api_router.post("/labour/payments", response_model=WeeklyPaymentResponse)
+async def create_weekly_payment(
+    payment: WeeklyPaymentCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new weekly payment entry"""
+    current_user = await get_current_user(credentials)
+    
+    # Validate worker exists
+    worker = await db.workers.find_one({"_id": ObjectId(payment.worker_id)})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    
+    # Validate project exists
+    project = await db.projects.find_one({"_id": ObjectId(payment.project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Check for duplicate payment for same week
+    existing = await db.weekly_payments.find_one({
+        "worker_id": payment.worker_id,
+        "week_start_date": payment.week_start_date,
+        "week_end_date": payment.week_end_date
+    })
+    if existing:
+        raise HTTPException(status_code=400, detail="Payment already exists for this week")
+    
+    payment_dict = payment.model_dump()
+    payment_dict["status"] = "draft"
+    payment_dict["otp_verified"] = False
+    payment_dict["otp_attempts"] = 0
+    payment_dict["created_by"] = str(current_user["_id"])
+    payment_dict["created_at"] = datetime.utcnow()
+    payment_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.weekly_payments.insert_one(payment_dict)
+    payment_dict["id"] = str(result.inserted_id)
+    payment_dict["worker_name"] = worker["full_name"]
+    payment_dict["worker_phone"] = worker.get("phone", "")
+    payment_dict["project_name"] = project["name"]
+    
+    return WeeklyPaymentResponse(**payment_dict)
+
+@api_router.put("/labour/payments/{payment_id}", response_model=WeeklyPaymentResponse)
+async def update_weekly_payment(
+    payment_id: str,
+    payment_update: WeeklyPaymentUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a weekly payment entry"""
+    current_user = await get_current_user(credentials)
+    
+    existing = await db.weekly_payments.find_one({"_id": ObjectId(payment_id)})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    update_data = {k: v for k, v in payment_update.model_dump().items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.weekly_payments.update_one(
+        {"_id": ObjectId(payment_id)},
+        {"$set": update_data}
+    )
+    
+    updated = await db.weekly_payments.find_one({"_id": ObjectId(payment_id)})
+    updated = serialize_doc(updated)
+    
+    worker = await db.workers.find_one({"_id": ObjectId(updated["worker_id"])})
+    updated["worker_name"] = worker["full_name"] if worker else "Unknown"
+    updated["worker_phone"] = worker.get("phone", "") if worker else ""
+    project = await db.projects.find_one({"_id": ObjectId(updated["project_id"])})
+    updated["project_name"] = project["name"] if project else "Unknown"
+    
+    return WeeklyPaymentResponse(**updated)
+
+@api_router.post("/labour/payments/{payment_id}/validate", response_model=WeeklyPaymentResponse)
+async def validate_weekly_payment(
+    payment_id: str,
+    validation_notes: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Validate a weekly payment"""
+    current_user = await get_current_user(credentials)
+    
+    payment = await db.weekly_payments.find_one({"_id": ObjectId(payment_id)})
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    # Validation rules
+    errors = []
+    if payment.get("days_worked", 0) > 7:
+        errors.append("Days worked cannot exceed 7")
+    if payment.get("net_amount", 0) <= 0:
+        errors.append("Net amount must be positive")
+    if payment.get("other_deductions", 0) > payment.get("gross_amount", 0) * 0.5:
+        errors.append("Deductions cannot exceed 50% of gross amount")
+    
+    if errors:
+        raise HTTPException(status_code=400, detail={"validation_errors": errors})
+    
+    update_data = {
+        "status": "validated",
+        "validated_by": str(current_user["_id"]),
+        "validated_at": datetime.utcnow(),
+        "validation_notes": validation_notes,
+        "updated_at": datetime.utcnow()
+    }
+    
+    await db.weekly_payments.update_one(
+        {"_id": ObjectId(payment_id)},
+        {"$set": update_data}
+    )
+    
+    updated = await db.weekly_payments.find_one({"_id": ObjectId(payment_id)})
+    updated = serialize_doc(updated)
+    
+    worker = await db.workers.find_one({"_id": ObjectId(updated["worker_id"])})
+    updated["worker_name"] = worker["full_name"] if worker else "Unknown"
+    updated["worker_phone"] = worker.get("phone", "") if worker else ""
+    project = await db.projects.find_one({"_id": ObjectId(updated["project_id"])})
+    updated["project_name"] = project["name"] if project else "Unknown"
+    updated["validated_by_name"] = current_user["full_name"]
+    
+    return WeeklyPaymentResponse(**updated)
+
+@api_router.post("/labour/payments/{payment_id}/send-otp")
+async def send_payment_otp(
+    payment_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Send OTP to worker for payment verification"""
+    import random
+    import hashlib
+    
+    current_user = await get_current_user(credentials)
+    
+    payment = await db.weekly_payments.find_one({"_id": ObjectId(payment_id)})
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    if payment["status"] not in ["validated", "pending_payment", "otp_sent"]:
+        raise HTTPException(status_code=400, detail="Payment must be validated before sending OTP")
+    
+    worker = await db.workers.find_one({"_id": ObjectId(payment["worker_id"])})
+    if not worker or not worker.get("phone"):
+        raise HTTPException(status_code=400, detail="Worker mobile number not found")
+    
+    # Generate 6-digit OTP
+    otp_code = str(random.randint(100000, 999999))
+    otp_hash = hashlib.sha256(otp_code.encode()).hexdigest()
+    expires_at = datetime.utcnow() + timedelta(minutes=10)
+    
+    # Store OTP log
+    otp_log = {
+        "payment_id": payment_id,
+        "worker_id": str(payment["worker_id"]),
+        "mobile_number": worker["phone"],
+        "otp_hash": otp_hash,
+        "sent_at": datetime.utcnow(),
+        "expires_at": expires_at,
+        "verified": False,
+        "attempts": 0
+    }
+    await db.payment_otp_logs.insert_one(otp_log)
+    
+    # Update payment status
+    await db.weekly_payments.update_one(
+        {"_id": ObjectId(payment_id)},
+        {"$set": {
+            "status": "otp_sent",
+            "otp_sent_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    
+    # In production, send SMS here. For now, return OTP in response (mock)
+    return {
+        "success": True,
+        "message": f"OTP sent to {worker['phone'][-4:].rjust(10, '*')}",
+        "expires_in_minutes": 10,
+        "otp_for_testing": otp_code  # Remove in production
+    }
+
+@api_router.post("/labour/payments/{payment_id}/verify-otp")
+async def verify_payment_otp(
+    payment_id: str,
+    otp: str,
+    payment_method: str = "cash",
+    payment_reference: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Verify OTP and mark payment as paid"""
+    import hashlib
+    
+    current_user = await get_current_user(credentials)
+    
+    payment = await db.weekly_payments.find_one({"_id": ObjectId(payment_id)})
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    if payment["status"] != "otp_sent":
+        raise HTTPException(status_code=400, detail="OTP not sent for this payment")
+    
+    # Get latest OTP log
+    otp_log = await db.payment_otp_logs.find_one(
+        {"payment_id": payment_id},
+        sort=[("sent_at", -1)]
+    )
+    
+    if not otp_log:
+        raise HTTPException(status_code=400, detail="OTP not found")
+    
+    # Check expiry
+    if datetime.utcnow() > otp_log["expires_at"]:
+        await db.weekly_payments.update_one(
+            {"_id": ObjectId(payment_id)},
+            {"$set": {"status": "validated", "updated_at": datetime.utcnow()}}
+        )
+        raise HTTPException(status_code=400, detail="OTP expired. Please request a new one.")
+    
+    # Check attempts
+    if otp_log["attempts"] >= 3:
+        await db.weekly_payments.update_one(
+            {"_id": ObjectId(payment_id)},
+            {"$set": {"status": "failed", "updated_at": datetime.utcnow()}}
+        )
+        raise HTTPException(status_code=400, detail="Maximum OTP attempts exceeded")
+    
+    # Verify OTP
+    otp_hash = hashlib.sha256(otp.encode()).hexdigest()
+    if otp_hash != otp_log["otp_hash"]:
+        await db.payment_otp_logs.update_one(
+            {"_id": otp_log["_id"]},
+            {"$inc": {"attempts": 1}}
+        )
+        await db.weekly_payments.update_one(
+            {"_id": ObjectId(payment_id)},
+            {"$inc": {"otp_attempts": 1}}
+        )
+        remaining = 3 - (otp_log["attempts"] + 1)
+        raise HTTPException(status_code=400, detail=f"Invalid OTP. {remaining} attempts remaining.")
+    
+    # Mark OTP as verified
+    await db.payment_otp_logs.update_one(
+        {"_id": otp_log["_id"]},
+        {"$set": {"verified": True, "verified_at": datetime.utcnow()}}
+    )
+    
+    # Mark payment as paid
+    await db.weekly_payments.update_one(
+        {"_id": ObjectId(payment_id)},
+        {"$set": {
+            "status": "paid",
+            "otp_verified": True,
+            "otp_verified_at": datetime.utcnow(),
+            "paid_by": str(current_user["_id"]),
+            "paid_at": datetime.utcnow(),
+            "payment_method": payment_method,
+            "payment_reference": payment_reference,
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    
+    # Deduct from any outstanding advances
+    if payment.get("advance_deduction", 0) > 0:
+        outstanding_advances = await db.advance_payments.find({
+            "worker_id": payment["worker_id"],
+            "status": "disbursed"
+        }).to_list(length=10)
+        
+        remaining_deduction = payment["advance_deduction"]
+        for adv in outstanding_advances:
+            if remaining_deduction <= 0:
+                break
+            to_recover = min(
+                remaining_deduction,
+                adv["amount"] - adv.get("recovered_amount", 0)
+            )
+            new_recovered = adv.get("recovered_amount", 0) + to_recover
+            new_status = "recovered" if new_recovered >= adv["amount"] else "disbursed"
+            
+            await db.advance_payments.update_one(
+                {"_id": adv["_id"]},
+                {"$set": {
+                    "recovered_amount": new_recovered,
+                    "status": new_status,
+                    "updated_at": datetime.utcnow()
+                }}
+            )
+            remaining_deduction -= to_recover
+    
+    return {
+        "success": True,
+        "message": "Payment verified and marked as paid",
+        "payment_id": payment_id
+    }
+
+@api_router.get("/labour/payments/weekly-summary")
+async def get_weekly_payment_summary(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    project_id: Optional[str] = None,
+    week_start: Optional[str] = None
+):
+    """Get weekly payment summary"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if week_start:
+        query["week_start_date"] = {"$gte": datetime.fromisoformat(week_start)}
+    
+    payments = await db.weekly_payments.find(query).to_list(length=1000)
+    
+    total_workers = len(set(p["worker_id"] for p in payments))
+    total_gross = sum(p.get("gross_amount", 0) for p in payments)
+    total_deductions = sum(p.get("advance_deduction", 0) + p.get("other_deductions", 0) for p in payments)
+    total_net = sum(p.get("net_amount", 0) for p in payments)
+    
+    paid_count = len([p for p in payments if p.get("status") == "paid"])
+    pending_count = len([p for p in payments if p.get("status") in ["draft", "pending_validation", "validated", "pending_payment", "otp_sent"]])
+    failed_count = len([p for p in payments if p.get("status") == "failed"])
+    
+    return {
+        "total_workers": total_workers,
+        "total_payments": len(payments),
+        "total_gross_amount": total_gross,
+        "total_deductions": total_deductions,
+        "total_net_amount": total_net,
+        "paid_count": paid_count,
+        "pending_count": pending_count,
+        "failed_count": failed_count
+    }
+
 
 # ============= Vendor Management Routes =============
 
