@@ -11072,6 +11072,252 @@ async def get_project_site_materials_stats(
         raise HTTPException(status_code=500, detail=f"Failed to get stats: {str(e)}")
 
 
+# ============= Material Transfer API =============
+from models import MaterialTransferCreate, MaterialTransferResponse, TransferDestination, TransferStatus
+
+@api_router.post("/material-transfers", response_model=dict)
+async def create_material_transfer(
+    transfer: MaterialTransferCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a material transfer request"""
+    try:
+        user = await get_current_user(credentials)
+        
+        # Get the source material
+        material = await db.site_materials.find_one({"_id": ObjectId(transfer.site_material_id)})
+        if not material:
+            raise HTTPException(status_code=404, detail="Site material not found")
+        
+        if material.get("status") != "approved":
+            raise HTTPException(status_code=400, detail="Only approved materials can be transferred")
+        
+        if transfer.quantity > material.get("quantity", 0):
+            raise HTTPException(status_code=400, detail="Transfer quantity exceeds available quantity")
+        
+        # Validate destination
+        destination_project_name = None
+        if transfer.destination_type == "project":
+            if not transfer.destination_project_id:
+                raise HTTPException(status_code=400, detail="Destination project is required for project transfers")
+            dest_project = await db.projects.find_one({"_id": ObjectId(transfer.destination_project_id)})
+            if not dest_project:
+                raise HTTPException(status_code=404, detail="Destination project not found")
+            destination_project_name = dest_project.get("name")
+        
+        # Get source project name
+        source_project = await db.projects.find_one({"_id": ObjectId(material["project_id"])})
+        source_project_name = source_project.get("name") if source_project else None
+        
+        # Create transfer record
+        transfer_record = {
+            "site_material_id": transfer.site_material_id,
+            "material_type": material.get("material_type"),
+            "quantity": transfer.quantity,
+            "unit": material.get("unit", "units"),
+            "source_project_id": material.get("project_id"),
+            "source_project_name": source_project_name,
+            "destination_type": transfer.destination_type,
+            "destination_project_id": transfer.destination_project_id,
+            "destination_project_name": destination_project_name,
+            "status": "pending",
+            "notes": transfer.notes,
+            "initiated_by": str(user["_id"]),
+            "initiated_by_name": user.get("full_name", "Unknown"),
+            "accepted_by": None,
+            "accepted_by_name": None,
+            "accepted_at": None,
+            "rejection_reason": None,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        result = await db.material_transfers.insert_one(transfer_record)
+        transfer_id = str(result.inserted_id)
+        
+        # Send notification to destination project engineers
+        if transfer.destination_type == "project" and transfer.destination_project_id:
+            notification_service = NotificationService(db)
+            # Find engineers assigned to destination project
+            dest_project = await db.projects.find_one({"_id": ObjectId(transfer.destination_project_id)})
+            if dest_project and dest_project.get("team_member_ids"):
+                for member_id in dest_project["team_member_ids"]:
+                    await notification_service.create_notification(
+                        user_id=member_id,
+                        title="Material Transfer Request",
+                        message=f"{transfer.quantity} {material.get('unit')} of {material.get('material_type')} is being transferred from {source_project_name}. Please accept to receive.",
+                        notification_type="material_added",
+                        priority="high",
+                        link=f"/materials/transfers/{transfer_id}",
+                        related_entity_type="material_transfer",
+                        related_entity_id=transfer_id
+                    )
+        
+        return {
+            "id": transfer_id,
+            "message": "Transfer request created successfully",
+            "status": "pending"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create transfer: {str(e)}")
+
+
+@api_router.get("/material-transfers", response_model=List[dict])
+async def get_material_transfers(
+    project_id: Optional[str] = None,
+    status: Optional[str] = None,
+    direction: Optional[str] = None,  # "incoming" or "outgoing"
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get material transfers"""
+    try:
+        await get_current_user(credentials)
+        
+        query = {}
+        if status:
+            query["status"] = status
+        
+        if project_id:
+            if direction == "incoming":
+                query["destination_project_id"] = project_id
+            elif direction == "outgoing":
+                query["source_project_id"] = project_id
+            else:
+                query["$or"] = [
+                    {"source_project_id": project_id},
+                    {"destination_project_id": project_id}
+                ]
+        
+        transfers = []
+        async for transfer in db.material_transfers.find(query).sort("created_at", -1):
+            transfer["id"] = str(transfer.pop("_id"))
+            transfers.append(transfer)
+        
+        return transfers
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get transfers: {str(e)}")
+
+
+@api_router.post("/material-transfers/{transfer_id}/accept", response_model=dict)
+async def accept_material_transfer(
+    transfer_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Accept a material transfer (receiving project engineer)"""
+    try:
+        user = await get_current_user(credentials)
+        
+        transfer = await db.material_transfers.find_one({"_id": ObjectId(transfer_id)})
+        if not transfer:
+            raise HTTPException(status_code=404, detail="Transfer not found")
+        
+        if transfer.get("status") != "pending":
+            raise HTTPException(status_code=400, detail="Transfer is no longer pending")
+        
+        # Update transfer status
+        await db.material_transfers.update_one(
+            {"_id": ObjectId(transfer_id)},
+            {"$set": {
+                "status": "accepted",
+                "accepted_by": str(user["_id"]),
+                "accepted_by_name": user.get("full_name", "Unknown"),
+                "accepted_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        # Update source material quantity
+        source_material = await db.site_materials.find_one({"_id": ObjectId(transfer["site_material_id"])})
+        if source_material:
+            new_quantity = source_material.get("quantity", 0) - transfer["quantity"]
+            await db.site_materials.update_one(
+                {"_id": ObjectId(transfer["site_material_id"])},
+                {"$set": {"quantity": max(0, new_quantity), "updated_at": datetime.utcnow()}}
+            )
+        
+        # Create new material entry at destination (if project)
+        if transfer.get("destination_type") == "project" and transfer.get("destination_project_id"):
+            new_material = {
+                "project_id": transfer["destination_project_id"],
+                "material_type": transfer["material_type"],
+                "quantity": transfer["quantity"],
+                "unit": transfer["unit"],
+                "condition": source_material.get("condition", "good") if source_material else "good",
+                "notes": f"Transferred from {transfer.get('source_project_name', 'another project')}",
+                "media_urls": source_material.get("media_urls", []) if source_material else [],
+                "status": "approved",  # Auto-approved since it's a transfer
+                "added_by": str(user["_id"]),
+                "added_by_name": user.get("full_name", "Unknown"),
+                "transfer_id": transfer_id,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            await db.site_materials.insert_one(new_material)
+        
+        # Notify the initiator
+        notification_service = NotificationService(db)
+        await notification_service.create_notification(
+            user_id=transfer["initiated_by"],
+            title="Transfer Accepted",
+            message=f"Your transfer of {transfer['quantity']} {transfer['unit']} {transfer['material_type']} has been accepted by {user.get('full_name', 'the recipient')}",
+            notification_type="material_approved",
+            priority="normal",
+            link=f"/materials/transfers/{transfer_id}"
+        )
+        
+        return {"message": "Transfer accepted successfully", "status": "accepted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to accept transfer: {str(e)}")
+
+
+@api_router.post("/material-transfers/{transfer_id}/reject", response_model=dict)
+async def reject_material_transfer(
+    transfer_id: str,
+    reason: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Reject a material transfer"""
+    try:
+        user = await get_current_user(credentials)
+        
+        transfer = await db.material_transfers.find_one({"_id": ObjectId(transfer_id)})
+        if not transfer:
+            raise HTTPException(status_code=404, detail="Transfer not found")
+        
+        if transfer.get("status") != "pending":
+            raise HTTPException(status_code=400, detail="Transfer is no longer pending")
+        
+        await db.material_transfers.update_one(
+            {"_id": ObjectId(transfer_id)},
+            {"$set": {
+                "status": "rejected",
+                "rejection_reason": reason,
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        # Notify the initiator
+        notification_service = NotificationService(db)
+        await notification_service.create_notification(
+            user_id=transfer["initiated_by"],
+            title="Transfer Rejected",
+            message=f"Your transfer of {transfer['quantity']} {transfer['unit']} {transfer['material_type']} was rejected. Reason: {reason or 'No reason provided'}",
+            notification_type="material_rejected",
+            priority="normal",
+            link=f"/materials/transfers/{transfer_id}"
+        )
+        
+        return {"message": "Transfer rejected", "status": "rejected"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to reject transfer: {str(e)}")
+
+
 # ============= Notifications API =============
 
 @api_router.get("/notifications", response_model=List[dict])
