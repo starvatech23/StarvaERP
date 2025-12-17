@@ -61,13 +61,6 @@ export default function ProfileScreen() {
       onPress: () => router.push('/settings/company'),
       adminOnly: true
     },
-    { 
-      icon: 'cog', 
-      label: 'System Config', 
-      description: 'SMS, WhatsApp & Domain Settings',
-      onPress: () => router.push('/admin/config' as any),
-      adminOnly: true
-    },
     { icon: 'help-circle-outline', label: 'Help & Support', onPress: () => {} },
     { icon: 'information-circle-outline', label: 'About', onPress: () => {} },
   ];
