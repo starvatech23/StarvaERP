@@ -388,7 +388,7 @@ export default function DashboardScreen() {
               style={styles.sectionHeaderLink}
               onPress={() => router.push('/(tabs)/materials' as any)}
             >
-              <Text style={styles.sectionTitle}>Operations</Text>
+              <Text style={styles.sectionTitleNoMargin}>Operations</Text>
               <View style={styles.sectionLinkIcon}>
                 <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
               </View>
