@@ -51,6 +51,14 @@ export default function CreateEstimateScreen() {
     foundation_depth: '4',
     contingency_percent: '10',
     labour_percent_of_material: '40',
+    // Floor-wise configuration
+    has_parking: false,
+    parking_area_sqft: '',
+    has_basement: false,
+    basement_area_sqft: '',
+    has_terrace: false,
+    terrace_area_sqft: '',
+    area_mode: 'auto', // 'auto' divides area, 'manual' allows per-floor input
   });
 
   const packageOptions = [
