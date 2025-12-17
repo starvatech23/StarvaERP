@@ -65,7 +65,7 @@ export default function ProfileScreen() {
       icon: 'cog', 
       label: 'Admin Settings', 
       description: 'SMS, WhatsApp & Domain Config',
-      onPress: () => router.push('/admin/settings' as any),
+      onPress: () => router.push('/admin/system-settings' as any),
       adminOnly: true
     },
     { icon: 'help-circle-outline', label: 'Help & Support', onPress: () => {} },
