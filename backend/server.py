@@ -10783,6 +10783,418 @@ async def get_project_gantt_data(
         raise HTTPException(status_code=500, detail=f"Failed to get Gantt data: {str(e)}")
 
 
+# ============= Site Materials Inventory API =============
+from models import (
+    SiteMaterialCreate, SiteMaterialUpdate, SiteMaterialResponse,
+    MaterialCondition, SiteMaterialStatus,
+    NotificationCreate, NotificationResponse, NotificationStats,
+    NotificationType, NotificationPriority
+)
+from notification_service import NotificationService
+
+@api_router.post("/site-materials", response_model=dict)
+async def add_site_material(
+    material: SiteMaterialCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Add material to site inventory (by project engineers)"""
+    try:
+        user = await get_current_user(credentials)
+        
+        # Validate that media is provided (at least one photo/video)
+        if not material.media_urls or len(material.media_urls) == 0:
+            raise HTTPException(status_code=400, detail="At least one photo or video is required")
+        
+        # Verify project exists
+        project = await db.projects.find_one({"_id": ObjectId(material.project_id)})
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Create site material entry
+        site_material = {
+            "project_id": material.project_id,
+            "material_type": material.material_type,
+            "material_id": material.material_id,
+            "quantity": material.quantity,
+            "unit": material.unit,
+            "cost": material.cost,
+            "condition": material.condition.value,
+            "notes": material.notes,
+            "media_urls": material.media_urls,
+            "status": "pending_review",
+            "added_by": str(user["_id"]),
+            "added_by_name": user.get("full_name", "Unknown"),
+            "reviewed_by": None,
+            "reviewed_by_name": None,
+            "review_notes": None,
+            "reviewed_at": None,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        result = await db.site_materials.insert_one(site_material)
+        material_id = str(result.inserted_id)
+        
+        # Notify managers about new material entry
+        notification_service = NotificationService(db)
+        
+        # Get managers and admins for this project
+        manager_ids = []
+        managers_cursor = db.users.find({
+            "is_active": True,
+            "role": {"$in": ["admin", "project_manager"]}
+        })
+        async for manager in managers_cursor:
+            manager_ids.append(str(manager["_id"]))
+        
+        if manager_ids:
+            await notification_service.notify_material_added(
+                manager_ids=manager_ids,
+                material_type=material.material_type,
+                quantity=material.quantity,
+                project_name=project.get("name", "Unknown Project"),
+                added_by_name=user.get("full_name", "Unknown"),
+                material_id=material_id
+            )
+        
+        return {
+            "id": material_id,
+            "message": "Site material added successfully",
+            "status": "pending_review"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to add site material: {str(e)}")
+
+
+@api_router.get("/site-materials", response_model=List[dict])
+async def get_site_materials(
+    project_id: Optional[str] = None,
+    status: Optional[str] = None,
+    condition: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 50,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get site materials with optional filters"""
+    try:
+        await get_current_user(credentials)
+        
+        query = {}
+        if project_id:
+            query["project_id"] = project_id
+        if status:
+            query["status"] = status
+        if condition:
+            query["condition"] = condition
+        
+        cursor = db.site_materials.find(query).sort("created_at", -1).skip(skip).limit(limit)
+        
+        materials = []
+        async for mat in cursor:
+            mat["id"] = str(mat.pop("_id"))
+            
+            # Get project name
+            if mat.get("project_id"):
+                try:
+                    project = await db.projects.find_one({"_id": ObjectId(mat["project_id"])})
+                    mat["project_name"] = project.get("name") if project else None
+                except:
+                    mat["project_name"] = None
+            
+            materials.append(mat)
+        
+        return materials
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get site materials: {str(e)}")
+
+
+@api_router.get("/site-materials/{material_id}", response_model=dict)
+async def get_site_material(
+    material_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a specific site material entry"""
+    try:
+        await get_current_user(credentials)
+        
+        material = await db.site_materials.find_one({"_id": ObjectId(material_id)})
+        if not material:
+            raise HTTPException(status_code=404, detail="Site material not found")
+        
+        material["id"] = str(material.pop("_id"))
+        
+        # Get project name
+        if material.get("project_id"):
+            try:
+                project = await db.projects.find_one({"_id": ObjectId(material["project_id"])})
+                material["project_name"] = project.get("name") if project else None
+            except:
+                material["project_name"] = None
+        
+        return material
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get site material: {str(e)}")
+
+
+@api_router.put("/site-materials/{material_id}/review", response_model=dict)
+async def review_site_material(
+    material_id: str,
+    status: str,  # "approved" or "rejected"
+    review_notes: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Review (approve/reject) a site material entry (managers only)"""
+    try:
+        user = await get_current_user(credentials)
+        
+        # Check if user has permission to review
+        if user.get("role") not in ["admin", "project_manager", "crm_manager"]:
+            raise HTTPException(status_code=403, detail="Only managers can review site materials")
+        
+        if status not in ["approved", "rejected"]:
+            raise HTTPException(status_code=400, detail="Status must be 'approved' or 'rejected'")
+        
+        # Get material
+        material = await db.site_materials.find_one({"_id": ObjectId(material_id)})
+        if not material:
+            raise HTTPException(status_code=404, detail="Site material not found")
+        
+        # Update material
+        update_data = {
+            "status": status,
+            "reviewed_by": str(user["_id"]),
+            "reviewed_by_name": user.get("full_name", "Unknown"),
+            "review_notes": review_notes,
+            "reviewed_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        await db.site_materials.update_one(
+            {"_id": ObjectId(material_id)},
+            {"$set": update_data}
+        )
+        
+        # Notify the engineer who added the material
+        notification_service = NotificationService(db)
+        await notification_service.notify_material_reviewed(
+            engineer_id=material["added_by"],
+            material_type=material["material_type"],
+            status=status,
+            reviewer_name=user.get("full_name", "Unknown"),
+            material_id=material_id
+        )
+        
+        return {
+            "message": f"Site material {status} successfully",
+            "status": status
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to review site material: {str(e)}")
+
+
+@api_router.get("/site-materials/project/{project_id}/stats", response_model=dict)
+async def get_project_site_materials_stats(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get statistics for site materials of a project"""
+    try:
+        await get_current_user(credentials)
+        
+        total = await db.site_materials.count_documents({"project_id": project_id})
+        pending = await db.site_materials.count_documents({"project_id": project_id, "status": "pending_review"})
+        approved = await db.site_materials.count_documents({"project_id": project_id, "status": "approved"})
+        rejected = await db.site_materials.count_documents({"project_id": project_id, "status": "rejected"})
+        
+        # Count by condition
+        pipeline = [
+            {"$match": {"project_id": project_id}},
+            {"$group": {"_id": "$condition", "count": {"$sum": 1}}}
+        ]
+        by_condition = {}
+        async for result in db.site_materials.aggregate(pipeline):
+            by_condition[result["_id"]] = result["count"]
+        
+        return {
+            "total": total,
+            "pending_review": pending,
+            "approved": approved,
+            "rejected": rejected,
+            "by_condition": by_condition
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get stats: {str(e)}")
+
+
+# ============= Notifications API =============
+
+@api_router.get("/notifications", response_model=List[dict])
+async def get_notifications(
+    skip: int = 0,
+    limit: int = 50,
+    unread_only: bool = False,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get notifications for the current user"""
+    try:
+        user = await get_current_user(credentials)
+        user_id = str(user["_id"])
+        
+        notification_service = NotificationService(db)
+        notifications = await notification_service.get_user_notifications(
+            user_id=user_id,
+            skip=skip,
+            limit=limit,
+            unread_only=unread_only
+        )
+        
+        return notifications
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get notifications: {str(e)}")
+
+
+@api_router.get("/notifications/stats", response_model=dict)
+async def get_notification_stats(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get notification statistics for the current user"""
+    try:
+        user = await get_current_user(credentials)
+        user_id = str(user["_id"])
+        
+        notification_service = NotificationService(db)
+        stats = await notification_service.get_notification_stats(user_id)
+        
+        return stats
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get notification stats: {str(e)}")
+
+
+@api_router.post("/notifications/{notification_id}/read", response_model=dict)
+async def mark_notification_read(
+    notification_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Mark a notification as read"""
+    try:
+        user = await get_current_user(credentials)
+        user_id = str(user["_id"])
+        
+        notification_service = NotificationService(db)
+        success = await notification_service.mark_as_read(notification_id, user_id)
+        
+        if not success:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        return {"message": "Notification marked as read"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to mark notification as read: {str(e)}")
+
+
+@api_router.post("/notifications/read-all", response_model=dict)
+async def mark_all_notifications_read(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Mark all notifications as read for the current user"""
+    try:
+        user = await get_current_user(credentials)
+        user_id = str(user["_id"])
+        
+        notification_service = NotificationService(db)
+        count = await notification_service.mark_all_as_read(user_id)
+        
+        return {"message": f"Marked {count} notifications as read"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to mark notifications as read: {str(e)}")
+
+
+@api_router.delete("/notifications/{notification_id}", response_model=dict)
+async def delete_notification(
+    notification_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a notification"""
+    try:
+        user = await get_current_user(credentials)
+        user_id = str(user["_id"])
+        
+        notification_service = NotificationService(db)
+        success = await notification_service.delete_notification(notification_id, user_id)
+        
+        if not success:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        return {"message": "Notification deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete notification: {str(e)}")
+
+
+# ============= Scheduled Jobs API (Admin Only) =============
+
+@api_router.post("/admin/trigger-weekly-review", response_model=dict)
+async def trigger_weekly_review_notification(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Manually trigger the weekly material review notification (Admin only)"""
+    try:
+        user = await get_current_user(credentials)
+        
+        if user.get("role") != "admin":
+            raise HTTPException(status_code=403, detail="Admin access required")
+        
+        from notification_service import run_weekly_material_review_notification
+        await run_weekly_material_review_notification(db)
+        
+        return {"message": "Weekly review notification triggered successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to trigger notification: {str(e)}")
+
+
+@api_router.get("/admin/scheduled-jobs", response_model=List[dict])
+async def get_scheduled_jobs(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all scheduled jobs (Admin only)"""
+    try:
+        user = await get_current_user(credentials)
+        
+        if user.get("role") != "admin":
+            raise HTTPException(status_code=403, detail="Admin access required")
+        
+        jobs = []
+        async for job in db.scheduled_jobs.find():
+            job["id"] = str(job.pop("_id"))
+            jobs.append(job)
+        
+        return jobs
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get scheduled jobs: {str(e)}")
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
