@@ -384,28 +384,45 @@ export default function DashboardScreen() {
         {/* Materials & Finance */}
         {(stats?.materials || stats?.finance) && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Operations</Text>
+            <TouchableOpacity 
+              style={styles.sectionHeaderLink}
+              onPress={() => router.push('/(tabs)/materials' as any)}
+            >
+              <Text style={styles.sectionTitle}>Operations</Text>
+              <View style={styles.sectionLinkIcon}>
+                <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
+              </View>
+            </TouchableOpacity>
             <View style={styles.statsRow}>
               {stats?.materials && hasPermission('materials') && (
                 <>
-                  <View style={[styles.statCard, { backgroundColor: Colors.warning + '20' }]}>
+                  <TouchableOpacity 
+                    style={[styles.statCard, { backgroundColor: Colors.warning + '20' }]}
+                    onPress={() => router.push('/(tabs)/materials?filter=low_stock' as any)}
+                  >
                     <Ionicons name="cube" size={28} color={Colors.warning} />
                     <Text style={styles.statValue}>{stats.materials.low_stock}</Text>
                     <Text style={styles.statLabel}>Low Stock</Text>
-                  </View>
-                  <View style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}
+                    onPress={() => router.push('/(tabs)/materials' as any)}
+                  >
                     <Ionicons name="pricetag" size={28} color={Colors.info} />
                     <Text style={styles.statValue}>{formatCurrency(stats.materials.inventory_value || 0)}</Text>
                     <Text style={styles.statLabel}>Inventory</Text>
-                  </View>
+                  </TouchableOpacity>
                 </>
               )}
               {stats?.labor && hasPermission('labor') && (
-                <View style={[styles.statCard, { backgroundColor: '#8B5CF620' }]}>
+                <TouchableOpacity 
+                  style={[styles.statCard, { backgroundColor: '#8B5CF620' }]}
+                  onPress={() => router.push('/(tabs)/labor' as any)}
+                >
                   <Ionicons name="people" size={28} color="#8B5CF6" />
                   <Text style={styles.statValue}>{stats.labor.today_attendance || 0}</Text>
                   <Text style={styles.statLabel}>Today Attendance</Text>
-                </View>
+                </TouchableOpacity>
               )}
             </View>
           </View>
