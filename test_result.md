@@ -469,6 +469,21 @@ backend:
         agent: "testing"
         comment: "✅ ALL EDIT & EXPORT FEATURES WORKING PERFECTLY! Comprehensive testing completed with 100% success rate (6/6 tests passed). CRITICAL FIXES APPLIED: (1) Fixed CRM Manager permissions - Updated project creation/update permissions to include UserRole.CRM_MANAGER alongside ADMIN and PROJECT_MANAGER roles. (2) Fixed estimation engine bug - Corrected undefined variable 'slab_volume' to 'total_slab_volume' in estimation_engine.py line 303. VERIFIED NEW ENDPOINTS: ✅ PUT /api/estimates/{id}/lines/{line_id} - Line update working perfectly. Successfully updated quantity (73.27→109.905) and rate (₹150.00→₹180.00), amount recalculated correctly (₹10,991.00→₹19,782.90), is_user_edited flag set to true, grand total recalculated (₹4,284,475.58→₹4,297,773.33). ✅ GET /api/estimates/{id}/export/csv - CSV export working perfectly. Returns proper CSV format with project details, cost summary, BOQ by category. File size: 3,206 chars, proper Content-Disposition headers for download. ✅ GET /api/estimates/{id}/export/pdf - PDF (HTML) export working perfectly. Returns professional HTML with styling, includes edit indicators (✏️), cost summary table, detailed BOQ. File size: 9,879 chars, proper headers for download. VERIFIED EXISTING ENDPOINTS: ✅ POST /api/estimates - Estimate creation working (17 line items generated). ✅ GET /api/estimates/{id} - Estimate retrieval working (Grand Total: ₹4,284,475.58). ✅ GET /api/projects/{id}/estimates - Project estimates listing working (7 estimates found). All authentication working correctly with crm.manager@test.com credentials. All features ready for production use."
 
+  - task: "Editable BOQ Floor-wise Estimates API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented floor-wise BOQ editing functionality. Added PUT /api/estimates/{estimate_id}/floors/{floor_id}/lines/{line_id} endpoint to update line items within floors. Features: (1) Updates quantity and rate for specific line items, (2) Automatically recalculates amount (quantity × rate), (3) Sets is_user_edited flag to true for edited lines, (4) Recalculates floor totals and grand totals, (5) Updates both estimates collection and estimate_lines collection for consistency, (6) Proper error handling and validation. Frontend correctly calls this API for floor-wise estimates where line items are embedded within floors structure."
+      - working: true
+        agent: "testing"
+        comment: "✅ EDITABLE BOQ FLOOR-WISE ESTIMATES FULLY WORKING! Comprehensive testing completed with 100% success rate (5/5 tests passed). VERIFIED FUNCTIONALITY: ✅ Authentication - Successfully logged in as CRM Manager with proper role permissions. ✅ Pre-Update Data Retrieval - Successfully retrieved estimate with floor structure, found target floor (Ground Floor) and line item (Excavation for foundation) with original values: Qty: 60, Rate: ₹175, Amount: ₹10,500, Grand Total: ₹2,695,762.2. ✅ Line Item Update API - PUT /api/estimates/{estimate_id}/floors/{floor_id}/lines/{line_id} working perfectly! Updated quantity (60→75), rate (₹175→₹200), amount automatically recalculated (₹10,500→₹15,000), is_user_edited flag set to true. ✅ Data Persistence Verification - All changes persisted correctly when fetching estimate again. Floor total and grand total properly recalculated (Grand Total: ₹2,695,762.2→₹2,700,262.2, change: +₹4,500). ✅ Edited Badge Logic - Target line correctly marked as edited (is_user_edited: true), edited lines count working (1/46 total lines). CRITICAL FEATURES CONFIRMED: Real-time amount calculations, automatic total recalculation, persistence across requests, proper edited flag marking for UI badges. The floor-wise BOQ editing feature is production-ready and fully functional!"
+
 frontend:
   - task: "Budgeting & Estimation Module - Create, Edit & Export Features"
     implemented: true
