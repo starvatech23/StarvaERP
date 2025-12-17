@@ -130,6 +130,48 @@ export default function EstimateDetailScreen() {
     }
   };
 
+  const handleReview = async () => {
+    setActionLoading(true);
+    try {
+      await estimationAPI.review(estimateId as string, reviewComments || undefined);
+      Alert.alert('Success', 'Estimate has been marked as reviewed');
+      setShowReviewModal(false);
+      setReviewComments('');
+      await loadEstimate();
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to review estimate');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    setActionLoading(true);
+    try {
+      await estimationAPI.approve(estimateId as string, approveComments || undefined);
+      Alert.alert('Success', 'Estimate has been approved');
+      setShowApproveModal(false);
+      setApproveComments('');
+      await loadEstimate();
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to approve estimate');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const handleExport = async (format: 'csv' | 'pdf') => {
     const formatName = format === 'csv' ? 'CSV' : 'PDF';
     
