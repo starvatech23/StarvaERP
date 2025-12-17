@@ -381,6 +381,18 @@ export const weeklyPaymentsAPI = {
   getByProject: (params?: any) => api.get('/labour/payments/by-project', { params }),
 };
 
+// Admin Config API
+export const adminConfigAPI = {
+  getAll: () => api.get('/admin/config'),
+  getSMSConfig: () => api.get('/admin/config/sms'),
+  updateSMSConfig: (data: any) => api.put('/admin/config/sms', data),
+  testSMS: (phoneNumber: string) => api.post('/admin/config/test-sms', null, { params: { phone_number: phoneNumber } }),
+  getWhatsAppConfig: () => api.get('/admin/config/whatsapp'),
+  updateWhatsAppConfig: (data: any) => api.put('/admin/config/whatsapp', data),
+  getDomainRestriction: () => api.get('/admin/config/domain-restriction'),
+  updateDomainRestriction: (data: any) => api.put('/admin/config/domain-restriction', data),
+};
+
 // Vendors API
 export const vendorsAPI = {
   getAll: (params?: any) => api.get('/vendors', { params }),
