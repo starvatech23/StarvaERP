@@ -298,7 +298,7 @@ export default function MaterialsScreen() {
         <TouchableOpacity
           key={item.id}
           style={styles.card}
-          onPress={() => router.push(`/materials/site` as any)}
+          onPress={() => router.push(`/materials/site/${item.id}` as any)}
         >
           <View style={styles.cardHeader}>
             <View style={{ flex: 1 }}>
