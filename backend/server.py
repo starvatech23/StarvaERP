@@ -40,6 +40,10 @@ from models import (
     WorkerCreate, WorkerUpdate, WorkerResponse,
     LaborAttendanceCreate, LaborAttendanceUpdate, LaborAttendanceResponse,
     SiteTransferCreate, SiteTransferResponse,
+    # Labour Payments
+    AdvancePaymentCreate, AdvancePaymentUpdate, AdvancePaymentResponse, AdvancePaymentStatus,
+    WeeklyPaymentCreate, WeeklyPaymentUpdate, WeeklyPaymentResponse, WeeklyPaymentStatus,
+    PaymentOTPLogResponse, PaymentMethodType,
     UserRole, ApprovalStatus,
     RoleCreate, RoleUpdate, RoleResponse,
     PermissionCreate, PermissionUpdate, PermissionResponse, ModuleName,
