@@ -238,7 +238,7 @@ def create_floor_wise_estimate(
                 floor_area = area_per_floor
         
         # Calculate floor rate
-        floor_rate = calculate_floor_rate(floor_type, base_rate, parking_rate_multiplier)
+        floor_rate = calculate_floor_rate(floor_type, base_rate, parking_rate, basement_rate)
         
         # Check for custom rate override
         if estimate_input.floors:
