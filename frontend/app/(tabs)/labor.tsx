@@ -537,11 +537,46 @@ export default function LaborScreen() {
                   {/* Individual Payments */}
                   {project.payments?.slice(0, 3).map((pmt: any) => (
                     <View key={pmt.id} style={styles.subPaymentItem}>
-                      <View>
+                      <View style={{ flex: 1 }}>
                         <Text style={styles.subPaymentProject}>{pmt.worker_name}</Text>
                         <Text style={styles.subPaymentWeek}>
                           {moment(pmt.week_start_date).format('DD MMM')} - {moment(pmt.week_end_date).format('DD MMM')}
                         </Text>
+                        <View style={styles.paymentActions}>
+                          {pmt.status === 'draft' && (
+                            <TouchableOpacity 
+                              style={[styles.actionBtn, { backgroundColor: '#3B82F620' }]}
+                              onPress={() => handleValidatePayment(pmt.id)}
+                            >
+                              <Ionicons name="checkmark-circle" size={14} color="#3B82F6" />
+                              <Text style={[styles.actionBtnText, { color: '#3B82F6' }]}>Validate</Text>
+                            </TouchableOpacity>
+                          )}
+                          {pmt.status === 'validated' && (
+                            <TouchableOpacity 
+                              style={[styles.actionBtn, { backgroundColor: '#8B5CF620' }]}
+                              onPress={() => handleSendOTP(pmt.id)}
+                            >
+                              <Ionicons name="send" size={14} color="#8B5CF6" />
+                              <Text style={[styles.actionBtnText, { color: '#8B5CF6' }]}>Send OTP</Text>
+                            </TouchableOpacity>
+                          )}
+                          {pmt.status === 'otp_sent' && (
+                            <TouchableOpacity 
+                              style={[styles.actionBtn, { backgroundColor: '#10B98120' }]}
+                              onPress={() => handleMarkPaid(pmt)}
+                            >
+                              <Ionicons name="cash" size={14} color="#10B981" />
+                              <Text style={[styles.actionBtnText, { color: '#10B981' }]}>Enter OTP</Text>
+                            </TouchableOpacity>
+                          )}
+                          {pmt.status === 'paid' && (
+                            <View style={[styles.actionBtn, { backgroundColor: '#10B98120' }]}>
+                              <Ionicons name="checkmark-done" size={14} color="#10B981" />
+                              <Text style={[styles.actionBtnText, { color: '#10B981' }]}>Paid</Text>
+                            </View>
+                          )}
+                        </View>
                       </View>
                       <View style={styles.subPaymentRight}>
                         <Text style={styles.subPaymentAmount}>₹{pmt.net_amount?.toLocaleString()}</Text>
