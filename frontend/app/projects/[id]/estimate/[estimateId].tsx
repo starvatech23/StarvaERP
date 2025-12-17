@@ -255,6 +255,15 @@ export default function EstimateDetailScreen() {
     );
   };
 
+  // Wait for params to be available
+  if (!estimateId) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
+      </SafeAreaView>
+    );
+  }
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
