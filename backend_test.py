@@ -1,395 +1,322 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Site Materials and Notifications APIs
-Testing the new Site Materials and Notifications APIs as requested.
+Backend API Testing Script for CRM Dashboard APIs
+Tests authentication and CRM dashboard endpoints
 """
 
 import requests
 import json
 import sys
 from datetime import datetime
-from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://site-materials-1.preview.emergentagent.com/api"
-
-# Test credentials
+BACKEND_URL = "https://site-materials-1.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
-    "crm_manager": {
-        "email": "crm.manager@test.com",
-        "password": "manager123"
-    },
-    "engineer": {
-        "email": "crm.user1@test.com", 
-        "password": "user1123"
-    }
+    "email": "crm.manager@test.com",
+    "password": "manager123",
+    "auth_type": "email"
 }
 
-class APITester:
+class CRMDashboardTester:
     def __init__(self):
+        self.base_url = BACKEND_URL
+        self.token = None
         self.session = requests.Session()
-        self.tokens = {}
-        self.test_data = {}
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        })
         
-    def log(self, message: str, level: str = "INFO"):
-        """Log test messages"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {level}: {message}")
+    def log(self, message, level="INFO"):
+        """Log messages with timestamp"""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"[{timestamp}] [{level}] {message}")
         
-    def login(self, user_type: str) -> bool:
-        """Login and store token"""
+    def test_login(self):
+        """Test login endpoint and get authentication token"""
+        self.log("Testing POST /api/auth/login...")
+        
         try:
-            creds = TEST_CREDENTIALS[user_type]
             response = self.session.post(
-                f"{BASE_URL}/auth/login",
-                json={
-                    "identifier": creds["email"],
-                    "password": creds["password"],
-                    "auth_type": "email"
-                }
+                f"{self.base_url}/auth/login",
+                json=TEST_CREDENTIALS,
+                timeout=30
             )
+            
+            self.log(f"Login response status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
-                self.tokens[user_type] = data["access_token"]
-                self.log(f"✅ Login successful for {user_type}: {creds['email']}")
+                self.token = data.get("access_token")
+                user_info = data.get("user", {})
+                
+                self.log(f"✅ LOGIN SUCCESS: Token obtained")
+                self.log(f"   User: {user_info.get('full_name', 'Unknown')}")
+                self.log(f"   Role: {user_info.get('role', 'Unknown')}")
+                self.log(f"   Email: {user_info.get('email', 'Unknown')}")
+                
+                # Set authorization header for subsequent requests
+                self.session.headers.update({
+                    'Authorization': f'Bearer {self.token}'
+                })
+                
                 return True
             else:
-                self.log(f"❌ Login failed for {user_type}: {response.status_code} - {response.text}", "ERROR")
+                self.log(f"❌ LOGIN FAILED: {response.status_code}", "ERROR")
+                try:
+                    error_detail = response.json().get("detail", "Unknown error")
+                    self.log(f"   Error: {error_detail}", "ERROR")
+                except:
+                    self.log(f"   Response: {response.text}", "ERROR")
                 return False
                 
-        except Exception as e:
-            self.log(f"❌ Login error for {user_type}: {str(e)}", "ERROR")
-            return False
-    
-    def get_headers(self, user_type: str) -> Dict[str, str]:
-        """Get authorization headers"""
-        return {
-            "Authorization": f"Bearer {self.tokens[user_type]}",
-            "Content-Type": "application/json"
-        }
-    
-    def test_site_materials_api(self) -> bool:
-        """Test Site Materials API endpoints"""
-        self.log("🧪 TESTING SITE MATERIALS API")
-        
-        # Test 1: Login as engineer and add site material
-        self.log("Test 1a: Login as engineer")
-        if not self.login("engineer"):
+        except requests.exceptions.RequestException as e:
+            self.log(f"❌ LOGIN REQUEST FAILED: {str(e)}", "ERROR")
             return False
             
-        self.log("Test 1b: Add site material as engineer")
-        material_data = {
-            "project_id": "6926d6604dbb9ab5bf39e81a",
-            "material_type": "Cement Bags",
-            "quantity": 50,
-            "unit": "bags", 
-            "cost": 15000,
-            "condition": "new",
-            "notes": "Received from ABC Suppliers",
-            "media_urls": ["https://example.com/photo1.jpg"]
-        }
+    def test_crm_analytics(self):
+        """Test CRM dashboard analytics endpoint"""
+        self.log("Testing GET /api/crm/dashboard/analytics...")
         
         try:
-            response = self.session.post(
-                f"{BASE_URL}/site-materials",
-                json=material_data,
-                headers=self.get_headers("engineer")
+            response = self.session.get(
+                f"{self.base_url}/crm/dashboard/analytics",
+                timeout=30
             )
+            
+            self.log(f"Analytics response status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
-                self.test_data["material_id"] = data.get("id")
-                self.log(f"✅ Site material added successfully: ID {self.test_data['material_id']}, Status: {data.get('status')}")
                 
-                # Verify status is pending_review
-                if data.get("status") == "pending_review":
-                    self.log("✅ Material status correctly set to 'pending_review'")
+                # Verify expected structure
+                required_fields = [
+                    "summary", "by_status", "by_source", "by_priority", 
+                    "by_city", "by_state", "by_category", "by_funnel", 
+                    "by_value_range"
+                ]
+                
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if not missing_fields:
+                    self.log("✅ ANALYTICS SUCCESS: All required fields present")
+                    
+                    # Log summary data
+                    summary = data.get("summary", {})
+                    self.log(f"   Total Leads: {summary.get('total_leads', 0)}")
+                    self.log(f"   Pipeline Value: ₹{summary.get('total_pipeline_value', 0):,.2f}")
+                    self.log(f"   Won Leads: {summary.get('won_leads', 0)}")
+                    self.log(f"   Conversion Rate: {summary.get('conversion_rate', 0)}%")
+                    
+                    # Log breakdown counts
+                    self.log(f"   Status Breakdown: {len(data.get('by_status', {}))} statuses")
+                    self.log(f"   Source Breakdown: {len(data.get('by_source', {}))} sources")
+                    self.log(f"   Priority Breakdown: {len(data.get('by_priority', {}))} priorities")
+                    self.log(f"   City Breakdown: {len(data.get('by_city', []))} cities")
+                    self.log(f"   State Breakdown: {len(data.get('by_state', []))} states")
+                    self.log(f"   Category Breakdown: {len(data.get('by_category', []))} categories")
+                    self.log(f"   Funnel Breakdown: {len(data.get('by_funnel', []))} funnels")
+                    
+                    return True
                 else:
-                    self.log(f"❌ Expected status 'pending_review', got '{data.get('status')}'", "ERROR")
+                    self.log(f"❌ ANALYTICS INCOMPLETE: Missing fields: {missing_fields}", "ERROR")
                     return False
-            else:
-                self.log(f"❌ Failed to add site material: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Error adding site material: {str(e)}", "ERROR")
-            return False
-        
-        # Test 2: Get site materials list
-        self.log("Test 2: Get site materials list")
-        try:
-            response = self.session.get(
-                f"{BASE_URL}/site-materials?project_id=6926d6604dbb9ab5bf39e81a",
-                headers=self.get_headers("engineer")
-            )
-            
-            if response.status_code == 200:
-                materials = response.json()
-                self.log(f"✅ Retrieved {len(materials)} site materials")
-                
-                # Verify our material is in the list
-                found_material = False
-                for material in materials:
-                    if material.get("id") == self.test_data.get("material_id"):
-                        found_material = True
-                        self.log(f"✅ Found newly added material in list: {material.get('material_type')}")
-                        break
-                
-                if not found_material:
-                    self.log("❌ Newly added material not found in list", "ERROR")
-                    return False
-            else:
-                self.log(f"❌ Failed to get site materials: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Error getting site materials: {str(e)}", "ERROR")
-            return False
-        
-        # Test 3: Login as manager and review material
-        self.log("Test 3a: Login as manager")
-        if not self.login("crm_manager"):
-            return False
-            
-        self.log("Test 3b: Review material as manager")
-        try:
-            response = self.session.put(
-                f"{BASE_URL}/site-materials/{self.test_data['material_id']}/review?status=approved&review_notes=Verified%20receipt",
-                headers=self.get_headers("crm_manager")
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.log(f"✅ Material reviewed successfully: {data.get('message')}")
-                
-                if data.get("status") == "approved":
-                    self.log("✅ Material status correctly updated to 'approved'")
-                else:
-                    self.log(f"❌ Expected status 'approved', got '{data.get('status')}'", "ERROR")
-                    return False
-            else:
-                self.log(f"❌ Failed to review material: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Error reviewing material: {str(e)}", "ERROR")
-            return False
-        
-        self.log("✅ ALL SITE MATERIALS API TESTS PASSED")
-        return True
-    
-    def test_notifications_api(self) -> bool:
-        """Test Notifications API endpoints"""
-        self.log("🧪 TESTING NOTIFICATIONS API")
-        
-        # Use engineer credentials (should have notifications from material creation)
-        if "engineer" not in self.tokens:
-            if not self.login("engineer"):
-                return False
-        
-        # Test 1: Get notifications
-        self.log("Test 1: Get notifications for user")
-        try:
-            response = self.session.get(
-                f"{BASE_URL}/notifications",
-                headers=self.get_headers("engineer")
-            )
-            
-            if response.status_code == 200:
-                notifications = response.json()
-                self.log(f"✅ Retrieved {len(notifications)} notifications")
-                
-                # Store a notification ID for later tests
-                if notifications:
-                    self.test_data["notification_id"] = notifications[0].get("id")
-                    self.log(f"✅ Found notification ID for testing: {self.test_data['notification_id']}")
-                else:
-                    self.log("ℹ️ No notifications found (this is normal for new users)")
                     
             else:
-                self.log(f"❌ Failed to get notifications: {response.status_code} - {response.text}", "ERROR")
+                self.log(f"❌ ANALYTICS FAILED: {response.status_code}", "ERROR")
+                try:
+                    error_detail = response.json().get("detail", "Unknown error")
+                    self.log(f"   Error: {error_detail}", "ERROR")
+                except:
+                    self.log(f"   Response: {response.text}", "ERROR")
                 return False
                 
-        except Exception as e:
-            self.log(f"❌ Error getting notifications: {str(e)}", "ERROR")
+        except requests.exceptions.RequestException as e:
+            self.log(f"❌ ANALYTICS REQUEST FAILED: {str(e)}", "ERROR")
             return False
+            
+    def test_crm_filters(self):
+        """Test CRM dashboard filters endpoint"""
+        self.log("Testing GET /api/crm/dashboard/filters...")
         
-        # Test 2: Get notification stats
-        self.log("Test 2: Get notification stats")
         try:
             response = self.session.get(
-                f"{BASE_URL}/notifications/stats",
-                headers=self.get_headers("engineer")
+                f"{self.base_url}/crm/dashboard/filters",
+                timeout=30
             )
             
+            self.log(f"Filters response status: {response.status_code}")
+            
             if response.status_code == 200:
-                stats = response.json()
-                self.log(f"✅ Retrieved notification stats: Total: {stats.get('total', 0)}, Unread: {stats.get('unread', 0)}")
+                data = response.json()
                 
-                # Verify stats structure
-                expected_fields = ["total", "unread"]
-                for field in expected_fields:
-                    if field not in stats:
-                        self.log(f"❌ Missing field '{field}' in stats response", "ERROR")
+                # Verify expected structure
+                required_fields = [
+                    "cities", "states", "categories", "funnels", 
+                    "statuses", "sources", "priorities", "assigned_users", 
+                    "value_ranges"
+                ]
+                
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if not missing_fields:
+                    self.log("✅ FILTERS SUCCESS: All required fields present")
+                    
+                    # Log filter counts
+                    self.log(f"   Cities: {len(data.get('cities', []))} options")
+                    self.log(f"   States: {len(data.get('states', []))} options")
+                    self.log(f"   Categories: {len(data.get('categories', []))} options")
+                    self.log(f"   Funnels: {len(data.get('funnels', []))} options")
+                    self.log(f"   Statuses: {len(data.get('statuses', []))} options")
+                    self.log(f"   Sources: {len(data.get('sources', []))} options")
+                    self.log(f"   Priorities: {len(data.get('priorities', []))} options")
+                    self.log(f"   Assigned Users: {len(data.get('assigned_users', []))} options")
+                    self.log(f"   Value Ranges: {len(data.get('value_ranges', []))} options")
+                    
+                    # Verify value_ranges structure
+                    value_ranges = data.get('value_ranges', [])
+                    if value_ranges and all('label' in vr and 'min' in vr for vr in value_ranges):
+                        self.log("   Value ranges structure: ✅ Valid")
+                    else:
+                        self.log("   Value ranges structure: ❌ Invalid", "ERROR")
                         return False
-                
-                self.log("✅ Notification stats structure is correct")
+                    
+                    return True
+                else:
+                    self.log(f"❌ FILTERS INCOMPLETE: Missing fields: {missing_fields}", "ERROR")
+                    return False
+                    
             else:
-                self.log(f"❌ Failed to get notification stats: {response.status_code} - {response.text}", "ERROR")
+                self.log(f"❌ FILTERS FAILED: {response.status_code}", "ERROR")
+                try:
+                    error_detail = response.json().get("detail", "Unknown error")
+                    self.log(f"   Error: {error_detail}", "ERROR")
+                except:
+                    self.log(f"   Response: {response.text}", "ERROR")
                 return False
                 
-        except Exception as e:
-            self.log(f"❌ Error getting notification stats: {str(e)}", "ERROR")
+        except requests.exceptions.RequestException as e:
+            self.log(f"❌ FILTERS REQUEST FAILED: {str(e)}", "ERROR")
             return False
+            
+    def test_analytics_with_filters(self):
+        """Test analytics endpoint with various filter parameters"""
+        self.log("Testing GET /api/crm/dashboard/analytics with filters...")
         
-        # Test 3: Mark notification as read (if we have one)
-        if self.test_data.get("notification_id"):
-            self.log("Test 3: Mark notification as read")
+        # Test different filter combinations
+        filter_tests = [
+            {"status": "won", "description": "Won leads only"},
+            {"priority": "urgent", "description": "Urgent priority only"},
+            {"status": "won", "priority": "high", "description": "Won + High priority"},
+            {"min_value": "100000", "description": "Minimum value ₹1L+"},
+            {"max_value": "500000", "description": "Maximum value ₹5L"},
+        ]
+        
+        success_count = 0
+        
+        for i, test_case in enumerate(filter_tests, 1):
+            description = test_case.pop("description")
+            self.log(f"  Test {i}/5: {description}")
+            
             try:
-                response = self.session.post(
-                    f"{BASE_URL}/notifications/{self.test_data['notification_id']}/read",
-                    headers=self.get_headers("engineer")
+                response = self.session.get(
+                    f"{self.base_url}/crm/dashboard/analytics",
+                    params=test_case,
+                    timeout=30
                 )
                 
                 if response.status_code == 200:
                     data = response.json()
-                    self.log(f"✅ Notification marked as read: {data.get('message')}")
-                else:
-                    self.log(f"❌ Failed to mark notification as read: {response.status_code} - {response.text}", "ERROR")
-                    return False
+                    summary = data.get("summary", {})
+                    total_leads = summary.get("total_leads", 0)
                     
-            except Exception as e:
-                self.log(f"❌ Error marking notification as read: {str(e)}", "ERROR")
-                return False
-        else:
-            self.log("ℹ️ Skipping mark as read test - no notification ID available")
-        
-        # Test 4: Mark all notifications as read
-        self.log("Test 4: Mark all notifications as read")
-        try:
-            response = self.session.post(
-                f"{BASE_URL}/notifications/read-all",
-                headers=self.get_headers("engineer")
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.log(f"✅ All notifications marked as read: {data.get('message')}")
-            else:
-                self.log(f"❌ Failed to mark all notifications as read: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Error marking all notifications as read: {str(e)}", "ERROR")
-            return False
-        
-        self.log("✅ ALL NOTIFICATIONS API TESTS PASSED")
-        return True
-    
-    def test_admin_trigger(self) -> bool:
-        """Test Admin trigger endpoint"""
-        self.log("🧪 TESTING ADMIN TRIGGER API")
-        
-        # Test 1: Try as non-admin (should fail)
-        self.log("Test 1: Try admin trigger as engineer (should fail)")
-        if "engineer" not in self.tokens:
-            if not self.login("engineer"):
-                return False
-        
-        try:
-            response = self.session.post(
-                f"{BASE_URL}/admin/trigger-weekly-review",
-                headers=self.get_headers("engineer")
-            )
-            
-            if response.status_code == 403:
-                self.log("✅ Correctly blocked non-admin access (403 Forbidden)")
-            else:
-                self.log(f"❌ Expected 403 for non-admin, got {response.status_code}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Error testing non-admin access: {str(e)}", "ERROR")
-            return False
-        
-        # Test 2: Try as manager (should work if manager has admin role)
-        self.log("Test 2: Try admin trigger as manager")
-        if "crm_manager" not in self.tokens:
-            if not self.login("crm_manager"):
-                return False
-        
-        try:
-            response = self.session.post(
-                f"{BASE_URL}/admin/trigger-weekly-review",
-                headers=self.get_headers("crm_manager")
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.log(f"✅ Admin trigger successful: {data.get('message')}")
-            elif response.status_code == 403:
-                self.log("ℹ️ Manager doesn't have admin role - this is expected behavior")
-            else:
-                self.log(f"❌ Unexpected response for admin trigger: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Error testing admin trigger: {str(e)}", "ERROR")
-            return False
-        
-        self.log("✅ ADMIN TRIGGER API TESTS PASSED")
-        return True
-    
-    def run_all_tests(self) -> bool:
-        """Run all API tests"""
-        self.log("🚀 STARTING COMPREHENSIVE API TESTING")
-        self.log(f"Backend URL: {BASE_URL}")
-        
-        tests = [
-            ("Site Materials API", self.test_site_materials_api),
-            ("Notifications API", self.test_notifications_api), 
-            ("Admin Trigger API", self.test_admin_trigger)
-        ]
-        
-        passed = 0
-        total = len(tests)
-        
-        for test_name, test_func in tests:
-            self.log(f"\n{'='*50}")
-            self.log(f"RUNNING: {test_name}")
-            self.log(f"{'='*50}")
-            
-            try:
-                if test_func():
-                    passed += 1
-                    self.log(f"✅ {test_name} - PASSED")
+                    self.log(f"    ✅ SUCCESS: {total_leads} leads found")
+                    success_count += 1
                 else:
-                    self.log(f"❌ {test_name} - FAILED")
-            except Exception as e:
-                self.log(f"❌ {test_name} - ERROR: {str(e)}")
+                    self.log(f"    ❌ FAILED: Status {response.status_code}", "ERROR")
+                    
+            except requests.exceptions.RequestException as e:
+                self.log(f"    ❌ REQUEST FAILED: {str(e)}", "ERROR")
         
-        self.log(f"\n{'='*50}")
-        self.log(f"TEST SUMMARY: {passed}/{total} tests passed")
-        self.log(f"{'='*50}")
-        
-        if passed == total:
-            self.log("🎉 ALL TESTS PASSED!")
+        if success_count == len(filter_tests):
+            self.log("✅ ALL FILTER TESTS PASSED")
             return True
         else:
-            self.log(f"⚠️ {total - passed} tests failed")
+            self.log(f"❌ FILTER TESTS: {success_count}/{len(filter_tests)} passed", "ERROR")
+            return False
+            
+    def run_all_tests(self):
+        """Run all CRM Dashboard API tests"""
+        self.log("=" * 60)
+        self.log("STARTING CRM DASHBOARD API TESTS")
+        self.log("=" * 60)
+        
+        test_results = []
+        
+        # Test 1: Authentication
+        self.log("\n1. AUTHENTICATION TEST")
+        self.log("-" * 30)
+        login_success = self.test_login()
+        test_results.append(("Authentication", login_success))
+        
+        if not login_success:
+            self.log("❌ AUTHENTICATION FAILED - Stopping tests", "ERROR")
+            return False
+            
+        # Test 2: Analytics Endpoint
+        self.log("\n2. ANALYTICS ENDPOINT TEST")
+        self.log("-" * 30)
+        analytics_success = self.test_crm_analytics()
+        test_results.append(("Analytics Endpoint", analytics_success))
+        
+        # Test 3: Filters Endpoint
+        self.log("\n3. FILTERS ENDPOINT TEST")
+        self.log("-" * 30)
+        filters_success = self.test_crm_filters()
+        test_results.append(("Filters Endpoint", filters_success))
+        
+        # Test 4: Analytics with Filters
+        self.log("\n4. ANALYTICS WITH FILTERS TEST")
+        self.log("-" * 30)
+        filter_analytics_success = self.test_analytics_with_filters()
+        test_results.append(("Analytics with Filters", filter_analytics_success))
+        
+        # Summary
+        self.log("\n" + "=" * 60)
+        self.log("TEST RESULTS SUMMARY")
+        self.log("=" * 60)
+        
+        passed_tests = 0
+        for test_name, success in test_results:
+            status = "✅ PASS" if success else "❌ FAIL"
+            self.log(f"{test_name}: {status}")
+            if success:
+                passed_tests += 1
+        
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        self.log(f"\nOVERALL: {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+        
+        if passed_tests == total_tests:
+            self.log("🎉 ALL CRM DASHBOARD TESTS PASSED!", "SUCCESS")
+            return True
+        else:
+            self.log("⚠️  SOME TESTS FAILED - Check logs above", "WARNING")
             return False
 
 def main():
-    """Main test execution"""
-    tester = APITester()
-    success = tester.run_all_tests()
+    """Main function to run CRM Dashboard API tests"""
+    tester = CRMDashboardTester()
     
-    if success:
-        print("\n✅ Backend API testing completed successfully!")
-        sys.exit(0)
-    else:
-        print("\n❌ Backend API testing failed!")
+    try:
+        success = tester.run_all_tests()
+        sys.exit(0 if success else 1)
+    except KeyboardInterrupt:
+        tester.log("\n❌ Tests interrupted by user", "ERROR")
+        sys.exit(1)
+    except Exception as e:
+        tester.log(f"\n❌ Unexpected error: {str(e)}", "ERROR")
         sys.exit(1)
 
 if __name__ == "__main__":
