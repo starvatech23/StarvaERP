@@ -132,7 +132,7 @@ export default function CreateEstimateScreen() {
   const handleCreate = async () => {
     setLoading(true);
     try {
-      console.log('Creating estimate with project ID:', projectId);
+      console.log('Creating floor-wise estimate with project ID:', projectId);
       console.log('Selected construction preset ID:', formData.construction_preset_id);
       
       const selectedPreset = getSelectedPreset();
@@ -149,19 +149,29 @@ export default function CreateEstimateScreen() {
         labour_percent_of_material: parseFloat(formData.labour_percent_of_material),
         // Pass preset rate if available
         base_rate_per_sqft: selectedPreset?.rate_per_sqft || 2500,
+        // Floor-wise configuration
+        has_parking: formData.has_parking,
+        parking_area_sqft: formData.has_parking && formData.parking_area_sqft ? parseFloat(formData.parking_area_sqft) : 0,
+        has_basement: formData.has_basement,
+        basement_area_sqft: formData.has_basement && formData.basement_area_sqft ? parseFloat(formData.basement_area_sqft) : 0,
+        has_terrace: formData.has_terrace,
+        terrace_area_sqft: formData.has_terrace && formData.terrace_area_sqft ? parseFloat(formData.terrace_area_sqft) : 0,
+        area_mode: formData.area_mode,
       };
 
       console.log('Estimate data:', estimateData);
       
-      const response = await estimationAPI.create(estimateData);
+      // Use floor-wise API for better area handling
+      const response = await estimationAPI.createFloorWise(estimateData);
       
       console.log('Estimate created successfully:', response.data);
       console.log('Estimate ID:', response.data.id);
-      console.log('Grand Total:', response.data.grand_total);
       
       const estimateId = response.data.id;
-      const grandTotal = response.data.grand_total;
-      const costPerSqft = response.data.cost_per_sqft;
+      const totals = response.data.totals || {};
+      const grandTotal = totals.grand_total || response.data.grand_total || 0;
+      const costPerSqft = totals.cost_per_sqft || response.data.cost_per_sqft || 0;
+      const floorsCount = response.data.floors?.length || 0;
       
       // Navigate immediately to the estimate detail page
       router.push(`/projects/${projectId}/estimate/${estimateId}`);
@@ -170,7 +180,7 @@ export default function CreateEstimateScreen() {
       setTimeout(() => {
         Alert.alert(
           'Success!',
-          `Estimate created successfully!\nTotal Cost: ₹${grandTotal.toLocaleString('en-IN')}\nCost per sqft: ₹${Math.round(costPerSqft)}`
+          `Floor-wise estimate created!\n${floorsCount} floors generated\nTotal Cost: ₹${grandTotal.toLocaleString('en-IN')}\nCost per sqft: ₹${Math.round(costPerSqft)}`
         );
       }, 500);
     } catch (error: any) {
