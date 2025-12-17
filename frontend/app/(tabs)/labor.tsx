@@ -1107,5 +1107,163 @@ const styles = StyleSheet.create({
   emptyCardText: {
     fontSize: 14,
     color: Colors.textSecondary,
+    marginTop: 12,
+  },
+  emptyCardSubtext: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 4,
+  },
+  summaryCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 12,
+  },
+  summaryItem: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    borderRadius: 8,
+    padding: 12,
+    alignItems: 'center',
+  },
+  summaryValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  summaryLabel: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 4,
+  },
+  generateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#8B5CF6',
+    borderRadius: 10,
+    padding: 14,
+    gap: 8,
+    marginBottom: 16,
+  },
+  generateButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  viewToggle: {
+    flexDirection: 'row',
+    backgroundColor: Colors.surface,
+    borderRadius: 10,
+    padding: 4,
+    marginBottom: 16,
+  },
+  viewToggleBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 6,
+  },
+  viewToggleBtnActive: {
+    backgroundColor: Colors.secondary,
+  },
+  viewToggleText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.textSecondary,
+  },
+  viewToggleTextActive: {
+    color: '#FFFFFF',
+  },
+  groupCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  groupHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  groupTotals: {
+    alignItems: 'flex-end',
+  },
+  groupTotalLabel: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+  },
+  groupTotalValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#10B981',
+  },
+  groupStats: {
+    flexDirection: 'row',
+    backgroundColor: Colors.background,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+  },
+  groupStatItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  groupStatValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  groupStatLabel: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  subPaymentItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  subPaymentProject: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.textPrimary,
+  },
+  subPaymentWeek: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  subPaymentRight: {
+    alignItems: 'flex-end',
+  },
+  subPaymentAmount: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  miniStatusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginTop: 4,
+  },
+  miniStatusText: {
+    fontSize: 10,
+    fontWeight: '600',
+    textTransform: 'uppercase',
   },
 });
