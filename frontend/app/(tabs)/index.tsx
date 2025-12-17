@@ -523,7 +523,7 @@ export default function DashboardScreen() {
               style={styles.sectionHeaderLink}
               onPress={() => router.push('/(tabs)/labor' as any)}
             >
-              <Text style={styles.sectionTitle}>👷 Labor Insights</Text>
+              <Text style={styles.sectionTitleNoMargin}>👷 Labor Insights</Text>
               <View style={styles.sectionLinkIcon}>
                 <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
               </View>
