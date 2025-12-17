@@ -198,6 +198,44 @@ function TransferModal({ material, projects, onClose, onTransfer }: {
             <Text style={transferStyles.unit}>{material.unit}</Text>
           </View>
 
+          {/* Photo/Video Capture */}
+          <Text style={transferStyles.label}>Photo/Video (Optional)</Text>
+          <View style={transferStyles.mediaSection}>
+            <View style={transferStyles.mediaButtons}>
+              <TouchableOpacity style={transferStyles.mediaBtn} onPress={handleTakePhoto}>
+                <Ionicons name="camera" size={20} color={Colors.primary} />
+                <Text style={transferStyles.mediaBtnText}>Camera</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={transferStyles.mediaBtn} onPress={handlePickImage}>
+                <Ionicons name="images" size={20} color={Colors.primary} />
+                <Text style={transferStyles.mediaBtnText}>Gallery</Text>
+              </TouchableOpacity>
+            </View>
+            {mediaUrls.length > 0 && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={transferStyles.mediaPreview}>
+                {mediaUrls.map((url, index) => (
+                  <View key={index} style={transferStyles.mediaItem}>
+                    <Image source={{ uri: url }} style={transferStyles.mediaImage} />
+                    <TouchableOpacity style={transferStyles.removeMedia} onPress={() => removeMedia(index)}>
+                      <Ionicons name="close-circle" size={22} color="#EF4444" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+          </View>
+
+          {/* Notes */}
+          <Text style={transferStyles.label}>Notes (Optional)</Text>
+          <TextInput
+            style={transferStyles.notesInput}
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Add any notes about the transfer..."
+            multiline
+            numberOfLines={2}
+          />
+
           {/* Actions */}
           <View style={transferStyles.actions}>
             <TouchableOpacity style={transferStyles.cancelBtn} onPress={onClose}>
