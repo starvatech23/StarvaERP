@@ -53,6 +53,9 @@ export default function MaterialsScreen() {
       } else if (activeTab === 'inventory') {
         const response = await siteInventoryAPI.getAll();
         setInventory(response.data || []);
+      } else if (activeTab === 'site') {
+        const response = await siteMaterialsAPI.list();
+        setSiteMaterials(response.data || []);
       }
     } catch (error) {
       console.error('Error loading data:', error);
