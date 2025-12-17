@@ -362,40 +362,40 @@ export default function MaterialsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Materials & Vendors</Text>
-        <View style={styles.headerButtons}>
-          <TouchableOpacity 
-            style={styles.scanButton}
-            onPress={() => router.push('/materials/scan' as any)}
-          >
-            <Ionicons name="qr-code" size={24} color={Colors.surface} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => {
-              if (activeTab === 'vendors') {
-                router.push('/materials/add-vendor' as any);
-              } else if (activeTab === 'materials') {
-                router.push('/materials/add-material' as any);
-              } else if (activeTab === 'inventory') {
-                router.push('/materials/add-inventory' as any);
-              } else if (activeTab === 'site') {
-                router.push('/materials/site/add' as any);
-              }
-            }}
-          >
-            <Ionicons name="add" size={24} color={Colors.surface} />
-          </TouchableOpacity>
+      {/* Compact Header with Tabs */}
+      <View style={styles.headerCompact}>
+        <View style={styles.headerRow}>
+          <Text style={styles.headerTitle}>Materials</Text>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity 
+              style={styles.iconBtn}
+              onPress={() => router.push('/materials/scan' as any)}
+            >
+              <Ionicons name="qr-code" size={20} color={Colors.primary} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => {
+                if (activeTab === 'vendors') {
+                  router.push('/materials/add-vendor' as any);
+                } else if (activeTab === 'materials') {
+                  router.push('/materials/add-material' as any);
+                } else if (activeTab === 'inventory') {
+                  router.push('/materials/add-inventory' as any);
+                } else if (activeTab === 'site') {
+                  router.push('/materials/site/add' as any);
+                }
+              }}
+            >
+              <Ionicons name="add" size={20} color={Colors.surface} />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
-        style={styles.tabsScrollView}
-        contentContainerStyle={styles.tabsContainer}
-      >
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          contentContainerStyle={styles.tabsRow}
+        >
         <TouchableOpacity
           style={[styles.tab, activeTab === 'vendors' && styles.activeTab]}
           onPress={() => setActiveTab('vendors')}
