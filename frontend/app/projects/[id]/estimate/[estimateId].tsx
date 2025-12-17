@@ -591,6 +591,108 @@ export default function EstimateDetailScreen() {
         onClose={() => setEditingLine(null)}
         onSave={handleSaveEdit}
       />
+
+      {/* Review Modal */}
+      <Modal
+        visible={showReviewModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowReviewModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Ionicons name="checkmark-circle" size={32} color={Colors.primary} />
+              <Text style={styles.modalTitle}>Review Estimate</Text>
+            </View>
+            <Text style={styles.modalSubtitle}>
+              By reviewing this estimate, you confirm that you have checked all details and calculations.
+            </Text>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Add review comments (optional)"
+              placeholderTextColor={Colors.textTertiary}
+              multiline
+              numberOfLines={3}
+              value={reviewComments}
+              onChangeText={setReviewComments}
+            />
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.modalCancelBtn}
+                onPress={() => {
+                  setShowReviewModal(false);
+                  setReviewComments('');
+                }}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.modalConfirmBtn}
+                onPress={handleReview}
+                disabled={actionLoading}
+              >
+                {actionLoading ? (
+                  <ActivityIndicator size="small" color={Colors.white} />
+                ) : (
+                  <Text style={styles.modalConfirmText}>Confirm Review</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Approve Modal */}
+      <Modal
+        visible={showApproveModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowApproveModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Ionicons name="shield-checkmark" size={32} color={Colors.success} />
+              <Text style={styles.modalTitle}>Approve Estimate</Text>
+            </View>
+            <Text style={styles.modalSubtitle}>
+              Final approval means this estimate is authorized for project execution. This action cannot be undone.
+            </Text>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Add approval comments (optional)"
+              placeholderTextColor={Colors.textTertiary}
+              multiline
+              numberOfLines={3}
+              value={approveComments}
+              onChangeText={setApproveComments}
+            />
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.modalCancelBtn}
+                onPress={() => {
+                  setShowApproveModal(false);
+                  setApproveComments('');
+                }}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.modalConfirmBtn, styles.approveConfirmBtn]}
+                onPress={handleApprove}
+                disabled={actionLoading}
+              >
+                {actionLoading ? (
+                  <ActivityIndicator size="small" color={Colors.white} />
+                ) : (
+                  <Text style={styles.modalConfirmText}>Approve</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
