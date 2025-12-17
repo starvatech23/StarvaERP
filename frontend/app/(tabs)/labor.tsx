@@ -14,7 +14,7 @@ import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
-import { workersAPI, laborAttendanceAPI, siteTransfersAPI } from '../../services/api';
+import { workersAPI, laborAttendanceAPI, siteTransfersAPI, weeklyPaymentsAPI, advancePaymentsAPI } from '../../services/api';
 import moment from 'moment';
 
 export default function LaborScreen() {
