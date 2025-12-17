@@ -373,6 +373,12 @@ export const weeklyPaymentsAPI = {
       params: { otp, payment_method: paymentMethod, payment_reference: reference } 
     }),
   getSummary: (params?: any) => api.get('/labour/payments/weekly-summary', { params }),
+  generateWeekly: (weekStart: string, weekEnd: string, projectId?: string) => 
+    api.post('/labour/payments/generate-weekly', null, { 
+      params: { week_start: weekStart, week_end: weekEnd, project_id: projectId } 
+    }),
+  getByWorker: (params?: any) => api.get('/labour/payments/by-worker', { params }),
+  getByProject: (params?: any) => api.get('/labour/payments/by-project', { params }),
 };
 
 // Vendors API
