@@ -592,6 +592,97 @@ export default function ProjectDetailsScreen() {
           )}
         </View>
 
+        {/* Site Materials Card */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Site Materials ({siteMaterials.filter(m => m.status === 'approved').length})</Text>
+            <TouchableOpacity
+              style={styles.addTaskButton}
+              onPress={() => router.push(`/materials/site/add?projectId=${id}` as any)}
+            >
+              <Ionicons name="add" size={20} color={Colors.secondary} />
+              <Text style={styles.addTaskText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Incoming Transfers Alert */}
+          {incomingTransfers.length > 0 && (
+            <View style={styles.transferAlert}>
+              <Ionicons name="swap-horizontal" size={20} color="#F59E0B" />
+              <Text style={styles.transferAlertText}>
+                {incomingTransfers.length} incoming transfer(s) pending your acceptance
+              </Text>
+            </View>
+          )}
+
+          {/* Incoming Transfers */}
+          {incomingTransfers.map((transfer: any) => (
+            <View key={transfer.id} style={styles.transferCard}>
+              <View style={styles.transferHeader}>
+                <Text style={styles.transferMaterial}>{transfer.material_type}</Text>
+                <View style={styles.transferBadge}>
+                  <Text style={styles.transferBadgeText}>Incoming</Text>
+                </View>
+              </View>
+              <Text style={styles.transferInfo}>
+                {transfer.quantity} {transfer.unit} from {transfer.source_project_name}
+              </Text>
+              <View style={styles.transferActions}>
+                <TouchableOpacity
+                  style={styles.rejectTransferBtn}
+                  onPress={() => handleRejectTransfer(transfer.id)}
+                >
+                  <Ionicons name="close" size={18} color="#EF4444" />
+                  <Text style={styles.rejectTransferText}>Reject</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.acceptTransferBtn}
+                  onPress={() => handleAcceptTransfer(transfer.id)}
+                >
+                  <Ionicons name="checkmark" size={18} color="#fff" />
+                  <Text style={styles.acceptTransferText}>Accept</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+
+          {/* Site Materials List */}
+          {siteMaterials.filter(m => m.status === 'approved').length === 0 ? (
+            <Text style={styles.emptyText}>No approved materials at this site</Text>
+          ) : (
+            <View style={styles.materialsList}>
+              {siteMaterials.filter(m => m.status === 'approved').map((material: any) => (
+                <View key={material.id} style={styles.materialCard}>
+                  <View style={styles.materialHeader}>
+                    <Text style={styles.materialName}>{material.material_type}</Text>
+                    <View style={[styles.conditionBadge, { borderColor: getConditionColor(material.condition) }]}>
+                      <Text style={[styles.conditionText, { color: getConditionColor(material.condition) }]}>
+                        {material.condition?.replace('_', ' ')}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.materialQty}>{material.quantity} {material.unit}</Text>
+                  {material.cost && (
+                    <Text style={styles.materialCost}>₹{material.cost?.toLocaleString()}</Text>
+                  )}
+                  <View style={styles.materialActions}>
+                    <TouchableOpacity
+                      style={styles.transferButton}
+                      onPress={() => {
+                        setSelectedMaterial(material);
+                        setShowTransferModal(true);
+                      }}
+                    >
+                      <Ionicons name="swap-horizontal" size={16} color={Colors.primary} />
+                      <Text style={styles.transferButtonText}>Transfer</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+
         {canEdit && (
           <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
             <Ionicons name="trash" size={20} color="#EF4444" />
@@ -599,6 +690,34 @@ export default function ProjectDetailsScreen() {
           </TouchableOpacity>
         )}
       </ScrollView>
+
+      {/* Transfer Modal */}
+      {showTransferModal && selectedMaterial && (
+        <TransferModal
+          material={selectedMaterial}
+          projects={allProjects}
+          onClose={() => {
+            setShowTransferModal(false);
+            setSelectedMaterial(null);
+          }}
+          onTransfer={async (destination, destProjectId, quantity) => {
+            try {
+              await materialTransfersAPI.create({
+                site_material_id: selectedMaterial.id,
+                destination_type: destination,
+                destination_project_id: destProjectId,
+                quantity: quantity
+              });
+              Alert.alert('Success', 'Transfer request sent. Waiting for acceptance.');
+              setShowTransferModal(false);
+              setSelectedMaterial(null);
+              loadSiteMaterials();
+            } catch (error: any) {
+              Alert.alert('Error', error.response?.data?.detail || 'Failed to create transfer');
+            }
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
