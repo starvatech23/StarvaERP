@@ -2324,6 +2324,154 @@ class EstimateSummary(BaseModel):
     approved_at: Optional[datetime] = None
 
 
+# ============= Floor-wise Estimate Models =============
+
+class FloorType(str, Enum):
+    GROUND = "ground"
+    FIRST = "first"
+    SECOND = "second"
+    THIRD = "third"
+    FOURTH = "fourth"
+    FIFTH = "fifth"
+    SIXTH = "sixth"
+    SEVENTH = "seventh"
+    EIGHTH = "eighth"
+    NINTH = "ninth"
+    TENTH = "tenth"
+    PARKING = "parking"
+    BASEMENT = "basement"
+    TERRACE = "terrace"
+
+# Floor names mapping for display
+FLOOR_DISPLAY_NAMES = {
+    "ground": "Ground Floor",
+    "first": "First Floor",
+    "second": "Second Floor",
+    "third": "Third Floor",
+    "fourth": "Fourth Floor",
+    "fifth": "Fifth Floor",
+    "sixth": "Sixth Floor",
+    "seventh": "Seventh Floor",
+    "eighth": "Eighth Floor",
+    "ninth": "Ninth Floor",
+    "tenth": "Tenth Floor",
+    "parking": "Parking Floor",
+    "basement": "Basement",
+    "terrace": "Terrace/Headroom",
+}
+
+# Items auto-assigned to specific floors
+FLOOR_SPECIFIC_ITEMS = {
+    "ground_only": [
+        "Excavation for foundation",
+        "PCC for foundation",
+        "RCC Footing",
+        "RCC Plinth Beam",
+        "Foundation Steel Reinforcement",
+        "Backfilling",
+        "Anti-termite treatment",
+        "Damp proof course",
+    ],
+    "top_floor_only": [
+        "Roof waterproofing",
+        "Roof insulation",
+        "Parapet wall",
+        "Terrace flooring",
+    ],
+    "all_floors": [
+        "RCC Columns",
+        "RCC Beams",
+        "RCC Slab",
+        "Steel Reinforcement",
+        "Block/Brick Masonry",
+        "Internal Plastering",
+        "External Plastering",
+        "Flooring",
+        "Wall Tiling",
+        "Painting",
+        "Electrical wiring",
+        "Electrical points",
+        "Plumbing",
+        "Doors",
+        "Windows",
+        "UPVC/Aluminium Frames",
+    ],
+    "parking_specific": [
+        "Parking flooring",
+        "Parking marking",
+        "Parking drainage",
+        "Parking lighting",
+        "Ramp construction",
+    ],
+}
+
+class EstimateFloorLine(BaseModel):
+    """Line item within a floor"""
+    id: Optional[str] = None
+    category: BOQCategory
+    item_name: str
+    description: Optional[str] = None
+    unit: str
+    quantity: float
+    rate: float
+    amount: float
+    formula_used: Optional[str] = None
+    is_user_edited: bool = False
+    is_auto_assigned: bool = True  # True if system assigned, False if user added
+    notes: Optional[str] = None
+
+class EstimateFloor(BaseModel):
+    """Floor within an estimate"""
+    id: Optional[str] = None
+    floor_type: str  # ground, first, second, parking, etc.
+    floor_name: str  # Display name
+    floor_number: int = 0  # For ordering (0 = ground, 1 = first, -1 = basement, etc.)
+    area_sqft: float
+    rate_per_sqft: Optional[float] = None  # Override rate for this floor
+    is_parking: bool = False
+    is_basement: bool = False
+    is_terrace: bool = False
+    
+    # Calculated totals for this floor
+    material_cost: float = 0.0
+    labour_cost: float = 0.0
+    services_cost: float = 0.0
+    floor_total: float = 0.0
+    
+    # Line items for this floor
+    lines: List[EstimateFloorLine] = []
+
+class EstimateFloorCreate(BaseModel):
+    """Input for creating a floor"""
+    floor_type: str
+    area_sqft: float
+    rate_per_sqft: Optional[float] = None
+    is_parking: bool = False
+
+class EstimateFloorUpdate(BaseModel):
+    """Input for updating a floor"""
+    area_sqft: Optional[float] = None
+    rate_per_sqft: Optional[float] = None
+
+class ParkingRateTable(BaseModel):
+    """Separate rate table for parking areas"""
+    name: str = "Default Parking Rates"
+    location: Optional[str] = None
+    # Parking specific rates (typically 50-70% of regular rates)
+    rate_multiplier: float = 0.6  # 60% of regular floor rates
+    flooring_per_sqft: float = 45.0
+    drainage_per_sqft: float = 15.0
+    lighting_per_sqft: float = 25.0
+    marking_per_sqft: float = 8.0
+    ramp_per_sqft: float = 80.0  # Ramp area rate
+    is_active: bool = True
+
+class ParkingRateTableResponse(ParkingRateTable):
+    id: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
 # ============= Company Settings =============
 
 class CompanySettings(BaseModel):
