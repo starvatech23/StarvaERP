@@ -747,11 +747,13 @@ export default function EstimateDetailScreen() {
           <View style={styles.assumptionsSection}>
             <Text style={styles.sectionTitle}>Assumptions Used</Text>
             <View style={styles.assumptionsCard}>
-              {Object.entries(estimate.assumptions).map(([key, value]: [string, any]) => (
+              {Object.entries(estimate.assumptions)
+                .filter(([key, value]) => typeof value !== 'object')
+                .map(([key, value]: [string, any]) => (
                 <View key={key} style={styles.assumptionRow}>
                   <Text style={styles.assumptionKey}>{key.replace(/_/g, ' ')}:</Text>
                   <Text style={styles.assumptionValue}>
-                    {typeof value === 'number' ? value.toFixed(2) : value}
+                    {typeof value === 'number' ? value.toFixed(2) : String(value)}
                   </Text>
                 </View>
               ))}
