@@ -435,7 +435,7 @@ export default function DashboardScreen() {
               style={styles.sectionHeaderLink}
               onPress={() => router.push('/finance' as any)}
             >
-              <Text style={styles.sectionTitle}>💰 Financial Overview</Text>
+              <Text style={styles.sectionTitleNoMargin}>💰 Financial Overview</Text>
               <View style={styles.sectionLinkIcon}>
                 <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
               </View>
