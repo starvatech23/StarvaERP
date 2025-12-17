@@ -490,7 +490,8 @@ export default function MaterialsScreen() {
             Reports
           </Text>
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      </View>
 
       <ScrollView
         style={styles.content}
