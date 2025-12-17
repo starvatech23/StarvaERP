@@ -580,6 +580,32 @@ export const siteMaterialsAPI = {
   getProjectStats: (projectId: string) => api.get(`/site-materials/project/${projectId}/stats`),
 };
 
+// Material Transfers API
+export const materialTransfersAPI = {
+  // Create a transfer request
+  create: (data: {
+    site_material_id: string;
+    destination_type: 'project' | 'hq' | 'maintenance';
+    destination_project_id?: string;
+    quantity: number;
+    notes?: string;
+  }) => api.post('/material-transfers', data),
+  
+  // Get transfers (optionally by project)
+  list: (params?: {
+    project_id?: string;
+    status?: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+    direction?: 'incoming' | 'outgoing';
+  }) => api.get('/material-transfers', { params }),
+  
+  // Accept a transfer
+  accept: (transferId: string) => api.post(`/material-transfers/${transferId}/accept`),
+  
+  // Reject a transfer
+  reject: (transferId: string, reason?: string) => 
+    api.post(`/material-transfers/${transferId}/reject`, null, { params: { reason } }),
+};
+
 // Notifications API
 export const notificationsAPI = {
   // Get notifications for current user
