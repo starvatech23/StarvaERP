@@ -718,7 +718,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 12,
+  },
+  sectionTitleNoMargin: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.textPrimary,
   },
   sectionLinkIcon: {
     width: 28,
