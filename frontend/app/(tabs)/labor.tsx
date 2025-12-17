@@ -921,4 +921,43 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#10B981',
   },
+  // Payments styles
+  paymentsSectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 12,
+    marginTop: 8,
+  },
+  paymentDetails: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  paymentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  paymentLabel: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
+  paymentValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  emptyCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: 24,
+    alignItems: 'center',
+  },
+  emptyCardText: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
 });
