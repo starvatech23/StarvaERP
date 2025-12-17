@@ -3512,6 +3512,10 @@ async def update_domain_restriction_config(
     if current_user.get("role") not in ["admin", "director", "head"]:
         raise HTTPException(status_code=403, detail="Admin access required")
     
+    # Remove any _id or id fields from input
+    config_data.pop("_id", None)
+    config_data.pop("id", None)
+    
     config_data["config_type"] = "domain_restriction"
     config_data["updated_at"] = datetime.utcnow()
     config_data["updated_by"] = str(current_user["_id"])
@@ -3522,13 +3526,24 @@ async def update_domain_restriction_config(
             {"config_type": "domain_restriction"},
             {"$set": config_data}
         )
-        config_data["id"] = str(existing["_id"])
+        config_id = str(existing["_id"])
     else:
         config_data["created_at"] = datetime.utcnow()
         result = await db.admin_config.insert_one(config_data)
-        config_data["id"] = str(result.inserted_id)
+        config_id = str(result.inserted_id)
     
-    return {"success": True, "message": "Domain restriction updated", "config": config_data}
+    # Return clean response
+    return {
+        "success": True, 
+        "message": "Domain restriction updated", 
+        "config": {
+            "id": config_id,
+            "is_enabled": config_data.get("is_enabled", False),
+            "allowed_domains": config_data.get("allowed_domains", []),
+            "admin_bypass_enabled": config_data.get("admin_bypass_enabled", True),
+            "error_message": config_data.get("error_message", "")
+        }
+    }
 
 
 @api_router.post("/admin/config/test-sms")
