@@ -49,9 +49,16 @@ export default function LaborScreen() {
       } else if (activeTab === 'attendance') {
         const response = await laborAttendanceAPI.getAll();
         setAttendance(response.data || []);
-      } else {
+      } else if (activeTab === 'transfers') {
         const response = await siteTransfersAPI.getAll();
         setTransfers(response.data || []);
+      } else if (activeTab === 'payments') {
+        const [paymentsRes, advancesRes] = await Promise.all([
+          weeklyPaymentsAPI.getAll(),
+          advancePaymentsAPI.getAll()
+        ]);
+        setPayments(paymentsRes.data || []);
+        setAdvances(advancesRes.data || []);
       }
     } catch (error) {
       console.error('Error loading data:', error);
