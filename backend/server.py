@@ -7919,8 +7919,19 @@ async def connect(sid, environ):
 async def disconnect(sid):
     logger.info(f"Client disconnected: {sid}")
 
+@app.on_event("startup")
+async def startup_scheduler():
+    """Start the APScheduler on app startup"""
+    from scheduler import setup_scheduler
+    logger.info("Starting APScheduler...")
+    setup_scheduler(db)
+    logger.info("APScheduler started successfully")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    """Shutdown database and scheduler on app shutdown"""
+    from scheduler import shutdown_scheduler
+    shutdown_scheduler()
     client.close()
 
 
