@@ -191,23 +191,40 @@ export default function DashboardScreen() {
         {/* Key Metrics */}
         {stats?.projects && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Project Overview</Text>
+            <TouchableOpacity 
+              style={styles.sectionHeaderLink}
+              onPress={() => router.push('/(tabs)/projects' as any)}
+            >
+              <Text style={styles.sectionTitle}>Project Overview</Text>
+              <View style={styles.sectionLinkIcon}>
+                <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
+              </View>
+            </TouchableOpacity>
             <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: Colors.primaryPale }]}>
+              <TouchableOpacity 
+                style={[styles.statCard, { backgroundColor: Colors.primaryPale }]}
+                onPress={() => router.push('/(tabs)/projects' as any)}
+              >
                 <Ionicons name="business" size={28} color={Colors.primary} />
                 <Text style={styles.statValue}>{stats.projects.total}</Text>
                 <Text style={styles.statLabel}>Total Projects</Text>
-              </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.secondary + '20' }]}>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.statCard, { backgroundColor: Colors.secondary + '20' }]}
+                onPress={() => router.push('/(tabs)/projects?status=in_progress' as any)}
+              >
                 <Ionicons name="flash" size={28} color={Colors.secondary} />
                 <Text style={styles.statValue}>{stats.projects.active}</Text>
                 <Text style={styles.statLabel}>Active</Text>
-              </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.success + '20' }]}>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.statCard, { backgroundColor: Colors.success + '20' }]}
+                onPress={() => router.push('/(tabs)/projects?status=completed' as any)}
+              >
                 <Ionicons name="checkmark-circle" size={28} color={Colors.success} />
                 <Text style={styles.statValue}>{stats.projects.completed}</Text>
                 <Text style={styles.statLabel}>Completed</Text>
-              </View>
+              </TouchableOpacity>
             </View>
             
             {/* Project Status Chart */}
