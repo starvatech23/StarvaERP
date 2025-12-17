@@ -37,12 +37,69 @@ function TransferModal({ material, projects, onClose, onTransfer }: {
   material: any;
   projects: any[];
   onClose: () => void;
-  onTransfer: (destination: string, destProjectId: string | undefined, quantity: number) => void;
+  onTransfer: (destination: string, destProjectId: string | undefined, quantity: number, mediaUrls: string[], notes: string) => void;
 }) {
   const [destination, setDestination] = useState<'project' | 'hq' | 'maintenance'>('project');
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [quantity, setQuantity] = useState(String(material.quantity));
   const [showProjectPicker, setShowProjectPicker] = useState(false);
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [notes, setNotes] = useState('');
+
+  const handlePickImage = async () => {
+    const ImagePicker = require('expo-image-picker');
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Please allow access to photos.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsMultipleSelection: true,
+      quality: 0.7,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets) {
+      const newUrls = result.assets.map((asset: any) => {
+        if (asset.base64) {
+          const mimeType = asset.mimeType || 'image/jpeg';
+          return `data:${mimeType};base64,${asset.base64}`;
+        }
+        return asset.uri;
+      });
+      setMediaUrls([...mediaUrls, ...newUrls]);
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    const ImagePicker = require('expo-image-picker');
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Please allow camera access.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      quality: 0.7,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      if (asset.base64) {
+        const mimeType = asset.mimeType || 'image/jpeg';
+        setMediaUrls([...mediaUrls, `data:${mimeType};base64,${asset.base64}`]);
+      } else {
+        setMediaUrls([...mediaUrls, asset.uri]);
+      }
+    }
+  };
+
+  const removeMedia = (index: number) => {
+    setMediaUrls(mediaUrls.filter((_, i) => i !== index));
+  };
 
   const handleTransfer = () => {
     const qty = parseFloat(quantity);
@@ -58,7 +115,7 @@ function TransferModal({ material, projects, onClose, onTransfer }: {
       Alert.alert('Error', 'Please select a destination project');
       return;
     }
-    onTransfer(destination, selectedProject?.id, qty);
+    onTransfer(destination, selectedProject?.id, qty, mediaUrls, notes);
   };
 
   return (
