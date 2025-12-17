@@ -625,6 +625,9 @@ export const materialFinanceAPI = {
 
 // CRM Dashboard API
 export const crmDashboardAPI = {
+  // Get dashboard stats (for main dashboard widget)
+  getStats: () => api.get('/crm/dashboard/stats'),
+  
   // Get analytics with filters
   getAnalytics: (filters?: {
     city?: string;
