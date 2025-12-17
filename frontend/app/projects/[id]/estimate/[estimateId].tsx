@@ -24,7 +24,9 @@ import { useAuth } from '../../../../context/AuthContext';
 
 export default function EstimateDetailScreen() {
   const router = useRouter();
-  const { id: projectId, estimateId } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const projectId = params?.id;
+  const estimateId = params?.estimateId;
   const { user } = useAuth();
   
   const [estimate, setEstimate] = useState<any>(null);
@@ -45,7 +47,9 @@ export default function EstimateDetailScreen() {
   const canApprove = user?.role === 'admin';
 
   useEffect(() => {
-    loadEstimate();
+    if (estimateId) {
+      loadEstimate();
+    }
   }, [estimateId]);
 
   const loadEstimate = async () => {
