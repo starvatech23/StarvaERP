@@ -527,6 +527,83 @@ export default function EstimateDetailScreen() {
           </View>
         )}
 
+        {/* Client Summary Section - For Sharing */}
+        {estimate.is_floor_wise && estimate.summary && (
+          <View style={styles.clientSummarySection}>
+            <View style={styles.clientSummaryHeader}>
+              <Ionicons name="document-text" size={24} color={Colors.primary} />
+              <Text style={styles.clientSummaryTitle}>Estimate Summary (For Client)</Text>
+            </View>
+            
+            <View style={styles.summaryTable}>
+              <View style={styles.summaryTableHeader}>
+                <Text style={styles.summaryTableHeaderText}>Description</Text>
+                <Text style={styles.summaryTableHeaderText}>Area (sqft)</Text>
+                <Text style={styles.summaryTableHeaderText}>Rate/sqft</Text>
+                <Text style={styles.summaryTableHeaderText}>Amount</Text>
+              </View>
+              
+              {/* Built-up Area Row */}
+              <View style={styles.summaryTableRow}>
+                <Text style={styles.summaryTableCell}>Built-up Area</Text>
+                <Text style={styles.summaryTableCell}>{estimate.summary.built_up_area?.toLocaleString('en-IN')}</Text>
+                <Text style={styles.summaryTableCell}>₹{estimate.summary.package_rate?.toLocaleString('en-IN')}</Text>
+                <Text style={styles.summaryTableCellAmount}>₹{estimate.summary.built_up_amount?.toLocaleString('en-IN')}</Text>
+              </View>
+              
+              {/* Headroom Row (if exists) */}
+              {estimate.summary.headroom_area > 0 && (
+                <View style={styles.summaryTableRow}>
+                  <Text style={styles.summaryTableCell}>Headroom/Terrace</Text>
+                  <Text style={styles.summaryTableCell}>{estimate.summary.headroom_area?.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.summaryTableCell}>₹{estimate.summary.package_rate?.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.summaryTableCellAmount}>(Included)</Text>
+                </View>
+              )}
+              
+              {/* Parking Row */}
+              {estimate.summary.parking_area > 0 && (
+                <View style={styles.summaryTableRow}>
+                  <Text style={styles.summaryTableCell}>Parking Area</Text>
+                  <Text style={styles.summaryTableCell}>{estimate.summary.parking_area?.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.summaryTableCell}>₹{estimate.summary.parking_rate?.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.summaryTableCellAmount}>₹{estimate.summary.parking_amount?.toLocaleString('en-IN')}</Text>
+                </View>
+              )}
+              
+              {/* Basement Row */}
+              {estimate.summary.basement_area > 0 && (
+                <View style={styles.summaryTableRow}>
+                  <Text style={styles.summaryTableCell}>Basement Area</Text>
+                  <Text style={styles.summaryTableCell}>{estimate.summary.basement_area?.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.summaryTableCell}>₹{estimate.summary.basement_rate?.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.summaryTableCellAmount}>₹{estimate.summary.basement_amount?.toLocaleString('en-IN')}</Text>
+                </View>
+              )}
+              
+              {/* Total Row */}
+              <View style={[styles.summaryTableRow, styles.summaryTableTotalRow]}>
+                <Text style={styles.summaryTableTotalLabel}>Total Construction Cost</Text>
+                <Text style={styles.summaryTableCell}></Text>
+                <Text style={styles.summaryTableCell}></Text>
+                <Text style={styles.summaryTableTotalAmount}>₹{estimate.summary.total_construction_cost?.toLocaleString('en-IN')}</Text>
+              </View>
+            </View>
+            
+            {/* Rate Info */}
+            <View style={styles.rateInfo}>
+              <Text style={styles.rateInfoTitle}>Rate Structure:</Text>
+              <Text style={styles.rateInfoItem}>• Package Rate: ₹{estimate.summary.package_rate?.toLocaleString('en-IN')}/sqft</Text>
+              {estimate.summary.parking_area > 0 && (
+                <Text style={styles.rateInfoItem}>• Parking Rate: ₹{estimate.summary.parking_rate?.toLocaleString('en-IN')}/sqft</Text>
+              )}
+              {estimate.summary.basement_area > 0 && (
+                <Text style={styles.rateInfoItem}>• Basement Rate: ₹{estimate.summary.basement_rate?.toLocaleString('en-IN')}/sqft</Text>
+              )}
+            </View>
+          </View>
+        )}
+
         {/* Legacy Estimate Notice */}
         {!estimate.is_floor_wise && (
           <View style={styles.legacyNotice}>
