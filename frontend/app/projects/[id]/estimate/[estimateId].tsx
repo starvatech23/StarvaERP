@@ -1349,4 +1349,172 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.white,
   },
+  // Floor-wise Breakdown Styles
+  floorSection: {
+    padding: 16,
+  },
+  floorCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  floorHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  floorHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  floorIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: Colors.primaryPale,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  floorIconParking: {
+    backgroundColor: Colors.warningLight,
+  },
+  floorIconBasement: {
+    backgroundColor: Colors.infoLight,
+  },
+  floorIconTerrace: {
+    backgroundColor: Colors.successLight,
+  },
+  floorName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  floorArea: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  floorHeaderRight: {
+    alignItems: 'flex-end',
+  },
+  floorTotal: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  floorBadge: {
+    backgroundColor: Colors.warningLight,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginTop: 4,
+  },
+  floorBadgeInfo: {
+    backgroundColor: Colors.infoLight,
+  },
+  floorBadgeSuccess: {
+    backgroundColor: Colors.successLight,
+  },
+  floorBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: Colors.warning,
+  },
+  floorBadgeTextInfo: {
+    color: Colors.info,
+  },
+  floorBadgeTextSuccess: {
+    color: Colors.success,
+  },
+  floorBreakdown: {
+    flexDirection: 'row',
+    backgroundColor: Colors.background,
+    borderRadius: 8,
+    padding: 12,
+    gap: 16,
+  },
+  floorBreakdownItem: {
+    flex: 1,
+  },
+  floorBreakdownLabel: {
+    fontSize: 11,
+    color: Colors.textTertiary,
+    marginBottom: 2,
+  },
+  floorBreakdownValue: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  floorItemsInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  floorItemsText: {
+    fontSize: 12,
+    color: Colors.textTertiary,
+  },
+  floorSummary: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  floorSummaryTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+    marginBottom: 12,
+  },
+  floorSummaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  floorSummaryLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  floorSummaryLabel: {
+    fontSize: 14,
+    color: Colors.textPrimary,
+  },
+  floorSummaryValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  legacyNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    margin: 16,
+    padding: 16,
+    backgroundColor: Colors.infoLight,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.info,
+  },
+  legacyNoticeText: {
+    flex: 1,
+    fontSize: 13,
+    color: Colors.info,
+    lineHeight: 18,
+  },
 });
