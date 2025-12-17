@@ -317,6 +317,121 @@ export default function CreateEstimateScreen() {
                 onChangeText={(value) => updateField('floor_to_floor_height', value)}
               />
             </View>
+
+            {/* Floor Configuration Section */}
+            <View style={styles.sectionDivider}>
+              <Text style={styles.sectionDividerText}>Additional Floor Options</Text>
+            </View>
+
+            {/* Area Calculation Info */}
+            <View style={styles.infoBox}>
+              <Ionicons name="information-circle" size={18} color={Colors.info} />
+              <Text style={styles.infoText}>
+                Area will be divided by floors. E.g., 1500 sqft with 2 floors = 750 sqft per floor
+              </Text>
+            </View>
+
+            {/* Parking Floor Toggle */}
+            <TouchableOpacity 
+              style={styles.toggleRow}
+              onPress={() => setFormData(prev => ({ ...prev, has_parking: !prev.has_parking }))}
+            >
+              <View style={styles.toggleLeft}>
+                <Ionicons 
+                  name="car" 
+                  size={24} 
+                  color={formData.has_parking ? Colors.primary : Colors.textTertiary} 
+                />
+                <View style={styles.toggleTextContainer}>
+                  <Text style={styles.toggleLabel}>Include Parking Floor</Text>
+                  <Text style={styles.toggleDescription}>Separate area with lower rates (~60%)</Text>
+                </View>
+              </View>
+              <View style={[styles.toggleSwitch, formData.has_parking && styles.toggleSwitchActive]}>
+                <View style={[styles.toggleKnob, formData.has_parking && styles.toggleKnobActive]} />
+              </View>
+            </TouchableOpacity>
+
+            {formData.has_parking && (
+              <View style={styles.subInputGroup}>
+                <Text style={styles.label}>Parking Area (sqft)</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., 400"
+                  keyboardType="numeric"
+                  value={formData.parking_area_sqft}
+                  onChangeText={(value) => updateField('parking_area_sqft', value)}
+                />
+              </View>
+            )}
+
+            {/* Basement Toggle */}
+            <TouchableOpacity 
+              style={styles.toggleRow}
+              onPress={() => setFormData(prev => ({ ...prev, has_basement: !prev.has_basement }))}
+            >
+              <View style={styles.toggleLeft}>
+                <Ionicons 
+                  name="layers" 
+                  size={24} 
+                  color={formData.has_basement ? Colors.primary : Colors.textTertiary} 
+                />
+                <View style={styles.toggleTextContainer}>
+                  <Text style={styles.toggleLabel}>Include Basement</Text>
+                  <Text style={styles.toggleDescription}>Underground floor (~70% of regular rate)</Text>
+                </View>
+              </View>
+              <View style={[styles.toggleSwitch, formData.has_basement && styles.toggleSwitchActive]}>
+                <View style={[styles.toggleKnob, formData.has_basement && styles.toggleKnobActive]} />
+              </View>
+            </TouchableOpacity>
+
+            {formData.has_basement && (
+              <View style={styles.subInputGroup}>
+                <Text style={styles.label}>Basement Area (sqft)</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., 500"
+                  keyboardType="numeric"
+                  value={formData.basement_area_sqft}
+                  onChangeText={(value) => updateField('basement_area_sqft', value)}
+                />
+              </View>
+            )}
+
+            {/* Terrace Toggle */}
+            <TouchableOpacity 
+              style={styles.toggleRow}
+              onPress={() => setFormData(prev => ({ ...prev, has_terrace: !prev.has_terrace }))}
+            >
+              <View style={styles.toggleLeft}>
+                <Ionicons 
+                  name="sunny" 
+                  size={24} 
+                  color={formData.has_terrace ? Colors.primary : Colors.textTertiary} 
+                />
+                <View style={styles.toggleTextContainer}>
+                  <Text style={styles.toggleLabel}>Include Terrace/Headroom</Text>
+                  <Text style={styles.toggleDescription}>Rooftop area (~30% of regular rate)</Text>
+                </View>
+              </View>
+              <View style={[styles.toggleSwitch, formData.has_terrace && styles.toggleSwitchActive]}>
+                <View style={[styles.toggleKnob, formData.has_terrace && styles.toggleKnobActive]} />
+              </View>
+            </TouchableOpacity>
+
+            {formData.has_terrace && (
+              <View style={styles.subInputGroup}>
+                <Text style={styles.label}>Terrace Area (sqft)</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., 300"
+                  keyboardType="numeric"
+                  value={formData.terrace_area_sqft}
+                  onChangeText={(value) => updateField('terrace_area_sqft', value)}
+                />
+              </View>
+            )}
           </View>
         )}
 
