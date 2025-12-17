@@ -553,21 +553,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tabs: {
-    flexDirection: 'row',
+  tabsScrollView: {
     backgroundColor: Colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
+  tabsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 8,
+  },
   tab: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    gap: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    gap: 6,
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
+    marginHorizontal: 2,
   },
   activeTab: {
     borderBottomColor: Colors.secondary,
