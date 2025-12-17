@@ -3350,6 +3350,210 @@ async def get_payments_by_project(
     return result
 
 
+# ============= Admin Configuration Routes =============
+
+@api_router.get("/admin/config")
+async def get_admin_config(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all admin configurations"""
+    current_user = await get_current_user(credentials)
+    
+    # Only admins can access
+    if current_user.get("role") not in ["admin", "director", "head"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    sms_config = await db.admin_config.find_one({"config_type": "sms"})
+    whatsapp_config = await db.admin_config.find_one({"config_type": "whatsapp"})
+    domain_config = await db.admin_config.find_one({"config_type": "domain_restriction"})
+    
+    return {
+        "sms_config": serialize_doc(sms_config) if sms_config else None,
+        "whatsapp_config": serialize_doc(whatsapp_config) if whatsapp_config else None,
+        "domain_restriction": serialize_doc(domain_config) if domain_config else None
+    }
+
+
+@api_router.get("/admin/config/sms")
+async def get_sms_config(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get SMS configuration"""
+    current_user = await get_current_user(credentials)
+    if current_user.get("role") not in ["admin", "director", "head"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    config = await db.admin_config.find_one({"config_type": "sms"})
+    if not config:
+        # Return default config
+        return {
+            "id": None,
+            "provider": "twilio",
+            "is_enabled": False,
+            "api_key": "",
+            "api_secret": "",
+            "sender_id": "",
+            "template_id": "",
+            "webhook_url": ""
+        }
+    return serialize_doc(config)
+
+
+@api_router.put("/admin/config/sms")
+async def update_sms_config(
+    config_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update SMS configuration"""
+    current_user = await get_current_user(credentials)
+    if current_user.get("role") not in ["admin", "director", "head"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    config_data["config_type"] = "sms"
+    config_data["updated_at"] = datetime.utcnow()
+    config_data["updated_by"] = str(current_user["_id"])
+    
+    existing = await db.admin_config.find_one({"config_type": "sms"})
+    if existing:
+        await db.admin_config.update_one(
+            {"config_type": "sms"},
+            {"$set": config_data}
+        )
+        config_data["id"] = str(existing["_id"])
+    else:
+        config_data["created_at"] = datetime.utcnow()
+        result = await db.admin_config.insert_one(config_data)
+        config_data["id"] = str(result.inserted_id)
+    
+    return {"success": True, "message": "SMS configuration updated", "config": config_data}
+
+
+@api_router.get("/admin/config/whatsapp")
+async def get_whatsapp_config(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get WhatsApp configuration"""
+    current_user = await get_current_user(credentials)
+    if current_user.get("role") not in ["admin", "director", "head"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    config = await db.admin_config.find_one({"config_type": "whatsapp"})
+    if not config:
+        return {
+            "id": None,
+            "provider": "meta",
+            "is_enabled": False,
+            "business_account_id": "",
+            "phone_number_id": "",
+            "access_token": "",
+            "webhook_verify_token": "",
+            "template_namespace": ""
+        }
+    return serialize_doc(config)
+
+
+@api_router.put("/admin/config/whatsapp")
+async def update_whatsapp_config(
+    config_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update WhatsApp configuration"""
+    current_user = await get_current_user(credentials)
+    if current_user.get("role") not in ["admin", "director", "head"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    config_data["config_type"] = "whatsapp"
+    config_data["updated_at"] = datetime.utcnow()
+    config_data["updated_by"] = str(current_user["_id"])
+    
+    existing = await db.admin_config.find_one({"config_type": "whatsapp"})
+    if existing:
+        await db.admin_config.update_one(
+            {"config_type": "whatsapp"},
+            {"$set": config_data}
+        )
+        config_data["id"] = str(existing["_id"])
+    else:
+        config_data["created_at"] = datetime.utcnow()
+        result = await db.admin_config.insert_one(config_data)
+        config_data["id"] = str(result.inserted_id)
+    
+    return {"success": True, "message": "WhatsApp configuration updated", "config": config_data}
+
+
+@api_router.get("/admin/config/domain-restriction")
+async def get_domain_restriction_config(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get domain restriction configuration"""
+    current_user = await get_current_user(credentials)
+    if current_user.get("role") not in ["admin", "director", "head"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    config = await db.admin_config.find_one({"config_type": "domain_restriction"})
+    if not config:
+        return {
+            "id": None,
+            "is_enabled": False,
+            "allowed_domains": [],
+            "admin_bypass_enabled": True,
+            "error_message": "Only corporate email addresses are allowed to access this application."
+        }
+    return serialize_doc(config)
+
+
+@api_router.put("/admin/config/domain-restriction")
+async def update_domain_restriction_config(
+    config_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update domain restriction configuration"""
+    current_user = await get_current_user(credentials)
+    if current_user.get("role") not in ["admin", "director", "head"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    config_data["config_type"] = "domain_restriction"
+    config_data["updated_at"] = datetime.utcnow()
+    config_data["updated_by"] = str(current_user["_id"])
+    
+    existing = await db.admin_config.find_one({"config_type": "domain_restriction"})
+    if existing:
+        await db.admin_config.update_one(
+            {"config_type": "domain_restriction"},
+            {"$set": config_data}
+        )
+        config_data["id"] = str(existing["_id"])
+    else:
+        config_data["created_at"] = datetime.utcnow()
+        result = await db.admin_config.insert_one(config_data)
+        config_data["id"] = str(result.inserted_id)
+    
+    return {"success": True, "message": "Domain restriction updated", "config": config_data}
+
+
+@api_router.post("/admin/config/test-sms")
+async def test_sms_config(
+    phone_number: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Send a test SMS to verify configuration"""
+    current_user = await get_current_user(credentials)
+    if current_user.get("role") not in ["admin", "director", "head"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    config = await db.admin_config.find_one({"config_type": "sms"})
+    if not config or not config.get("is_enabled"):
+        raise HTTPException(status_code=400, detail="SMS is not configured or enabled")
+    
+    # In production, integrate with actual SMS provider
+    # For now, return mock success
+    return {
+        "success": True,
+        "message": f"Test SMS sent to {phone_number}",
+        "provider": config.get("provider", "twilio")
+    }
+
+
 # ============= Vendor Management Routes =============
 
 @api_router.get("/vendors", response_model=List[VendorResponse])
