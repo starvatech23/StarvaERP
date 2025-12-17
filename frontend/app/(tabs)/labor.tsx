@@ -350,29 +350,52 @@ export default function LaborScreen() {
   };
 
   const handleMarkPaid = (payment: any) => {
-    Alert.prompt(
+    Alert.alert(
       'Enter OTP',
       `Enter the 6-digit OTP sent to worker's mobile to confirm payment of ₹${payment.net_amount?.toLocaleString()}`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Verify & Pay',
-          onPress: async (otp) => {
-            if (!otp || otp.length !== 6) {
-              Alert.alert('Error', 'Please enter a valid 6-digit OTP');
-              return;
-            }
+          text: 'Resend OTP',
+          onPress: async () => {
             try {
-              await weeklyPaymentsAPI.verifyOTP(payment.id, otp, 'cash');
-              Alert.alert('Success', 'Payment marked as paid');
-              loadData();
+              const response = await weeklyPaymentsAPI.sendOTP(payment.id);
+              Alert.alert('OTP Resent', response.data?.message || 'New OTP sent to worker\'s mobile');
             } catch (error: any) {
-              Alert.alert('Error', error.response?.data?.detail || 'Invalid OTP');
+              Alert.alert('Error', error.response?.data?.detail || 'Failed to resend OTP');
             }
           },
         },
-      ],
-      'plain-text'
+        {
+          text: 'Enter OTP',
+          onPress: () => {
+            Alert.prompt(
+              'Verify OTP',
+              'Enter 6-digit OTP:',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Verify & Pay',
+                  onPress: async (otp) => {
+                    if (!otp || otp.length !== 6) {
+                      Alert.alert('Error', 'Please enter a valid 6-digit OTP');
+                      return;
+                    }
+                    try {
+                      await weeklyPaymentsAPI.verifyOTP(payment.id, otp, 'cash');
+                      Alert.alert('Success', 'Payment marked as paid');
+                      loadData();
+                    } catch (error: any) {
+                      Alert.alert('Error', error.response?.data?.detail || 'Invalid OTP');
+                    }
+                  },
+                },
+              ],
+              'plain-text'
+            );
+          },
+        },
+      ]
     );
   };
 
