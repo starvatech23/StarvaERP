@@ -32,6 +32,159 @@ interface StatusUpdate {
   created_by_name?: string;
 }
 
+// Transfer Modal Component
+function TransferModal({ material, projects, onClose, onTransfer }: {
+  material: any;
+  projects: any[];
+  onClose: () => void;
+  onTransfer: (destination: string, destProjectId: string | undefined, quantity: number) => void;
+}) {
+  const [destination, setDestination] = useState<'project' | 'hq' | 'maintenance'>('project');
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [quantity, setQuantity] = useState(String(material.quantity));
+  const [showProjectPicker, setShowProjectPicker] = useState(false);
+
+  const handleTransfer = () => {
+    const qty = parseFloat(quantity);
+    if (isNaN(qty) || qty <= 0) {
+      Alert.alert('Error', 'Please enter a valid quantity');
+      return;
+    }
+    if (qty > material.quantity) {
+      Alert.alert('Error', 'Quantity exceeds available amount');
+      return;
+    }
+    if (destination === 'project' && !selectedProject) {
+      Alert.alert('Error', 'Please select a destination project');
+      return;
+    }
+    onTransfer(destination, selectedProject?.id, qty);
+  };
+
+  return (
+    <Modal visible transparent animationType="slide">
+      <View style={transferStyles.overlay}>
+        <View style={transferStyles.content}>
+          <View style={transferStyles.header}>
+            <Text style={transferStyles.title}>Transfer Material</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Ionicons name="close" size={24} color={Colors.textPrimary} />
+            </TouchableOpacity>
+          </View>
+
+          <Text style={transferStyles.materialInfo}>
+            {material.material_type} - {material.quantity} {material.unit} available
+          </Text>
+
+          {/* Destination Type */}
+          <Text style={transferStyles.label}>Transfer To</Text>
+          <View style={transferStyles.destOptions}>
+            {(['project', 'hq', 'maintenance'] as const).map((dest) => (
+              <TouchableOpacity
+                key={dest}
+                style={[transferStyles.destOption, destination === dest && transferStyles.destOptionActive]}
+                onPress={() => setDestination(dest)}
+              >
+                <Ionicons
+                  name={dest === 'project' ? 'business' : dest === 'hq' ? 'home' : 'construct'}
+                  size={20}
+                  color={destination === dest ? Colors.primary : Colors.textSecondary}
+                />
+                <Text style={[transferStyles.destText, destination === dest && transferStyles.destTextActive]}>
+                  {dest === 'project' ? 'Project' : dest === 'hq' ? 'HQ' : 'Maintenance'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Project Picker */}
+          {destination === 'project' && (
+            <>
+              <Text style={transferStyles.label}>Select Project</Text>
+              <TouchableOpacity
+                style={transferStyles.picker}
+                onPress={() => setShowProjectPicker(!showProjectPicker)}
+              >
+                <Text style={selectedProject ? transferStyles.pickerText : transferStyles.pickerPlaceholder}>
+                  {selectedProject?.name || 'Select destination project'}
+                </Text>
+                <Ionicons name="chevron-down" size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
+              {showProjectPicker && (
+                <ScrollView style={transferStyles.projectList}>
+                  {projects.map((p) => (
+                    <TouchableOpacity
+                      key={p.id}
+                      style={transferStyles.projectItem}
+                      onPress={() => {
+                        setSelectedProject(p);
+                        setShowProjectPicker(false);
+                      }}
+                    >
+                      <Text style={transferStyles.projectName}>{p.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              )}
+            </>
+          )}
+
+          {/* Quantity */}
+          <Text style={transferStyles.label}>Quantity</Text>
+          <View style={transferStyles.qtyRow}>
+            <TextInput
+              style={transferStyles.qtyInput}
+              value={quantity}
+              onChangeText={setQuantity}
+              keyboardType="decimal-pad"
+            />
+            <Text style={transferStyles.unit}>{material.unit}</Text>
+          </View>
+
+          {/* Actions */}
+          <View style={transferStyles.actions}>
+            <TouchableOpacity style={transferStyles.cancelBtn} onPress={onClose}>
+              <Text style={transferStyles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={transferStyles.transferBtn} onPress={handleTransfer}>
+              <Ionicons name="swap-horizontal" size={20} color="#fff" />
+              <Text style={transferStyles.transferText}>Transfer</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+const transferStyles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  content: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '80%' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  title: { fontSize: 18, fontWeight: '600', color: Colors.textPrimary },
+  materialInfo: { fontSize: 14, color: Colors.textSecondary, marginBottom: 20, backgroundColor: '#F3F4F6', padding: 12, borderRadius: 8 },
+  label: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary, marginBottom: 8, marginTop: 12 },
+  destOptions: { flexDirection: 'row', gap: 10 },
+  destOption: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, padding: 12, borderRadius: 10, borderWidth: 1, borderColor: Colors.border, backgroundColor: '#fff' },
+  destOptionActive: { borderColor: Colors.primary, backgroundColor: Colors.primary + '10' },
+  destText: { fontSize: 13, color: Colors.textSecondary },
+  destTextActive: { color: Colors.primary, fontWeight: '600' },
+  picker: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14, borderWidth: 1, borderColor: Colors.border, borderRadius: 10, backgroundColor: '#fff' },
+  pickerText: { fontSize: 15, color: Colors.textPrimary },
+  pickerPlaceholder: { fontSize: 15, color: Colors.textSecondary },
+  projectList: { maxHeight: 150, borderWidth: 1, borderColor: Colors.border, borderRadius: 10, marginTop: 8 },
+  projectItem: { padding: 14, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  projectName: { fontSize: 14, color: Colors.textPrimary },
+  qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  qtyInput: { flex: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 10, padding: 14, fontSize: 16 },
+  unit: { fontSize: 14, color: Colors.textSecondary, minWidth: 50 },
+  actions: { flexDirection: 'row', gap: 12, marginTop: 24 },
+  cancelBtn: { flex: 1, padding: 14, borderRadius: 10, borderWidth: 1, borderColor: Colors.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
+  transferBtn: { flex: 1, flexDirection: 'row', gap: 8, padding: 14, borderRadius: 10, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
+  transferText: { fontSize: 15, fontWeight: '600', color: '#fff' },
+});
+
 export default function ProjectDetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
