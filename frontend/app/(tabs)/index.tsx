@@ -519,9 +519,20 @@ export default function DashboardScreen() {
         {/* Labor Insights */}
         {stats?.labor && hasPermission('labor') && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>👷 Labor Insights</Text>
+            <TouchableOpacity 
+              style={styles.sectionHeaderLink}
+              onPress={() => router.push('/(tabs)/labor' as any)}
+            >
+              <Text style={styles.sectionTitle}>👷 Labor Insights</Text>
+              <View style={styles.sectionLinkIcon}>
+                <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
+              </View>
+            </TouchableOpacity>
             <View style={styles.laborCards}>
-              <View style={styles.laborCard}>
+              <TouchableOpacity 
+                style={styles.laborCard}
+                onPress={() => router.push('/(tabs)/labor' as any)}
+              >
                 <View style={[styles.laborCardIcon, { backgroundColor: '#8B5CF620' }]}>
                   <Ionicons name="people" size={24} color="#8B5CF6" />
                 </View>
@@ -529,8 +540,11 @@ export default function DashboardScreen() {
                   <Text style={styles.laborCardValue}>{stats.labor.total_workers || 0}</Text>
                   <Text style={styles.laborCardLabel}>Total Workers</Text>
                 </View>
-              </View>
-              <View style={styles.laborCard}>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.laborCard}
+                onPress={() => router.push('/labor/attendance' as any)}
+              >
                 <View style={[styles.laborCardIcon, { backgroundColor: '#10B98120' }]}>
                   <Ionicons name="checkmark-circle" size={24} color="#10B981" />
                 </View>
@@ -538,8 +552,11 @@ export default function DashboardScreen() {
                   <Text style={styles.laborCardValue}>{stats.labor.today_attendance || 0}</Text>
                   <Text style={styles.laborCardLabel}>Present Today</Text>
                 </View>
-              </View>
-              <View style={styles.laborCard}>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.laborCard}
+                onPress={() => router.push('/labor/wages' as any)}
+              >
                 <View style={[styles.laborCardIcon, { backgroundColor: '#F59E0B20' }]}>
                   <Ionicons name="cash" size={24} color="#F59E0B" />
                 </View>
@@ -547,7 +564,7 @@ export default function DashboardScreen() {
                   <Text style={styles.laborCardValue}>{formatCurrency(stats.labor.month_wages || 0)}</Text>
                   <Text style={styles.laborCardLabel}>This Month Wages</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         )}
