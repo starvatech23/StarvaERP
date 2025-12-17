@@ -8275,6 +8275,373 @@ async def delete_estimate(
         raise HTTPException(status_code=500, detail=f"Failed to delete estimate: {str(e)}")
 
 
+# ============= Floor-wise Estimation Routes =============
+
+from floor_estimation import (
+    create_floor_wise_estimate, migrate_estimate_to_floor_wise,
+    get_floor_display_name, FLOOR_ORDER
+)
+
+@api_router.post("/estimates/floor-wise")
+async def create_floor_wise_estimate_endpoint(
+    estimate_data: EstimateCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Create a floor-wise estimate with proper area division.
+    - For leads: Auto-divides total area by number of floors
+    - For projects: Uses manual floor configuration if provided
+    """
+    try:
+        current_user = await get_current_user(credentials)
+        
+        # Verify project or lead exists
+        if estimate_data.project_id:
+            project = await db.projects.find_one({"_id": ObjectId(estimate_data.project_id)})
+            if not project:
+                raise HTTPException(status_code=404, detail="Project not found")
+        elif estimate_data.lead_id:
+            lead = await db.leads.find_one({"_id": ObjectId(estimate_data.lead_id)})
+            if not lead:
+                raise HTTPException(status_code=404, detail="Lead not found")
+        
+        # Get presets
+        material_preset_data = None
+        if estimate_data.material_preset_id:
+            preset = await db.material_presets.find_one({"_id": ObjectId(estimate_data.material_preset_id)})
+            if preset:
+                material_preset_data = MaterialPresetResponse(**serialize_doc(preset))
+        
+        if not material_preset_data:
+            default_preset = get_default_material_preset()
+            material_preset_data = MaterialPresetResponse(id="default", **default_preset)
+        
+        rate_table_data = None
+        if estimate_data.rate_table_id:
+            rate_table = await db.rate_tables.find_one({"_id": ObjectId(estimate_data.rate_table_id)})
+            if rate_table:
+                rate_table_data = RateTableResponse(**serialize_doc(rate_table))
+        
+        if not rate_table_data:
+            default_rates = get_default_rate_table()
+            rate_table_data = RateTableResponse(
+                id="default",
+                effective_date=datetime.utcnow(),
+                **default_rates
+            )
+        
+        # Generate floor-wise estimate
+        floors, totals, assumptions = create_floor_wise_estimate(
+            estimate_data,
+            material_preset_data,
+            rate_table_data,
+            parking_rate_multiplier=0.6
+        )
+        
+        # Prepare estimate document
+        estimate_dict = estimate_data.dict()
+        estimate_dict.update(totals)
+        estimate_dict["floors"] = floors
+        estimate_dict["assumptions"] = assumptions
+        estimate_dict["is_floor_wise"] = True
+        estimate_dict["created_by"] = str(current_user["_id"])
+        estimate_dict["created_at"] = datetime.utcnow()
+        estimate_dict["updated_at"] = datetime.utcnow()
+        
+        # Get next version number
+        query = {"project_id": estimate_data.project_id} if estimate_data.project_id else {"lead_id": estimate_data.lead_id}
+        existing = await db.estimates.find(query).sort("version", -1).limit(1).to_list(1)
+        estimate_dict["version"] = existing[0]["version"] + 1 if existing else 1
+        
+        if not estimate_dict.get("version_name"):
+            estimate_dict["version_name"] = f"Estimate v{estimate_dict['version']}"
+        
+        # Insert estimate
+        result = await db.estimates.insert_one(estimate_dict)
+        estimate_dict["id"] = str(result.inserted_id)
+        
+        # Also store floor lines in separate collection for easy querying
+        for floor in floors:
+            for line in floor.get("lines", []):
+                line["estimate_id"] = str(result.inserted_id)
+                line["floor_id"] = floor["id"]
+                line["floor_type"] = floor["floor_type"]
+        
+        # Flatten all lines and insert
+        all_lines = []
+        for floor in floors:
+            for line in floor.get("lines", []):
+                all_lines.append(line)
+        
+        if all_lines:
+            await db.estimate_lines.insert_many(all_lines)
+        
+        return {
+            "id": estimate_dict["id"],
+            "version": estimate_dict["version"],
+            "version_name": estimate_dict["version_name"],
+            "floors": floors,
+            "totals": totals,
+            "assumptions": assumptions,
+            "message": "Floor-wise estimate created successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to create floor-wise estimate: {str(e)}")
+
+
+@api_router.put("/estimates/{estimate_id}/floors/{floor_id}")
+async def update_floor(
+    estimate_id: str,
+    floor_id: str,
+    floor_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a specific floor in an estimate (area, rate, or lines)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        floors = estimate.get("floors", [])
+        floor_index = next((i for i, f in enumerate(floors) if f.get("id") == floor_id), None)
+        
+        if floor_index is None:
+            raise HTTPException(status_code=404, detail="Floor not found")
+        
+        # Update floor data
+        if "area_sqft" in floor_data:
+            floors[floor_index]["area_sqft"] = floor_data["area_sqft"]
+        if "rate_per_sqft" in floor_data:
+            floors[floor_index]["rate_per_sqft"] = floor_data["rate_per_sqft"]
+        if "lines" in floor_data:
+            floors[floor_index]["lines"] = floor_data["lines"]
+            # Recalculate floor total
+            floors[floor_index]["floor_total"] = sum(
+                line.get("amount", 0) for line in floor_data["lines"]
+            )
+        
+        # Recalculate grand total
+        grand_total = sum(f.get("floor_total", 0) for f in floors)
+        
+        # Update estimate
+        await db.estimates.update_one(
+            {"_id": ObjectId(estimate_id)},
+            {"$set": {
+                "floors": floors,
+                "grand_total": grand_total,
+                "updated_at": datetime.utcnow(),
+                "updated_by": str(current_user["_id"])
+            }}
+        )
+        
+        return {"message": "Floor updated successfully", "floor": floors[floor_index]}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update floor: {str(e)}")
+
+
+@api_router.put("/estimates/{estimate_id}/floors/{floor_id}/lines/{line_id}")
+async def update_floor_line(
+    estimate_id: str,
+    floor_id: str,
+    line_id: str,
+    line_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a specific line item within a floor"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        floors = estimate.get("floors", [])
+        floor_index = next((i for i, f in enumerate(floors) if f.get("id") == floor_id), None)
+        
+        if floor_index is None:
+            raise HTTPException(status_code=404, detail="Floor not found")
+        
+        lines = floors[floor_index].get("lines", [])
+        line_index = next((i for i, l in enumerate(lines) if l.get("id") == line_id), None)
+        
+        if line_index is None:
+            raise HTTPException(status_code=404, detail="Line item not found")
+        
+        # Update line item
+        for key in ["quantity", "rate", "description", "notes"]:
+            if key in line_data:
+                lines[line_index][key] = line_data[key]
+        
+        # Recalculate amount
+        lines[line_index]["amount"] = round(
+            lines[line_index].get("quantity", 0) * lines[line_index].get("rate", 0), 2
+        )
+        lines[line_index]["is_user_edited"] = True
+        
+        # Update floor total
+        floors[floor_index]["floor_total"] = sum(l.get("amount", 0) for l in lines)
+        
+        # Recalculate grand total
+        grand_total = sum(f.get("floor_total", 0) for f in floors)
+        
+        # Update estimate
+        await db.estimates.update_one(
+            {"_id": ObjectId(estimate_id)},
+            {"$set": {
+                "floors": floors,
+                "grand_total": grand_total,
+                "updated_at": datetime.utcnow(),
+                "updated_by": str(current_user["_id"])
+            }}
+        )
+        
+        # Also update in estimate_lines collection
+        await db.estimate_lines.update_one(
+            {"id": line_id, "estimate_id": estimate_id},
+            {"$set": {
+                "quantity": lines[line_index]["quantity"],
+                "rate": lines[line_index]["rate"],
+                "amount": lines[line_index]["amount"],
+                "is_user_edited": True
+            }}
+        )
+        
+        return {"message": "Line item updated successfully", "line": lines[line_index]}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update line item: {str(e)}")
+
+
+@api_router.post("/estimates/{estimate_id}/migrate-floor-wise")
+async def migrate_to_floor_wise(
+    estimate_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Migrate an existing estimate to floor-wise format"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        estimate = await db.estimates.find_one({"_id": ObjectId(estimate_id)})
+        if not estimate:
+            raise HTTPException(status_code=404, detail="Estimate not found")
+        
+        # Check if already migrated
+        if estimate.get("is_floor_wise"):
+            return {"message": "Estimate is already floor-wise", "id": estimate_id}
+        
+        # Get existing lines
+        lines = await db.estimate_lines.find({"estimate_id": estimate_id}).to_list(1000)
+        
+        # Get presets
+        material_preset_data = MaterialPresetResponse(id="default", **get_default_material_preset())
+        rate_table_data = RateTableResponse(id="default", effective_date=datetime.utcnow(), **get_default_rate_table())
+        
+        # Migrate
+        floors, updated_totals = migrate_estimate_to_floor_wise(
+            estimate, 
+            [serialize_doc(l) for l in lines],
+            material_preset_data,
+            rate_table_data
+        )
+        
+        # Update estimate
+        await db.estimates.update_one(
+            {"_id": ObjectId(estimate_id)},
+            {"$set": {
+                "floors": floors,
+                "is_floor_wise": True,
+                **updated_totals,
+                "updated_at": datetime.utcnow(),
+                "updated_by": str(current_user["_id"])
+            }}
+        )
+        
+        return {
+            "message": "Estimate migrated to floor-wise format",
+            "id": estimate_id,
+            "floors": floors,
+            "totals": updated_totals
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to migrate estimate: {str(e)}")
+
+
+@api_router.post("/estimates/migrate-all")
+async def migrate_all_estimates(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Migrate all existing estimates to floor-wise format (Admin only)"""
+    try:
+        current_user = await get_current_user(credentials)
+        
+        if current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Only admin can migrate all estimates")
+        
+        # Find all non-floor-wise estimates
+        estimates = await db.estimates.find({"is_floor_wise": {"$ne": True}}).to_list(1000)
+        
+        migrated_count = 0
+        errors = []
+        
+        for estimate in estimates:
+            try:
+                estimate_id = str(estimate["_id"])
+                lines = await db.estimate_lines.find({"estimate_id": estimate_id}).to_list(1000)
+                
+                material_preset_data = MaterialPresetResponse(id="default", **get_default_material_preset())
+                rate_table_data = RateTableResponse(id="default", effective_date=datetime.utcnow(), **get_default_rate_table())
+                
+                floors, updated_totals = migrate_estimate_to_floor_wise(
+                    estimate,
+                    [serialize_doc(l) for l in lines],
+                    material_preset_data,
+                    rate_table_data
+                )
+                
+                await db.estimates.update_one(
+                    {"_id": estimate["_id"]},
+                    {"$set": {
+                        "floors": floors,
+                        "is_floor_wise": True,
+                        **updated_totals,
+                        "updated_at": datetime.utcnow()
+                    }}
+                )
+                
+                migrated_count += 1
+                
+            except Exception as e:
+                errors.append({"estimate_id": str(estimate["_id"]), "error": str(e)})
+        
+        return {
+            "message": f"Migration complete. {migrated_count} estimates migrated.",
+            "migrated_count": migrated_count,
+            "errors": errors
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to migrate estimates: {str(e)}")
+
+
 # ============= Estimate Review & Approval Workflow =============
 
 @api_router.post("/estimates/{estimate_id}/review")
