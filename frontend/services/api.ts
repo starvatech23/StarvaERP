@@ -474,6 +474,10 @@ export const estimationAPI = {
   exportPDF: (estimateId: string) => api.get(`/estimates/${estimateId}/export/pdf`, { responseType: 'text' }),
   getDefaultRateTable: () => api.get('/rate-tables/default'),
   updateDefaultRateTable: (data: any) => api.put('/rate-tables/default', data),
+  // Review & Approval workflow
+  review: (estimateId: string, comments?: string) => api.post(`/estimates/${estimateId}/review`, { comments }),
+  approve: (estimateId: string, comments?: string) => api.post(`/estimates/${estimateId}/approve`, { comments }),
+  removeReview: (estimateId: string) => api.delete(`/estimates/${estimateId}/review`),
   // DEPRECATED: Use constructionPresetsAPI instead - kept for backward compatibility
   getMaterialPresets: () => api.get('/material-presets'),
   createPreset: (data: any) => api.post('/material-presets', data),
