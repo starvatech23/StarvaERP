@@ -142,8 +142,13 @@ export default function SiteMaterialsScreen() {
         key={material.id}
         style={styles.materialCard}
         onPress={() => {
-          setSelectedMaterial(material);
+          // Navigate to detail page
+          router.push(`/materials/site/${material.id}` as any);
+        }}
+        onLongPress={() => {
+          // Long press for review (managers only)
           if (canReview && material.status === 'pending_review') {
+            setSelectedMaterial(material);
             setShowReviewModal(true);
           }
         }}
