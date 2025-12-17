@@ -390,14 +390,19 @@ export default function MaterialsScreen() {
         </View>
       </View>
 
-      <View style={styles.tabs}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false} 
+        style={styles.tabsScrollView}
+        contentContainerStyle={styles.tabsContainer}
+      >
         <TouchableOpacity
           style={[styles.tab, activeTab === 'vendors' && styles.activeTab]}
           onPress={() => setActiveTab('vendors')}
         >
           <Ionicons
             name="business"
-            size={20}
+            size={18}
             color={activeTab === 'vendors' ? Colors.secondary : Colors.textSecondary}
           />
           <Text
@@ -416,7 +421,7 @@ export default function MaterialsScreen() {
         >
           <Ionicons
             name="cube"
-            size={20}
+            size={18}
             color={activeTab === 'materials' ? Colors.secondary : Colors.textSecondary}
           />
           <Text
@@ -435,7 +440,7 @@ export default function MaterialsScreen() {
         >
           <Ionicons
             name="layers"
-            size={20}
+            size={18}
             color={activeTab === 'inventory' ? Colors.secondary : Colors.textSecondary}
           />
           <Text
@@ -454,7 +459,7 @@ export default function MaterialsScreen() {
         >
           <Ionicons
             name="location"
-            size={20}
+            size={18}
             color={activeTab === 'site' ? Colors.secondary : Colors.textSecondary}
           />
           <Text
@@ -473,7 +478,7 @@ export default function MaterialsScreen() {
         >
           <Ionicons
             name="stats-chart"
-            size={20}
+            size={18}
             color={activeTab === 'reports' ? Colors.secondary : Colors.textSecondary}
           />
           <Text
@@ -485,7 +490,7 @@ export default function MaterialsScreen() {
             Reports
           </Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
 
       <ScrollView
         style={styles.content}
