@@ -287,6 +287,8 @@ export default function MaterialsScreen() {
                 router.push('/materials/add-material' as any);
               } else if (activeTab === 'inventory') {
                 router.push('/materials/add-inventory' as any);
+              } else if (activeTab === 'site') {
+                router.push('/materials/site/add' as any);
               }
             }}
           >
