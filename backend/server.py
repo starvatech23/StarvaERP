@@ -8361,26 +8361,33 @@ async def create_floor_wise_estimate_endpoint(
         estimate_dict["id"] = str(result.inserted_id)
         
         # Also store floor lines in separate collection for easy querying
-        for floor in floors:
-            for line in floor.get("lines", []):
-                line["estimate_id"] = str(result.inserted_id)
-                line["floor_id"] = floor["id"]
-                line["floor_type"] = floor["floor_type"]
-        
-        # Flatten all lines and insert
         all_lines = []
         for floor in floors:
             for line in floor.get("lines", []):
-                all_lines.append(line)
+                line_copy = line.copy()
+                line_copy["estimate_id"] = str(result.inserted_id)
+                line_copy["floor_id"] = floor["id"]
+                line_copy["floor_type"] = floor["floor_type"]
+                # Remove 'id' field to let MongoDB generate _id
+                if "id" in line_copy:
+                    line_copy["line_id"] = line_copy.pop("id")
+                all_lines.append(line_copy)
         
         if all_lines:
             await db.estimate_lines.insert_many(all_lines)
+        
+        # Serialize response properly
+        response_floors = []
+        for floor in floors:
+            floor_copy = floor.copy()
+            # Ensure all values are JSON serializable
+            response_floors.append(floor_copy)
         
         return {
             "id": estimate_dict["id"],
             "version": estimate_dict["version"],
             "version_name": estimate_dict["version_name"],
-            "floors": floors,
+            "floors": response_floors,
             "totals": totals,
             "assumptions": assumptions,
             "message": "Floor-wise estimate created successfully"
