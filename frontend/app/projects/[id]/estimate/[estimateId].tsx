@@ -333,6 +333,91 @@ export default function EstimateDetailScreen() {
           </View>
         </View>
 
+        {/* Review & Approval Status Section */}
+        <View style={styles.approvalSection}>
+          <Text style={styles.sectionTitle}>Review & Approval</Text>
+          
+          {/* Review Status */}
+          <View style={styles.approvalCard}>
+            <View style={styles.approvalRow}>
+              <View style={styles.approvalIconContainer}>
+                <Ionicons 
+                  name={estimate.reviewed_by ? "checkmark-circle" : "ellipse-outline"} 
+                  size={24} 
+                  color={estimate.reviewed_by ? Colors.success : Colors.textTertiary} 
+                />
+              </View>
+              <View style={styles.approvalContent}>
+                <Text style={styles.approvalLabel}>Reviewed by (Project Manager)</Text>
+                {estimate.reviewed_by ? (
+                  <>
+                    <Text style={styles.approvalName}>{estimate.reviewed_by_name || 'Unknown'}</Text>
+                    <Text style={styles.approvalDate}>{formatDate(estimate.reviewed_at)}</Text>
+                    {estimate.review_comments && (
+                      <View style={styles.commentBox}>
+                        <Ionicons name="chatbubble-outline" size={12} color={Colors.textSecondary} />
+                        <Text style={styles.commentText}>{estimate.review_comments}</Text>
+                      </View>
+                    )}
+                  </>
+                ) : (
+                  <Text style={styles.approvalPending}>Pending Review</Text>
+                )}
+              </View>
+              {canReview && !estimate.reviewed_by && !estimate.approved_by && (
+                <TouchableOpacity 
+                  style={styles.actionBtn}
+                  onPress={() => setShowReviewModal(true)}
+                >
+                  <Ionicons name="checkmark" size={18} color={Colors.white} />
+                  <Text style={styles.actionBtnText}>Review</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+
+          {/* Approval Status */}
+          <View style={styles.approvalCard}>
+            <View style={styles.approvalRow}>
+              <View style={styles.approvalIconContainer}>
+                <Ionicons 
+                  name={estimate.approved_by ? "shield-checkmark" : "ellipse-outline"} 
+                  size={24} 
+                  color={estimate.approved_by ? Colors.success : Colors.textTertiary} 
+                />
+              </View>
+              <View style={styles.approvalContent}>
+                <Text style={styles.approvalLabel}>Approved by (Project Head/Director)</Text>
+                {estimate.approved_by ? (
+                  <>
+                    <Text style={styles.approvalName}>{estimate.approved_by_name || 'Unknown'}</Text>
+                    <Text style={styles.approvalDate}>{formatDate(estimate.approved_at)}</Text>
+                    {estimate.approval_comments && (
+                      <View style={styles.commentBox}>
+                        <Ionicons name="chatbubble-outline" size={12} color={Colors.textSecondary} />
+                        <Text style={styles.commentText}>{estimate.approval_comments}</Text>
+                      </View>
+                    )}
+                  </>
+                ) : (
+                  <Text style={styles.approvalPending}>
+                    {estimate.reviewed_by ? 'Pending Approval' : 'Requires Review First'}
+                  </Text>
+                )}
+              </View>
+              {canApprove && estimate.reviewed_by && !estimate.approved_by && (
+                <TouchableOpacity 
+                  style={[styles.actionBtn, styles.approveBtn]}
+                  onPress={() => setShowApproveModal(true)}
+                >
+                  <Ionicons name="shield-checkmark" size={18} color={Colors.white} />
+                  <Text style={styles.actionBtnText}>Approve</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </View>
+
         {/* BOQ Categories */}
         <View style={styles.boqSection}>
           <Text style={styles.sectionTitle}>Bill of Quantities (BOQ)</Text>
