@@ -11358,6 +11358,129 @@ async def reject_material_transfer(
         raise HTTPException(status_code=500, detail=f"Failed to reject transfer: {str(e)}")
 
 
+# ============= Material Transfer History & Finance API =============
+
+@api_router.get("/material-transfers/history", response_model=List[dict])
+async def get_material_transfer_history(
+    project_id: Optional[str] = None,
+    include_all_statuses: bool = True,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get transfer history for a project or all projects"""
+    try:
+        await get_current_user(credentials)
+        
+        query = {}
+        if not include_all_statuses:
+            query["status"] = {"$in": ["accepted", "rejected"]}
+        
+        if project_id:
+            query["$or"] = [
+                {"source_project_id": project_id},
+                {"destination_project_id": project_id}
+            ]
+        
+        transfers = []
+        async for transfer in db.material_transfers.find(query).sort("created_at", -1).limit(100):
+            transfer["id"] = str(transfer.pop("_id"))
+            # Add direction indicator
+            if project_id:
+                if transfer.get("source_project_id") == project_id:
+                    transfer["direction"] = "outgoing"
+                else:
+                    transfer["direction"] = "incoming"
+            transfers.append(transfer)
+        
+        return transfers
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get transfer history: {str(e)}")
+
+
+@api_router.get("/material-finance/summary", response_model=dict)
+async def get_material_finance_summary(
+    project_id: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get material finance summary - project costs vs company assets"""
+    try:
+        user = await get_current_user(credentials)
+        
+        # Only allow admins and managers to see finance data
+        if user.get("role") not in ["admin", "project_manager", "crm_manager"]:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        query = {}
+        if project_id:
+            query["$or"] = [
+                {"source_project_id": project_id},
+                {"destination_project_id": project_id}
+            ]
+        
+        # Aggregate finance data
+        project_costs = 0
+        company_assets = 0
+        total_transfers = 0
+        
+        async for record in db.material_transfer_finance.find(query):
+            total_transfers += 1
+            cost = record.get("estimated_cost", 0)
+            if record.get("classification") == "project_cost":
+                project_costs += cost
+            else:
+                company_assets += cost
+        
+        return {
+            "total_transfers": total_transfers,
+            "project_costs": project_costs,
+            "company_assets": company_assets,
+            "total_value": project_costs + company_assets,
+            "breakdown": {
+                "from_inventory": project_costs,
+                "non_inventory": company_assets
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get finance summary: {str(e)}")
+
+
+@api_router.get("/material-finance/records", response_model=List[dict])
+async def get_material_finance_records(
+    project_id: Optional[str] = None,
+    classification: Optional[str] = None,  # "project_cost" or "company_asset"
+    skip: int = 0,
+    limit: int = 50,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get material finance records for accounting"""
+    try:
+        user = await get_current_user(credentials)
+        
+        if user.get("role") not in ["admin", "project_manager", "crm_manager"]:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        query = {}
+        if project_id:
+            query["$or"] = [
+                {"source_project_id": project_id},
+                {"destination_project_id": project_id}
+            ]
+        if classification:
+            query["classification"] = classification
+        
+        records = []
+        async for record in db.material_transfer_finance.find(query).sort("created_at", -1).skip(skip).limit(limit):
+            record["id"] = str(record.pop("_id"))
+            records.append(record)
+        
+        return records
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get finance records: {str(e)}")
+
+
 # ============= Notifications API =============
 
 @api_router.get("/notifications", response_model=List[dict])
