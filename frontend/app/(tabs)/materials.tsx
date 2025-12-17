@@ -354,6 +354,25 @@ export default function MaterialsScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
+          style={[styles.tab, activeTab === 'site' && styles.activeTab]}
+          onPress={() => setActiveTab('site')}
+        >
+          <Ionicons
+            name="location"
+            size={20}
+            color={activeTab === 'site' ? Colors.secondary : Colors.textSecondary}
+          />
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'site' && styles.activeTabText,
+            ]}
+          >
+            Site
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
           style={[styles.tab, activeTab === 'reports' && styles.activeTab]}
           onPress={() => setActiveTab('reports')}
         >
