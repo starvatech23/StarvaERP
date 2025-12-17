@@ -970,13 +970,15 @@ export default function ProjectDetailsScreen() {
             setShowTransferModal(false);
             setSelectedMaterial(null);
           }}
-          onTransfer={async (destination, destProjectId, quantity) => {
+          onTransfer={async (destination, destProjectId, quantity, mediaUrls, notes) => {
             try {
               await materialTransfersAPI.create({
                 site_material_id: selectedMaterial.id,
                 destination_type: destination,
                 destination_project_id: destProjectId,
-                quantity: quantity
+                quantity: quantity,
+                notes: notes || undefined,
+                media_urls: mediaUrls.length > 0 ? mediaUrls : undefined
               });
               Alert.alert('Success', 'Transfer request sent. Waiting for acceptance.');
               setShowTransferModal(false);
