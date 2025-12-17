@@ -3149,9 +3149,9 @@ async def generate_weekly_payments(
             }
         
         worker_project_data[key]["days_worked"] += 1
-        worker_project_data[key]["hours_worked"] += att.get("hours_worked", 8)
-        worker_project_data[key]["overtime_hours"] += att.get("overtime_hours", 0)
-        worker_project_data[key]["total_wages"] += att.get("wages_earned", 0)
+        worker_project_data[key]["hours_worked"] += att.get("hours_worked") or 8
+        worker_project_data[key]["overtime_hours"] += att.get("overtime_hours") or 0
+        worker_project_data[key]["total_wages"] += att.get("wages_earned") or 0
     
     created_payments = []
     skipped_count = 0
