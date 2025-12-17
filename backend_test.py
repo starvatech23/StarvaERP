@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://buildtrack-dev.preview.emergentagent.com/api"
+BASE_URL = "https://site-materials-1.preview.emergentagent.com/api"
 
 # Test credentials
 TEST_CREDENTIALS = {
