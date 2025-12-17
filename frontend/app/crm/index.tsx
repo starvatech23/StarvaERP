@@ -8,6 +8,7 @@ export default function CRMScreen() {
   const router = useRouter();
 
   const menuItems = [
+    { icon: 'analytics', title: 'Dashboard', description: 'Analytics & insights with filters', route: '/crm/dashboard' as any, color: '#10B981' },
     { icon: 'people', title: 'Leads', description: 'Manage and track leads', route: '/crm/leads' as any, color: Colors.primary },
     { icon: 'list', title: 'Categories', description: 'Manage lead funnel stages', route: '/crm/categories' as any, color: '#8B5CF6' },
     { icon: 'construct', title: 'Admin Panel', description: 'CRM configuration & customization', route: '/crm/admin' as any, color: '#EF4444' },
