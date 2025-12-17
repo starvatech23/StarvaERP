@@ -462,6 +462,7 @@ export const taskMaterialsAPI = {
 // Budgeting & Estimation API
 export const estimationAPI = {
   create: (data: any) => api.post('/estimates', data),
+  createFloorWise: (data: any) => api.post('/estimates/floor-wise', data),
   getById: (estimateId: string) => api.get(`/estimates/${estimateId}`),
   getByProject: (projectId: string) => api.get(`/projects/${projectId}/estimates`),
   getByLead: (leadId: string) => api.get(`/estimates/by-lead/${leadId}`),
@@ -478,6 +479,13 @@ export const estimationAPI = {
   review: (estimateId: string, comments?: string) => api.post(`/estimates/${estimateId}/review`, { comments }),
   approve: (estimateId: string, comments?: string) => api.post(`/estimates/${estimateId}/approve`, { comments }),
   removeReview: (estimateId: string) => api.delete(`/estimates/${estimateId}/review`),
+  // Floor-wise estimate management
+  updateFloor: (estimateId: string, floorId: string, data: any) => 
+    api.put(`/estimates/${estimateId}/floors/${floorId}`, data),
+  updateFloorLine: (estimateId: string, floorId: string, lineId: string, data: any) => 
+    api.put(`/estimates/${estimateId}/floors/${floorId}/lines/${lineId}`, data),
+  migrateToFloorWise: (estimateId: string) => api.post(`/estimates/${estimateId}/migrate-floor-wise`),
+  migrateAll: () => api.post('/estimates/migrate-all'),
   // DEPRECATED: Use constructionPresetsAPI instead - kept for backward compatibility
   getMaterialPresets: () => api.get('/material-presets'),
   createPreset: (data: any) => api.post('/material-presets', data),
