@@ -626,6 +626,28 @@ export const materialFinanceAPI = {
   }) => api.get('/material-finance/records', { params }),
 };
 
+// CRM Dashboard API
+export const crmDashboardAPI = {
+  // Get analytics with filters
+  getAnalytics: (filters?: {
+    city?: string;
+    state?: string;
+    status?: string;
+    source?: string;
+    category_id?: string;
+    funnel_id?: string;
+    priority?: string;
+    assigned_to?: string;
+    min_value?: number;
+    max_value?: number;
+    date_from?: string;
+    date_to?: string;
+  }) => api.get('/crm/dashboard/analytics', { params: filters }),
+  
+  // Get filter options
+  getFilterOptions: () => api.get('/crm/dashboard/filters'),
+};
+
 // Notifications API
 export const notificationsAPI = {
   // Get notifications for current user
