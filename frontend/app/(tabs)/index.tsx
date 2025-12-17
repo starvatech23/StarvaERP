@@ -313,7 +313,7 @@ export default function DashboardScreen() {
           <View style={styles.section}>
             <TouchableOpacity 
               style={styles.sectionHeaderLink}
-              onPress={() => router.push('/crm/leads' as any)}
+              onPress={() => router.push('/crm/dashboard' as any)}
             >
               <Text style={styles.sectionTitleNoMargin}>CRM Performance</Text>
               <View style={styles.sectionLinkIcon}>
