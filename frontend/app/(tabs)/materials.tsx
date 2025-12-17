@@ -22,6 +22,7 @@ export default function MaterialsScreen() {
   const [vendors, setVendors] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [siteMaterials, setSiteMaterials] = useState([]);
   const [vendorDues, setVendorDues] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
