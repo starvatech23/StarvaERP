@@ -307,10 +307,20 @@ export default function LaborScreen() {
   const handleGeneratePayments = async () => {
     setGenerating(true);
     try {
-      const weekStart = moment().startOf('week').format('YYYY-MM-DD');
-      const weekEnd = moment().endOf('week').format('YYYY-MM-DD');
+      // Generate for last week (where attendance data likely exists)
+      const weekStart = moment().subtract(1, 'week').startOf('week').format('YYYY-MM-DD');
+      const weekEnd = moment().subtract(1, 'week').endOf('week').format('YYYY-MM-DD');
       const response = await weeklyPaymentsAPI.generateWeekly(weekStart, weekEnd);
-      Alert.alert('Success', response.data?.message || 'Payments generated');
+      
+      if (response.data?.created_count > 0) {
+        Alert.alert('Success', response.data?.message || 'Payments generated');
+      } else {
+        // Try current week if last week had no data
+        const currentWeekStart = moment().startOf('week').format('YYYY-MM-DD');
+        const currentWeekEnd = moment().endOf('week').format('YYYY-MM-DD');
+        const currentResponse = await weeklyPaymentsAPI.generateWeekly(currentWeekStart, currentWeekEnd);
+        Alert.alert('Info', currentResponse.data?.message || 'No new attendance data found for payment generation');
+      }
       loadData();
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to generate payments');
