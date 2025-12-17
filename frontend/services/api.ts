@@ -352,6 +352,28 @@ export const siteTransfersAPI = {
   create: (data: any) => api.post('/site-transfers', data),
 };
 
+// Labour Advance Payments API
+export const advancePaymentsAPI = {
+  getAll: (params?: any) => api.get('/labour/advances', { params }),
+  create: (data: any) => api.post('/labour/advances', data),
+  approve: (id: string) => api.put(`/labour/advances/${id}/approve`),
+  reject: (id: string) => api.put(`/labour/advances/${id}/reject`),
+  disburse: (id: string) => api.put(`/labour/advances/${id}/disburse`),
+};
+
+// Labour Weekly Payments API
+export const weeklyPaymentsAPI = {
+  getAll: (params?: any) => api.get('/labour/payments', { params }),
+  create: (data: any) => api.post('/labour/payments', data),
+  update: (id: string, data: any) => api.put(`/labour/payments/${id}`, data),
+  validate: (id: string, notes?: string) => api.post(`/labour/payments/${id}/validate`, null, { params: { validation_notes: notes } }),
+  sendOTP: (id: string) => api.post(`/labour/payments/${id}/send-otp`),
+  verifyOTP: (id: string, otp: string, paymentMethod: string, reference?: string) => 
+    api.post(`/labour/payments/${id}/verify-otp`, null, { 
+      params: { otp, payment_method: paymentMethod, payment_reference: reference } 
+    }),
+  getSummary: (params?: any) => api.get('/labour/payments/weekly-summary', { params }),
+};
 
 // Vendors API
 export const vendorsAPI = {
