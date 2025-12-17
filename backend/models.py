@@ -2944,3 +2944,83 @@ class ScheduledJobResponse(ScheduledJobBase):
     id: str
     created_at: datetime
     updated_at: datetime
+
+
+# ============= Admin Configuration Models =============
+
+class SMSProviderType(str, Enum):
+    TWILIO = "twilio"
+    MSG91 = "msg91"
+    TEXTLOCAL = "textlocal"
+    CUSTOM = "custom"
+
+class SMSConfigBase(BaseModel):
+    provider: SMSProviderType = SMSProviderType.TWILIO
+    is_enabled: bool = False
+    api_key: Optional[str] = None
+    api_secret: Optional[str] = None
+    sender_id: Optional[str] = None
+    template_id: Optional[str] = None
+    webhook_url: Optional[str] = None
+
+class SMSConfigUpdate(BaseModel):
+    provider: Optional[SMSProviderType] = None
+    is_enabled: Optional[bool] = None
+    api_key: Optional[str] = None
+    api_secret: Optional[str] = None
+    sender_id: Optional[str] = None
+    template_id: Optional[str] = None
+    webhook_url: Optional[str] = None
+
+class SMSConfigResponse(SMSConfigBase):
+    id: str
+    updated_at: Optional[datetime] = None
+    updated_by: Optional[str] = None
+
+
+class WhatsAppConfigBase(BaseModel):
+    provider: str = "meta"  # meta, twilio, etc.
+    is_enabled: bool = False
+    business_account_id: Optional[str] = None
+    phone_number_id: Optional[str] = None
+    access_token: Optional[str] = None
+    webhook_verify_token: Optional[str] = None
+    template_namespace: Optional[str] = None
+
+class WhatsAppConfigUpdate(BaseModel):
+    provider: Optional[str] = None
+    is_enabled: Optional[bool] = None
+    business_account_id: Optional[str] = None
+    phone_number_id: Optional[str] = None
+    access_token: Optional[str] = None
+    webhook_verify_token: Optional[str] = None
+    template_namespace: Optional[str] = None
+
+class WhatsAppConfigResponse(WhatsAppConfigBase):
+    id: str
+    updated_at: Optional[datetime] = None
+    updated_by: Optional[str] = None
+
+
+class DomainRestrictionBase(BaseModel):
+    is_enabled: bool = False
+    allowed_domains: List[str] = []  # e.g., ["company.com", "corp.company.com"]
+    admin_bypass_enabled: bool = True  # Admins can use any email
+    error_message: str = "Only corporate email addresses are allowed to access this application."
+
+class DomainRestrictionUpdate(BaseModel):
+    is_enabled: Optional[bool] = None
+    allowed_domains: Optional[List[str]] = None
+    admin_bypass_enabled: Optional[bool] = None
+    error_message: Optional[str] = None
+
+class DomainRestrictionResponse(DomainRestrictionBase):
+    id: str
+    updated_at: Optional[datetime] = None
+    updated_by: Optional[str] = None
+
+
+class AdminConfigResponse(BaseModel):
+    sms_config: Optional[SMSConfigResponse] = None
+    whatsapp_config: Optional[WhatsAppConfigResponse] = None
+    domain_restriction: Optional[DomainRestrictionResponse] = None
