@@ -10,6 +10,8 @@ import {
   ActivityIndicator,
   Image,
   Dimensions,
+  Modal,
+  TextInput,
 } from 'react-native';
 import Colors from '../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
