@@ -690,6 +690,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   greeting: {
     fontSize: 14,
     color: Colors.textSecondary,
