@@ -57,13 +57,15 @@ export default function AddSiteMaterialScreen() {
   const loadInitialData = async () => {
     try {
       const [projectsRes, materialsRes] = await Promise.all([
-        projectsAPI.list(),
-        materialsAPI.list().catch(() => ({ data: [] })),
+        projectsAPI.getAll(),
+        materialsAPI.getAll().catch(() => ({ data: [] })),
       ]);
+      console.log('Projects loaded:', projectsRes.data?.length || 0);
       setProjects(projectsRes.data || []);
       setMaterials(materialsRes.data || []);
     } catch (error) {
       console.error('Failed to load initial data:', error);
+      Alert.alert('Error', 'Failed to load projects. Please try again.');
     } finally {
       setLoading(false);
     }
