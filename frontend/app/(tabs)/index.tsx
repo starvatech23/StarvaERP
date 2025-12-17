@@ -714,6 +714,20 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     marginBottom: 16,
   },
+  sectionHeaderLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  sectionLinkIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.primaryPale,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   statsRow: {
     flexDirection: 'row',
     gap: 12,
