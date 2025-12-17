@@ -269,6 +269,143 @@ export default function LaborScreen() {
     ));
   };
 
+  const getPaymentStatusColor = (status: string) => {
+    const colors: any = {
+      draft: '#6B7280',
+      pending_validation: '#F59E0B',
+      validated: '#3B82F6',
+      pending_payment: '#F97316',
+      otp_sent: '#8B5CF6',
+      paid: '#10B981',
+      failed: '#EF4444',
+    };
+    return colors[status] || '#6B7280';
+  };
+
+  const getAdvanceStatusColor = (status: string) => {
+    const colors: any = {
+      requested: '#F59E0B',
+      approved: '#3B82F6',
+      rejected: '#EF4444',
+      disbursed: '#8B5CF6',
+      recovered: '#10B981',
+    };
+    return colors[status] || '#6B7280';
+  };
+
+  const renderPayments = () => {
+    const hasData = payments.length > 0 || advances.length > 0;
+    
+    if (!hasData) {
+      return (
+        <View style={styles.emptyState}>
+          <Ionicons name="wallet-outline" size={64} color="#CBD5E0" />
+          <Text style={styles.emptyTitle}>No Payments Yet</Text>
+          <Text style={styles.emptyText}>Weekly payments and advances will appear here</Text>
+          <TouchableOpacity
+            style={[styles.viewReportsButton, { marginTop: 20 }]}
+            onPress={() => router.push('/labor/payments/create' as any)}
+          >
+            <Ionicons name="add" size={20} color={Colors.surface} />
+            <Text style={styles.viewReportsText}>Create Payment</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View>
+        {/* Advances Section */}
+        {advances.length > 0 && (
+          <View style={{ marginBottom: 16 }}>
+            <Text style={styles.paymentsSectionTitle}>Advance Payments</Text>
+            {advances.map((advance: any) => (
+              <View key={advance.id} style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.workerInfo}>
+                    <Ionicons name="person-circle" size={36} color={Colors.secondary} />
+                    <View style={styles.workerDetails}>
+                      <Text style={styles.workerName}>{advance.worker_name}</Text>
+                      <Text style={styles.workerPhone}>{advance.project_name}</Text>
+                    </View>
+                  </View>
+                  <View style={[styles.statusBadge, { backgroundColor: getAdvanceStatusColor(advance.status) + '20' }]}>
+                    <Text style={[styles.statusText, { color: getAdvanceStatusColor(advance.status) }]}>
+                      {advance.status.toUpperCase()}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.paymentDetails}>
+                  <View style={styles.paymentRow}>
+                    <Text style={styles.paymentLabel}>Amount</Text>
+                    <Text style={styles.paymentValue}>₹{advance.amount?.toLocaleString()}</Text>
+                  </View>
+                  <View style={styles.paymentRow}>
+                    <Text style={styles.paymentLabel}>Recovered</Text>
+                    <Text style={styles.paymentValue}>₹{advance.recovered_amount?.toLocaleString() || 0}</Text>
+                  </View>
+                  <View style={styles.paymentRow}>
+                    <Text style={styles.paymentLabel}>Reason</Text>
+                    <Text style={styles.paymentValue}>{advance.reason}</Text>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Weekly Payments Section */}
+        <Text style={styles.paymentsSectionTitle}>Weekly Payments</Text>
+        {payments.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyCardText}>No weekly payments recorded</Text>
+          </View>
+        ) : (
+          payments.map((payment: any) => (
+            <TouchableOpacity 
+              key={payment.id} 
+              style={styles.card}
+              onPress={() => router.push(`/labor/payments/${payment.id}` as any)}
+            >
+              <View style={styles.cardHeader}>
+                <View style={styles.workerInfo}>
+                  <Ionicons name="person-circle" size={36} color={Colors.secondary} />
+                  <View style={styles.workerDetails}>
+                    <Text style={styles.workerName}>{payment.worker_name}</Text>
+                    <Text style={styles.workerPhone}>
+                      {moment(payment.week_start_date).format('DD MMM')} - {moment(payment.week_end_date).format('DD MMM')}
+                    </Text>
+                  </View>
+                </View>
+                <View style={[styles.statusBadge, { backgroundColor: getPaymentStatusColor(payment.status) + '20' }]}>
+                  <Text style={[styles.statusText, { color: getPaymentStatusColor(payment.status) }]}>
+                    {payment.status.replace(/_/g, ' ').toUpperCase()}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.paymentDetails}>
+                <View style={styles.paymentRow}>
+                  <Text style={styles.paymentLabel}>Days Worked</Text>
+                  <Text style={styles.paymentValue}>{payment.days_worked} days</Text>
+                </View>
+                <View style={styles.paymentRow}>
+                  <Text style={styles.paymentLabel}>Gross</Text>
+                  <Text style={styles.paymentValue}>₹{payment.gross_amount?.toLocaleString()}</Text>
+                </View>
+                <View style={styles.paymentRow}>
+                  <Text style={styles.paymentLabel}>Net Payable</Text>
+                  <Text style={[styles.paymentValue, { color: '#10B981', fontWeight: '700' }]}>
+                    ₹{payment.net_amount?.toLocaleString()}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+      </View>
+    );
+  };
+
   const renderReports = () => {
     return (
       <View style={styles.reportsContainer}>
