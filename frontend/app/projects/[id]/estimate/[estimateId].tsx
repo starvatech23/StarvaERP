@@ -10,6 +10,8 @@ import {
   Alert,
   Linking,
   Platform,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +20,7 @@ import * as Sharing from 'expo-sharing';
 import Colors from '../../../../constants/Colors';
 import { estimationAPI } from '../../../../services/api';
 import EstimateLineEditModal from '../../../../components/EstimateLineEditModal';
+import { useAuth } from '../../../../context/AuthContext';
 
 export default function EstimateDetailScreen() {
   const router = useRouter();
