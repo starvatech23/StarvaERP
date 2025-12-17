@@ -85,6 +85,71 @@ export default function ProjectDetailsScreen() {
     }
   };
 
+  const loadSiteMaterials = async () => {
+    try {
+      const response = await siteMaterialsAPI.list({ project_id: id as string });
+      setSiteMaterials(response.data || []);
+    } catch (error) {
+      console.log('Site materials not available');
+    }
+  };
+
+  const loadIncomingTransfers = async () => {
+    try {
+      const response = await materialTransfersAPI.list({ 
+        project_id: id as string, 
+        direction: 'incoming',
+        status: 'pending'
+      });
+      setIncomingTransfers(response.data || []);
+    } catch (error) {
+      console.log('Transfers not available');
+    }
+  };
+
+  const loadAllProjects = async () => {
+    try {
+      const response = await projectsAPI.getAll();
+      setAllProjects(response.data?.filter((p: any) => p.id !== id) || []);
+    } catch (error) {
+      console.log('Projects not available');
+    }
+  };
+
+  const handleAcceptTransfer = async (transferId: string) => {
+    try {
+      await materialTransfersAPI.accept(transferId);
+      Alert.alert('Success', 'Transfer accepted. Material added to inventory.');
+      loadIncomingTransfers();
+      loadSiteMaterials();
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to accept transfer');
+    }
+  };
+
+  const handleRejectTransfer = async (transferId: string) => {
+    Alert.alert(
+      'Reject Transfer',
+      'Are you sure you want to reject this transfer?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reject',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await materialTransfersAPI.reject(transferId, 'Rejected by recipient');
+              Alert.alert('Transfer Rejected');
+              loadIncomingTransfers();
+            } catch (error: any) {
+              Alert.alert('Error', error.response?.data?.detail || 'Failed to reject transfer');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const handleDelete = () => {
     Alert.alert(
       'Delete Project',
