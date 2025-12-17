@@ -25,12 +25,24 @@ import { useAuth } from '../../../../context/AuthContext';
 export default function EstimateDetailScreen() {
   const router = useRouter();
   const { id: projectId, estimateId } = useLocalSearchParams();
+  const { user } = useAuth();
   
   const [estimate, setEstimate] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['excavation_foundation']));
   const [editingLine, setEditingLine] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  
+  // Review/Approve state
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [reviewComments, setReviewComments] = useState('');
+  const [approveComments, setApproveComments] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+  
+  // Check user permissions
+  const canReview = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'crm_manager';
+  const canApprove = user?.role === 'admin';
 
   useEffect(() => {
     loadEstimate();
