@@ -2680,6 +2680,48 @@ class SiteMaterialResponse(SiteMaterialBase):
     updated_at: datetime
     project_name: Optional[str] = None
 
+# ============= Material Transfer Models =============
+
+class TransferDestination(str, Enum):
+    PROJECT = "project"
+    HQ = "hq"
+    MAINTENANCE = "maintenance"
+
+class TransferStatus(str, Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+    CANCELLED = "cancelled"
+
+class MaterialTransferCreate(BaseModel):
+    site_material_id: str
+    destination_type: TransferDestination
+    destination_project_id: Optional[str] = None  # Required if destination_type is PROJECT
+    quantity: float
+    notes: Optional[str] = None
+
+class MaterialTransferResponse(BaseModel):
+    id: str
+    site_material_id: str
+    material_type: str
+    quantity: float
+    unit: str
+    source_project_id: str
+    source_project_name: Optional[str] = None
+    destination_type: TransferDestination
+    destination_project_id: Optional[str] = None
+    destination_project_name: Optional[str] = None
+    status: TransferStatus = TransferStatus.PENDING
+    notes: Optional[str] = None
+    initiated_by: str
+    initiated_by_name: Optional[str] = None
+    accepted_by: Optional[str] = None
+    accepted_by_name: Optional[str] = None
+    accepted_at: Optional[datetime] = None
+    rejection_reason: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
 # ============= Notification Models =============
 
 class NotificationType(str, Enum):
