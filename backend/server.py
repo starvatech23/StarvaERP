@@ -50,7 +50,7 @@ from models import (
     InvoiceCreate, InvoiceUpdate, InvoiceResponse, InvoiceStatus, InvoiceItemBase,
     PaymentMethod,
     # Estimation Models
-    EstimateCreate, EstimateUpdate, EstimateResponse, EstimateSummary, EstimateStatus,
+    EstimateBase, EstimateCreate, EstimateUpdate, EstimateResponse, EstimateSummary, EstimateStatus,
     EstimateLineCreate, EstimateLineUpdate, EstimateLineResponse, EstimateLineBase, BOQCategory,
     MaterialPresetCreate, MaterialPresetResponse, RateTableCreate, RateTableResponse,
     # Construction Preset Models
