@@ -55,20 +55,27 @@ def get_floor_display_name(floor_type: str) -> str:
 
 def generate_floor_types(num_floors: int, has_parking: bool = False, 
                          has_basement: bool = False, has_terrace: bool = False) -> List[str]:
-    """Generate list of floor types based on configuration"""
+    """
+    Generate list of floor types based on configuration.
+    
+    Note: Parking is on the SAME floor as ground floor (not a separate floor).
+    It will be tracked separately but counted within ground floor.
+    
+    Basement is a SEPARATE floor below ground.
+    Terrace/Headroom is part of built-up area at package rate.
+    """
     floors = []
     
+    # Basement is a separate floor below ground
     if has_basement:
         floors.append("basement")
     
-    if has_parking:
-        floors.append("parking")
-    
-    # Regular floors
+    # Regular floors (parking is ON ground floor, not separate)
     floor_names = ["ground", "first", "second", "third", "fourth", 
                    "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"]
     floors.extend(floor_names[:num_floors])
     
+    # Terrace/Headroom is part of built-up area
     if has_terrace:
         floors.append("terrace")
     
