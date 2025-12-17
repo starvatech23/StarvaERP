@@ -534,32 +534,53 @@ export default function EstimateDetailScreen() {
               <Ionicons name="document-text" size={24} color={Colors.primary} />
               <Text style={styles.clientSummaryTitle}>Estimate Summary (For Client)</Text>
             </View>
+
+            {/* Area Breakdown */}
+            <View style={styles.areaBreakdown}>
+              <Text style={styles.areaBreakdownTitle}>Area Breakdown</Text>
+              <View style={styles.areaBreakdownRow}>
+                <Text style={styles.areaBreakdownLabel}>Built-up Area ({estimate.summary.num_regular_floors || estimate.num_floors} floors × {estimate.summary.area_per_floor?.toLocaleString('en-IN')} sqft)</Text>
+                <Text style={styles.areaBreakdownValue}>{estimate.summary.built_up_area?.toLocaleString('en-IN')} sqft</Text>
+              </View>
+              {estimate.summary.headroom_area > 0 && (
+                <View style={styles.areaBreakdownRow}>
+                  <Text style={styles.areaBreakdownLabel}>+ Headroom/Terrace</Text>
+                  <Text style={styles.areaBreakdownValue}>{estimate.summary.headroom_area?.toLocaleString('en-IN')} sqft</Text>
+                </View>
+              )}
+              <View style={[styles.areaBreakdownRow, styles.areaBreakdownTotal]}>
+                <Text style={styles.areaBreakdownTotalLabel}>Total Built-up Area</Text>
+                <Text style={styles.areaBreakdownTotalValue}>{estimate.summary.total_built_up_with_headroom?.toLocaleString('en-IN')} sqft</Text>
+              </View>
+              {estimate.summary.parking_area > 0 && (
+                <View style={styles.areaBreakdownRow}>
+                  <Text style={styles.areaBreakdownLabel}>Parking Area (separate)</Text>
+                  <Text style={styles.areaBreakdownValue}>{estimate.summary.parking_area?.toLocaleString('en-IN')} sqft</Text>
+                </View>
+              )}
+              {estimate.summary.basement_area > 0 && (
+                <View style={styles.areaBreakdownRow}>
+                  <Text style={styles.areaBreakdownLabel}>Basement Area (separate)</Text>
+                  <Text style={styles.areaBreakdownValue}>{estimate.summary.basement_area?.toLocaleString('en-IN')} sqft</Text>
+                </View>
+              )}
+            </View>
             
             <View style={styles.summaryTable}>
               <View style={styles.summaryTableHeader}>
                 <Text style={styles.summaryTableHeaderText}>Description</Text>
-                <Text style={styles.summaryTableHeaderText}>Area (sqft)</Text>
-                <Text style={styles.summaryTableHeaderText}>Rate/sqft</Text>
+                <Text style={styles.summaryTableHeaderText}>Area</Text>
+                <Text style={styles.summaryTableHeaderText}>Rate</Text>
                 <Text style={styles.summaryTableHeaderText}>Amount</Text>
               </View>
               
-              {/* Built-up Area Row */}
+              {/* Built-up Area Row (includes headroom) */}
               <View style={styles.summaryTableRow}>
-                <Text style={styles.summaryTableCell}>Built-up Area</Text>
-                <Text style={styles.summaryTableCell}>{estimate.summary.built_up_area?.toLocaleString('en-IN')}</Text>
+                <Text style={styles.summaryTableCell}>Built-up + Headroom</Text>
+                <Text style={styles.summaryTableCell}>{estimate.summary.total_built_up_with_headroom?.toLocaleString('en-IN')}</Text>
                 <Text style={styles.summaryTableCell}>₹{estimate.summary.package_rate?.toLocaleString('en-IN')}</Text>
                 <Text style={styles.summaryTableCellAmount}>₹{estimate.summary.built_up_amount?.toLocaleString('en-IN')}</Text>
               </View>
-              
-              {/* Headroom Row (if exists) */}
-              {estimate.summary.headroom_area > 0 && (
-                <View style={styles.summaryTableRow}>
-                  <Text style={styles.summaryTableCell}>Headroom/Terrace</Text>
-                  <Text style={styles.summaryTableCell}>{estimate.summary.headroom_area?.toLocaleString('en-IN')}</Text>
-                  <Text style={styles.summaryTableCell}>₹{estimate.summary.package_rate?.toLocaleString('en-IN')}</Text>
-                  <Text style={styles.summaryTableCellAmount}>(Included)</Text>
-                </View>
-              )}
               
               {/* Parking Row */}
               {estimate.summary.parking_area > 0 && (
@@ -593,7 +614,7 @@ export default function EstimateDetailScreen() {
             {/* Rate Info */}
             <View style={styles.rateInfo}>
               <Text style={styles.rateInfoTitle}>Rate Structure:</Text>
-              <Text style={styles.rateInfoItem}>• Package Rate: ₹{estimate.summary.package_rate?.toLocaleString('en-IN')}/sqft</Text>
+              <Text style={styles.rateInfoItem}>• Package Rate: ₹{estimate.summary.package_rate?.toLocaleString('en-IN')}/sqft (Built-up + Headroom)</Text>
               {estimate.summary.parking_area > 0 && (
                 <Text style={styles.rateInfoItem}>• Parking Rate: ₹{estimate.summary.parking_rate?.toLocaleString('en-IN')}/sqft</Text>
               )}
