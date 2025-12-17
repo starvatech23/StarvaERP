@@ -252,6 +252,95 @@ export default function MaterialsScreen() {
     ));
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending_review': return { bg: '#FEF3C7', text: '#F59E0B' };
+      case 'approved': return { bg: '#D1FAE5', text: '#10B981' };
+      case 'rejected': return { bg: '#FEE2E2', text: '#EF4444' };
+      default: return { bg: '#E5E7EB', text: '#6B7280' };
+    }
+  };
+
+  const getConditionColor = (condition: string) => {
+    switch (condition) {
+      case 'new': return '#10B981';
+      case 'good': return '#3B82F6';
+      case 'fair': return '#F59E0B';
+      case 'damaged': return '#EF4444';
+      case 'needs_repair': return '#8B5CF6';
+      default: return '#6B7280';
+    }
+  };
+
+  const renderSiteMaterials = () => {
+    if (siteMaterials.length === 0) {
+      return (
+        <View style={styles.emptyState}>
+          <Ionicons name="location-outline" size={64} color="#CBD5E0" />
+          <Text style={styles.emptyTitle}>No Site Materials Yet</Text>
+          <Text style={styles.emptyText}>Add materials received at project sites with photos for review</Text>
+          <TouchableOpacity
+            style={styles.addSiteMaterialButton}
+            onPress={() => router.push('/materials/site/add' as any)}
+          >
+            <Ionicons name="add-circle" size={20} color={Colors.surface} />
+            <Text style={styles.addSiteMaterialText}>Add Site Material</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return siteMaterials.map((item: any) => {
+      const statusColor = getStatusColor(item.status);
+      const conditionColor = getConditionColor(item.condition);
+      
+      return (
+        <TouchableOpacity
+          key={item.id}
+          style={styles.card}
+          onPress={() => router.push(`/materials/site` as any)}
+        >
+          <View style={styles.cardHeader}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.siteMaterialName}>{item.material_type}</Text>
+              <Text style={styles.siteMaterialQty}>
+                {item.quantity} {item.unit}
+              </Text>
+            </View>
+            <View style={[styles.statusBadge, { backgroundColor: statusColor.bg }]}>
+              <Text style={[styles.statusBadgeText, { color: statusColor.text }]}>
+                {item.status === 'pending_review' ? 'Pending' : item.status}
+              </Text>
+            </View>
+          </View>
+          
+          <View style={styles.siteMaterialDetails}>
+            <View style={styles.siteMaterialDetail}>
+              <Ionicons name="business-outline" size={14} color={Colors.textSecondary} />
+              <Text style={styles.siteMaterialDetailText}>{item.project_name || 'Unknown Project'}</Text>
+            </View>
+            <View style={[styles.conditionBadge, { borderColor: conditionColor }]}>
+              <View style={[styles.conditionDot, { backgroundColor: conditionColor }]} />
+              <Text style={[styles.conditionBadgeText, { color: conditionColor }]}>
+                {item.condition?.replace('_', ' ')}
+              </Text>
+            </View>
+          </View>
+          
+          <View style={styles.siteMaterialFooter}>
+            <Text style={styles.siteMaterialAddedBy}>Added by {item.added_by_name || 'Unknown'}</Text>
+            {item.media_urls?.length > 0 && (
+              <View style={styles.mediaCountBadge}>
+                <Ionicons name="images" size={12} color={Colors.primary} />
+                <Text style={styles.mediaCountText}>{item.media_urls.length}</Text>
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
+      );
+    });
+  };
+
   const renderReports = () => {
     return (
       <View style={styles.reportsContainer}>
