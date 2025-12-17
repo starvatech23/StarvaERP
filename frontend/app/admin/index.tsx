@@ -134,6 +134,14 @@ export default function AdminDashboard() {
       route: '/admin/company-settings',
       description: 'Logo, address & branding',
     },
+    {
+      title: 'System Config',
+      icon: 'cog',
+      color: '#8B5CF6',
+      count: null,
+      route: '/admin/config',
+      description: 'SMS, WhatsApp & Domain Settings',
+    },
   ];
 
   if (loading) {
