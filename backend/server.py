@@ -3112,6 +3112,244 @@ async def get_weekly_payment_summary(
     }
 
 
+@api_router.post("/labour/payments/generate-weekly")
+async def generate_weekly_payments(
+    week_start: str,
+    week_end: str,
+    project_id: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Auto-generate weekly payments from attendance data"""
+    current_user = await get_current_user(credentials)
+    
+    start_date = datetime.fromisoformat(week_start)
+    end_date = datetime.fromisoformat(week_end)
+    
+    # Query attendance for the week
+    attendance_query = {
+        "attendance_date": {"$gte": start_date, "$lte": end_date}
+    }
+    if project_id:
+        attendance_query["project_id"] = project_id
+    
+    attendances = await db.labor_attendance.find(attendance_query).to_list(length=5000)
+    
+    # Group by worker and project
+    worker_project_data = {}
+    for att in attendances:
+        key = f"{att['worker_id']}_{att['project_id']}"
+        if key not in worker_project_data:
+            worker_project_data[key] = {
+                "worker_id": att["worker_id"],
+                "project_id": att["project_id"],
+                "days_worked": 0,
+                "hours_worked": 0,
+                "overtime_hours": 0,
+                "total_wages": 0,
+            }
+        
+        worker_project_data[key]["days_worked"] += 1
+        worker_project_data[key]["hours_worked"] += att.get("hours_worked", 8)
+        worker_project_data[key]["overtime_hours"] += att.get("overtime_hours", 0)
+        worker_project_data[key]["total_wages"] += att.get("wages_earned", 0)
+    
+    created_payments = []
+    skipped_count = 0
+    
+    for key, data in worker_project_data.items():
+        # Check if payment already exists
+        existing = await db.weekly_payments.find_one({
+            "worker_id": data["worker_id"],
+            "project_id": data["project_id"],
+            "week_start_date": start_date,
+            "week_end_date": end_date
+        })
+        
+        if existing:
+            skipped_count += 1
+            continue
+        
+        # Get worker info for rate calculation
+        worker = await db.workers.find_one({"_id": ObjectId(data["worker_id"])})
+        if not worker:
+            continue
+        
+        base_rate = worker.get("base_rate", 500)
+        overtime_rate = base_rate * 1.5 / 8  # 1.5x per overtime hour
+        
+        base_amount = data["total_wages"] if data["total_wages"] > 0 else (data["days_worked"] * base_rate)
+        overtime_amount = data["overtime_hours"] * overtime_rate
+        gross_amount = base_amount + overtime_amount
+        
+        # Check for outstanding advances
+        outstanding_advances = await db.advance_payments.find({
+            "worker_id": data["worker_id"],
+            "status": "disbursed"
+        }).to_list(length=10)
+        
+        advance_deduction = 0
+        for adv in outstanding_advances:
+            remaining = adv["amount"] - adv.get("recovered_amount", 0)
+            if adv.get("recovery_mode") == "installment":
+                advance_deduction += min(remaining, adv.get("installment_amount", remaining))
+            else:
+                advance_deduction += remaining
+        
+        # Cap deduction at 50% of gross
+        advance_deduction = min(advance_deduction, gross_amount * 0.5)
+        net_amount = gross_amount - advance_deduction
+        
+        payment_dict = {
+            "worker_id": data["worker_id"],
+            "project_id": data["project_id"],
+            "week_start_date": start_date,
+            "week_end_date": end_date,
+            "days_worked": data["days_worked"],
+            "hours_worked": data["hours_worked"],
+            "overtime_hours": data["overtime_hours"],
+            "base_amount": base_amount,
+            "overtime_amount": overtime_amount,
+            "bonus_amount": 0,
+            "gross_amount": gross_amount,
+            "advance_deduction": advance_deduction,
+            "other_deductions": 0,
+            "deduction_notes": "",
+            "net_amount": net_amount,
+            "status": "draft",
+            "otp_verified": False,
+            "otp_attempts": 0,
+            "created_by": str(current_user["_id"]),
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        result = await db.weekly_payments.insert_one(payment_dict)
+        payment_dict["id"] = str(result.inserted_id)
+        payment_dict["worker_name"] = worker["full_name"]
+        
+        project = await db.projects.find_one({"_id": ObjectId(data["project_id"])})
+        payment_dict["project_name"] = project["name"] if project else "Unknown"
+        
+        created_payments.append(payment_dict)
+    
+    return {
+        "success": True,
+        "created_count": len(created_payments),
+        "skipped_count": skipped_count,
+        "message": f"Generated {len(created_payments)} payments, {skipped_count} already existed"
+    }
+
+
+@api_router.get("/labour/payments/by-worker")
+async def get_payments_by_worker(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    week_start: Optional[str] = None,
+    status: Optional[str] = None
+):
+    """Get payments grouped by worker"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if week_start:
+        query["week_start_date"] = {"$gte": datetime.fromisoformat(week_start)}
+    if status:
+        query["status"] = status
+    
+    payments = await db.weekly_payments.find(query).sort("created_at", -1).to_list(length=1000)
+    
+    # Group by worker
+    workers_data = {}
+    for pmt in payments:
+        worker_id = pmt["worker_id"]
+        if worker_id not in workers_data:
+            worker = await db.workers.find_one({"_id": ObjectId(worker_id)})
+            workers_data[worker_id] = {
+                "worker_id": worker_id,
+                "worker_name": worker["full_name"] if worker else "Unknown",
+                "worker_phone": worker.get("phone", "") if worker else "",
+                "worker_skill": worker.get("skill_group", "") if worker else "",
+                "total_gross": 0,
+                "total_net": 0,
+                "paid_amount": 0,
+                "pending_amount": 0,
+                "payments": []
+            }
+        
+        pmt_dict = serialize_doc(pmt)
+        project = await db.projects.find_one({"_id": ObjectId(pmt["project_id"])})
+        pmt_dict["project_name"] = project["name"] if project else "Unknown"
+        
+        workers_data[worker_id]["payments"].append(pmt_dict)
+        workers_data[worker_id]["total_gross"] += pmt.get("gross_amount", 0)
+        workers_data[worker_id]["total_net"] += pmt.get("net_amount", 0)
+        
+        if pmt.get("status") == "paid":
+            workers_data[worker_id]["paid_amount"] += pmt.get("net_amount", 0)
+        else:
+            workers_data[worker_id]["pending_amount"] += pmt.get("net_amount", 0)
+    
+    return list(workers_data.values())
+
+
+@api_router.get("/labour/payments/by-project")
+async def get_payments_by_project(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    week_start: Optional[str] = None,
+    status: Optional[str] = None
+):
+    """Get payments grouped by project"""
+    current_user = await get_current_user(credentials)
+    
+    query = {}
+    if week_start:
+        query["week_start_date"] = {"$gte": datetime.fromisoformat(week_start)}
+    if status:
+        query["status"] = status
+    
+    payments = await db.weekly_payments.find(query).sort("created_at", -1).to_list(length=1000)
+    
+    # Group by project
+    projects_data = {}
+    for pmt in payments:
+        project_id = pmt["project_id"]
+        if project_id not in projects_data:
+            project = await db.projects.find_one({"_id": ObjectId(project_id)})
+            projects_data[project_id] = {
+                "project_id": project_id,
+                "project_name": project["name"] if project else "Unknown",
+                "project_status": project.get("status", "") if project else "",
+                "total_workers": set(),
+                "total_gross": 0,
+                "total_net": 0,
+                "paid_amount": 0,
+                "pending_amount": 0,
+                "payments": []
+            }
+        
+        pmt_dict = serialize_doc(pmt)
+        worker = await db.workers.find_one({"_id": ObjectId(pmt["worker_id"])})
+        pmt_dict["worker_name"] = worker["full_name"] if worker else "Unknown"
+        pmt_dict["worker_phone"] = worker.get("phone", "") if worker else ""
+        
+        projects_data[project_id]["payments"].append(pmt_dict)
+        projects_data[project_id]["total_workers"].add(pmt["worker_id"])
+        projects_data[project_id]["total_gross"] += pmt.get("gross_amount", 0)
+        projects_data[project_id]["total_net"] += pmt.get("net_amount", 0)
+        
+        if pmt.get("status") == "paid":
+            projects_data[project_id]["paid_amount"] += pmt.get("net_amount", 0)
+        else:
+            projects_data[project_id]["pending_amount"] += pmt.get("net_amount", 0)
+    
+    # Convert sets to counts
+    result = []
+    for proj_data in projects_data.values():
+        proj_data["total_workers"] = len(proj_data["total_workers"])
+        result.append(proj_data)
+    
+    return result
+
+
 # ============= Vendor Management Routes =============
 
 @api_router.get("/vendors", response_model=List[VendorResponse])
