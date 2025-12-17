@@ -5153,6 +5153,267 @@ async def get_financial_report(
 
 
 
+# ============= CRM Dashboard & Analytics =============
+
+@api_router.get("/crm/dashboard/analytics")
+async def get_crm_analytics(
+    city: Optional[str] = None,
+    state: Optional[str] = None,
+    status: Optional[str] = None,
+    source: Optional[str] = None,
+    category_id: Optional[str] = None,
+    funnel_id: Optional[str] = None,
+    priority: Optional[str] = None,
+    assigned_to: Optional[str] = None,
+    min_value: Optional[float] = None,
+    max_value: Optional[float] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get comprehensive CRM analytics with filters"""
+    try:
+        await get_current_user(credentials)
+        
+        # Build filter query
+        query = {"is_deleted": {"$ne": True}}
+        
+        if city:
+            query["city"] = {"$regex": city, "$options": "i"}
+        if state:
+            query["state"] = {"$regex": state, "$options": "i"}
+        if status:
+            query["status"] = status
+        if source:
+            query["source"] = source
+        if category_id:
+            query["category_id"] = category_id
+        if funnel_id:
+            query["funnel_id"] = funnel_id
+        if priority:
+            query["priority"] = priority
+        if assigned_to:
+            query["assigned_to"] = assigned_to
+        if min_value is not None:
+            query["estimated_value"] = {"$gte": min_value}
+        if max_value is not None:
+            if "estimated_value" in query:
+                query["estimated_value"]["$lte"] = max_value
+            else:
+                query["estimated_value"] = {"$lte": max_value}
+        if date_from:
+            query["created_at"] = {"$gte": datetime.fromisoformat(date_from)}
+        if date_to:
+            if "created_at" in query:
+                query["created_at"]["$lte"] = datetime.fromisoformat(date_to)
+            else:
+                query["created_at"] = {"$lte": datetime.fromisoformat(date_to)}
+        
+        # Total counts
+        total_leads = await db.leads.count_documents(query)
+        
+        # Status breakdown
+        status_pipeline = [
+            {"$match": query},
+            {"$group": {"_id": "$status", "count": {"$sum": 1}, "value": {"$sum": {"$ifNull": ["$estimated_value", 0]}}}}
+        ]
+        status_breakdown = {}
+        async for result in db.leads.aggregate(status_pipeline):
+            status_breakdown[result["_id"] or "unknown"] = {"count": result["count"], "value": result["value"]}
+        
+        # Source breakdown
+        source_pipeline = [
+            {"$match": query},
+            {"$group": {"_id": "$source", "count": {"$sum": 1}}}
+        ]
+        source_breakdown = {}
+        async for result in db.leads.aggregate(source_pipeline):
+            source_breakdown[result["_id"] or "unknown"] = result["count"]
+        
+        # Priority breakdown
+        priority_pipeline = [
+            {"$match": query},
+            {"$group": {"_id": "$priority", "count": {"$sum": 1}}}
+        ]
+        priority_breakdown = {}
+        async for result in db.leads.aggregate(priority_pipeline):
+            priority_breakdown[result["_id"] or "unknown"] = result["count"]
+        
+        # City breakdown (top 10)
+        city_pipeline = [
+            {"$match": {**query, "city": {"$ne": None, "$ne": ""}}},
+            {"$group": {"_id": "$city", "count": {"$sum": 1}, "value": {"$sum": {"$ifNull": ["$estimated_value", 0]}}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 10}
+        ]
+        city_breakdown = []
+        async for result in db.leads.aggregate(city_pipeline):
+            city_breakdown.append({"city": result["_id"], "count": result["count"], "value": result["value"]})
+        
+        # State breakdown
+        state_pipeline = [
+            {"$match": {**query, "state": {"$ne": None, "$ne": ""}}},
+            {"$group": {"_id": "$state", "count": {"$sum": 1}, "value": {"$sum": {"$ifNull": ["$estimated_value", 0]}}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 10}
+        ]
+        state_breakdown = []
+        async for result in db.leads.aggregate(state_pipeline):
+            state_breakdown.append({"state": result["_id"], "count": result["count"], "value": result["value"]})
+        
+        # Category breakdown
+        category_pipeline = [
+            {"$match": {**query, "category_id": {"$ne": None}}},
+            {"$group": {"_id": "$category_id", "count": {"$sum": 1}, "value": {"$sum": {"$ifNull": ["$estimated_value", 0]}}}}
+        ]
+        category_breakdown = []
+        async for result in db.leads.aggregate(category_pipeline):
+            cat = await db.lead_categories.find_one({"_id": ObjectId(result["_id"])})
+            cat_name = cat.get("name", "Unknown") if cat else "Unknown"
+            category_breakdown.append({"category_id": result["_id"], "name": cat_name, "count": result["count"], "value": result["value"]})
+        
+        # Funnel breakdown
+        funnel_pipeline = [
+            {"$match": {**query, "funnel_id": {"$ne": None}}},
+            {"$group": {"_id": "$funnel_id", "count": {"$sum": 1}}}
+        ]
+        funnel_breakdown = []
+        async for result in db.leads.aggregate(funnel_pipeline):
+            funnel = await db.crm_funnels.find_one({"_id": ObjectId(result["_id"])})
+            funnel_name = funnel.get("name", "Unknown") if funnel else "Unknown"
+            funnel_breakdown.append({"funnel_id": result["_id"], "name": funnel_name, "count": result["count"]})
+        
+        # Monthly trend (last 6 months)
+        six_months_ago = datetime.utcnow() - timedelta(days=180)
+        trend_pipeline = [
+            {"$match": {**query, "created_at": {"$gte": six_months_ago}}},
+            {"$group": {
+                "_id": {"year": {"$year": "$created_at"}, "month": {"$month": "$created_at"}},
+                "count": {"$sum": 1},
+                "value": {"$sum": {"$ifNull": ["$estimated_value", 0]}}
+            }},
+            {"$sort": {"_id.year": 1, "_id.month": 1}}
+        ]
+        monthly_trend = []
+        async for result in db.leads.aggregate(trend_pipeline):
+            monthly_trend.append({
+                "year": result["_id"]["year"],
+                "month": result["_id"]["month"],
+                "count": result["count"],
+                "value": result["value"]
+            })
+        
+        # Value ranges
+        value_ranges = {
+            "0-1L": await db.leads.count_documents({**query, "estimated_value": {"$gte": 0, "$lt": 100000}}),
+            "1L-5L": await db.leads.count_documents({**query, "estimated_value": {"$gte": 100000, "$lt": 500000}}),
+            "5L-10L": await db.leads.count_documents({**query, "estimated_value": {"$gte": 500000, "$lt": 1000000}}),
+            "10L-50L": await db.leads.count_documents({**query, "estimated_value": {"$gte": 1000000, "$lt": 5000000}}),
+            "50L+": await db.leads.count_documents({**query, "estimated_value": {"$gte": 5000000}})
+        }
+        
+        # Calculate totals
+        total_pipeline = [
+            {"$match": query},
+            {"$group": {"_id": None, "total_value": {"$sum": {"$ifNull": ["$estimated_value", 0]}}}}
+        ]
+        total_value = 0
+        async for result in db.leads.aggregate(total_pipeline):
+            total_value = result["total_value"]
+        
+        won_query = {**query, "status": "won"}
+        won_count = await db.leads.count_documents(won_query)
+        won_pipeline = [
+            {"$match": won_query},
+            {"$group": {"_id": None, "won_value": {"$sum": {"$ifNull": ["$estimated_value", 0]}}}}
+        ]
+        won_value = 0
+        async for result in db.leads.aggregate(won_pipeline):
+            won_value = result["won_value"]
+        
+        lost_count = await db.leads.count_documents({**query, "status": "lost"})
+        conversion_rate = round((won_count / total_leads * 100), 2) if total_leads > 0 else 0
+        
+        return {
+            "summary": {
+                "total_leads": total_leads,
+                "total_pipeline_value": total_value,
+                "won_leads": won_count,
+                "won_value": won_value,
+                "lost_leads": lost_count,
+                "conversion_rate": conversion_rate,
+                "average_deal_value": round(total_value / total_leads, 2) if total_leads > 0 else 0
+            },
+            "by_status": status_breakdown,
+            "by_source": source_breakdown,
+            "by_priority": priority_breakdown,
+            "by_city": city_breakdown,
+            "by_state": state_breakdown,
+            "by_category": category_breakdown,
+            "by_funnel": funnel_breakdown,
+            "by_value_range": value_ranges,
+            "monthly_trend": monthly_trend
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get CRM analytics: {str(e)}")
+
+
+@api_router.get("/crm/dashboard/filters")
+async def get_crm_filter_options(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all available filter options for CRM dashboard"""
+    try:
+        await get_current_user(credentials)
+        
+        # Get unique cities
+        cities = await db.leads.distinct("city", {"city": {"$ne": None, "$ne": ""}, "is_deleted": {"$ne": True}})
+        
+        # Get unique states
+        states = await db.leads.distinct("state", {"state": {"$ne": None, "$ne": ""}, "is_deleted": {"$ne": True}})
+        
+        # Get categories
+        categories = []
+        async for cat in db.lead_categories.find({"is_active": {"$ne": False}}):
+            categories.append({"id": str(cat["_id"]), "name": cat.get("name", "Unknown")})
+        
+        # Get funnels
+        funnels = []
+        async for funnel in db.crm_funnels.find({"is_active": {"$ne": False}}):
+            funnels.append({"id": str(funnel["_id"]), "name": funnel.get("name", "Unknown")})
+        
+        # Get assigned users
+        assigned_users = []
+        user_ids = await db.leads.distinct("assigned_to", {"assigned_to": {"$ne": None}, "is_deleted": {"$ne": True}})
+        for uid in user_ids:
+            try:
+                user = await db.users.find_one({"_id": ObjectId(uid)})
+                if user:
+                    assigned_users.append({"id": uid, "name": user.get("full_name", "Unknown")})
+            except:
+                pass
+        
+        return {
+            "cities": sorted([c for c in cities if c]),
+            "states": sorted([s for s in states if s]),
+            "categories": categories,
+            "funnels": funnels,
+            "statuses": ["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost", "on_hold"],
+            "sources": ["website", "referral", "social_media", "cold_call", "walk_in", "advertisement", "partner", "other"],
+            "priorities": ["low", "medium", "high", "urgent"],
+            "assigned_users": assigned_users,
+            "value_ranges": [
+                {"label": "Under ₹1L", "min": 0, "max": 100000},
+                {"label": "₹1L - ₹5L", "min": 100000, "max": 500000},
+                {"label": "₹5L - ₹10L", "min": 500000, "max": 1000000},
+                {"label": "₹10L - ₹50L", "min": 1000000, "max": 5000000},
+                {"label": "Above ₹50L", "min": 5000000, "max": None}
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get filter options: {str(e)}")
+
+
 # ============= CRM Lead Management Routes =============
 
 # Helper function to get category with lead count
