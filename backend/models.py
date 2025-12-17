@@ -2625,3 +2625,133 @@ class PresetAuditLog(BaseModel):
     user_id: str
     changes: Optional[Dict] = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+
+
+# ============= Site Materials Inventory Models =============
+
+class MaterialCondition(str, Enum):
+    NEW = "new"
+    GOOD = "good"
+    FAIR = "fair"
+    DAMAGED = "damaged"
+    NEEDS_REPAIR = "needs_repair"
+
+class SiteMaterialStatus(str, Enum):
+    PENDING_REVIEW = "pending_review"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+class SiteMaterialBase(BaseModel):
+    project_id: str
+    material_type: str  # Can be from dropdown or free text
+    material_id: Optional[str] = None  # Reference to existing material catalog (if selected)
+    quantity: float
+    unit: str = "units"
+    cost: Optional[float] = None  # Optional
+    condition: MaterialCondition = MaterialCondition.NEW
+    notes: Optional[str] = None
+    media_urls: List[str] = []  # Photo/Video URLs (required at least one)
+
+class SiteMaterialCreate(SiteMaterialBase):
+    pass
+
+class SiteMaterialUpdate(BaseModel):
+    material_type: Optional[str] = None
+    quantity: Optional[float] = None
+    unit: Optional[str] = None
+    cost: Optional[float] = None
+    condition: Optional[MaterialCondition] = None
+    notes: Optional[str] = None
+    media_urls: Optional[List[str]] = None
+    status: Optional[SiteMaterialStatus] = None
+    review_notes: Optional[str] = None
+
+class SiteMaterialResponse(SiteMaterialBase):
+    id: str
+    status: SiteMaterialStatus = SiteMaterialStatus.PENDING_REVIEW
+    added_by: str
+    added_by_name: Optional[str] = None
+    reviewed_by: Optional[str] = None
+    reviewed_by_name: Optional[str] = None
+    review_notes: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+    project_name: Optional[str] = None
+
+# ============= Notification Models =============
+
+class NotificationType(str, Enum):
+    TASK_ASSIGNED = "task_assigned"
+    TASK_DUE = "task_due"
+    TASK_OVERDUE = "task_overdue"
+    TASK_COMPLETED = "task_completed"
+    MATERIAL_ADDED = "material_added"
+    MATERIAL_REVIEW_REQUIRED = "material_review_required"
+    MATERIAL_APPROVED = "material_approved"
+    MATERIAL_REJECTED = "material_rejected"
+    PROJECT_UPDATE = "project_update"
+    EXPENSE_SUBMITTED = "expense_submitted"
+    EXPENSE_APPROVED = "expense_approved"
+    EXPENSE_REJECTED = "expense_rejected"
+    WEEKLY_MATERIAL_REVIEW = "weekly_material_review"
+    GENERAL = "general"
+
+class NotificationPriority(str, Enum):
+    LOW = "low"
+    NORMAL = "normal"
+    HIGH = "high"
+    URGENT = "urgent"
+
+class NotificationBase(BaseModel):
+    user_id: str
+    title: str
+    message: str
+    notification_type: NotificationType = NotificationType.GENERAL
+    priority: NotificationPriority = NotificationPriority.NORMAL
+    link: Optional[str] = None  # Deep link to related content
+    related_entity_type: Optional[str] = None  # e.g., "task", "material", "project"
+    related_entity_id: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+class NotificationCreate(NotificationBase):
+    pass
+
+class NotificationResponse(NotificationBase):
+    id: str
+    is_read: bool = False
+    read_at: Optional[datetime] = None
+    created_at: datetime
+
+class NotificationBulkCreate(BaseModel):
+    user_ids: List[str]
+    title: str
+    message: str
+    notification_type: NotificationType = NotificationType.GENERAL
+    priority: NotificationPriority = NotificationPriority.NORMAL
+    link: Optional[str] = None
+    related_entity_type: Optional[str] = None
+    related_entity_id: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+class NotificationStats(BaseModel):
+    total: int = 0
+    unread: int = 0
+    by_type: Dict[str, int] = {}
+
+# ============= Scheduled Jobs Models =============
+
+class ScheduledJobBase(BaseModel):
+    job_name: str
+    job_type: str  # e.g., "weekly_material_review", "task_reminder"
+    schedule: str  # Cron expression or description
+    is_active: bool = True
+    last_run: Optional[datetime] = None
+    next_run: Optional[datetime] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+class ScheduledJobResponse(ScheduledJobBase):
+    id: str
+    created_at: datetime
+    updated_at: datetime
