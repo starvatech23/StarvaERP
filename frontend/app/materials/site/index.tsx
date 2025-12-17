@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { siteMaterialsAPI, projectsAPI } from '../../../services/api';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '../../../context/AuthContext';
 import Colors from '../../../constants/Colors';
 
 type MaterialCondition = 'new' | 'good' | 'fair' | 'damaged' | 'needs_repair';
