@@ -307,23 +307,40 @@ export default function DashboardScreen() {
         {/* CRM Stats */}
         {stats?.crm && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>CRM Performance</Text>
+            <TouchableOpacity 
+              style={styles.sectionHeaderLink}
+              onPress={() => router.push('/crm/leads' as any)}
+            >
+              <Text style={styles.sectionTitle}>CRM Performance</Text>
+              <View style={styles.sectionLinkIcon}>
+                <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
+              </View>
+            </TouchableOpacity>
             <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: Colors.secondary + '20' }]}>
+              <TouchableOpacity 
+                style={[styles.statCard, { backgroundColor: Colors.secondary + '20' }]}
+                onPress={() => router.push('/crm/leads' as any)}
+              >
                 <Ionicons name="people" size={28} color={Colors.secondary} />
                 <Text style={styles.statValue}>{stats.crm.total_leads}</Text>
                 <Text style={styles.statLabel}>Total Leads</Text>
-              </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.success + '20' }]}>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.statCard, { backgroundColor: Colors.success + '20' }]}
+                onPress={() => router.push('/crm/leads?status=won' as any)}
+              >
                 <Ionicons name="trophy" size={28} color={Colors.success} />
                 <Text style={styles.statValue}>{stats.crm.won_leads}</Text>
                 <Text style={styles.statLabel}>Won</Text>
-              </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}
+                onPress={() => router.push('/crm/leads' as any)}
+              >
                 <Ionicons name="star" size={28} color={Colors.info} />
                 <Text style={styles.statValue}>{stats.crm.conversion_rate}%</Text>
                 <Text style={styles.statLabel}>Conversion</Text>
-              </View>
+              </TouchableOpacity>
             </View>
             
             {/* Lead Status Chart */}
