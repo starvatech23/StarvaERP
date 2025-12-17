@@ -121,7 +121,28 @@ export default function EstimateDetailScreen() {
   const handleSaveEdit = async (lineId: string, quantity: number, rate: number) => {
     setSaving(true);
     try {
-      await estimationAPI.updateLine(estimateId as string, lineId, quantity, rate);
+      // For floor-wise estimates, find the floor containing this line
+      if (estimate?.is_floor_wise && estimate?.floors) {
+        const floor = estimate.floors.find((f: any) => 
+          f.lines?.some((l: any) => l.id === lineId)
+        );
+        
+        if (floor) {
+          // Use floor-wise line update API
+          await estimationAPI.updateFloorLine(
+            estimateId as string, 
+            floor.id, 
+            lineId, 
+            { quantity, rate }
+          );
+        } else {
+          // Fallback to regular line update (lines array on estimate)
+          await estimationAPI.updateLine(estimateId as string, lineId, quantity, rate);
+        }
+      } else {
+        // Traditional estimate - use regular line update
+        await estimationAPI.updateLine(estimateId as string, lineId, quantity, rate);
+      }
       
       // Reload estimate to get updated totals
       await loadEstimate();
