@@ -136,17 +136,22 @@ def is_item_for_floor(item_name: str, floor_type: str, floor_index: int, total_f
     # Regular floors get everything except foundation/roofing
     return True
 
-def calculate_floor_rate(floor_type: str, base_rate: float, parking_multiplier: float = 0.6) -> float:
+def calculate_floor_rate(floor_type: str, base_rate: float, parking_rate: float = 1750.0, basement_rate: float = 1800.0) -> float:
     """
     Calculate rate per sqft for a specific floor type.
-    Parking typically has lower rates than residential.
+    
+    Rates:
+    - Parking: ₹1750/sqft (fixed rate, on ground floor)
+    - Basement: ₹1800/sqft (fixed rate, separate floor)
+    - Headroom/Terrace: Same as package rate (part of built-up area)
+    - Regular floors: Package rate (base_rate)
     """
     if floor_type == "parking":
-        return base_rate * parking_multiplier
+        return parking_rate  # Fixed ₹1750/sqft
     elif floor_type == "basement":
-        return base_rate * 0.7  # Basement is 70% of regular rate
+        return basement_rate  # Fixed ₹1800/sqft
     elif floor_type == "terrace":
-        return base_rate * 0.3  # Terrace is 30% (mainly waterproofing)
+        return base_rate  # Headroom uses package rate (part of built-up)
     return base_rate
 
 def create_floor_wise_estimate(
