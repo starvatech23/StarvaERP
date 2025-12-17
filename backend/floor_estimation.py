@@ -326,6 +326,19 @@ def create_floor_wise_estimate(
     contingency = grand_total * (estimate_input.contingency_percent / 100)
     overhead = grand_total * 0.1  # 10% overhead
     
+    # Calculate parking and built-up totals for summary
+    parking_area = estimate_input.parking_area_sqft or 0
+    basement_area = estimate_input.basement_area_sqft or 0
+    terrace_area = estimate_input.terrace_area_sqft or 0
+    
+    # Built-up area includes terrace/headroom
+    total_built_up_with_headroom = estimate_input.built_up_area_sqft + terrace_area
+    
+    # Summary calculation for client sharing
+    built_up_amount = total_built_up_with_headroom * base_rate
+    parking_amount = parking_area * parking_rate
+    basement_amount = basement_area * basement_rate
+    
     totals = {
         "total_material_cost": round(total_material, 2),
         "total_labour_cost": round(total_labour, 2),
@@ -337,7 +350,22 @@ def create_floor_wise_estimate(
         "parking_total": sum(f["floor_total"] for f in floors if f["is_parking"]),
         "basement_total": sum(f["floor_total"] for f in floors if f["is_basement"]),
         "terrace_total": sum(f["floor_total"] for f in floors if f["is_terrace"]),
-        "is_floor_wise": True
+        "is_floor_wise": True,
+        # Summary for client sharing
+        "summary": {
+            "built_up_area": estimate_input.built_up_area_sqft,
+            "headroom_area": terrace_area,
+            "total_built_up_with_headroom": total_built_up_with_headroom,
+            "parking_area": parking_area,
+            "basement_area": basement_area,
+            "package_rate": base_rate,
+            "parking_rate": parking_rate,
+            "basement_rate": basement_rate,
+            "built_up_amount": round(built_up_amount, 2),
+            "parking_amount": round(parking_amount, 2),
+            "basement_amount": round(basement_amount, 2),
+            "total_construction_cost": round(built_up_amount + parking_amount + basement_amount, 2),
+        }
     }
     
     # Update assumptions
@@ -345,7 +373,9 @@ def create_floor_wise_estimate(
     assumptions["area_per_regular_floor"] = round(area_per_floor, 2)
     assumptions["total_floors_generated"] = len(floor_types)
     assumptions["floor_types"] = floor_types
-    assumptions["parking_rate_multiplier"] = parking_rate_multiplier
+    assumptions["parking_rate"] = parking_rate
+    assumptions["basement_rate"] = basement_rate
+    assumptions["package_rate"] = base_rate
     
     return floors, totals, assumptions
 
