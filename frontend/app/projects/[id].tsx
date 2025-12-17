@@ -37,7 +37,12 @@ export default function ProjectDetailsScreen() {
   const [project, setProject] = useState<any>(null);
   const [tasks, setTasks] = useState([]);
   const [statusUpdates, setStatusUpdates] = useState<StatusUpdate[]>([]);
+  const [siteMaterials, setSiteMaterials] = useState<any[]>([]);
+  const [incomingTransfers, setIncomingTransfers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
+  const [allProjects, setAllProjects] = useState<any[]>([]);
 
   const canEdit = user?.role === 'admin' || user?.role === 'project_manager';
 
@@ -45,6 +50,9 @@ export default function ProjectDetailsScreen() {
     loadProject();
     loadTasks();
     loadStatusUpdates();
+    loadSiteMaterials();
+    loadIncomingTransfers();
+    loadAllProjects();
   }, [id]);
 
   const loadStatusUpdates = async () => {
