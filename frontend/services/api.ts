@@ -169,10 +169,7 @@ export const crmConfigAPI = {
   update: (data: any) => api.put('/crm/config', data),
 };
 
-// CRM Dashboard Stats
-export const crmDashboardAPI = {
-  getStats: () => api.get('/crm/dashboard/stats'),
-};
+// CRM Dashboard Stats - See comprehensive crmDashboardAPI definition below (line ~630)
 
 // Custom Fields
 export const crmCustomFieldsAPI = {
