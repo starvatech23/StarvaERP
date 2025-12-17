@@ -2328,6 +2328,8 @@ class EstimateResponse(EstimateBase):
     approved_by_name: Optional[str] = None
     approved_at: Optional[datetime] = None
     approval_comments: Optional[str] = None
+    # Client Summary for sharing (NEW)
+    summary: Optional[Dict[str, Any]] = None
 
 class EstimateSummary(BaseModel):
     id: str
