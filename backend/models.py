@@ -813,6 +813,152 @@ class SiteTransferResponse(SiteTransferBase):
     created_at: Optional[datetime] = None
 
 
+# ============= Labour Advance Payment Models =============
+
+class AdvancePaymentStatus(str, Enum):
+    REQUESTED = "requested"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    DISBURSED = "disbursed"
+    RECOVERED = "recovered"
+
+class RecoveryMode(str, Enum):
+    FULL = "full"
+    INSTALLMENT = "installment"
+
+class AdvancePaymentBase(BaseModel):
+    worker_id: str
+    project_id: str
+    amount: float
+    reason: str
+    recovery_mode: RecoveryMode = RecoveryMode.FULL
+    installment_amount: Optional[float] = None
+    notes: Optional[str] = None
+
+class AdvancePaymentCreate(AdvancePaymentBase):
+    pass
+
+class AdvancePaymentUpdate(BaseModel):
+    amount: Optional[float] = None
+    reason: Optional[str] = None
+    recovery_mode: Optional[RecoveryMode] = None
+    installment_amount: Optional[float] = None
+    notes: Optional[str] = None
+    status: Optional[AdvancePaymentStatus] = None
+
+class AdvancePaymentResponse(AdvancePaymentBase):
+    id: str
+    status: AdvancePaymentStatus = AdvancePaymentStatus.REQUESTED
+    requested_date: Optional[datetime] = None
+    approved_date: Optional[datetime] = None
+    disbursed_date: Optional[datetime] = None
+    approved_by: Optional[str] = None
+    approved_by_name: Optional[str] = None
+    disbursed_by: Optional[str] = None
+    disbursed_by_name: Optional[str] = None
+    recovered_amount: float = 0
+    worker_name: Optional[str] = None
+    project_name: Optional[str] = None
+    created_by: Optional[str] = None
+    created_by_name: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
+# ============= Labour Weekly Payment Models =============
+
+class WeeklyPaymentStatus(str, Enum):
+    DRAFT = "draft"
+    PENDING_VALIDATION = "pending_validation"
+    VALIDATED = "validated"
+    PENDING_PAYMENT = "pending_payment"
+    OTP_SENT = "otp_sent"
+    PAID = "paid"
+    FAILED = "failed"
+
+class PaymentMethodType(str, Enum):
+    CASH = "cash"
+    BANK_TRANSFER = "bank_transfer"
+    UPI = "upi"
+    CHEQUE = "cheque"
+
+class WeeklyPaymentBase(BaseModel):
+    worker_id: str
+    project_id: str
+    week_start_date: datetime
+    week_end_date: datetime
+    days_worked: float = 0
+    hours_worked: float = 0
+    overtime_hours: float = 0
+    base_amount: float = 0
+    overtime_amount: float = 0
+    bonus_amount: float = 0
+    gross_amount: float = 0
+    advance_deduction: float = 0
+    other_deductions: float = 0
+    deduction_notes: Optional[str] = None
+    net_amount: float = 0
+    notes: Optional[str] = None
+
+class WeeklyPaymentCreate(WeeklyPaymentBase):
+    pass
+
+class WeeklyPaymentUpdate(BaseModel):
+    days_worked: Optional[float] = None
+    hours_worked: Optional[float] = None
+    overtime_hours: Optional[float] = None
+    base_amount: Optional[float] = None
+    overtime_amount: Optional[float] = None
+    bonus_amount: Optional[float] = None
+    gross_amount: Optional[float] = None
+    advance_deduction: Optional[float] = None
+    other_deductions: Optional[float] = None
+    deduction_notes: Optional[str] = None
+    net_amount: Optional[float] = None
+    notes: Optional[str] = None
+    status: Optional[WeeklyPaymentStatus] = None
+
+class WeeklyPaymentResponse(WeeklyPaymentBase):
+    id: str
+    status: WeeklyPaymentStatus = WeeklyPaymentStatus.DRAFT
+    validated_by: Optional[str] = None
+    validated_by_name: Optional[str] = None
+    validated_at: Optional[datetime] = None
+    validation_notes: Optional[str] = None
+    otp_sent_at: Optional[datetime] = None
+    otp_verified: bool = False
+    otp_verified_at: Optional[datetime] = None
+    otp_attempts: int = 0
+    paid_by: Optional[str] = None
+    paid_by_name: Optional[str] = None
+    paid_at: Optional[datetime] = None
+    payment_method: Optional[PaymentMethodType] = None
+    payment_reference: Optional[str] = None
+    worker_name: Optional[str] = None
+    worker_phone: Optional[str] = None
+    project_name: Optional[str] = None
+    created_by: Optional[str] = None
+    created_by_name: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
+# ============= Payment OTP Log Models =============
+
+class PaymentOTPLogBase(BaseModel):
+    payment_id: str
+    worker_id: str
+    mobile_number: str
+
+class PaymentOTPLogResponse(PaymentOTPLogBase):
+    id: str
+    sent_at: datetime
+    expires_at: datetime
+    verified: bool = False
+    verified_at: Optional[datetime] = None
+    attempts: int = 0
+
+
 # ============= Vendor & Materials Management Models =============
 
 # Vendor Models
