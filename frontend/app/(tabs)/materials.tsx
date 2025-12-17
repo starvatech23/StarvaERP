@@ -14,7 +14,7 @@ import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
-import { vendorsAPI, materialsAPI, siteInventoryAPI } from '../../services/api';
+import { vendorsAPI, materialsAPI, siteInventoryAPI, siteMaterialsAPI } from '../../services/api';
 
 export default function MaterialsScreen() {
   const router = useRouter();
