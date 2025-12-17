@@ -461,7 +461,7 @@ export default function EstimateDetailScreen() {
                     )}
                     {floor.is_terrace && (
                       <View style={[styles.floorBadge, styles.floorBadgeSuccess]}>
-                        <Text style={[styles.floorBadgeText, styles.floorBadgeTextSuccess]}>30% rate</Text>
+                        <Text style={[styles.floorBadgeText, styles.floorBadgeTextSuccess]}>Package rate</Text>
                       </View>
                     )}
                   </View>
