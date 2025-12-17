@@ -18,7 +18,7 @@ import { vendorsAPI, materialsAPI, siteInventoryAPI } from '../../services/api';
 
 export default function MaterialsScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'vendors' | 'materials' | 'inventory' | 'reports'>('vendors');
+  const [activeTab, setActiveTab] = useState<'vendors' | 'materials' | 'inventory' | 'site' | 'reports'>('vendors');
   const [vendors, setVendors] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [inventory, setInventory] = useState([]);
