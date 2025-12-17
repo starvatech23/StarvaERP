@@ -329,6 +329,53 @@ export default function LaborScreen() {
     }
   };
 
+  const handleValidatePayment = async (paymentId: string) => {
+    try {
+      await weeklyPaymentsAPI.validate(paymentId);
+      Alert.alert('Success', 'Payment validated successfully');
+      loadData();
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to validate payment');
+    }
+  };
+
+  const handleSendOTP = async (paymentId: string) => {
+    try {
+      const response = await weeklyPaymentsAPI.sendOTP(paymentId);
+      Alert.alert('OTP Sent', response.data?.message || 'OTP sent to worker\'s mobile');
+      loadData();
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to send OTP');
+    }
+  };
+
+  const handleMarkPaid = (payment: any) => {
+    Alert.prompt(
+      'Enter OTP',
+      `Enter the 6-digit OTP sent to worker's mobile to confirm payment of ₹${payment.net_amount?.toLocaleString()}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Verify & Pay',
+          onPress: async (otp) => {
+            if (!otp || otp.length !== 6) {
+              Alert.alert('Error', 'Please enter a valid 6-digit OTP');
+              return;
+            }
+            try {
+              await weeklyPaymentsAPI.verifyOTP(payment.id, otp, 'cash');
+              Alert.alert('Success', 'Payment marked as paid');
+              loadData();
+            } catch (error: any) {
+              Alert.alert('Error', error.response?.data?.detail || 'Invalid OTP');
+            }
+          },
+        },
+      ],
+      'plain-text'
+    );
+  };
+
   const renderPayments = () => {
     const hasData = paymentsByWorker.length > 0 || paymentsByProject.length > 0 || advances.length > 0;
     
