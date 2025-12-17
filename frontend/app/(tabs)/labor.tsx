@@ -58,12 +58,18 @@ export default function LaborScreen() {
         const response = await siteTransfersAPI.getAll();
         setTransfers(response.data || []);
       } else if (activeTab === 'payments') {
-        const [paymentsRes, advancesRes] = await Promise.all([
+        const [paymentsRes, advancesRes, byWorkerRes, byProjectRes, summaryRes] = await Promise.all([
           weeklyPaymentsAPI.getAll(),
-          advancePaymentsAPI.getAll()
+          advancePaymentsAPI.getAll(),
+          weeklyPaymentsAPI.getByWorker(),
+          weeklyPaymentsAPI.getByProject(),
+          weeklyPaymentsAPI.getSummary()
         ]);
         setPayments(paymentsRes.data || []);
         setAdvances(advancesRes.data || []);
+        setPaymentsByWorker(byWorkerRes.data || []);
+        setPaymentsByProject(byProjectRes.data || []);
+        setPaymentSummary(summaryRes.data || null);
       }
     } catch (error) {
       console.error('Error loading data:', error);
