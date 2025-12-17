@@ -12,7 +12,7 @@ from datetime import datetime
 # Configuration
 BACKEND_URL = "https://site-materials-1.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
-    "email": "crm.manager@test.com",
+    "identifier": "crm.manager@test.com",
     "password": "manager123",
     "auth_type": "email"
 }
