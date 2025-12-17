@@ -418,10 +418,129 @@ export default function EstimateDetailScreen() {
           </View>
         </View>
 
+        {/* Floor-wise Breakdown Section */}
+        {estimate.is_floor_wise && estimate.floors && estimate.floors.length > 0 && (
+          <View style={styles.floorSection}>
+            <Text style={styles.sectionTitle}>Floor-wise Breakdown</Text>
+            <Text style={styles.sectionSubtitle}>
+              {estimate.floors.length} floors • Area divided: {Math.round(estimate.built_up_area_sqft / estimate.num_floors)} sqft/floor
+            </Text>
+
+            {estimate.floors.map((floor: any, index: number) => (
+              <View key={floor.id || index} style={styles.floorCard}>
+                <View style={styles.floorHeader}>
+                  <View style={styles.floorHeaderLeft}>
+                    <View style={[
+                      styles.floorIcon, 
+                      floor.is_parking && styles.floorIconParking,
+                      floor.is_basement && styles.floorIconBasement,
+                      floor.is_terrace && styles.floorIconTerrace,
+                    ]}>
+                      <Ionicons 
+                        name={floor.is_parking ? 'car' : floor.is_basement ? 'layers' : floor.is_terrace ? 'sunny' : 'business'} 
+                        size={20} 
+                        color={floor.is_parking ? Colors.warning : floor.is_basement ? Colors.info : floor.is_terrace ? Colors.success : Colors.primary} 
+                      />
+                    </View>
+                    <View>
+                      <Text style={styles.floorName}>{floor.floor_name}</Text>
+                      <Text style={styles.floorArea}>{floor.area_sqft} sqft • ₹{Math.round(floor.rate_per_sqft)}/sqft</Text>
+                    </View>
+                  </View>
+                  <View style={styles.floorHeaderRight}>
+                    <Text style={styles.floorTotal}>₹{floor.floor_total?.toLocaleString('en-IN') || 0}</Text>
+                    {floor.is_parking && (
+                      <View style={styles.floorBadge}>
+                        <Text style={styles.floorBadgeText}>60% rate</Text>
+                      </View>
+                    )}
+                    {floor.is_basement && (
+                      <View style={[styles.floorBadge, styles.floorBadgeInfo]}>
+                        <Text style={[styles.floorBadgeText, styles.floorBadgeTextInfo]}>70% rate</Text>
+                      </View>
+                    )}
+                    {floor.is_terrace && (
+                      <View style={[styles.floorBadge, styles.floorBadgeSuccess]}>
+                        <Text style={[styles.floorBadgeText, styles.floorBadgeTextSuccess]}>30% rate</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+
+                {/* Floor Cost Breakdown */}
+                <View style={styles.floorBreakdown}>
+                  <View style={styles.floorBreakdownItem}>
+                    <Text style={styles.floorBreakdownLabel}>Material</Text>
+                    <Text style={styles.floorBreakdownValue}>₹{floor.material_cost?.toLocaleString('en-IN') || 0}</Text>
+                  </View>
+                  <View style={styles.floorBreakdownItem}>
+                    <Text style={styles.floorBreakdownLabel}>Labour</Text>
+                    <Text style={styles.floorBreakdownValue}>₹{floor.labour_cost?.toLocaleString('en-IN') || 0}</Text>
+                  </View>
+                  <View style={styles.floorBreakdownItem}>
+                    <Text style={styles.floorBreakdownLabel}>Services</Text>
+                    <Text style={styles.floorBreakdownValue}>₹{floor.services_cost?.toLocaleString('en-IN') || 0}</Text>
+                  </View>
+                </View>
+
+                {/* Floor Items Count */}
+                <View style={styles.floorItemsInfo}>
+                  <Ionicons name="list" size={14} color={Colors.textTertiary} />
+                  <Text style={styles.floorItemsText}>{floor.lines?.length || 0} line items</Text>
+                </View>
+              </View>
+            ))}
+
+            {/* Floor Totals Summary */}
+            {(estimate.parking_total > 0 || estimate.basement_total > 0 || estimate.terrace_total > 0) && (
+              <View style={styles.floorSummary}>
+                <Text style={styles.floorSummaryTitle}>Special Area Totals</Text>
+                {estimate.parking_total > 0 && (
+                  <View style={styles.floorSummaryRow}>
+                    <View style={styles.floorSummaryLeft}>
+                      <Ionicons name="car" size={16} color={Colors.warning} />
+                      <Text style={styles.floorSummaryLabel}>Parking</Text>
+                    </View>
+                    <Text style={styles.floorSummaryValue}>₹{estimate.parking_total?.toLocaleString('en-IN')}</Text>
+                  </View>
+                )}
+                {estimate.basement_total > 0 && (
+                  <View style={styles.floorSummaryRow}>
+                    <View style={styles.floorSummaryLeft}>
+                      <Ionicons name="layers" size={16} color={Colors.info} />
+                      <Text style={styles.floorSummaryLabel}>Basement</Text>
+                    </View>
+                    <Text style={styles.floorSummaryValue}>₹{estimate.basement_total?.toLocaleString('en-IN')}</Text>
+                  </View>
+                )}
+                {estimate.terrace_total > 0 && (
+                  <View style={styles.floorSummaryRow}>
+                    <View style={styles.floorSummaryLeft}>
+                      <Ionicons name="sunny" size={16} color={Colors.success} />
+                      <Text style={styles.floorSummaryLabel}>Terrace</Text>
+                    </View>
+                    <Text style={styles.floorSummaryValue}>₹{estimate.terrace_total?.toLocaleString('en-IN')}</Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Legacy Estimate Notice */}
+        {!estimate.is_floor_wise && (
+          <View style={styles.legacyNotice}>
+            <Ionicons name="information-circle" size={20} color={Colors.info} />
+            <Text style={styles.legacyNoticeText}>
+              This is a legacy estimate. Create a new estimate to use floor-wise breakdown features.
+            </Text>
+          </View>
+        )}
+
         {/* BOQ Categories */}
         <View style={styles.boqSection}>
           <Text style={styles.sectionTitle}>Bill of Quantities (BOQ)</Text>
-          <Text style={styles.sectionSubtitle}>{estimate.lines.length} line items</Text>
+          <Text style={styles.sectionSubtitle}>{estimate.lines?.length || 0} line items</Text>
 
           {categories.map((category) => {
             const lines = groupedLines[category];
