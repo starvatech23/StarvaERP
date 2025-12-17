@@ -257,23 +257,40 @@ export default function DashboardScreen() {
         {/* Tasks */}
         {stats?.tasks && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Tasks Overview</Text>
+            <TouchableOpacity 
+              style={styles.sectionHeaderLink}
+              onPress={() => router.push('/tasks' as any)}
+            >
+              <Text style={styles.sectionTitle}>Tasks Overview</Text>
+              <View style={styles.sectionLinkIcon}>
+                <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
+              </View>
+            </TouchableOpacity>
             <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}>
+              <TouchableOpacity 
+                style={[styles.statCard, { backgroundColor: Colors.info + '20' }]}
+                onPress={() => router.push('/tasks' as any)}
+              >
                 <Ionicons name="list" size={28} color={Colors.info} />
                 <Text style={styles.statValue}>{stats.tasks.total}</Text>
                 <Text style={styles.statLabel}>Total Tasks</Text>
-              </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.warning + '20' }]}>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.statCard, { backgroundColor: Colors.warning + '20' }]}
+                onPress={() => router.push('/tasks?filter=pending' as any)}
+              >
                 <Ionicons name="time" size={28} color={Colors.warning} />
                 <Text style={styles.statValue}>{stats.tasks.my_pending}</Text>
                 <Text style={styles.statLabel}>My Pending</Text>
-              </View>
-              <View style={[styles.statCard, { backgroundColor: Colors.error + '20' }]}>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.statCard, { backgroundColor: Colors.error + '20' }]}
+                onPress={() => router.push('/tasks?filter=overdue' as any)}
+              >
                 <Ionicons name="alert-circle" size={28} color={Colors.error} />
                 <Text style={styles.statValue}>{stats.tasks.overdue || 0}</Text>
                 <Text style={styles.statLabel}>Overdue</Text>
-              </View>
+              </TouchableOpacity>
             </View>
             <View style={styles.progressCard}>
               <View style={styles.progressHeader}>
