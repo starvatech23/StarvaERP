@@ -182,10 +182,13 @@ export default function DashboardScreen() {
             <Text style={styles.greeting}>Welcome back,</Text>
             <Text style={styles.name}>{stats?.user?.name || 'User'}</Text>
           </View>
-          <View style={[styles.roleBadge, { backgroundColor: getRoleColor(user?.role || '') + '30' }]}>
-            <Text style={[styles.roleText, { color: getRoleColor(user?.role || '') }]}>
-              {getRoleLabel(user?.role || '')}
-            </Text>
+          <View style={styles.headerActions}>
+            <NotificationBell />
+            <View style={[styles.roleBadge, { backgroundColor: getRoleColor(user?.role || '') + '30' }]}>
+              <Text style={[styles.roleText, { color: getRoleColor(user?.role || '') }]}>
+                {getRoleLabel(user?.role || '')}
+              </Text>
+            </View>
           </View>
         </View>
 
