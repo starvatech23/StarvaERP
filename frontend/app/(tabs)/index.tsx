@@ -431,11 +431,22 @@ export default function DashboardScreen() {
         {/* Business Insights - Finance Overview */}
         {stats?.finance && hasPermission('finance') && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>💰 Financial Overview</Text>
+            <TouchableOpacity 
+              style={styles.sectionHeaderLink}
+              onPress={() => router.push('/finance' as any)}
+            >
+              <Text style={styles.sectionTitle}>💰 Financial Overview</Text>
+              <View style={styles.sectionLinkIcon}>
+                <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
+              </View>
+            </TouchableOpacity>
             
             {/* Payables & Receivables */}
             <View style={styles.financeCards}>
-              <View style={[styles.financeCard, { borderLeftColor: '#EF4444' }]}>
+              <TouchableOpacity 
+                style={[styles.financeCard, { borderLeftColor: '#EF4444' }]}
+                onPress={() => router.push('/finance/payables' as any)}
+              >
                 <View style={styles.financeCardHeader}>
                   <Ionicons name="arrow-up-circle" size={24} color="#EF4444" />
                   <Text style={styles.financeCardTitle}>Payables</Text>
@@ -449,9 +460,12 @@ export default function DashboardScreen() {
                     </Text>
                   </View>
                 )}
-              </View>
+              </TouchableOpacity>
               
-              <View style={[styles.financeCard, { borderLeftColor: '#10B981' }]}>
+              <TouchableOpacity 
+                style={[styles.financeCard, { borderLeftColor: '#10B981' }]}
+                onPress={() => router.push('/finance/receivables' as any)}
+              >
                 <View style={styles.financeCardHeader}>
                   <Ionicons name="arrow-down-circle" size={24} color="#10B981" />
                   <Text style={styles.financeCardTitle}>Receivables</Text>
@@ -465,11 +479,14 @@ export default function DashboardScreen() {
                     </Text>
                   </View>
                 )}
-              </View>
+              </TouchableOpacity>
             </View>
 
             {/* Monthly Summary */}
-            <View style={styles.monthlySummary}>
+            <TouchableOpacity 
+              style={styles.monthlySummary}
+              onPress={() => router.push('/finance/expenses' as any)}
+            >
               <Text style={styles.monthlySummaryTitle}>This Month</Text>
               <View style={styles.monthlySummaryRow}>
                 <View style={styles.monthlySummaryItem}>
@@ -495,7 +512,7 @@ export default function DashboardScreen() {
                   </Text>
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
           </View>
         )}
 
