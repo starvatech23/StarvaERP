@@ -1,292 +1,399 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Script for Receipt APIs
-Tests the new Receipt APIs in /app/backend/server.py
+Backend API Testing for Project Management Template APIs
+Tests the new Project Management Template endpoints in server.py
 """
 
 import requests
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
-# Configuration
-BASE_URL = "https://labourmanage.preview.emergentagent.com/api"
+# Get backend URL from frontend .env
+BACKEND_URL = "https://labourmanage.preview.emergentagent.com/api"
+
+# Test credentials
 ADMIN_EMAIL = "admin@test.com"
 ADMIN_PASSWORD = "admin123"
 
-class ReceiptAPITester:
+class ProjectTemplateAPITester:
     def __init__(self):
         self.session = requests.Session()
         self.access_token = None
-        self.test_results = []
+        self.project_id = None
+        self.task_id = None
         
-    def log_result(self, test_name, success, message, details=None):
-        """Log test result"""
-        result = {
-            "test": test_name,
-            "success": success,
-            "message": message,
-            "details": details,
-            "timestamp": datetime.now().isoformat()
+    def login(self):
+        """Login with admin credentials"""
+        print("🔐 Logging in as admin...")
+        
+        login_data = {
+            "identifier": ADMIN_EMAIL,
+            "password": ADMIN_PASSWORD,
+            "auth_type": "email"
         }
-        self.test_results.append(result)
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status}: {test_name} - {message}")
-        if details and not success:
-            print(f"   Details: {details}")
-    
-    def authenticate(self):
-        """Authenticate with admin credentials"""
+        
         try:
-            auth_data = {
-                "identifier": ADMIN_EMAIL,
-                "password": ADMIN_PASSWORD,
-                "auth_type": "email"
-            }
-            
-            response = self.session.post(f"{BASE_URL}/auth/login", json=auth_data)
+            response = self.session.post(f"{BACKEND_URL}/auth/login", json=login_data)
+            print(f"Login response status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
                 self.access_token = data.get("access_token")
-                self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
-                self.log_result("Authentication", True, f"Successfully logged in as {ADMIN_EMAIL}")
-                return True
+                if self.access_token:
+                    self.session.headers.update({
+                        "Authorization": f"Bearer {self.access_token}"
+                    })
+                    print("✅ Login successful")
+                    return True
+                else:
+                    print("❌ No access token in response")
+                    return False
             else:
-                self.log_result("Authentication", False, f"Login failed: {response.status_code}", response.text)
+                print(f"❌ Login failed: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_result("Authentication", False, f"Authentication error: {str(e)}")
+            print(f"❌ Login error: {str(e)}")
             return False
     
-    def get_paid_payments(self):
-        """Get list of paid payments to find valid payment_id for testing"""
+    def test_get_milestone_templates(self):
+        """Test GET /api/templates/milestones"""
+        print("\n📋 Testing GET /api/templates/milestones...")
+        
         try:
-            response = self.session.get(f"{BASE_URL}/labour/payments")
+            response = self.session.get(f"{BACKEND_URL}/templates/milestones")
+            print(f"Response status: {response.status_code}")
             
             if response.status_code == 200:
-                payments = response.json()
-                paid_payments = [p for p in payments if p.get("status") == "paid"]
-                non_paid_payments = [p for p in payments if p.get("status") != "paid"]
+                data = response.json()
+                print(f"✅ Milestone templates retrieved successfully")
+                print(f"   Number of milestone templates: {len(data)}")
                 
-                self.log_result("Get Paid Payments", True, 
-                              f"Found {len(paid_payments)} paid payments out of {len(payments)} total payments")
+                # Verify expected milestones
+                expected_milestones = ["Preplanning", "Construction Phase - Structure", 
+                                     "Construction Phase - Finishing", "Finishing Phase 1", 
+                                     "Finishing Phase 2 - Handover"]
                 
-                result = {
-                    "paid": paid_payments[0] if paid_payments else None,
-                    "non_paid": non_paid_payments[0] if non_paid_payments else None
-                }
-                return result
+                milestone_names = [m.get("name") for m in data]
+                print(f"   Milestone names: {milestone_names}")
+                
+                # Check if we have 5 milestones as expected
+                if len(data) == 5:
+                    print("✅ Correct number of milestones (5)")
+                else:
+                    print(f"⚠️  Expected 5 milestones, got {len(data)}")
+                
+                # Check structure milestone has tasks
+                structure_milestone = next((m for m in data if "Structure" in m.get("name", "")), None)
+                if structure_milestone and structure_milestone.get("tasks"):
+                    print(f"✅ Structure milestone has {len(structure_milestone['tasks'])} tasks")
+                else:
+                    print("❌ Structure milestone missing or has no tasks")
+                
+                return True
             else:
-                self.log_result("Get Paid Payments", False, f"Failed to get payments: {response.status_code}", response.text)
-                return None
+                print(f"❌ Failed to get milestone templates: {response.text}")
+                return False
                 
         except Exception as e:
-            self.log_result("Get Paid Payments", False, f"Error getting payments: {str(e)}")
-            return None
+            print(f"❌ Error testing milestone templates: {str(e)}")
+            return False
     
-    def test_payment_receipt_api(self, payment_id, expected_status="paid"):
-        """Test GET /api/labour/payments/{payment_id}/receipt"""
+    def test_get_labour_rates(self):
+        """Test GET /api/templates/labour-rates"""
+        print("\n💰 Testing GET /api/templates/labour-rates...")
+        
         try:
-            response = self.session.get(f"{BASE_URL}/labour/payments/{payment_id}/receipt")
+            response = self.session.get(f"{BACKEND_URL}/templates/labour-rates")
+            print(f"Response status: {response.status_code}")
             
             if response.status_code == 200:
-                receipt_data = response.json()
+                data = response.json()
+                print(f"✅ Labour rates retrieved successfully")
+                print(f"   Number of skill types: {len(data)}")
                 
-                # Verify required fields are present
-                required_fields = ["worker_name", "amount", "project_name", "paid_by", "approved_by", "paid_at"]
-                missing_fields = [field for field in required_fields if field not in receipt_data]
+                # Check for expected skill types
+                expected_skills = ["mason", "carpenter", "electrician", "plumber", "steel_fixer", 
+                                 "painter", "welder", "helper", "operator", "surveyor"]
                 
-                if missing_fields:
-                    self.log_result("Payment Receipt API - Field Validation", False, 
-                                  f"Missing required fields: {missing_fields}", receipt_data)
-                else:
-                    self.log_result("Payment Receipt API", True, 
-                                  f"Receipt retrieved successfully for payment {payment_id}")
-                    self.log_result("Receipt Data Validation", True, 
-                                  f"Worker: {receipt_data['worker_name']}, Amount: ₹{receipt_data['amount']}, Project: {receipt_data['project_name']}")
+                skill_types = list(data.keys())
+                print(f"   Available skills: {skill_types}")
                 
-                return receipt_data
-                
-            elif response.status_code == 400:
-                # Expected error for non-paid payments
-                error_data = response.json()
-                if expected_status != "paid":
-                    self.log_result("Payment Receipt API - Non-Paid Payment", True, 
-                                  f"Correctly returned error for non-paid payment: {error_data.get('detail')}")
-                else:
-                    self.log_result("Payment Receipt API", False, 
-                                  f"Unexpected 400 error: {error_data.get('detail')}")
-                return None
-                
-            elif response.status_code == 404:
-                self.log_result("Payment Receipt API", False, f"Payment not found: {payment_id}")
-                return None
-                
-            else:
-                self.log_result("Payment Receipt API", False, 
-                              f"Unexpected response: {response.status_code}", response.text)
-                return None
-                
-        except Exception as e:
-            self.log_result("Payment Receipt API", False, f"Error testing receipt API: {str(e)}")
-            return None
-    
-    def test_worker_receipts_api(self, worker_id):
-        """Test GET /api/labour/workers/{worker_id}/receipts"""
-        try:
-            response = self.session.get(f"{BASE_URL}/labour/workers/{worker_id}/receipts")
-            
-            if response.status_code == 200:
-                receipts_data = response.json()
-                
-                # Verify required fields are present
-                required_fields = ["worker_id", "worker_name", "total_receipts", "total_paid", "receipts"]
-                missing_fields = [field for field in required_fields if field not in receipts_data]
-                
-                if missing_fields:
-                    self.log_result("Worker Receipts API - Field Validation", False, 
-                                  f"Missing required fields: {missing_fields}", receipts_data)
-                else:
-                    total_receipts = receipts_data["total_receipts"]
-                    total_paid = receipts_data["total_paid"]
-                    worker_name = receipts_data["worker_name"]
-                    
-                    self.log_result("Worker Receipts API", True, 
-                                  f"Worker receipts retrieved successfully for {worker_name}")
-                    self.log_result("Worker Receipts Summary", True, 
-                                  f"Total receipts: {total_receipts}, Total paid: ₹{total_paid}")
-                    
-                    # Validate individual receipt structure
-                    if receipts_data["receipts"]:
-                        sample_receipt = receipts_data["receipts"][0]
-                        receipt_required_fields = ["payment_id", "project_name", "amount", "paid_at", "paid_by"]
-                        receipt_missing_fields = [field for field in receipt_required_fields if field not in sample_receipt]
-                        
-                        if receipt_missing_fields:
-                            self.log_result("Individual Receipt Validation", False, 
-                                          f"Missing fields in receipt: {receipt_missing_fields}", sample_receipt)
-                        else:
-                            self.log_result("Individual Receipt Validation", True, 
-                                          f"Receipt structure valid: {sample_receipt['project_name']}, ₹{sample_receipt['amount']}")
+                # Verify rates structure
+                for skill, rate_info in data.items():
+                    if "daily_rate" in rate_info and "description" in rate_info:
+                        print(f"   {skill}: ₹{rate_info['daily_rate']}/day - {rate_info['description']}")
                     else:
-                        self.log_result("Worker Receipts - Empty List", True, 
-                                      f"No receipts found for worker {worker_name} (valid response)")
+                        print(f"❌ Invalid rate structure for {skill}")
+                        return False
                 
-                return receipts_data
-                
-            elif response.status_code == 404:
-                self.log_result("Worker Receipts API", False, f"Worker not found: {worker_id}")
-                return None
-                
+                print("✅ All labour rates have correct structure")
+                return True
             else:
-                self.log_result("Worker Receipts API", False, 
-                              f"Unexpected response: {response.status_code}", response.text)
-                return None
+                print(f"❌ Failed to get labour rates: {response.text}")
+                return False
                 
         except Exception as e:
-            self.log_result("Worker Receipts API", False, f"Error testing worker receipts API: {str(e)}")
+            print(f"❌ Error testing labour rates: {str(e)}")
+            return False
+    
+    def test_create_project_with_templates(self):
+        """Test POST /api/projects/create-with-templates"""
+        print("\n🏗️  Testing POST /api/projects/create-with-templates...")
+        
+        project_data = {
+            "name": "Test Villa Project",
+            "client_name": "Test Client",
+            "number_of_floors": 2,
+            "planned_start_date": "2025-01-01T00:00:00Z",
+            "total_built_area": 2000,
+            "building_type": "residential",
+            "description": "Test project created via templates API",
+            "location": "Test Location"
+        }
+        
+        try:
+            response = self.session.post(f"{BACKEND_URL}/projects/create-with-templates", json=project_data)
+            print(f"Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.project_id = data.get("project_id")
+                
+                print(f"✅ Project created successfully")
+                print(f"   Project ID: {self.project_id}")
+                print(f"   Project Code: {data.get('project_code')}")
+                print(f"   Milestones created: {data.get('milestones_created')}")
+                print(f"   Tasks created: {data.get('tasks_created')}")
+                print(f"   Total planned cost: ₹{data.get('total_planned_cost', 0):,.2f}")
+                print(f"   Planned start: {data.get('planned_start_date')}")
+                print(f"   Planned end: {data.get('planned_end_date')}")
+                
+                # Verify expected counts
+                if data.get("milestones_created") >= 5:  # Should be more due to floor-based milestones
+                    print("✅ Expected number of milestones created")
+                else:
+                    print(f"⚠️  Expected at least 5 milestones, got {data.get('milestones_created')}")
+                
+                if data.get("tasks_created") > 0:
+                    print("✅ Tasks created successfully")
+                else:
+                    print("❌ No tasks created")
+                
+                return True
+            else:
+                print(f"❌ Failed to create project with templates: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Error testing project creation with templates: {str(e)}")
+            return False
+    
+    def test_get_budget_summary(self):
+        """Test GET /api/projects/{project_id}/budget-summary"""
+        if not self.project_id:
+            print("❌ No project ID available for budget summary test")
+            return False
+            
+        print(f"\n💼 Testing GET /api/projects/{self.project_id}/budget-summary...")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/projects/{self.project_id}/budget-summary")
+            print(f"Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ Budget summary retrieved successfully")
+                print(f"   Project: {data.get('project_name')}")
+                
+                # Check labour costs
+                labour = data.get("labour", {})
+                print(f"   Labour - Planned: ₹{labour.get('planned', 0):,.2f}, Actual: ₹{labour.get('actual', 0):,.2f}")
+                
+                # Check material costs
+                material = data.get("material", {})
+                print(f"   Material - Planned: ₹{material.get('planned', 0):,.2f}, Actual: ₹{material.get('actual', 0):,.2f}")
+                
+                # Check total costs
+                total = data.get("total", {})
+                print(f"   Total - Planned: ₹{total.get('planned', 0):,.2f}, Actual: ₹{total.get('actual', 0):,.2f}")
+                
+                # Check milestones breakdown
+                milestones = data.get("milestones", [])
+                print(f"   Milestones breakdown: {len(milestones)} milestones")
+                
+                for ms in milestones[:3]:  # Show first 3 milestones
+                    print(f"     - {ms.get('milestone_name')}: ₹{ms.get('total_planned', 0):,.2f} planned")
+                
+                return True
+            else:
+                print(f"❌ Failed to get budget summary: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Error testing budget summary: {str(e)}")
+            return False
+    
+    def test_get_deviation_report(self):
+        """Test GET /api/projects/{project_id}/deviation-report"""
+        if not self.project_id:
+            print("❌ No project ID available for deviation report test")
+            return False
+            
+        print(f"\n📊 Testing GET /api/projects/{self.project_id}/deviation-report...")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/projects/{self.project_id}/deviation-report")
+            print(f"Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ Deviation report retrieved successfully")
+                print(f"   Project: {data.get('project_name')}")
+                print(f"   Total deviations: {data.get('total_deviations', 0)}")
+                print(f"   High severity: {data.get('high_severity_count', 0)}")
+                print(f"   Medium severity: {data.get('medium_severity_count', 0)}")
+                print(f"   Low severity: {data.get('low_severity_count', 0)}")
+                
+                # Check schedule deviations
+                schedule_devs = data.get("schedule_deviations", [])
+                print(f"   Schedule deviations: {len(schedule_devs)}")
+                
+                # Check cost deviations
+                cost_devs = data.get("cost_deviations", [])
+                print(f"   Cost deviations: {len(cost_devs)}")
+                
+                return True
+            else:
+                print(f"❌ Failed to get deviation report: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Error testing deviation report: {str(e)}")
+            return False
+    
+    def get_first_task_id(self):
+        """Get the first task ID from the created project"""
+        if not self.project_id:
+            return None
+            
+        try:
+            response = self.session.get(f"{BACKEND_URL}/tasks?project_id={self.project_id}")
+            if response.status_code == 200:
+                tasks = response.json()
+                if tasks:
+                    self.task_id = tasks[0].get("id")
+                    print(f"   Found task ID: {self.task_id} ({tasks[0].get('title')})")
+                    return self.task_id
+            return None
+        except:
             return None
     
-    def test_receipt_apis_comprehensive(self):
-        """Run comprehensive tests for Receipt APIs"""
-        print("🧪 Starting Receipt APIs Testing...")
-        print("=" * 60)
-        
-        # Step 1: Authenticate
-        if not self.authenticate():
+    def test_get_task_labour_estimates(self):
+        """Test GET /api/tasks/{task_id}/labour-estimates"""
+        if not self.task_id:
+            self.get_first_task_id()
+            
+        if not self.task_id:
+            print("❌ No task ID available for labour estimates test")
             return False
+            
+        print(f"\n👷 Testing GET /api/tasks/{self.task_id}/labour-estimates...")
         
-        # Step 2: Get payments to find valid test data
-        payments_data = self.get_paid_payments()
-        if not payments_data:
-            self.log_result("Test Setup", False, "No payments available for testing")
+        try:
+            response = self.session.get(f"{BACKEND_URL}/tasks/{self.task_id}/labour-estimates")
+            print(f"Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ Task labour estimates retrieved successfully")
+                print(f"   Number of labour estimates: {len(data)}")
+                
+                for estimate in data:
+                    skill_type = estimate.get("skill_type")
+                    planned_workers = estimate.get("planned_workers", 0)
+                    planned_hours = estimate.get("planned_hours", 0)
+                    planned_cost = estimate.get("planned_cost", 0)
+                    
+                    print(f"   - {skill_type}: {planned_workers} workers, {planned_hours} hours, ₹{planned_cost:,.2f}")
+                
+                return True
+            else:
+                print(f"❌ Failed to get task labour estimates: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Error testing task labour estimates: {str(e)}")
             return False
-        
-        paid_payment = payments_data.get("paid")
-        non_paid_payment = payments_data.get("non_paid")
-        
-        # Step 3: Test with paid payment
-        if paid_payment:
-            payment_id = paid_payment.get("id")
-            worker_id = paid_payment.get("worker_id")
-            payment_status = paid_payment.get("status")
-            
-            print(f"\n📋 Testing with Paid Payment:")
-            print(f"   Payment ID: {payment_id}")
-            print(f"   Worker ID: {worker_id}")
-            print(f"   Payment Status: {payment_status}")
-            print()
-            
-            # Test Payment Receipt API
-            print("🔍 Testing Payment Receipt API (Paid Payment)...")
-            receipt_data = self.test_payment_receipt_api(payment_id, payment_status)
-            
-            # Test Worker Receipts API
-            if worker_id:
-                print("\n🔍 Testing Worker Receipts API...")
-                worker_receipts = self.test_worker_receipts_api(worker_id)
-        else:
-            self.log_result("Paid Payment Test", False, "No paid payments available for testing")
-        
-        # Step 4: Test with non-paid payment (should return error)
-        if non_paid_payment:
-            non_paid_id = non_paid_payment.get("id")
-            non_paid_status = non_paid_payment.get("status")
-            
-            print(f"\n📋 Testing with Non-Paid Payment:")
-            print(f"   Payment ID: {non_paid_id}")
-            print(f"   Payment Status: {non_paid_status}")
-            print()
-            
-            print("🔍 Testing Payment Receipt API (Non-Paid Payment - Should Return Error)...")
-            self.test_payment_receipt_api(non_paid_id, non_paid_status)
-        else:
-            self.log_result("Non-Paid Payment Test", True, "No non-paid payments available (all payments are paid)")
-        
-        return True
     
-    def print_summary(self):
-        """Print test summary"""
-        print("\n" + "=" * 60)
-        print("📊 TEST SUMMARY")
+    def run_all_tests(self):
+        """Run all Project Management Template API tests"""
+        print("🚀 Starting Project Management Template API Tests")
         print("=" * 60)
         
-        total_tests = len(self.test_results)
-        passed_tests = len([r for r in self.test_results if r["success"]])
-        failed_tests = total_tests - passed_tests
+        # Login first
+        if not self.login():
+            print("❌ Cannot proceed without authentication")
+            return False
         
-        print(f"Total Tests: {total_tests}")
-        print(f"Passed: {passed_tests} ✅")
-        print(f"Failed: {failed_tests} ❌")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        # Test results
+        results = []
         
-        if failed_tests > 0:
-            print("\n❌ FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"   • {result['test']}: {result['message']}")
+        # Test 1: Get Milestone Templates
+        results.append(("Get Milestone Templates", self.test_get_milestone_templates()))
         
+        # Test 2: Get Labour Rates
+        results.append(("Get Labour Rates", self.test_get_labour_rates()))
+        
+        # Test 3: Create Project With Templates
+        results.append(("Create Project With Templates", self.test_create_project_with_templates()))
+        
+        # Test 4: Get Budget Summary
+        results.append(("Get Budget Summary", self.test_get_budget_summary()))
+        
+        # Test 5: Get Deviation Report
+        results.append(("Get Deviation Report", self.test_get_deviation_report()))
+        
+        # Test 6: Get Task Labour Estimates
+        results.append(("Get Task Labour Estimates", self.test_get_task_labour_estimates()))
+        
+        # Summary
         print("\n" + "=" * 60)
+        print("📋 TEST SUMMARY")
+        print("=" * 60)
+        
+        passed = 0
+        failed = 0
+        
+        for test_name, result in results:
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{status} - {test_name}")
+            if result:
+                passed += 1
+            else:
+                failed += 1
+        
+        print(f"\nTotal Tests: {len(results)}")
+        print(f"Passed: {passed}")
+        print(f"Failed: {failed}")
+        print(f"Success Rate: {(passed/len(results)*100):.1f}%")
+        
+        if failed == 0:
+            print("\n🎉 ALL TESTS PASSED! Project Management Template APIs are working correctly.")
+        else:
+            print(f"\n⚠️  {failed} test(s) failed. Please check the issues above.")
+        
+        return failed == 0
 
 def main():
-    """Main test execution"""
-    tester = ReceiptAPITester()
+    """Main function to run the tests"""
+    tester = ProjectTemplateAPITester()
+    success = tester.run_all_tests()
     
-    try:
-        success = tester.test_receipt_apis_comprehensive()
-        tester.print_summary()
-        
-        # Return appropriate exit code
-        failed_tests = len([r for r in tester.test_results if not r["success"]])
-        sys.exit(0 if failed_tests == 0 else 1)
-        
-    except KeyboardInterrupt:
-        print("\n\n⚠️  Testing interrupted by user")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n\n💥 Unexpected error during testing: {str(e)}")
+    if success:
+        sys.exit(0)
+    else:
         sys.exit(1)
 
 if __name__ == "__main__":
