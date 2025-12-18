@@ -98,9 +98,9 @@ class BackendTester:
         response = self.make_request("POST", "/projects/create-with-templates", 
                                    project_data, auth_token=self.admin_token)
         
-        if response.status_code == 201:
+        if response.status_code == 200:
             data = response.json()
-            self.test_project_id = data.get("id")
+            self.test_project_id = data.get("project_id")
             self.test_project_code = data.get("project_code")
             self.test_client_contact = test_phone
             
