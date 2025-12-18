@@ -394,6 +394,8 @@ export default function LaborScreen() {
                       if (response.data?.receipt) {
                         setReceiptData(response.data.receipt);
                         setShowReceipt(true);
+                        // Schedule screenshot capture after modal is fully visible
+                        setTimeout(() => captureAndUploadReceipt(response.data.receipt.payment_id), 500);
                       } else {
                         Alert.alert('Success', 'Payment marked as paid');
                       }
@@ -410,6 +412,30 @@ export default function LaborScreen() {
         },
       ]
     );
+  };
+
+  const captureAndUploadReceipt = async (paymentId: string) => {
+    if (!receiptRef.current) return;
+    
+    try {
+      setUploadingReceipt(true);
+      
+      // Capture the receipt modal as base64 image
+      const uri = await captureRef(receiptRef, {
+        format: 'png',
+        quality: 0.8,
+        result: 'base64',
+      });
+      
+      // Upload to backend
+      await weeklyPaymentsAPI.uploadReceipt(paymentId, `data:image/png;base64,${uri}`);
+      console.log('Receipt uploaded successfully');
+    } catch (error) {
+      console.error('Error capturing receipt:', error);
+      // Don't show alert as this is a background operation
+    } finally {
+      setUploadingReceipt(false);
+    }
   };
 
   const renderPayments = () => {
