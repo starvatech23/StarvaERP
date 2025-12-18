@@ -13524,6 +13524,8 @@ async def create_project_with_templates(
         raise HTTPException(status_code=400, detail="Project name is required")
     
     client_name = project_data.get("client_name", "")
+    client_contact = project_data.get("client_contact", "")
+    client_email = project_data.get("client_email", "")
     number_of_floors = project_data.get("number_of_floors", 1)
     planned_start_date_str = project_data.get("planned_start_date")
     total_built_area = project_data.get("total_built_area", 0)
