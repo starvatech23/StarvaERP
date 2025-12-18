@@ -700,6 +700,52 @@ const styles = StyleSheet.create({
     color: '#A0AEC0',
     textAlign: 'center',
   },
+  // Updates styles
+  updateCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  updateHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  updateIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  updateInfo: {
+    flex: 1,
+  },
+  updateTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  updateMeta: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  updateContent: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    lineHeight: 20,
+  },
   // Chat styles
   chatContainer: {
     flex: 1,
