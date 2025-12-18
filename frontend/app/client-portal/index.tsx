@@ -61,7 +61,7 @@ export default function ClientPortalIndexScreen() {
           }
         });
       } else {
-        Alert.alert('Login Failed', data.detail || 'Invalid credentials. Please check your Project ID and mobile number.');
+        Alert.alert('Login Failed', data.detail || 'Invalid credentials. Please check your Project Code and mobile number.');
       }
     } catch (error) {
       console.error('Login error:', error);
