@@ -705,4 +705,52 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.primary,
   },
+  createMenu: {
+    backgroundColor: Colors.surface,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  createMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    gap: 12,
+  },
+  createMenuText: {
+    flex: 1,
+  },
+  createMenuTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  createMenuSubtitle: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  createMenuDivider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginHorizontal: 8,
+  },
+  recommendedBadge: {
+    backgroundColor: Colors.secondary + '20',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  recommendedText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: Colors.secondary,
+  },
 });
