@@ -212,7 +212,8 @@ class LabourPaymentAPITester:
                 
                 if projects_data:
                     project = projects_data[0]
-                    print(f"   📝 Sample project: {project['project_name']} - Workers: {len(project['total_workers'])}, Total: ₹{project['total_net']}")
+                    worker_count = len(project['total_workers']) if isinstance(project['total_workers'], (list, set)) else 0
+                    print(f"   📝 Sample project: {project['project_name']} - Workers: {worker_count}, Total: ₹{project['total_net']}")
                 
                 return True
             else:
