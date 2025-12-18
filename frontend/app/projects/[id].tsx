@@ -654,6 +654,17 @@ export default function ProjectDetailsScreen() {
               <Text style={styles.quickActionLabel}>Documents</Text>
               <Text style={styles.quickActionSubtext}>Files & docs</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
+              onPress={() => router.push(`/projects/${id}/budget` as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#D1FAE5' }]}>
+                <Ionicons name="wallet" size={24} color="#059669" />
+              </View>
+              <Text style={styles.quickActionLabel}>Budget</Text>
+              <Text style={styles.quickActionSubtext}>Costs & Deviations</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
