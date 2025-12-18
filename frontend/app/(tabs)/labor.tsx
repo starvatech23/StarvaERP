@@ -30,6 +30,8 @@ export default function LaborScreen() {
   const [paymentView, setPaymentView] = useState<'worker' | 'project'>('worker');
   const [generating, setGenerating] = useState(false);
   const [paymentSummary, setPaymentSummary] = useState<any>(null);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedWorker, setSelectedWorker] = useState<any>(null);
