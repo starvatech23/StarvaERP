@@ -336,13 +336,13 @@ class LabourPaymentAPITester:
             # Create a simple base64 encoded image (1x1 pixel PNG)
             sample_image_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
             
-            payload = {
+            params = {
                 "receipt_image": sample_image_base64
             }
             
             response = requests.post(
                 f"{BASE_URL}/labour/payments/{self.test_payment_id}/upload-receipt",
-                json=payload,
+                params=params,
                 headers=self.get_headers(self.admin_token)
             )
             
