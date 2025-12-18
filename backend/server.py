@@ -591,30 +591,31 @@ async def get_project(
 
 
 async def generate_project_code() -> str:
-    """Generate unique project code in format: STC-MMYY-XXXXX"""
+    """Generate unique project code in format: SCMMYY123456 (SC + MMYY + 6 digits)"""
     now = datetime.utcnow()
     month_year = now.strftime("%m%y")  # e.g., "1225" for December 2025
-    prefix = f"STC-{month_year}"
+    prefix = f"SC{month_year}"
     
     # Find the highest sequence number for this month/year
-    pattern = f"^{prefix}-"
+    pattern = f"^{prefix}"
     last_project = await db.projects.find_one(
         {"project_code": {"$regex": pattern}},
         sort=[("project_code", -1)]
     )
     
     if last_project and last_project.get("project_code"):
-        # Extract the sequence number from the last code
+        # Extract the sequence number from the last code (last 6 digits)
         try:
-            last_seq = int(last_project["project_code"].split("-")[-1])
+            last_code = last_project["project_code"]
+            last_seq = int(last_code[-6:])  # Get last 6 digits
             next_seq = last_seq + 1
         except:
             next_seq = 1
     else:
         next_seq = 1
     
-    # Format: STC-MMYY-XXXXX (5 digit sequence)
-    return f"{prefix}-{next_seq:05d}"
+    # Format: SCMMYY123456 (SC + MMYY + 6 digit sequence)
+    return f"{prefix}{next_seq:06d}"
 
 
 @api_router.post("/projects", response_model=ProjectResponse)
