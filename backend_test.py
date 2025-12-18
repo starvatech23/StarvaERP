@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://site-materials-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://labourmanage.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "identifier": "crm.manager@test.com",
     "password": "manager123",
