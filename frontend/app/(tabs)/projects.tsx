@@ -28,6 +28,7 @@ export default function ProjectsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('date');
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showCreateMenu, setShowCreateMenu] = useState(false);
 
   const canCreateProject = user?.role === 'admin' || user?.role === 'project_manager';
 
