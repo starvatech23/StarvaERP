@@ -3144,6 +3144,46 @@ async def verify_payment_otp(
         "receipt": receipt_data
     }
 
+@api_router.post("/labour/payments/{payment_id}/upload-receipt")
+async def upload_payment_receipt(
+    payment_id: str,
+    receipt_image: str,  # Base64 encoded image
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Upload receipt screenshot and attach to manager notification"""
+    current_user = await get_current_user(credentials)
+    
+    payment = await db.weekly_payments.find_one({"_id": ObjectId(payment_id)})
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    if payment.get("status") != "paid":
+        raise HTTPException(status_code=400, detail="Receipt can only be uploaded for paid payments")
+    
+    # Store the receipt image in the payment record
+    await db.weekly_payments.update_one(
+        {"_id": ObjectId(payment_id)},
+        {"$set": {
+            "receipt_image": receipt_image,
+            "receipt_uploaded_at": datetime.utcnow(),
+            "receipt_uploaded_by": str(current_user["_id"])
+        }}
+    )
+    
+    # Update all notifications for this payment to include the receipt image
+    await db.notifications.update_many(
+        {"data.payment_id": payment_id, "type": "payment_completed"},
+        {"$set": {
+            "data.receipt_image": receipt_image,
+            "data.has_receipt": True
+        }}
+    )
+    
+    return {
+        "success": True,
+        "message": "Receipt uploaded and managers notified"
+    }
+
 @api_router.get("/labour/payments/weekly-summary")
 async def get_weekly_payment_summary(
     credentials: HTTPAuthorizationCredentials = Depends(security),
