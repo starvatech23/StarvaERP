@@ -347,6 +347,40 @@ export default function CreateProjectWithTemplates() {
           </View>
         </View>
 
+        {/* Client Portal Access Section */}
+        <View style={styles.clientPortalSection}>
+          <View style={styles.clientPortalHeader}>
+            <Ionicons name="key" size={20} color={Colors.secondary} />
+            <Text style={styles.clientPortalTitle}>Client Portal Access</Text>
+          </View>
+          <Text style={styles.clientPortalSubtitle}>
+            Share project access with your client
+          </Text>
+          
+          <TouchableOpacity 
+            style={styles.sendCredentialsBtn}
+            onPress={() => router.push(`/projects/${creationResult?.project_id}/share-access` as any)}
+          >
+            <Ionicons name="send" size={18} color="#FFF" />
+            <Text style={styles.sendCredentialsBtnText}>Send Client Credentials</Text>
+          </TouchableOpacity>
+          
+          <View style={styles.credentialChannels}>
+            <View style={styles.channelBadge}>
+              <Ionicons name="logo-whatsapp" size={14} color="#25D366" />
+              <Text style={styles.channelText}>WhatsApp</Text>
+            </View>
+            <View style={styles.channelBadge}>
+              <Ionicons name="chatbubble" size={14} color="#3B82F6" />
+              <Text style={styles.channelText}>SMS</Text>
+            </View>
+            <View style={styles.channelBadge}>
+              <Ionicons name="mail" size={14} color="#EF4444" />
+              <Text style={styles.channelText}>Email</Text>
+            </View>
+          </View>
+        </View>
+
         <TouchableOpacity 
           style={styles.viewProjectBtn}
           onPress={() => router.push(`/projects/${creationResult?.project_id}`)}
