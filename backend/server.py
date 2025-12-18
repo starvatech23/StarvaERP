@@ -8751,6 +8751,178 @@ async def verify_client_token(token: str):
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
+@api_router.post("/projects/{project_id}/send-client-credentials")
+async def send_client_portal_credentials(
+    project_id: str,
+    send_options: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Send client portal access credentials via WhatsApp, SMS, and/or Email.
+    
+    send_options:
+    - send_whatsapp: bool
+    - send_sms: bool
+    - send_email: bool
+    - client_phone: str (optional, overrides project's client_contact)
+    - client_email: str (optional)
+    - custom_message: str (optional)
+    """
+    current_user = await get_current_user(credentials)
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Get client contact info
+    client_phone = send_options.get("client_phone") or project.get("client_contact") or project.get("client_phone")
+    client_email = send_options.get("client_email") or project.get("client_email")
+    client_name = project.get("client_name", "Client")
+    project_name = project.get("name", "Project")
+    
+    # Generate client portal link
+    base_url = "https://labourmanage.preview.emergentagent.com"
+    portal_link = f"{base_url}/client-portal/?projectId={project_id}"
+    
+    # Create credential message
+    message = f"""
+🏗️ *{project_name}* - Client Portal Access
+
+Dear {client_name},
+
+Your project portal is now ready! You can track progress, view updates, and communicate with the team.
+
+📱 *Portal Link:*
+{portal_link}
+
+🔐 *Login Credentials:*
+• Phone Number: {client_phone}
+• Project ID: {project_id}
+
+Simply click the link and enter your registered phone number to access your project dashboard.
+
+Best regards,
+{current_user.get('full_name', 'Project Team')}
+"""
+    
+    results = {
+        "whatsapp": {"sent": False, "status": "not_requested"},
+        "sms": {"sent": False, "status": "not_requested"},
+        "email": {"sent": False, "status": "not_requested"}
+    }
+    
+    # Send via WhatsApp
+    if send_options.get("send_whatsapp") and client_phone:
+        try:
+            # Check if WhatsApp config exists
+            whatsapp_config = await db.app_configurations.find_one({"config_type": "whatsapp"})
+            if whatsapp_config and whatsapp_config.get("settings", {}).get("enabled"):
+                # For now, generate a WhatsApp link (actual API integration can be added)
+                clean_phone = client_phone.replace(" ", "").replace("-", "").replace("+", "")
+                if not clean_phone.startswith("91"):
+                    clean_phone = "91" + clean_phone
+                whatsapp_text = message.replace("*", "").replace("\n", "%0A")
+                whatsapp_link = f"https://wa.me/{clean_phone}?text={whatsapp_text}"
+                results["whatsapp"] = {"sent": True, "status": "link_generated", "link": whatsapp_link}
+            else:
+                # Generate WhatsApp link even without config
+                clean_phone = client_phone.replace(" ", "").replace("-", "").replace("+", "")
+                if not clean_phone.startswith("91"):
+                    clean_phone = "91" + clean_phone
+                import urllib.parse
+                whatsapp_text = urllib.parse.quote(message.replace("*", ""))
+                whatsapp_link = f"https://wa.me/{clean_phone}?text={whatsapp_text}"
+                results["whatsapp"] = {"sent": True, "status": "link_generated", "link": whatsapp_link}
+        except Exception as e:
+            results["whatsapp"] = {"sent": False, "status": "error", "error": str(e)}
+    
+    # Send via SMS
+    if send_options.get("send_sms") and client_phone:
+        try:
+            sms_config = await db.app_configurations.find_one({"config_type": "sms"})
+            if sms_config and sms_config.get("settings", {}).get("enabled"):
+                # SMS would be sent via configured provider (Twilio, etc.)
+                # For now, mark as configured but not sent (requires actual SMS API)
+                results["sms"] = {"sent": False, "status": "sms_config_found", "message": "SMS API integration pending"}
+            else:
+                results["sms"] = {"sent": False, "status": "sms_not_configured"}
+        except Exception as e:
+            results["sms"] = {"sent": False, "status": "error", "error": str(e)}
+    
+    # Send via Email
+    if send_options.get("send_email") and client_email:
+        try:
+            # Email would be sent via configured provider
+            # For now, mark as pending
+            results["email"] = {"sent": False, "status": "email_pending", "email": client_email}
+        except Exception as e:
+            results["email"] = {"sent": False, "status": "error", "error": str(e)}
+    
+    # Store the credential send record
+    credential_record = {
+        "project_id": project_id,
+        "client_name": client_name,
+        "client_phone": client_phone,
+        "client_email": client_email,
+        "portal_link": portal_link,
+        "sent_by": str(current_user["_id"]),
+        "sent_by_name": current_user.get("full_name"),
+        "send_results": results,
+        "created_at": datetime.utcnow()
+    }
+    await db.client_credential_sends.insert_one(credential_record)
+    
+    # Update project with client portal link if not already set
+    if not project.get("client_portal_link"):
+        await db.projects.update_one(
+            {"_id": ObjectId(project_id)},
+            {"$set": {
+                "client_portal_link": portal_link,
+                "client_credentials_sent_at": datetime.utcnow()
+            }}
+        )
+    
+    # Create notification for the sender
+    await db.notifications.insert_one({
+        "user_id": str(current_user["_id"]),
+        "type": "client_credentials_sent",
+        "title": "Client Credentials Sent",
+        "message": f"Client portal credentials for {project_name} have been generated",
+        "data": {
+            "project_id": project_id,
+            "client_name": client_name,
+            "portal_link": portal_link
+        },
+        "read": False,
+        "created_at": datetime.utcnow()
+    })
+    
+    return {
+        "success": True,
+        "project_id": project_id,
+        "portal_link": portal_link,
+        "client_phone": client_phone,
+        "client_email": client_email,
+        "results": results,
+        "message": message
+    }
+
+
+@api_router.get("/projects/{project_id}/client-credentials-history")
+async def get_client_credentials_history(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get history of credential sends for a project"""
+    await get_current_user(credentials)
+    
+    history = await db.client_credential_sends.find(
+        {"project_id": project_id}
+    ).sort("created_at", -1).to_list(100)
+    
+    return [serialize_doc(h) for h in history]
+
+
 @api_router.get("/client-portal/{project_id}")
 async def get_client_portal_data(
     project_id: str,
