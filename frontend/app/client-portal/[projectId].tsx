@@ -349,6 +349,55 @@ export default function ClientPortalScreen() {
 
           <View style={{ height: 40 }} />
         </ScrollView>
+      ) : activeTab === 'updates' ? (
+        // Updates Tab
+        <ScrollView 
+          style={styles.content}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="newspaper" size={18} color="#3B82F6" /> Project Updates
+            </Text>
+            
+            {updates.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons name="newspaper-outline" size={64} color="#CBD5E0" />
+                <Text style={styles.emptyText}>No updates yet</Text>
+                <Text style={styles.emptySubtext}>Your project team will post updates here</Text>
+              </View>
+            ) : (
+              updates.map((update: any, index: number) => (
+                <View key={update.id || index} style={styles.updateCard}>
+                  <View style={styles.updateHeader}>
+                    <View style={[
+                      styles.updateIcon,
+                      { backgroundColor: update.type === 'milestone_completed' ? '#10B98120' : '#3B82F620' }
+                    ]}>
+                      <Ionicons 
+                        name={update.type === 'milestone_completed' ? 'flag' : 'megaphone'} 
+                        size={16} 
+                        color={update.type === 'milestone_completed' ? '#10B981' : '#3B82F6'} 
+                      />
+                    </View>
+                    <View style={styles.updateInfo}>
+                      <Text style={styles.updateTitle}>{update.title}</Text>
+                      <Text style={styles.updateMeta}>
+                        {update.created_by} • {formatDate(update.created_at)}
+                      </Text>
+                    </View>
+                  </View>
+                  {update.content && (
+                    <Text style={styles.updateContent}>{update.content}</Text>
+                  )}
+                </View>
+              ))
+            )}
+          </View>
+          <View style={{ height: 40 }} />
+        </ScrollView>
       ) : (
         // Chat Tab
         <KeyboardAvoidingView 
