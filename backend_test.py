@@ -1,244 +1,363 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Script for Client Portal Login Flow
-Tests the client portal authentication system
+Backend API Testing for Client Portal Login Flow
+Tests the complete Client Portal Login flow with new Project Code format
 """
 
 import requests
 import json
 import sys
-import os
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
 
-# Get backend URL from environment
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://labourmanage.preview.emergentagent.com')
-API_BASE = f"{BACKEND_URL}/api"
-
-# Test credentials
+# Configuration
+BASE_URL = "https://labourmanage.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@test.com"
 ADMIN_PASSWORD = "admin123"
 
-class ClientPortalTester:
+class BackendTester:
     def __init__(self):
         self.session = requests.Session()
         self.admin_token = None
+        self.test_project_id = None
+        self.test_project_code = None
+        self.test_client_contact = None
         
-    def log(self, message):
-        """Log message with timestamp"""
+    def log(self, message: str, level: str = "INFO"):
+        """Log test messages"""
         timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {message}")
+        print(f"[{timestamp}] {level}: {message}")
         
-    def login_admin(self):
-        """Login as admin to get access token"""
-        self.log("🔐 Logging in as admin...")
+    def make_request(self, method: str, endpoint: str, data: Dict = None, 
+                    headers: Dict = None, auth_token: str = None) -> requests.Response:
+        """Make HTTP request with proper error handling"""
+        url = f"{BASE_URL}{endpoint}"
         
-        login_data = {
+        # Set up headers
+        req_headers = {"Content-Type": "application/json"}
+        if headers:
+            req_headers.update(headers)
+        if auth_token:
+            req_headers["Authorization"] = f"Bearer {auth_token}"
+            
+        try:
+            if method.upper() == "GET":
+                response = self.session.get(url, headers=req_headers, params=data)
+            elif method.upper() == "POST":
+                response = self.session.post(url, headers=req_headers, json=data)
+            elif method.upper() == "PUT":
+                response = self.session.put(url, headers=req_headers, json=data)
+            elif method.upper() == "DELETE":
+                response = self.session.delete(url, headers=req_headers)
+            else:
+                raise ValueError(f"Unsupported method: {method}")
+                
+            return response
+        except requests.exceptions.RequestException as e:
+            self.log(f"Request failed: {str(e)}", "ERROR")
+            raise
+            
+    def authenticate_admin(self) -> bool:
+        """Authenticate as admin user"""
+        self.log("🔐 Authenticating as admin...")
+        
+        response = self.make_request("POST", "/auth/login", {
             "identifier": ADMIN_EMAIL,
             "password": ADMIN_PASSWORD,
             "auth_type": "email"
+        })
+        
+        if response.status_code == 200:
+            data = response.json()
+            self.admin_token = data.get("access_token")
+            self.log(f"✅ Admin authentication successful")
+            return True
+        else:
+            self.log(f"❌ Admin authentication failed: {response.status_code} - {response.text}", "ERROR")
+            return False
+            
+    def test_create_project_with_templates(self) -> bool:
+        """Test 1: Create a new project with templates to get fresh project code"""
+        self.log("🏗️ Testing: Create project with templates...")
+        
+        # Generate test data
+        test_phone = "+919999888777"
+        project_data = {
+            "name": f"Test Project {datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            "client_name": "Test Client Portal User",
+            "client_contact": test_phone,
+            "client_email": "testclient@example.com",
+            "number_of_floors": 1,
+            "planned_start_date": (datetime.utcnow() + timedelta(days=7)).isoformat(),
+            "total_built_area": 2000,
+            "building_type": "residential",
+            "description": "Test project for client portal login testing",
+            "location": "Test Location"
         }
         
-        try:
-            response = self.session.post(f"{API_BASE}/auth/login", json=login_data)
-            if response.status_code == 200:
-                data = response.json()
-                self.admin_token = data.get("access_token")
-                self.log(f"✅ Admin login successful")
+        response = self.make_request("POST", "/projects/create-with-templates", 
+                                   project_data, auth_token=self.admin_token)
+        
+        if response.status_code == 201:
+            data = response.json()
+            self.test_project_id = data.get("id")
+            self.test_project_code = data.get("project_code")
+            self.test_client_contact = test_phone
+            
+            # Verify project code format (SC + MMYY + 6 digits)
+            if self.test_project_code and self.test_project_code.startswith("SC"):
+                month_year = datetime.utcnow().strftime("%m%y")
+                expected_prefix = f"SC{month_year}"
+                if self.test_project_code.startswith(expected_prefix) and len(self.test_project_code) == 10:
+                    self.log(f"✅ Project created successfully with code: {self.test_project_code}")
+                    self.log(f"   Project ID: {self.test_project_id}")
+                    self.log(f"   Client Contact: {self.test_client_contact}")
+                    return True
+                else:
+                    self.log(f"❌ Invalid project code format: {self.test_project_code}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Project code missing or invalid: {self.test_project_code}", "ERROR")
+                return False
+        else:
+            self.log(f"❌ Project creation failed: {response.status_code} - {response.text}", "ERROR")
+            return False
+            
+    def test_verify_project_data(self) -> bool:
+        """Test 2: Verify project has correct data saved"""
+        self.log("🔍 Testing: Verify project data saved correctly...")
+        
+        if not self.test_project_id:
+            self.log("❌ No test project ID available", "ERROR")
+            return False
+            
+        response = self.make_request("GET", f"/projects/{self.test_project_id}", 
+                                   auth_token=self.admin_token)
+        
+        if response.status_code == 200:
+            data = response.json()
+            project_code = data.get("project_code")
+            client_contact = data.get("client_contact")
+            
+            # Verify project_code
+            if project_code == self.test_project_code:
+                self.log(f"✅ Project code verified: {project_code}")
+            else:
+                self.log(f"❌ Project code mismatch. Expected: {self.test_project_code}, Got: {project_code}", "ERROR")
+                return False
+                
+            # Verify client_contact
+            if client_contact == self.test_client_contact:
+                self.log(f"✅ Client contact verified: {client_contact}")
+            else:
+                self.log(f"❌ Client contact mismatch. Expected: {self.test_client_contact}, Got: {client_contact}", "ERROR")
+                return False
+                
+            return True
+        else:
+            self.log(f"❌ Failed to retrieve project: {response.status_code} - {response.text}", "ERROR")
+            return False
+            
+    def test_client_portal_login_with_project_code(self) -> bool:
+        """Test 3: Test Client Portal Login with Project Code"""
+        self.log("🔑 Testing: Client Portal Login with Project Code...")
+        
+        if not self.test_project_code or not self.test_client_contact:
+            self.log("❌ Missing test project code or client contact", "ERROR")
+            return False
+            
+        # Test with project code (new format)
+        login_data = {
+            "project_id": self.test_project_code,
+            "mobile": self.test_client_contact
+        }
+        
+        response = self.make_request("POST", "/client-portal/login", login_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            access_token = data.get("access_token")
+            project_name = data.get("project_name")
+            client_name = data.get("client_name")
+            
+            if access_token and project_name and client_name:
+                self.log(f"✅ Client portal login successful with project code")
+                self.log(f"   Access Token: {access_token[:20]}...")
+                self.log(f"   Project Name: {project_name}")
+                self.log(f"   Client Name: {client_name}")
                 return True
             else:
-                self.log(f"❌ Admin login failed: {response.status_code} - {response.text}")
+                self.log(f"❌ Login response missing required fields", "ERROR")
                 return False
-        except Exception as e:
-            self.log(f"❌ Admin login error: {str(e)}")
+        else:
+            self.log(f"❌ Client portal login failed: {response.status_code} - {response.text}", "ERROR")
             return False
-    
-    def get_projects_with_client_info(self):
-        """Get projects that have client contact information"""
-        self.log("📋 Fetching projects with client contact info...")
+            
+    def test_client_portal_login_with_mongodb_id(self) -> bool:
+        """Test 4: Test Client Portal Login with MongoDB ObjectId (backward compatibility)"""
+        self.log("🔑 Testing: Client Portal Login with MongoDB ObjectId...")
         
-        headers = {"Authorization": f"Bearer {self.admin_token}"}
-        
-        try:
-            response = self.session.get(f"{API_BASE}/projects", headers=headers)
-            if response.status_code == 200:
-                projects = response.json()
-                self.log(f"✅ Retrieved {len(projects)} projects")
-                
-                # Find projects with client contact info
-                projects_with_client = []
-                for project in projects:
-                    client_contact = project.get("client_contact")
-                    client_phone = project.get("client_phone")
-                    
-                    if client_contact or client_phone:
-                        projects_with_client.append({
-                            "id": project["id"],
-                            "name": project.get("name", "Unnamed Project"),
-                            "client_contact": client_contact,
-                            "client_phone": client_phone,
-                            "client_name": project.get("client_name", "Unknown Client")
-                        })
-                
-                self.log(f"📱 Found {len(projects_with_client)} projects with client contact info:")
-                for proj in projects_with_client:
-                    self.log(f"   - {proj['name']} (ID: {proj['id'][:8]}...)")
-                    self.log(f"     Client: {proj['client_name']}")
-                    self.log(f"     Contact: {proj['client_contact'] or proj['client_phone'] or 'None'}")
-                
-                return projects_with_client
-            else:
-                self.log(f"❌ Failed to get projects: {response.status_code} - {response.text}")
-                return []
-        except Exception as e:
-            self.log(f"❌ Error getting projects: {str(e)}")
-            return []
-    
-    def test_client_portal_login(self, project_id, mobile):
-        """Test client portal login with project ID and mobile"""
-        self.log(f"🔑 Testing client portal login...")
-        self.log(f"   Project ID: {project_id}")
-        self.log(f"   Mobile: {mobile}")
-        
+        if not self.test_project_id or not self.test_client_contact:
+            self.log("❌ Missing test project ID or client contact", "ERROR")
+            return False
+            
+        # Test with MongoDB ObjectId (backward compatibility)
         login_data = {
-            "project_id": project_id,
-            "mobile": mobile
+            "project_id": self.test_project_id,
+            "mobile": self.test_client_contact
         }
         
-        try:
-            # Test the correct endpoint: /api/client-portal/login
-            response = self.session.post(f"{API_BASE}/client-portal/login", json=login_data)
-            
-            self.log(f"📡 Response Status: {response.status_code}")
-            self.log(f"📡 Response Headers: {dict(response.headers)}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.log("✅ Client portal login successful!")
-                self.log(f"   Access Token: {data.get('access_token', 'None')[:20]}...")
-                self.log(f"   Project Name: {data.get('project_name', 'None')}")
-                self.log(f"   Client Name: {data.get('client_name', 'None')}")
-                return True, data
-            else:
-                self.log(f"❌ Client portal login failed: {response.status_code}")
-                try:
-                    error_data = response.json()
-                    self.log(f"   Error: {error_data.get('detail', 'Unknown error')}")
-                except:
-                    self.log(f"   Raw response: {response.text}")
-                return False, None
-                
-        except Exception as e:
-            self.log(f"❌ Client portal login error: {str(e)}")
-            return False, None
-    
-    def test_alternative_endpoints(self, project_id, mobile):
-        """Test alternative client login endpoints"""
-        self.log("🔍 Testing alternative client login endpoints...")
+        response = self.make_request("POST", "/client-portal/login", login_data)
         
-        # Test /api/auth/client-portal-login (as mentioned in the request)
-        login_data = {
-            "project_id": project_id,
-            "mobile": mobile
+        if response.status_code == 200:
+            data = response.json()
+            access_token = data.get("access_token")
+            project_name = data.get("project_name")
+            client_name = data.get("client_name")
+            
+            if access_token and project_name and client_name:
+                self.log(f"✅ Client portal login successful with MongoDB ObjectId")
+                self.log(f"   Access Token: {access_token[:20]}...")
+                self.log(f"   Project Name: {project_name}")
+                self.log(f"   Client Name: {client_name}")
+                return True
+            else:
+                self.log(f"❌ Login response missing required fields", "ERROR")
+                return False
+        else:
+            self.log(f"❌ Client portal login failed: {response.status_code} - {response.text}", "ERROR")
+            return False
+            
+    def test_send_client_credentials(self) -> bool:
+        """Test 5: Test Send Client Credentials"""
+        self.log("📱 Testing: Send Client Credentials...")
+        
+        if not self.test_project_id:
+            self.log("❌ Missing test project ID", "ERROR")
+            return False
+            
+        # Test sending credentials
+        send_data = {
+            "send_whatsapp": True,
+            "send_sms": False,
+            "send_email": False,
+            "custom_message": "Test message for client portal credentials"
         }
         
-        alternative_endpoints = [
-            "/auth/client-portal-login",
-            "/auth/client-login",
-            "/client/login",
-            "/portal/login"
+        response = self.make_request("POST", f"/projects/{self.test_project_id}/send-client-credentials", 
+                                   send_data, auth_token=self.admin_token)
+        
+        if response.status_code == 200:
+            data = response.json()
+            message = data.get("message", "")
+            whatsapp_link = data.get("whatsapp_link", "")
+            
+            # Verify the message contains Project Code (not MongoDB ID)
+            if self.test_project_code in message:
+                self.log(f"✅ Client credentials sent successfully")
+                self.log(f"   Message contains Project Code: {self.test_project_code}")
+                
+                # Verify WhatsApp link is generated
+                if whatsapp_link and "wa.me" in whatsapp_link:
+                    self.log(f"✅ WhatsApp link generated: {whatsapp_link[:50]}...")
+                    return True
+                else:
+                    self.log(f"⚠️ WhatsApp link not generated or invalid: {whatsapp_link}")
+                    # Still consider test passed if message contains project code
+                    return True
+            else:
+                self.log(f"❌ Message does not contain Project Code. Message: {message[:100]}...", "ERROR")
+                return False
+        else:
+            self.log(f"❌ Send client credentials failed: {response.status_code} - {response.text}", "ERROR")
+            return False
+            
+    def test_invalid_login_scenarios(self) -> bool:
+        """Test 6: Test invalid login scenarios"""
+        self.log("🚫 Testing: Invalid login scenarios...")
+        
+        test_cases = [
+            {
+                "name": "Invalid project code",
+                "data": {"project_id": "SC1225999999", "mobile": self.test_client_contact},
+                "expected_status": 401
+            },
+            {
+                "name": "Invalid mobile number",
+                "data": {"project_id": self.test_project_code, "mobile": "+919999999999"},
+                "expected_status": 401
+            },
+            {
+                "name": "Missing project_id",
+                "data": {"mobile": self.test_client_contact},
+                "expected_status": 400
+            },
+            {
+                "name": "Missing mobile",
+                "data": {"project_id": self.test_project_code},
+                "expected_status": 400
+            }
         ]
         
-        for endpoint in alternative_endpoints:
-            try:
-                self.log(f"   Testing: {API_BASE}{endpoint}")
-                response = self.session.post(f"{API_BASE}{endpoint}", json=login_data)
+        all_passed = True
+        for test_case in test_cases:
+            response = self.make_request("POST", "/client-portal/login", test_case["data"])
+            
+            if response.status_code == test_case["expected_status"]:
+                self.log(f"✅ {test_case['name']}: Correctly rejected with status {response.status_code}")
+            else:
+                self.log(f"❌ {test_case['name']}: Expected status {test_case['expected_status']}, got {response.status_code}", "ERROR")
+                all_passed = False
                 
-                if response.status_code == 200:
-                    self.log(f"✅ Found working endpoint: {endpoint}")
-                    data = response.json()
-                    return True, endpoint, data
-                elif response.status_code == 404:
-                    self.log(f"   ❌ Endpoint not found: {endpoint}")
+        return all_passed
+        
+    def run_all_tests(self) -> bool:
+        """Run all tests in sequence"""
+        self.log("🚀 Starting Client Portal Login Flow Tests...")
+        self.log("=" * 60)
+        
+        tests = [
+            ("Admin Authentication", self.authenticate_admin),
+            ("Create Project with Templates", self.test_create_project_with_templates),
+            ("Verify Project Data", self.test_verify_project_data),
+            ("Client Portal Login with Project Code", self.test_client_portal_login_with_project_code),
+            ("Client Portal Login with MongoDB ObjectId", self.test_client_portal_login_with_mongodb_id),
+            ("Send Client Credentials", self.test_send_client_credentials),
+            ("Invalid Login Scenarios", self.test_invalid_login_scenarios)
+        ]
+        
+        passed = 0
+        total = len(tests)
+        
+        for test_name, test_func in tests:
+            self.log(f"\n📋 Running: {test_name}")
+            try:
+                if test_func():
+                    passed += 1
+                    self.log(f"✅ {test_name}: PASSED")
                 else:
-                    self.log(f"   ❌ Failed ({response.status_code}): {endpoint}")
-                    
+                    self.log(f"❌ {test_name}: FAILED")
             except Exception as e:
-                self.log(f"   ❌ Error testing {endpoint}: {str(e)}")
-        
-        return False, None, None
-    
-    def run_comprehensive_test(self):
-        """Run comprehensive client portal login test"""
-        self.log("🚀 Starting Client Portal Login Flow Test")
-        self.log("=" * 60)
-        
-        # Step 1: Login as admin
-        if not self.login_admin():
-            self.log("❌ Cannot proceed without admin access")
-            return False
-        
-        # Step 2: Get projects with client info
-        projects = self.get_projects_with_client_info()
-        if not projects:
-            self.log("❌ No projects with client contact information found")
-            return False
-        
-        # Step 3: Test client portal login with first available project
-        test_project = projects[0]
-        project_id = test_project["id"]
-        mobile = test_project["client_contact"] or test_project["client_phone"]
-        
-        if not mobile:
-            self.log("❌ No mobile number found for test project")
-            return False
-        
+                self.log(f"❌ {test_name}: ERROR - {str(e)}", "ERROR")
+                
         self.log("\n" + "=" * 60)
-        self.log("🧪 TESTING CLIENT PORTAL LOGIN")
-        self.log("=" * 60)
+        self.log(f"🏁 Test Results: {passed}/{total} tests passed")
         
-        # Test main endpoint
-        success, data = self.test_client_portal_login(project_id, mobile)
-        
-        if not success:
-            self.log("\n" + "-" * 40)
-            self.log("🔍 TESTING ALTERNATIVE ENDPOINTS")
-            self.log("-" * 40)
-            
-            alt_success, alt_endpoint, alt_data = self.test_alternative_endpoints(project_id, mobile)
-            
-            if alt_success:
-                self.log(f"✅ Alternative endpoint works: {alt_endpoint}")
-                success = True
-                data = alt_data
-        
-        # Summary
-        self.log("\n" + "=" * 60)
-        self.log("📊 TEST SUMMARY")
-        self.log("=" * 60)
-        
-        if success:
-            self.log("✅ Client Portal Login: WORKING")
-            self.log(f"   Endpoint: /api/client-portal/login")
-            self.log(f"   Test Project: {test_project['name']}")
-            self.log(f"   Test Mobile: {mobile}")
-            self.log(f"   Authentication: SUCCESS")
+        if passed == total:
+            self.log("🎉 ALL TESTS PASSED! Client Portal Login flow is working correctly.")
+            return True
         else:
-            self.log("❌ Client Portal Login: FAILED")
-            self.log("   Issue: Authentication endpoint not working properly")
-            self.log("   Recommendation: Check backend implementation")
-        
-        return success
+            self.log(f"⚠️ {total - passed} tests failed. Please check the issues above.")
+            return False
 
 def main():
     """Main test execution"""
-    tester = ClientPortalTester()
-    success = tester.run_comprehensive_test()
+    tester = BackendTester()
+    success = tester.run_all_tests()
     
     if success:
-        print("\n🎉 All tests passed!")
         sys.exit(0)
     else:
-        print("\n💥 Tests failed!")
         sys.exit(1)
 
 if __name__ == "__main__":
