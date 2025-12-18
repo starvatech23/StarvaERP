@@ -928,14 +928,24 @@ export default function LaborScreen() {
                   <Text style={styles.receiptValue}>{receiptData?.payment_method?.toUpperCase()}</Text>
                 </View>
                 <View style={styles.receiptRow}>
-                  <Text style={styles.receiptLabel}>Paid By</Text>
-                  <Text style={styles.receiptValue}>{receiptData?.paid_by}</Text>
-                </View>
-                <View style={styles.receiptRow}>
                   <Text style={styles.receiptLabel}>Date & Time</Text>
                   <Text style={styles.receiptValue}>
                     {receiptData?.paid_at ? moment(receiptData.paid_at).format('DD MMM YYYY, hh:mm A') : ''}
                   </Text>
+                </View>
+              </View>
+
+              {/* Paid By & Approved By Stamps */}
+              <View style={styles.stampSection}>
+                <View style={styles.stampBox}>
+                  <Text style={styles.stampLabel}>Paid By</Text>
+                  <Text style={styles.stampName}>{receiptData?.paid_by || 'Project Engineer'}</Text>
+                  <Text style={styles.stampRole}>Project Engineer</Text>
+                </View>
+                <View style={styles.stampBox}>
+                  <Text style={styles.stampLabel}>Approved By</Text>
+                  <Text style={styles.stampName}>{receiptData?.approved_by || 'Manager'}</Text>
+                  <Text style={styles.stampRole}>Project Manager</Text>
                 </View>
               </View>
 
@@ -948,7 +958,7 @@ export default function LaborScreen() {
               <View style={styles.notificationInfo}>
                 <Ionicons name="notifications" size={16} color={Colors.textSecondary} />
                 <Text style={styles.notificationText}>
-                  Project Manager has been notified
+                  Project Manager has been notified with receipt
                 </Text>
               </View>
             </View>
