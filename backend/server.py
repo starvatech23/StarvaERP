@@ -8977,13 +8977,16 @@ async def get_client_portal_data(
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
         
+        # Use the actual MongoDB ObjectId for queries
+        actual_project_id = str(project["_id"])
+        
         # Get timeline/milestones for Gantt chart
         milestones = await db.milestones.find(
-            {"project_id": project_id}
+            {"project_id": actual_project_id}
         ).sort("order", 1).to_list(length=100)
         
         # Get conversation if exists
-        conversation = await db.conversations.find_one({"project_id": project_id})
+        conversation = await db.conversations.find_one({"project_id": actual_project_id})
         conversation_id = str(conversation["_id"]) if conversation else None
         
         # Serialize project data
