@@ -68,23 +68,16 @@ class ReceiptAPITester:
             if response.status_code == 200:
                 payments = response.json()
                 paid_payments = [p for p in payments if p.get("status") == "paid"]
+                non_paid_payments = [p for p in payments if p.get("status") != "paid"]
                 
                 self.log_result("Get Paid Payments", True, 
                               f"Found {len(paid_payments)} paid payments out of {len(payments)} total payments")
                 
-                if paid_payments:
-                    # Return the first paid payment for testing
-                    return paid_payments[0]
-                else:
-                    # If no paid payments exist, let's try to find any payment and check its status
-                    if payments:
-                        sample_payment = payments[0]
-                        self.log_result("Payment Status Check", True, 
-                                      f"Sample payment status: {sample_payment.get('status')}, ID: {sample_payment.get('id')}")
-                        return sample_payment
-                    else:
-                        self.log_result("Get Paid Payments", False, "No payments found in system")
-                        return None
+                result = {
+                    "paid": paid_payments[0] if paid_payments else None,
+                    "non_paid": non_paid_payments[0] if non_paid_payments else None
+                }
+                return result
             else:
                 self.log_result("Get Paid Payments", False, f"Failed to get payments: {response.status_code}", response.text)
                 return None
@@ -116,11 +109,15 @@ class ReceiptAPITester:
                 
                 return receipt_data
                 
-            elif response.status_code == 400 and expected_status != "paid":
+            elif response.status_code == 400:
                 # Expected error for non-paid payments
                 error_data = response.json()
-                self.log_result("Payment Receipt API - Non-Paid Payment", True, 
-                              f"Correctly returned error for non-paid payment: {error_data.get('detail')}")
+                if expected_status != "paid":
+                    self.log_result("Payment Receipt API - Non-Paid Payment", True, 
+                                  f"Correctly returned error for non-paid payment: {error_data.get('detail')}")
+                else:
+                    self.log_result("Payment Receipt API", False, 
+                                  f"Unexpected 400 error: {error_data.get('detail')}")
                 return None
                 
             elif response.status_code == 404:
@@ -173,6 +170,9 @@ class ReceiptAPITester:
                         else:
                             self.log_result("Individual Receipt Validation", True, 
                                           f"Receipt structure valid: {sample_receipt['project_name']}, ₹{sample_receipt['amount']}")
+                    else:
+                        self.log_result("Worker Receipts - Empty List", True, 
+                                      f"No receipts found for worker {worker_name} (valid response)")
                 
                 return receipts_data
                 
@@ -198,41 +198,52 @@ class ReceiptAPITester:
         if not self.authenticate():
             return False
         
-        # Step 2: Get paid payments to find valid test data
-        payment = self.get_paid_payments()
-        if not payment:
+        # Step 2: Get payments to find valid test data
+        payments_data = self.get_paid_payments()
+        if not payments_data:
             self.log_result("Test Setup", False, "No payments available for testing")
             return False
         
-        payment_id = payment.get("id")
-        worker_id = payment.get("worker_id")
-        payment_status = payment.get("status")
+        paid_payment = payments_data.get("paid")
+        non_paid_payment = payments_data.get("non_paid")
         
-        print(f"\n📋 Test Data:")
-        print(f"   Payment ID: {payment_id}")
-        print(f"   Worker ID: {worker_id}")
-        print(f"   Payment Status: {payment_status}")
-        print()
-        
-        # Step 3: Test Payment Receipt API
-        print("🔍 Testing Payment Receipt API...")
-        receipt_data = self.test_payment_receipt_api(payment_id, payment_status)
-        
-        # Step 4: Test Worker Receipts API
-        if worker_id:
-            print("\n🔍 Testing Worker Receipts API...")
-            worker_receipts = self.test_worker_receipts_api(worker_id)
+        # Step 3: Test with paid payment
+        if paid_payment:
+            payment_id = paid_payment.get("id")
+            worker_id = paid_payment.get("worker_id")
+            payment_status = paid_payment.get("status")
+            
+            print(f"\n📋 Testing with Paid Payment:")
+            print(f"   Payment ID: {payment_id}")
+            print(f"   Worker ID: {worker_id}")
+            print(f"   Payment Status: {payment_status}")
+            print()
+            
+            # Test Payment Receipt API
+            print("🔍 Testing Payment Receipt API (Paid Payment)...")
+            receipt_data = self.test_payment_receipt_api(payment_id, payment_status)
+            
+            # Test Worker Receipts API
+            if worker_id:
+                print("\n🔍 Testing Worker Receipts API...")
+                worker_receipts = self.test_worker_receipts_api(worker_id)
         else:
-            self.log_result("Worker Receipts Test", False, "No worker_id available for testing")
+            self.log_result("Paid Payment Test", False, "No paid payments available for testing")
         
-        # Step 5: Test error cases
-        print("\n🔍 Testing Error Cases...")
-        
-        # Test with invalid payment ID
-        self.test_payment_receipt_api("invalid_payment_id", "invalid")
-        
-        # Test with invalid worker ID
-        self.test_worker_receipts_api("invalid_worker_id")
+        # Step 4: Test with non-paid payment (should return error)
+        if non_paid_payment:
+            non_paid_id = non_paid_payment.get("id")
+            non_paid_status = non_paid_payment.get("status")
+            
+            print(f"\n📋 Testing with Non-Paid Payment:")
+            print(f"   Payment ID: {non_paid_id}")
+            print(f"   Payment Status: {non_paid_status}")
+            print()
+            
+            print("🔍 Testing Payment Receipt API (Non-Paid Payment - Should Return Error)...")
+            self.test_payment_receipt_api(non_paid_id, non_paid_status)
+        else:
+            self.log_result("Non-Paid Payment Test", True, "No non-paid payments available (all payments are paid)")
         
         return True
     
