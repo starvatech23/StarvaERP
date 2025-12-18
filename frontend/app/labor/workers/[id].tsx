@@ -26,6 +26,10 @@ export default function WorkerDetailScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [worker, setWorker] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
+  const [receipts, setReceipts] = useState<any[]>([]);
+  const [receiptsData, setReceiptsData] = useState<any>(null);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
 
   // Form fields
   const [fullName, setFullName] = useState('');
