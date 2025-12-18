@@ -374,6 +374,7 @@ export const weeklyPaymentsAPI = {
     }),
   uploadReceipt: (id: string, receiptImage: string) => 
     api.post(`/labour/payments/${id}/upload-receipt`, { receipt_image: receiptImage }),
+  getReceipt: (id: string) => api.get(`/labour/payments/${id}/receipt`),
   getSummary: (params?: any) => api.get('/labour/payments/weekly-summary', { params }),
   generateWeekly: (weekStart: string, weekEnd: string, projectId?: string) => 
     api.post('/labour/payments/generate-weekly', null, { 
@@ -381,6 +382,7 @@ export const weeklyPaymentsAPI = {
     }),
   getByWorker: (params?: any) => api.get('/labour/payments/by-worker', { params }),
   getByProject: (params?: any) => api.get('/labour/payments/by-project', { params }),
+  getWorkerReceipts: (workerId: string) => api.get(`/labour/workers/${workerId}/receipts`),
 };
 
 // Admin Config API
