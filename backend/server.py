@@ -3073,6 +3073,18 @@ async def verify_payment_otp(
     worker = await db.workers.find_one({"_id": ObjectId(updated_payment["worker_id"])})
     project = await db.projects.find_one({"_id": ObjectId(updated_payment["project_id"])})
     
+    # Get project manager name for receipt
+    approved_by_name = "Project Manager"
+    if project:
+        if project.get("project_manager_id"):
+            pm = await db.users.find_one({"_id": ObjectId(project["project_manager_id"])})
+            if pm:
+                approved_by_name = pm.get("full_name", "Project Manager")
+        elif project.get("manager_id"):
+            pm = await db.users.find_one({"_id": ObjectId(project["manager_id"])})
+            if pm:
+                approved_by_name = pm.get("full_name", "Project Manager")
+    
     receipt_data = {
         "payment_id": payment_id,
         "worker_name": worker["full_name"] if worker else "Unknown",
@@ -3085,6 +3097,7 @@ async def verify_payment_otp(
         "week_end": updated_payment.get("week_end_date"),
         "paid_at": datetime.utcnow().isoformat(),
         "paid_by": current_user["full_name"],
+        "approved_by": approved_by_name,
         "payment_method": payment_method,
         "payment_reference": payment_reference,
         "status": "PAID"
