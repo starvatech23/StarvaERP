@@ -665,6 +665,17 @@ export default function ProjectDetailsScreen() {
               <Text style={styles.quickActionLabel}>Budget</Text>
               <Text style={styles.quickActionSubtext}>Costs & Deviations</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
+              onPress={() => router.push(`/projects/${id}/share-access` as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#EDE9FE' }]}>
+                <Ionicons name="key" size={24} color="#7C3AED" />
+              </View>
+              <Text style={styles.quickActionLabel}>Client Portal</Text>
+              <Text style={styles.quickActionSubtext}>Share access link</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
