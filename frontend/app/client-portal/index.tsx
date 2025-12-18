@@ -133,14 +133,21 @@ export default function ClientPortalIndexScreen() {
         <View style={styles.demoSection}>
           <Text style={styles.demoTitle}>Demo Access</Text>
           <Text style={styles.demoText}>
-            Try the demo with this sample project ID:
+            Try the demo with these credentials:
           </Text>
           <TouchableOpacity
             style={styles.demoButton}
-            onPress={() => setProjectId('6927e8f1ba9fff98169f10b2')}
+            onPress={() => {
+              setProjectId('6926d6604dbb9ab5bf39e81a');
+              setMobile('+919876543210');
+            }}
           >
-            <Text style={styles.demoButtonText}>6927e8f1ba9fff98169f10b2</Text>
+            <Text style={styles.demoButtonText}>Fill Demo Credentials</Text>
           </TouchableOpacity>
+          <Text style={styles.demoCredentials}>
+            Project ID: 6926d6604dbb9ab5bf39e81a{'\n'}
+            Mobile: +919876543210
+          </Text>
         </View>
 
         {/* Features */}
