@@ -8,13 +8,15 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import Colors from '../../../constants/Colors';
-import { workersAPI, projectsAPI } from '../../../services/api';
+import { workersAPI, projectsAPI, weeklyPaymentsAPI } from '../../../services/api';
+import moment from 'moment';
 
 export default function WorkerDetailScreen() {
   const router = useRouter();
