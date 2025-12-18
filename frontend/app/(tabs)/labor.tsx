@@ -920,7 +920,7 @@ export default function LaborScreen() {
         onRequestClose={() => setShowReceipt(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.receiptModal}>
+          <View style={styles.receiptModal} ref={receiptRef} collapsable={false}>
             {/* Header */}
             <View style={styles.receiptHeader}>
               <Ionicons name="checkmark-circle" size={60} color="#10B981" />
