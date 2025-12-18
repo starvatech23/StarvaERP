@@ -8872,15 +8872,21 @@ Best regards,
     }
     await db.client_credential_sends.insert_one(credential_record)
     
-    # Update project with client portal link if not already set
-    if not project.get("client_portal_link"):
-        await db.projects.update_one(
-            {"_id": ObjectId(project_id)},
-            {"$set": {
-                "client_portal_link": portal_link,
-                "client_credentials_sent_at": datetime.utcnow()
-            }}
-        )
+    # Update project with client portal link and contact info
+    update_fields = {
+        "client_portal_link": portal_link,
+        "client_credentials_sent_at": datetime.utcnow()
+    }
+    # Also update client contact info if provided (so login works!)
+    if client_phone:
+        update_fields["client_contact"] = client_phone
+    if client_email:
+        update_fields["client_email"] = client_email
+    
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$set": update_fields}
+    )
     
     # Create notification for the sender
     await db.notifications.insert_one({
