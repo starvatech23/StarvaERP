@@ -725,6 +725,18 @@ frontend:
         agent: "testing"
         comment: "✅ ALL CRM DASHBOARD APIS WORKING PERFECTLY: Comprehensive testing completed with 100% success rate (4/4 tests passed). VERIFIED ENDPOINTS: (1) POST /api/auth/login - Successfully authenticated with crm.manager@test.com credentials, obtained access token, verified user role (crm_manager). (2) GET /api/crm/dashboard/analytics - Successfully retrieved comprehensive analytics with all required fields: summary (total_leads: 14, pipeline_value: ₹0.00, won_leads: 4, conversion_rate: 28.57%), by_status (5 statuses), by_source (6 sources), by_priority (3 priorities), by_city (4 cities), by_state (5 states), by_category (3 categories), by_funnel (0 funnels), by_value_range. (3) GET /api/crm/dashboard/filters - Successfully retrieved all filter options: cities (3), states (4), categories (3), funnels (0), statuses (8), sources (8), priorities (4), assigned_users (5), value_ranges (5 with proper label/min/max structure). (4) Analytics with Filters - Successfully tested 5 filter combinations: status=won (4 leads), priority=urgent (5 leads), status=won+priority=high (0 leads), min_value=100000 (0 leads), max_value=500000 (0 leads). All filter parameters working correctly. Authentication working with Bearer token. All CRM Dashboard APIs are production-ready and fully functional."
 
+  - task: "Labour Payment APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "🎉 ALL LABOUR PAYMENT APIS WORKING PERFECTLY! Comprehensive testing completed with 100% success rate (8/8 tests passed). VERIFIED ENDPOINTS: (1) POST /api/labour/payments/generate-weekly - Successfully generated weekly payments from attendance data (Created 4 payments, Skipped 0 on first run, then 0 created/4 skipped on subsequent runs - correct duplicate prevention). (2) GET /api/labour/payments - Successfully retrieved all payments (27 payments total) with proper worker names, amounts, and status. (3) GET /api/labour/payments/by-worker - Successfully grouped payments by worker (4 workers) with totals, paid amounts, and pending amounts. (4) GET /api/labour/payments/by-project - Successfully grouped payments by project (4 projects) with worker counts and financial totals. (5) POST /api/labour/payments/{id}/validate - Successfully validated payment, status changed to 'validated', validator name populated correctly. (6) POST /api/labour/payments/{id}/send-otp - Successfully sent OTP to worker phone (masked display), OTP generated for testing (6-digit code). (7) POST /api/labour/payments/{id}/verify-otp - Successfully verified OTP and marked payment as 'paid', receipt generated with worker details, amounts, approved_by field populated from project manager. (8) POST /api/labour/payments/{id}/upload-receipt - Successfully uploaded base64 receipt image and notified managers. COMPLETE PAYMENT FLOW VERIFIED: Generate → List → Validate → Send OTP → Verify OTP → Upload Receipt. All authentication working with admin@test.com and crm.manager@test.com credentials. Payment calculations, deductions, OTP security, receipt generation, and manager notifications all functional. Ready for production use."
+
 metadata:
   created_by: "main_agent"
   version: "2.3"
