@@ -3068,10 +3068,67 @@ async def verify_payment_otp(
             )
             remaining_deduction -= to_recover
     
+    # Get updated payment details for receipt
+    updated_payment = await db.weekly_payments.find_one({"_id": ObjectId(payment_id)})
+    worker = await db.workers.find_one({"_id": ObjectId(updated_payment["worker_id"])})
+    project = await db.projects.find_one({"_id": ObjectId(updated_payment["project_id"])})
+    
+    receipt_data = {
+        "payment_id": payment_id,
+        "worker_name": worker["full_name"] if worker else "Unknown",
+        "worker_phone": worker.get("phone", "") if worker else "",
+        "project_name": project["name"] if project else "Unknown",
+        "amount": updated_payment.get("net_amount", 0),
+        "gross_amount": updated_payment.get("gross_amount", 0),
+        "deductions": updated_payment.get("advance_deduction", 0) + updated_payment.get("other_deductions", 0),
+        "week_start": updated_payment.get("week_start_date"),
+        "week_end": updated_payment.get("week_end_date"),
+        "paid_at": datetime.utcnow().isoformat(),
+        "paid_by": current_user["full_name"],
+        "payment_method": payment_method,
+        "payment_reference": payment_reference,
+        "status": "PAID"
+    }
+    
+    # Create notification for project manager/head
+    if project:
+        # Find project manager or team leads
+        manager_ids = []
+        if project.get("manager_id"):
+            manager_ids.append(project["manager_id"])
+        if project.get("team_member_ids"):
+            # Get users with manager/head roles from team
+            for member_id in project["team_member_ids"]:
+                try:
+                    member = await db.users.find_one({"_id": ObjectId(member_id)})
+                    if member and member.get("role") in ["manager", "head", "director", "admin"]:
+                        manager_ids.append(str(member["_id"]))
+                except:
+                    pass
+        
+        # Create notification for each manager
+        for manager_id in set(manager_ids):
+            notification = {
+                "user_id": manager_id,
+                "title": "Payment Completed",
+                "message": f"Payment of ₹{receipt_data['amount']:,.0f} to {receipt_data['worker_name']} has been completed for {receipt_data['project_name']}",
+                "type": "payment_completed",
+                "data": {
+                    "payment_id": payment_id,
+                    "worker_name": receipt_data["worker_name"],
+                    "amount": receipt_data["amount"],
+                    "project_name": receipt_data["project_name"]
+                },
+                "read": False,
+                "created_at": datetime.utcnow()
+            }
+            await db.notifications.insert_one(notification)
+    
     return {
         "success": True,
         "message": "Payment verified and marked as paid",
-        "payment_id": payment_id
+        "payment_id": payment_id,
+        "receipt": receipt_data
     }
 
 @api_router.get("/labour/payments/weekly-summary")
