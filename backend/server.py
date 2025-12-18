@@ -8918,6 +8918,22 @@ Best regards,
         "created_at": datetime.utcnow()
     })
     
+    # Create a conversation for client chat if it doesn't exist
+    existing_conversation = await db.conversations.find_one({"project_id": project_id})
+    if not existing_conversation:
+        conversation_doc = {
+            "project_id": project_id,
+            "name": f"{project_name} - Client Chat",
+            "type": "client_portal",
+            "participants": [str(current_user["_id"])],
+            "client_name": client_name,
+            "client_phone": client_phone,
+            "created_by": str(current_user["_id"]),
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        await db.conversations.insert_one(conversation_doc)
+    
     return {
         "success": True,
         "project_id": project_id,
