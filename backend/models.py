@@ -2287,6 +2287,235 @@ class MaterialPresetBase(BaseModel):
     sand_per_cum: float = 0.42  # cum per cum of concrete
     aggregate_per_cum: float = 0.84  # cum per cum of concrete
     # Steel coefficients
+
+
+# ============= Project Management Templates =============
+
+class ProjectPhase(str, Enum):
+    PREPLANNING = "preplanning"
+    STRUCTURE = "structure"
+    FINISHING = "finishing"
+    FINISHING_2 = "finishing_2"
+    HANDOVER = "handover"
+
+class BuildingType(str, Enum):
+    RESIDENTIAL = "residential"
+    COMMERCIAL = "commercial"
+    INDUSTRIAL = "industrial"
+    MIXED_USE = "mixed_use"
+
+class SkillType(str, Enum):
+    MASON = "mason"
+    CARPENTER = "carpenter"
+    ELECTRICIAN = "electrician"
+    PLUMBER = "plumber"
+    STEEL_FIXER = "steel_fixer"
+    PAINTER = "painter"
+    WELDER = "welder"
+    HELPER = "helper"
+    OPERATOR = "operator"
+    SURVEYOR = "surveyor"
+    SUPERVISOR = "supervisor"
+
+# Milestone Template (Pre-defined)
+class MilestoneTemplateBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    order: int
+    phase: ProjectPhase
+    default_duration_days: int = 30
+    is_floor_based: bool = False  # If true, repeat for each floor
+    color: str = "#3B82F6"
+
+class MilestoneTemplateCreate(MilestoneTemplateBase):
+    pass
+
+class MilestoneTemplateResponse(MilestoneTemplateBase):
+    id: str
+    created_at: Optional[datetime] = None
+
+# Task Template Material Estimate
+class TaskTemplateMaterial(BaseModel):
+    material_category: str
+    material_name: str
+    quantity_per_unit: float  # Quantity per sqm/cum/unit
+    unit: str
+
+# Task Template Labour Estimate
+class TaskTemplateLabour(BaseModel):
+    skill_type: SkillType
+    workers_count: int = 1
+    hours_per_day: float = 8.0
+
+# Task Template (Pre-defined)
+class TaskTemplateBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    order: int
+    default_duration_days: int = 1
+    work_type: Optional[ConstructionWorkType] = ConstructionWorkType.GENERAL
+    measurement_type: Optional[MeasurementType] = None
+    material_estimates: List[TaskTemplateMaterial] = []
+    labour_estimates: List[TaskTemplateLabour] = []
+    dependencies: List[str] = []  # Task template names that must complete first
+
+class TaskTemplateCreate(TaskTemplateBase):
+    milestone_template_id: str
+
+class TaskTemplateResponse(TaskTemplateBase):
+    id: str
+    milestone_template_id: str
+    created_at: Optional[datetime] = None
+
+# Task Labour Estimate (Instance)
+class TaskLabourEstimateBase(BaseModel):
+    task_id: str
+    project_id: str
+    skill_type: SkillType
+    planned_workers: int = 1
+    actual_workers: int = 0
+    planned_hours: float = 0
+    actual_hours: float = 0
+    hourly_rate: float = 0  # Will be calculated from daily rate / 8
+    planned_cost: float = 0
+    actual_cost: float = 0
+    notes: Optional[str] = None
+
+class TaskLabourEstimateCreate(TaskLabourEstimateBase):
+    pass
+
+class TaskLabourEstimateUpdate(BaseModel):
+    actual_workers: Optional[int] = None
+    actual_hours: Optional[float] = None
+    actual_cost: Optional[float] = None
+    notes: Optional[str] = None
+
+class TaskLabourEstimateResponse(TaskLabourEstimateBase):
+    id: str
+    hours_variance: float = 0
+    cost_variance: float = 0
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+# Labour Rate Template (Standard rates)
+class LabourRateTemplate(BaseModel):
+    skill_type: SkillType
+    daily_rate: float
+    hourly_rate: float  # daily_rate / 8
+    efficiency_factor: float = 1.0
+    description: str
+    is_active: bool = True
+
+class LabourRateTemplateResponse(LabourRateTemplate):
+    id: str
+    created_at: Optional[datetime] = None
+
+# Enhanced Milestone (with cost tracking)
+class ProjectMilestoneEnhanced(BaseModel):
+    project_id: str
+    template_id: Optional[str] = None
+    name: str
+    description: Optional[str] = None
+    order: int
+    phase: ProjectPhase
+    floor_number: Optional[int] = None
+    
+    # Dates
+    planned_start_date: Optional[datetime] = None
+    planned_end_date: Optional[datetime] = None
+    actual_start_date: Optional[datetime] = None
+    actual_end_date: Optional[datetime] = None
+    
+    # Status
+    status: MilestoneStatus = MilestoneStatus.PENDING
+    completion_percentage: float = 0
+    
+    # Cost Summary (auto-calculated)
+    planned_material_cost: float = 0
+    actual_material_cost: float = 0
+    planned_labour_cost: float = 0
+    actual_labour_cost: float = 0
+    total_planned_cost: float = 0
+    total_actual_cost: float = 0
+    cost_variance: float = 0
+    cost_variance_percentage: float = 0
+    
+    # Dependencies
+    depends_on: List[str] = []
+    color: str = "#3B82F6"
+
+class ProjectMilestoneEnhancedResponse(ProjectMilestoneEnhanced):
+    id: str
+    task_count: int = 0
+    completed_task_count: int = 0
+    schedule_variance_days: int = 0
+    is_delayed: bool = False
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+# Project Budget Summary
+class ProjectBudgetSummary(BaseModel):
+    project_id: str
+    project_name: str
+    
+    # Material costs
+    planned_material_cost: float = 0
+    actual_material_cost: float = 0
+    material_variance: float = 0
+    material_variance_percentage: float = 0
+    
+    # Labour costs
+    planned_labour_cost: float = 0
+    actual_labour_cost: float = 0
+    labour_variance: float = 0
+    labour_variance_percentage: float = 0
+    
+    # Total costs
+    total_planned_cost: float = 0
+    total_actual_cost: float = 0
+    total_variance: float = 0
+    total_variance_percentage: float = 0
+    
+    # Milestone breakdown
+    milestones: List[Dict[str, Any]] = []
+
+# Deviation Report Item
+class DeviationItem(BaseModel):
+    type: str  # "schedule" or "cost"
+    severity: str  # "low", "medium", "high"
+    entity_type: str  # "task", "milestone", "project"
+    entity_id: str
+    entity_name: str
+    milestone_name: Optional[str] = None
+    planned_value: float
+    actual_value: float
+    variance: float
+    variance_percentage: float
+    reason: Optional[str] = None
+
+class DeviationReport(BaseModel):
+    project_id: str
+    project_name: str
+    total_deviations: int = 0
+    high_severity_count: int = 0
+    medium_severity_count: int = 0
+    low_severity_count: int = 0
+    schedule_deviations: List[DeviationItem] = []
+    cost_deviations: List[DeviationItem] = []
+
+# Project Creation with Templates Request
+class ProjectCreateWithTemplates(BaseModel):
+    name: str
+    client_name: str
+    client_contact: Optional[str] = None
+    location: Optional[str] = None
+    number_of_floors: int = 1
+    building_type: BuildingType = BuildingType.RESIDENTIAL
+    total_built_area: float = 0  # in sqft
+    planned_start_date: datetime
+    description: Optional[str] = None
+    project_manager_id: Optional[str] = None
+
     steel_kg_per_cum_foundation: float = 80.0  # kg/m³
     steel_kg_per_cum_column: float = 150.0
     steel_kg_per_cum_beam: float = 120.0
