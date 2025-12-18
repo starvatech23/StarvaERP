@@ -124,13 +124,49 @@ export default function ProjectsScreen() {
           {canCreateProject && (
             <TouchableOpacity
               style={styles.addButton}
-              onPress={() => router.push('/projects/create' as any)}
+              onPress={() => setShowCreateMenu(!showCreateMenu)}
             >
               <Ionicons name="add" size={24} color="#FFFFFF" />
             </TouchableOpacity>
           )}
         </View>
       </View>
+
+      {/* Create Menu Dropdown */}
+      {showCreateMenu && (
+        <View style={styles.createMenu}>
+          <TouchableOpacity
+            style={styles.createMenuItem}
+            onPress={() => {
+              setShowCreateMenu(false);
+              router.push('/projects/create' as any);
+            }}
+          >
+            <Ionicons name="create-outline" size={20} color={Colors.textPrimary} />
+            <View style={styles.createMenuText}>
+              <Text style={styles.createMenuTitle}>Blank Project</Text>
+              <Text style={styles.createMenuSubtitle}>Start from scratch</Text>
+            </View>
+          </TouchableOpacity>
+          <View style={styles.createMenuDivider} />
+          <TouchableOpacity
+            style={styles.createMenuItem}
+            onPress={() => {
+              setShowCreateMenu(false);
+              router.push('/projects/create-with-templates' as any);
+            }}
+          >
+            <Ionicons name="layers-outline" size={20} color={Colors.secondary} />
+            <View style={styles.createMenuText}>
+              <Text style={[styles.createMenuTitle, { color: Colors.secondary }]}>With Templates</Text>
+              <Text style={styles.createMenuSubtitle}>Auto-generate milestones & tasks</Text>
+            </View>
+            <View style={styles.recommendedBadge}>
+              <Text style={styles.recommendedText}>Recommended</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Sort Menu Dropdown */}
       {showSortMenu && (
