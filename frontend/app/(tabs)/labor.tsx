@@ -22,6 +22,7 @@ import { captureRef } from 'react-native-view-shot';
 
 export default function LaborScreen() {
   const router = useRouter();
+  const receiptRef = useRef<View>(null);
   const [activeTab, setActiveTab] = useState<'workers' | 'attendance' | 'transfers' | 'payments' | 'reports'>('workers');
   const [workers, setWorkers] = useState([]);
   const [attendance, setAttendance] = useState([]);
@@ -35,6 +36,7 @@ export default function LaborScreen() {
   const [paymentSummary, setPaymentSummary] = useState<any>(null);
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedWorker, setSelectedWorker] = useState<any>(null);
