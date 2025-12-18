@@ -13554,8 +13554,11 @@ async def create_project_with_templates(
     project_doc = {
         "name": name,
         "code": project_code,
+        "project_code": project_code,  # Store in both fields for compatibility
         "description": description,
         "client_name": client_name,
+        "client_contact": client_contact,
+        "client_email": client_email,
         "location": location,
         "status": "planning",
         "planned_start_date": planned_start_date,
