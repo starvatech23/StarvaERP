@@ -8958,7 +8958,22 @@ async def get_client_portal_data(
         else:
             raise HTTPException(status_code=401, detail="Authentication required")
         
-        project = await db.projects.find_one({"_id": ObjectId(project_id)})
+        # Support both project_code (SCMMYY123456) and MongoDB ObjectId
+        project = None
+        actual_project_id = project_id
+        
+        if project_id.upper().startswith("SC"):
+            # It's a project code
+            project = await db.projects.find_one({"project_code": project_id.upper()})
+            if project:
+                actual_project_id = str(project["_id"])
+        else:
+            # Try as MongoDB ObjectId
+            try:
+                project = await db.projects.find_one({"_id": ObjectId(project_id)})
+            except:
+                pass
+        
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
         
