@@ -104,10 +104,19 @@ export const projectsAPI = {
   getAll: () => api.get('/projects'),
   getById: (id: string) => api.get(`/projects/${id}`),
   create: (data: any) => api.post('/projects', data),
+  createWithTemplates: (data: any) => api.post('/projects/create-with-templates', data),
   update: (id: string, data: any) => api.put(`/projects/${id}`, data),
   delete: (id: string) => api.delete(`/projects/${id}`),
   updateTeam: (id: string, teamMemberIds: string[]) => 
     api.put(`/projects/${id}/team`, { team_member_ids: teamMemberIds }),
+  getBudgetSummary: (id: string) => api.get(`/projects/${id}/budget-summary`),
+  getDeviationReport: (id: string) => api.get(`/projects/${id}/deviation-report`),
+};
+
+// Project Templates API
+export const templatesAPI = {
+  getMilestones: () => api.get('/templates/milestones'),
+  getLabourRates: () => api.get('/templates/labour-rates'),
 };
 
 // Tasks API
