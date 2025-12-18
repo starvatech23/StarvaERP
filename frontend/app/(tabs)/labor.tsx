@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   RefreshControl,
   Alert,
   Modal,
+  Platform,
 } from 'react-native';
 import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +18,7 @@ import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { workersAPI, laborAttendanceAPI, siteTransfersAPI, weeklyPaymentsAPI, advancePaymentsAPI } from '../../services/api';
 import moment from 'moment';
+import { captureRef } from 'react-native-view-shot';
 
 export default function LaborScreen() {
   const router = useRouter();
