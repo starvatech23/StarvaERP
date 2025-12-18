@@ -438,6 +438,21 @@ export default function LaborScreen() {
     }
   };
 
+  const handleViewReceipt = async (paymentId: string) => {
+    try {
+      setLoading(true);
+      const response = await weeklyPaymentsAPI.getReceipt(paymentId);
+      if (response.data) {
+        setReceiptData(response.data);
+        setShowReceipt(true);
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to load receipt');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderPayments = () => {
     const hasData = paymentsByWorker.length > 0 || paymentsByProject.length > 0 || advances.length > 0;
     
