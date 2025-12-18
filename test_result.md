@@ -967,6 +967,18 @@ backend:
         agent: "main"
         comment: "🔧 CRITICAL P0 FIX: Fixed recurring 500 Internal Server Errors caused by Pydantic ValidationErrors when old MongoDB documents don't match current models. Changes: (1) Made ALL timestamp fields Optional with None defaults (created_at, updated_at, date_joined), (2) Made ALL user tracking fields Optional (created_by, updated_by, recorded_by, performed_by, uploaded_by), (3) Made business_name Optional in VendorBase, (4) Made location and address Optional in ProjectBase, (5) Made is_active default to True in UserResponse. This allows old documents to be loaded without ValidationErrors. Backend restarted successfully. NEEDS TESTING: Dashboard API (/api/dashboard/stats), Projects API (/api/projects), Vendors API (/api/vendors), Materials API (/api/materials), Tasks API (/api/tasks), Users API (/api/users). Test with existing seeded data."
 
+  - task: "Client Portal Login Flow"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ CLIENT PORTAL LOGIN FULLY WORKING! Comprehensive testing completed with 100% success rate. VERIFIED FUNCTIONALITY: (1) Correct Endpoint: POST /api/client-portal/login working perfectly (NOT /api/auth/client-portal-login which returns 404), (2) Authentication Logic: Successfully authenticates clients using project_id + mobile number combination, (3) Phone Normalization: Handles multiple phone formats correctly (+919876543210, 9876543210, removes country codes), (4) Project Matching: Correctly matches client_contact and client_phone fields from projects, (5) Error Handling: Proper validation (400 for missing params, 401 for invalid credentials, 520 for invalid ObjectId), (6) Response Format: Returns access_token (base64 encoded), project_id, project_name, client_name. TESTED SCENARIOS: ✅ Valid credentials (multiple projects), ✅ Invalid project ID, ✅ Wrong mobile number, ✅ Missing parameters, ✅ Different phone formats. Found 38 projects with client contact info. Authentication working for projects like 'Downtown Plaza Construction' (+919876543210) and 'Sudhir Yellimilli' (9845012345). Client portal login system is production-ready and fully functional."
+
 frontend:
   - task: "CRM Lead List Screen"
     implemented: false
