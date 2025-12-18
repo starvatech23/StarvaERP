@@ -85,13 +85,13 @@ export default function ClientPortalIndexScreen() {
 
         {/* Input Section */}
         <View style={styles.inputSection}>
-          <Text style={styles.inputLabel}>Project ID</Text>
+          <Text style={styles.inputLabel}>Project Code</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter your project ID"
+            placeholder="e.g., SC1225000001"
             value={projectId}
             onChangeText={setProjectId}
-            autoCapitalize="none"
+            autoCapitalize="characters"
             autoCorrect={false}
           />
           <Text style={styles.inputHint}>
