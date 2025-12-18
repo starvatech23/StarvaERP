@@ -294,7 +294,7 @@ class LabourPaymentAPITester:
             return False
         
         try:
-            payload = {
+            params = {
                 "otp": self.test_otp,
                 "payment_method": "bank_transfer",
                 "payment_reference": "TXN123456789"
@@ -302,7 +302,7 @@ class LabourPaymentAPITester:
             
             response = requests.post(
                 f"{BASE_URL}/labour/payments/{self.test_payment_id}/verify-otp",
-                json=payload,
+                params=params,
                 headers=self.get_headers(self.admin_token)
             )
             
