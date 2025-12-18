@@ -138,15 +138,15 @@ export default function ClientPortalIndexScreen() {
           <TouchableOpacity
             style={styles.demoButton}
             onPress={() => {
-              setProjectId('6926d6604dbb9ab5bf39e81a');
-              setMobile('+919876543210');
+              setProjectId('6943e0bdaf211eb31c4254f9');
+              setMobile('+919886588992');
             }}
           >
             <Text style={styles.demoButtonText}>Fill Demo Credentials</Text>
           </TouchableOpacity>
           <Text style={styles.demoCredentials}>
-            Project ID: 6926d6604dbb9ab5bf39e81a{'\n'}
-            Mobile: +919876543210
+            Project: Anilkumar's villa{'\n'}
+            Mobile: +919886588992
           </Text>
         </View>
 
