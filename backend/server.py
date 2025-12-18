@@ -3222,6 +3222,114 @@ async def get_weekly_payment_summary(
     }
 
 
+@api_router.get("/labour/payments/{payment_id}/receipt")
+async def get_payment_receipt(
+    payment_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get receipt data for a paid payment"""
+    current_user = await get_current_user(credentials)
+    
+    payment = await db.weekly_payments.find_one({"_id": ObjectId(payment_id)})
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    if payment.get("status") != "paid":
+        raise HTTPException(status_code=400, detail="Receipt only available for paid payments")
+    
+    worker = await db.workers.find_one({"_id": ObjectId(payment["worker_id"])})
+    project = await db.projects.find_one({"_id": ObjectId(payment["project_id"])})
+    
+    # Get paid by user
+    paid_by_name = "Unknown"
+    if payment.get("paid_by"):
+        paid_by_user = await db.users.find_one({"_id": ObjectId(payment["paid_by"])})
+        if paid_by_user:
+            paid_by_name = paid_by_user.get("full_name", "Unknown")
+    
+    # Get approved by (project manager)
+    approved_by_name = "Project Manager"
+    if project:
+        if project.get("project_manager_id"):
+            pm = await db.users.find_one({"_id": ObjectId(project["project_manager_id"])})
+            if pm:
+                approved_by_name = pm.get("full_name", "Project Manager")
+        elif project.get("manager_id"):
+            pm = await db.users.find_one({"_id": ObjectId(project["manager_id"])})
+            if pm:
+                approved_by_name = pm.get("full_name", "Project Manager")
+    
+    return {
+        "payment_id": payment_id,
+        "worker_id": str(payment["worker_id"]),
+        "worker_name": worker["full_name"] if worker else "Unknown",
+        "worker_phone": worker.get("phone", "") if worker else "",
+        "project_name": project["name"] if project else "Unknown",
+        "amount": payment.get("net_amount", 0),
+        "gross_amount": payment.get("gross_amount", 0),
+        "deductions": payment.get("advance_deduction", 0) + payment.get("other_deductions", 0),
+        "week_start": payment.get("week_start_date"),
+        "week_end": payment.get("week_end_date"),
+        "paid_at": payment.get("paid_at"),
+        "paid_by": paid_by_name,
+        "approved_by": approved_by_name,
+        "payment_method": payment.get("payment_method", "cash"),
+        "payment_reference": payment.get("payment_reference", ""),
+        "receipt_image": payment.get("receipt_image"),
+        "status": "PAID"
+    }
+
+
+@api_router.get("/labour/workers/{worker_id}/receipts")
+async def get_worker_receipts(
+    worker_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all payment receipts for a specific worker"""
+    current_user = await get_current_user(credentials)
+    
+    worker = await db.workers.find_one({"_id": ObjectId(worker_id)})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    
+    # Get all paid payments for this worker
+    paid_payments = await db.weekly_payments.find({
+        "worker_id": worker_id,
+        "status": "paid"
+    }).sort("paid_at", -1).to_list(length=100)
+    
+    receipts = []
+    for payment in paid_payments:
+        project = await db.projects.find_one({"_id": ObjectId(payment["project_id"])})
+        
+        # Get paid by user
+        paid_by_name = "Unknown"
+        if payment.get("paid_by"):
+            paid_by_user = await db.users.find_one({"_id": ObjectId(payment["paid_by"])})
+            if paid_by_user:
+                paid_by_name = paid_by_user.get("full_name", "Unknown")
+        
+        receipts.append({
+            "payment_id": str(payment["_id"]),
+            "project_name": project["name"] if project else "Unknown",
+            "amount": payment.get("net_amount", 0),
+            "week_start": payment.get("week_start_date"),
+            "week_end": payment.get("week_end_date"),
+            "paid_at": payment.get("paid_at"),
+            "paid_by": paid_by_name,
+            "payment_method": payment.get("payment_method", "cash"),
+            "has_receipt_image": bool(payment.get("receipt_image"))
+        })
+    
+    return {
+        "worker_id": worker_id,
+        "worker_name": worker["full_name"],
+        "total_receipts": len(receipts),
+        "total_paid": sum(r["amount"] for r in receipts),
+        "receipts": receipts
+    }
+
+
 @api_router.post("/labour/payments/generate-weekly")
 async def generate_weekly_payments(
     week_start: str,
