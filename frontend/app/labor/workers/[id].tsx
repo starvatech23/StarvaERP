@@ -365,6 +365,49 @@ export default function WorkerDetailScreen() {
           </View>
         )}
 
+        {/* Payment Receipts */}
+        {!isEditing && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Payment Receipts</Text>
+              {receiptsData && (
+                <Text style={styles.totalPaid}>Total: ₹{receiptsData.total_paid?.toLocaleString() || 0}</Text>
+              )}
+            </View>
+            {receipts.length === 0 ? (
+              <View style={styles.emptyReceipts}>
+                <Ionicons name="receipt-outline" size={40} color="#CBD5E0" />
+                <Text style={styles.emptyReceiptsText}>No payment receipts yet</Text>
+              </View>
+            ) : (
+              receipts.map((receipt: any) => (
+                <TouchableOpacity 
+                  key={receipt.payment_id} 
+                  style={styles.receiptItem}
+                  onPress={() => handleViewReceipt(receipt.payment_id)}
+                >
+                  <View style={styles.receiptInfo}>
+                    <View style={styles.receiptIconBox}>
+                      <Ionicons name="receipt" size={20} color="#10B981" />
+                    </View>
+                    <View style={styles.receiptDetails}>
+                      <Text style={styles.receiptProject}>{receipt.project_name}</Text>
+                      <Text style={styles.receiptPeriod}>
+                        {moment(receipt.week_start).format('DD MMM')} - {moment(receipt.week_end).format('DD MMM YYYY')}
+                      </Text>
+                      <Text style={styles.receiptPaidBy}>Paid by: {receipt.paid_by}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.receiptAmountBox}>
+                    <Text style={styles.receiptAmount}>₹{receipt.amount?.toLocaleString()}</Text>
+                    <Text style={styles.receiptDate}>{moment(receipt.paid_at).format('DD/MM/YY')}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+            )}
+          </View>
+        )}
+
         {/* Delete Button */}
         {isEditing && (
           <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
