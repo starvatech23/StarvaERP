@@ -384,8 +384,14 @@ export default function LaborScreen() {
                       return;
                     }
                     try {
-                      await weeklyPaymentsAPI.verifyOTP(payment.id, otp, 'cash');
-                      Alert.alert('Success', 'Payment marked as paid');
+                      const response = await weeklyPaymentsAPI.verifyOTP(payment.id, otp, 'cash');
+                      // Show receipt popup
+                      if (response.data?.receipt) {
+                        setReceiptData(response.data.receipt);
+                        setShowReceipt(true);
+                      } else {
+                        Alert.alert('Success', 'Payment marked as paid');
+                      }
                       loadData();
                     } catch (error: any) {
                       Alert.alert('Error', error.response?.data?.detail || 'Invalid OTP');
