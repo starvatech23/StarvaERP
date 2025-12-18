@@ -108,13 +108,13 @@ class BackendTester:
             if self.test_project_code and self.test_project_code.startswith("SC"):
                 month_year = datetime.utcnow().strftime("%m%y")
                 expected_prefix = f"SC{month_year}"
-                if self.test_project_code.startswith(expected_prefix) and len(self.test_project_code) == 10:
+                if self.test_project_code.startswith(expected_prefix) and len(self.test_project_code) == 12:
                     self.log(f"✅ Project created successfully with code: {self.test_project_code}")
                     self.log(f"   Project ID: {self.test_project_id}")
                     self.log(f"   Client Contact: {self.test_client_contact}")
                     return True
                 else:
-                    self.log(f"❌ Invalid project code format: {self.test_project_code}", "ERROR")
+                    self.log(f"❌ Invalid project code format: {self.test_project_code} (Expected: {expected_prefix}XXXXXX with length 12)", "ERROR")
                     return False
             else:
                 self.log(f"❌ Project code missing or invalid: {self.test_project_code}", "ERROR")
