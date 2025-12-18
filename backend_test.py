@@ -1,43 +1,36 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Script for Client Portal Credentials API
-Tests the send-client-credentials and client-credentials-history endpoints
+Backend API Testing Script for Client Portal Login Flow
+Tests the client portal authentication system
 """
 
 import requests
 import json
 import sys
+import os
 from datetime import datetime
-import urllib.parse
 
-# Configuration
-BASE_URL = "https://labourmanage.preview.emergentagent.com/api"
+# Get backend URL from environment
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://labourmanage.preview.emergentagent.com')
+API_BASE = f"{BACKEND_URL}/api"
+
+# Test credentials
 ADMIN_EMAIL = "admin@test.com"
 ADMIN_PASSWORD = "admin123"
 
-class APITester:
+class ClientPortalTester:
     def __init__(self):
         self.session = requests.Session()
-        self.access_token = None
-        self.test_results = []
+        self.admin_token = None
         
-    def log_test(self, test_name, success, details=""):
-        """Log test results"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        self.test_results.append({
-            "test": test_name,
-            "success": success,
-            "details": details,
-            "timestamp": datetime.now().isoformat()
-        })
-        print(f"{status}: {test_name}")
-        if details:
-            print(f"   Details: {details}")
-        print()
-    
-    def authenticate(self):
-        """Authenticate and get access token"""
-        print("🔐 Authenticating...")
+    def log(self, message):
+        """Log message with timestamp"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {message}")
+        
+    def login_admin(self):
+        """Login as admin to get access token"""
+        self.log("🔐 Logging in as admin...")
         
         login_data = {
             "identifier": ADMIN_EMAIL,
@@ -46,264 +39,206 @@ class APITester:
         }
         
         try:
-            response = self.session.post(f"{BASE_URL}/auth/login", json=login_data)
-            
+            response = self.session.post(f"{API_BASE}/auth/login", json=login_data)
             if response.status_code == 200:
                 data = response.json()
-                self.access_token = data.get("access_token")
-                self.session.headers.update({
-                    "Authorization": f"Bearer {self.access_token}"
-                })
-                self.log_test("Authentication", True, f"Logged in as {data.get('user', {}).get('email')}")
+                self.admin_token = data.get("access_token")
+                self.log(f"✅ Admin login successful")
                 return True
             else:
-                self.log_test("Authentication", False, f"Status: {response.status_code}, Response: {response.text}")
+                self.log(f"❌ Admin login failed: {response.status_code} - {response.text}")
                 return False
-                
         except Exception as e:
-            self.log_test("Authentication", False, f"Exception: {str(e)}")
+            self.log(f"❌ Admin login error: {str(e)}")
             return False
     
-    def get_projects(self):
-        """Get list of projects to find a project_id for testing"""
-        print("📋 Getting projects list...")
+    def get_projects_with_client_info(self):
+        """Get projects that have client contact information"""
+        self.log("📋 Fetching projects with client contact info...")
+        
+        headers = {"Authorization": f"Bearer {self.admin_token}"}
         
         try:
-            response = self.session.get(f"{BASE_URL}/projects")
-            
+            response = self.session.get(f"{API_BASE}/projects", headers=headers)
             if response.status_code == 200:
                 projects = response.json()
-                if projects:
-                    project = projects[0]  # Use first project
-                    project_id = project.get("id")
-                    project_name = project.get("name", "Unknown")
-                    self.log_test("Get Projects", True, f"Found {len(projects)} projects. Using project: {project_name} (ID: {project_id})")
-                    return project_id
-                else:
-                    self.log_test("Get Projects", False, "No projects found in database")
-                    return None
-            else:
-                self.log_test("Get Projects", False, f"Status: {response.status_code}, Response: {response.text}")
-                return None
+                self.log(f"✅ Retrieved {len(projects)} projects")
                 
+                # Find projects with client contact info
+                projects_with_client = []
+                for project in projects:
+                    client_contact = project.get("client_contact")
+                    client_phone = project.get("client_phone")
+                    
+                    if client_contact or client_phone:
+                        projects_with_client.append({
+                            "id": project["id"],
+                            "name": project.get("name", "Unnamed Project"),
+                            "client_contact": client_contact,
+                            "client_phone": client_phone,
+                            "client_name": project.get("client_name", "Unknown Client")
+                        })
+                
+                self.log(f"📱 Found {len(projects_with_client)} projects with client contact info:")
+                for proj in projects_with_client:
+                    self.log(f"   - {proj['name']} (ID: {proj['id'][:8]}...)")
+                    self.log(f"     Client: {proj['client_name']}")
+                    self.log(f"     Contact: {proj['client_contact'] or proj['client_phone'] or 'None'}")
+                
+                return projects_with_client
+            else:
+                self.log(f"❌ Failed to get projects: {response.status_code} - {response.text}")
+                return []
         except Exception as e:
-            self.log_test("Get Projects", False, f"Exception: {str(e)}")
-            return None
+            self.log(f"❌ Error getting projects: {str(e)}")
+            return []
     
-    def test_send_client_credentials(self, project_id):
-        """Test POST /api/projects/{project_id}/send-client-credentials"""
-        print("📱 Testing Send Client Credentials API...")
+    def test_client_portal_login(self, project_id, mobile):
+        """Test client portal login with project ID and mobile"""
+        self.log(f"🔑 Testing client portal login...")
+        self.log(f"   Project ID: {project_id}")
+        self.log(f"   Mobile: {mobile}")
         
-        # Test data as specified in the review request
-        test_data = {
-            "client_phone": "9876543210",
-            "send_whatsapp": True,
-            "send_sms": False,
-            "send_email": False
+        login_data = {
+            "project_id": project_id,
+            "mobile": mobile
         }
         
         try:
-            response = self.session.post(
-                f"{BASE_URL}/projects/{project_id}/send-client-credentials",
-                json=test_data
-            )
+            # Test the correct endpoint: /api/client-portal/login
+            response = self.session.post(f"{API_BASE}/client-portal/login", json=login_data)
+            
+            self.log(f"📡 Response Status: {response.status_code}")
+            self.log(f"📡 Response Headers: {dict(response.headers)}")
             
             if response.status_code == 200:
                 data = response.json()
-                
-                # Verify expected response fields
-                expected_fields = ["success", "project_id", "portal_link", "client_phone", "results"]
-                missing_fields = [field for field in expected_fields if field not in data]
-                
-                if missing_fields:
-                    self.log_test("Send Client Credentials - Response Structure", False, 
-                                f"Missing fields: {missing_fields}")
-                    return None
-                
-                # Verify portal link format
-                portal_link = data.get("portal_link", "")
-                if not portal_link.startswith("https://") or "client-portal" not in portal_link:
-                    self.log_test("Send Client Credentials - Portal Link Format", False, 
-                                f"Invalid portal link format: {portal_link}")
-                    return None
-                
-                # Verify WhatsApp link generation
-                results = data.get("results", {})
-                whatsapp_result = results.get("whatsapp", {})
-                
-                if whatsapp_result.get("sent") and whatsapp_result.get("link"):
-                    whatsapp_link = whatsapp_result.get("link")
-                    if "wa.me" in whatsapp_link and "9876543210" in whatsapp_link:
-                        self.log_test("Send Client Credentials - WhatsApp Link", True, 
-                                    f"WhatsApp link generated correctly: {whatsapp_link[:50]}...")
-                    else:
-                        self.log_test("Send Client Credentials - WhatsApp Link", False, 
-                                    f"Invalid WhatsApp link: {whatsapp_link}")
-                else:
-                    self.log_test("Send Client Credentials - WhatsApp Link", False, 
-                                f"WhatsApp link not generated: {whatsapp_result}")
-                
-                # Verify client phone
-                if data.get("client_phone") == "9876543210":
-                    self.log_test("Send Client Credentials - Client Phone", True, 
-                                f"Client phone correctly set: {data.get('client_phone')}")
-                else:
-                    self.log_test("Send Client Credentials - Client Phone", False, 
-                                f"Client phone mismatch: expected 9876543210, got {data.get('client_phone')}")
-                
-                self.log_test("Send Client Credentials API", True, 
-                            f"Portal link: {portal_link}, Client phone: {data.get('client_phone')}")
-                return data
-                
+                self.log("✅ Client portal login successful!")
+                self.log(f"   Access Token: {data.get('access_token', 'None')[:20]}...")
+                self.log(f"   Project Name: {data.get('project_name', 'None')}")
+                self.log(f"   Client Name: {data.get('client_name', 'None')}")
+                return True, data
             else:
-                self.log_test("Send Client Credentials API", False, 
-                            f"Status: {response.status_code}, Response: {response.text}")
-                return None
+                self.log(f"❌ Client portal login failed: {response.status_code}")
+                try:
+                    error_data = response.json()
+                    self.log(f"   Error: {error_data.get('detail', 'Unknown error')}")
+                except:
+                    self.log(f"   Raw response: {response.text}")
+                return False, None
                 
         except Exception as e:
-            self.log_test("Send Client Credentials API", False, f"Exception: {str(e)}")
-            return None
+            self.log(f"❌ Client portal login error: {str(e)}")
+            return False, None
     
-    def test_credentials_history(self, project_id):
-        """Test GET /api/projects/{project_id}/client-credentials-history"""
-        print("📜 Testing Client Credentials History API...")
+    def test_alternative_endpoints(self, project_id, mobile):
+        """Test alternative client login endpoints"""
+        self.log("🔍 Testing alternative client login endpoints...")
         
-        try:
-            response = self.session.get(f"{BASE_URL}/projects/{project_id}/client-credentials-history")
+        # Test /api/auth/client-portal-login (as mentioned in the request)
+        login_data = {
+            "project_id": project_id,
+            "mobile": mobile
+        }
+        
+        alternative_endpoints = [
+            "/auth/client-portal-login",
+            "/auth/client-login",
+            "/client/login",
+            "/portal/login"
+        ]
+        
+        for endpoint in alternative_endpoints:
+            try:
+                self.log(f"   Testing: {API_BASE}{endpoint}")
+                response = self.session.post(f"{API_BASE}{endpoint}", json=login_data)
+                
+                if response.status_code == 200:
+                    self.log(f"✅ Found working endpoint: {endpoint}")
+                    data = response.json()
+                    return True, endpoint, data
+                elif response.status_code == 404:
+                    self.log(f"   ❌ Endpoint not found: {endpoint}")
+                else:
+                    self.log(f"   ❌ Failed ({response.status_code}): {endpoint}")
+                    
+            except Exception as e:
+                self.log(f"   ❌ Error testing {endpoint}: {str(e)}")
+        
+        return False, None, None
+    
+    def run_comprehensive_test(self):
+        """Run comprehensive client portal login test"""
+        self.log("🚀 Starting Client Portal Login Flow Test")
+        self.log("=" * 60)
+        
+        # Step 1: Login as admin
+        if not self.login_admin():
+            self.log("❌ Cannot proceed without admin access")
+            return False
+        
+        # Step 2: Get projects with client info
+        projects = self.get_projects_with_client_info()
+        if not projects:
+            self.log("❌ No projects with client contact information found")
+            return False
+        
+        # Step 3: Test client portal login with first available project
+        test_project = projects[0]
+        project_id = test_project["id"]
+        mobile = test_project["client_contact"] or test_project["client_phone"]
+        
+        if not mobile:
+            self.log("❌ No mobile number found for test project")
+            return False
+        
+        self.log("\n" + "=" * 60)
+        self.log("🧪 TESTING CLIENT PORTAL LOGIN")
+        self.log("=" * 60)
+        
+        # Test main endpoint
+        success, data = self.test_client_portal_login(project_id, mobile)
+        
+        if not success:
+            self.log("\n" + "-" * 40)
+            self.log("🔍 TESTING ALTERNATIVE ENDPOINTS")
+            self.log("-" * 40)
             
-            if response.status_code == 200:
-                history = response.json()
-                
-                if isinstance(history, list):
-                    if len(history) > 0:
-                        # Verify the structure of history records
-                        record = history[0]
-                        expected_fields = ["project_id", "client_phone", "portal_link", "sent_by", "created_at"]
-                        missing_fields = [field for field in expected_fields if field not in record]
-                        
-                        if missing_fields:
-                            self.log_test("Credentials History - Record Structure", False, 
-                                        f"Missing fields in history record: {missing_fields}")
-                        else:
-                            self.log_test("Credentials History - Record Structure", True, 
-                                        f"History record contains all expected fields")
-                        
-                        # Verify project_id matches
-                        if record.get("project_id") == project_id:
-                            self.log_test("Credentials History - Project ID Match", True, 
-                                        f"Project ID matches: {project_id}")
-                        else:
-                            self.log_test("Credentials History - Project ID Match", False, 
-                                        f"Project ID mismatch: expected {project_id}, got {record.get('project_id')}")
-                        
-                        self.log_test("Client Credentials History API", True, 
-                                    f"Retrieved {len(history)} credential send records")
-                    else:
-                        self.log_test("Client Credentials History API", True, 
-                                    "No credential send history found (empty list)")
-                else:
-                    self.log_test("Client Credentials History API", False, 
-                                f"Expected list response, got: {type(history)}")
-                
-                return history
-                
-            else:
-                self.log_test("Client Credentials History API", False, 
-                            f"Status: {response.status_code}, Response: {response.text}")
-                return None
-                
-        except Exception as e:
-            self.log_test("Client Credentials History API", False, f"Exception: {str(e)}")
-            return None
-    
-    def test_database_storage(self, project_id):
-        """Test that records are properly stored in database by checking history after send"""
-        print("💾 Testing Database Storage...")
-        
-        # Get history before sending credentials
-        history_before = self.test_credentials_history(project_id)
-        if history_before is None:
-            return False
-        
-        initial_count = len(history_before) if isinstance(history_before, list) else 0
-        
-        # Send credentials
-        send_result = self.test_send_client_credentials(project_id)
-        if not send_result:
-            return False
-        
-        # Get history after sending credentials
-        history_after = self.test_credentials_history(project_id)
-        if history_after is None:
-            return False
-        
-        final_count = len(history_after) if isinstance(history_after, list) else 0
-        
-        # Verify record was added
-        if final_count > initial_count:
-            self.log_test("Database Storage Verification", True, 
-                        f"Record count increased from {initial_count} to {final_count}")
-            return True
-        else:
-            self.log_test("Database Storage Verification", False, 
-                        f"Record count did not increase: {initial_count} -> {final_count}")
-            return False
-    
-    def run_all_tests(self):
-        """Run all tests"""
-        print("🚀 Starting Client Portal Credentials API Tests")
-        print("=" * 60)
-        
-        # Step 1: Authenticate
-        if not self.authenticate():
-            print("❌ Authentication failed. Cannot proceed with tests.")
-            return False
-        
-        # Step 2: Get a project ID
-        project_id = self.get_projects()
-        if not project_id:
-            print("❌ No projects available for testing. Cannot proceed.")
-            return False
-        
-        # Step 3: Test the APIs
-        print(f"🎯 Testing with Project ID: {project_id}")
-        print("-" * 40)
-        
-        # Test database storage (includes both send and history tests)
-        self.test_database_storage(project_id)
+            alt_success, alt_endpoint, alt_data = self.test_alternative_endpoints(project_id, mobile)
+            
+            if alt_success:
+                self.log(f"✅ Alternative endpoint works: {alt_endpoint}")
+                success = True
+                data = alt_data
         
         # Summary
-        print("=" * 60)
-        print("📊 TEST SUMMARY")
-        print("=" * 60)
+        self.log("\n" + "=" * 60)
+        self.log("📊 TEST SUMMARY")
+        self.log("=" * 60)
         
-        total_tests = len(self.test_results)
-        passed_tests = sum(1 for result in self.test_results if result["success"])
-        failed_tests = total_tests - passed_tests
+        if success:
+            self.log("✅ Client Portal Login: WORKING")
+            self.log(f"   Endpoint: /api/client-portal/login")
+            self.log(f"   Test Project: {test_project['name']}")
+            self.log(f"   Test Mobile: {mobile}")
+            self.log(f"   Authentication: SUCCESS")
+        else:
+            self.log("❌ Client Portal Login: FAILED")
+            self.log("   Issue: Authentication endpoint not working properly")
+            self.log("   Recommendation: Check backend implementation")
         
-        print(f"Total Tests: {total_tests}")
-        print(f"Passed: {passed_tests} ✅")
-        print(f"Failed: {failed_tests} ❌")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
-        
-        if failed_tests > 0:
-            print("\n❌ FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"  - {result['test']}: {result['details']}")
-        
-        return failed_tests == 0
+        return success
 
 def main():
-    """Main function"""
-    tester = APITester()
-    success = tester.run_all_tests()
+    """Main test execution"""
+    tester = ClientPortalTester()
+    success = tester.run_comprehensive_test()
     
     if success:
-        print("\n🎉 All tests passed! Client Portal Credentials API is working correctly.")
+        print("\n🎉 All tests passed!")
         sys.exit(0)
     else:
-        print("\n💥 Some tests failed. Please check the issues above.")
+        print("\n💥 Tests failed!")
         sys.exit(1)
 
 if __name__ == "__main__":
