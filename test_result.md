@@ -737,6 +737,18 @@ frontend:
         agent: "testing"
         comment: "🎉 ALL LABOUR PAYMENT APIS WORKING PERFECTLY! Comprehensive testing completed with 100% success rate (8/8 tests passed). VERIFIED ENDPOINTS: (1) POST /api/labour/payments/generate-weekly - Successfully generated weekly payments from attendance data (Created 4 payments, Skipped 0 on first run, then 0 created/4 skipped on subsequent runs - correct duplicate prevention). (2) GET /api/labour/payments - Successfully retrieved all payments (27 payments total) with proper worker names, amounts, and status. (3) GET /api/labour/payments/by-worker - Successfully grouped payments by worker (4 workers) with totals, paid amounts, and pending amounts. (4) GET /api/labour/payments/by-project - Successfully grouped payments by project (4 projects) with worker counts and financial totals. (5) POST /api/labour/payments/{id}/validate - Successfully validated payment, status changed to 'validated', validator name populated correctly. (6) POST /api/labour/payments/{id}/send-otp - Successfully sent OTP to worker phone (masked display), OTP generated for testing (6-digit code). (7) POST /api/labour/payments/{id}/verify-otp - Successfully verified OTP and marked payment as 'paid', receipt generated with worker details, amounts, approved_by field populated from project manager. (8) POST /api/labour/payments/{id}/upload-receipt - Successfully uploaded base64 receipt image and notified managers. COMPLETE PAYMENT FLOW VERIFIED: Generate → List → Validate → Send OTP → Verify OTP → Upload Receipt. All authentication working with admin@test.com and crm.manager@test.com credentials. Payment calculations, deductions, OTP security, receipt generation, and manager notifications all functional. Ready for production use."
 
+  - task: "Receipt APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL RECEIPT APIS WORKING PERFECTLY! Comprehensive testing completed with 100% success rate (8/8 tests passed). VERIFIED ENDPOINTS: (1) GET /api/labour/payments/{payment_id}/receipt - Successfully retrieved detailed receipt data for paid payment (Worker: Periyaswamy, Amount: ₹3900.0, Project: Downtown Plaza Construction). All required fields present: worker_name, amount, project_name, paid_by, approved_by, paid_at. Receipt includes comprehensive payment details: gross_amount, deductions, week_start/end dates, payment_method, payment_reference, receipt_image, status. (2) GET /api/labour/workers/{worker_id}/receipts - Successfully retrieved all payment receipts for worker (Total receipts: 1, Total paid: ₹3900.0). Response includes worker details, receipt summary, and individual receipt list with proper structure validation. (3) Error Handling Verification - Correctly returns 400 error for non-paid payments with message 'Receipt only available for paid payments'. AUTHENTICATION: Successfully tested with admin@test.com credentials. DATA VALIDATION: All receipt fields properly populated from payment, worker, and project data. Receipt generation working correctly for paid payments only. Both Receipt APIs are production-ready and fully functional."
+
 metadata:
   created_by: "main_agent"
   version: "2.3"
