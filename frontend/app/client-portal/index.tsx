@@ -268,7 +268,13 @@ const styles = StyleSheet.create({
   },
   demoButtonText: {
     color: Colors.surface,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  demoCredentials: {
     fontSize: 12,
+    color: '#4A5568',
+    marginTop: 8,
     fontFamily: 'monospace',
   },
   featuresSection: {
