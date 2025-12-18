@@ -372,6 +372,8 @@ export const weeklyPaymentsAPI = {
     api.post(`/labour/payments/${id}/verify-otp`, null, { 
       params: { otp, payment_method: paymentMethod, payment_reference: reference } 
     }),
+  uploadReceipt: (id: string, receiptImage: string) => 
+    api.post(`/labour/payments/${id}/upload-receipt`, { receipt_image: receiptImage }),
   getSummary: (params?: any) => api.get('/labour/payments/weekly-summary', { params }),
   generateWeekly: (weekStart: string, weekEnd: string, projectId?: string) => 
     api.post('/labour/payments/generate-weekly', null, { 
