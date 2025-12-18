@@ -26,10 +26,11 @@ export default function ClientPortalScreen() {
   const [project, setProject] = useState(null);
   const [milestones, setMilestones] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [updates, setUpdates] = useState([]);
   const [conversationId, setConversationId] = useState(null);
   const [hasChat, setHasChat] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'updates' | 'chat'>('timeline');
   
   // Chat states
   const [newMessage, setNewMessage] = useState('');
