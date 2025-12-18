@@ -111,6 +111,10 @@ export const projectsAPI = {
     api.put(`/projects/${id}/team`, { team_member_ids: teamMemberIds }),
   getBudgetSummary: (id: string) => api.get(`/projects/${id}/budget-summary`),
   getDeviationReport: (id: string) => api.get(`/projects/${id}/deviation-report`),
+  sendClientCredentials: (id: string, options: any) => 
+    api.post(`/projects/${id}/send-client-credentials`, options),
+  getClientCredentialsHistory: (id: string) => 
+    api.get(`/projects/${id}/client-credentials-history`),
 };
 
 // Project Templates API
