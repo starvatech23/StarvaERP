@@ -72,11 +72,28 @@ export default function ClientPortalScreen() {
       if (data.has_chat && data.conversation_id) {
         await loadMessages(data.conversation_id);
       }
+      
+      // Load project updates
+      await loadUpdates();
     } catch (err: any) {
       console.error('Error loading portal data:', err);
       setError(err.response?.data?.detail || 'Failed to load project data');
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const loadUpdates = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/client-portal/${projectId}/updates`,
+        { headers: getAuthHeaders() }
+      );
+      setUpdates(response.data || []);
+    } catch (err) {
+      console.error('Error loading updates:', err);
+      // Don't show error, just set empty updates
+      setUpdates([]);
     }
   };
 
