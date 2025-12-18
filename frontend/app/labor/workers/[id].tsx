@@ -431,6 +431,81 @@ export default function WorkerDetailScreen() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Receipt Modal */}
+      <Modal
+        visible={showReceiptModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowReceiptModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.receiptModal}>
+            {/* Header */}
+            <View style={styles.modalHeader}>
+              <Ionicons name="checkmark-circle" size={50} color="#10B981" />
+              <Text style={styles.modalTitle}>Payment Receipt</Text>
+            </View>
+
+            {/* Worker Info */}
+            <View style={styles.workerInfoBox}>
+              <Text style={styles.workerNameModal}>{selectedReceipt?.worker_name}</Text>
+              <Text style={styles.receiptAmountLarge}>₹{selectedReceipt?.amount?.toLocaleString()}</Text>
+            </View>
+
+            {/* Details */}
+            <View style={styles.receiptDetailsBox}>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptRowLabel}>Project</Text>
+                <Text style={styles.receiptRowValue}>{selectedReceipt?.project_name}</Text>
+              </View>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptRowLabel}>Period</Text>
+                <Text style={styles.receiptRowValue}>
+                  {selectedReceipt?.week_start ? moment(selectedReceipt.week_start).format('DD MMM') : ''} - {selectedReceipt?.week_end ? moment(selectedReceipt.week_end).format('DD MMM YYYY') : ''}
+                </Text>
+              </View>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptRowLabel}>Payment Method</Text>
+                <Text style={styles.receiptRowValue}>{selectedReceipt?.payment_method?.toUpperCase()}</Text>
+              </View>
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptRowLabel}>Paid On</Text>
+                <Text style={styles.receiptRowValue}>
+                  {selectedReceipt?.paid_at ? moment(selectedReceipt.paid_at).format('DD MMM YYYY, hh:mm A') : '-'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Stamps */}
+            <View style={styles.stampSection}>
+              <View style={styles.stampBox}>
+                <Text style={styles.stampLabel}>Paid By</Text>
+                <Text style={styles.stampName}>{selectedReceipt?.paid_by || 'Project Engineer'}</Text>
+                <Text style={styles.stampRole}>Project Engineer</Text>
+              </View>
+              <View style={styles.stampBox}>
+                <Text style={styles.stampLabel}>Approved By</Text>
+                <Text style={styles.stampName}>{selectedReceipt?.approved_by || 'Manager'}</Text>
+                <Text style={styles.stampRole}>Project Manager</Text>
+              </View>
+            </View>
+
+            {/* Received Stamp */}
+            <View style={styles.receivedStamp}>
+              <Text style={styles.receivedText}>✓ RECEIVED</Text>
+            </View>
+
+            {/* Close Button */}
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={() => setShowReceiptModal(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
