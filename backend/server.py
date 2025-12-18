@@ -8672,7 +8672,7 @@ async def get_user_conversations(
 
 @api_router.post("/client-portal/login")
 async def client_portal_login(credentials: dict):
-    """Authenticate client using project ID and mobile number"""
+    """Authenticate client using project ID/code and mobile number"""
     try:
         project_id = credentials.get("project_id")
         mobile = credentials.get("mobile")
@@ -8680,8 +8680,21 @@ async def client_portal_login(credentials: dict):
         if not project_id or not mobile:
             raise HTTPException(status_code=400, detail="Project ID and mobile number required")
         
-        # Find project
-        project = await db.projects.find_one({"_id": ObjectId(project_id)})
+        # Find project - support both MongoDB ObjectId and project_code (SCMMYY123456)
+        project = None
+        
+        # Check if it's a project code (starts with SC)
+        if project_id.upper().startswith("SC"):
+            project = await db.projects.find_one({"project_code": project_id.upper()})
+            if project:
+                project_id = str(project["_id"])  # Use actual ObjectId for token
+        else:
+            # Try as MongoDB ObjectId
+            try:
+                project = await db.projects.find_one({"_id": ObjectId(project_id)})
+            except:
+                pass
+        
         if not project:
             raise HTTPException(status_code=401, detail="Invalid credentials")
         
