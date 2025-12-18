@@ -881,6 +881,88 @@ export default function LaborScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* Payment Receipt Modal */}
+      <Modal
+        visible={showReceipt}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowReceipt(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.receiptModal}>
+            {/* Header */}
+            <View style={styles.receiptHeader}>
+              <Ionicons name="checkmark-circle" size={60} color="#10B981" />
+              <Text style={styles.receiptTitle}>Payment Successful!</Text>
+            </View>
+
+            {/* Receipt Content */}
+            <View style={styles.receiptContent}>
+              {/* Worker Name */}
+              <View style={styles.receiptMainInfo}>
+                <Ionicons name="person" size={24} color={Colors.secondary} />
+                <Text style={styles.receiptWorkerName}>{receiptData?.worker_name}</Text>
+              </View>
+
+              {/* Amount */}
+              <View style={styles.receiptAmountBox}>
+                <Text style={styles.receiptAmountLabel}>Amount Paid</Text>
+                <Text style={styles.receiptAmount}>₹{receiptData?.amount?.toLocaleString()}</Text>
+              </View>
+
+              {/* Details */}
+              <View style={styles.receiptDetails}>
+                <View style={styles.receiptRow}>
+                  <Text style={styles.receiptLabel}>Project</Text>
+                  <Text style={styles.receiptValue}>{receiptData?.project_name}</Text>
+                </View>
+                <View style={styles.receiptRow}>
+                  <Text style={styles.receiptLabel}>Period</Text>
+                  <Text style={styles.receiptValue}>
+                    {receiptData?.week_start ? moment(receiptData.week_start).format('DD MMM') : ''} - {receiptData?.week_end ? moment(receiptData.week_end).format('DD MMM YYYY') : ''}
+                  </Text>
+                </View>
+                <View style={styles.receiptRow}>
+                  <Text style={styles.receiptLabel}>Payment Method</Text>
+                  <Text style={styles.receiptValue}>{receiptData?.payment_method?.toUpperCase()}</Text>
+                </View>
+                <View style={styles.receiptRow}>
+                  <Text style={styles.receiptLabel}>Paid By</Text>
+                  <Text style={styles.receiptValue}>{receiptData?.paid_by}</Text>
+                </View>
+                <View style={styles.receiptRow}>
+                  <Text style={styles.receiptLabel}>Date & Time</Text>
+                  <Text style={styles.receiptValue}>
+                    {receiptData?.paid_at ? moment(receiptData.paid_at).format('DD MMM YYYY, hh:mm A') : ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Received Stamp */}
+              <View style={styles.receivedStamp}>
+                <Text style={styles.stampText}>✓ RECEIVED</Text>
+              </View>
+
+              {/* Notification Info */}
+              <View style={styles.notificationInfo}>
+                <Ionicons name="notifications" size={16} color={Colors.textSecondary} />
+                <Text style={styles.notificationText}>
+                  Project Manager has been notified
+                </Text>
+              </View>
+            </View>
+
+            {/* Close Button */}
+            <TouchableOpacity
+              style={styles.receiptCloseBtn}
+              onPress={() => setShowReceipt(false)}
+            >
+              <Text style={styles.receiptCloseBtnText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
