@@ -979,6 +979,21 @@ backend:
         agent: "testing"
         comment: "✅ CLIENT PORTAL LOGIN FULLY WORKING! Comprehensive testing completed with 100% success rate. VERIFIED FUNCTIONALITY: (1) Correct Endpoint: POST /api/client-portal/login working perfectly (NOT /api/auth/client-portal-login which returns 404), (2) Authentication Logic: Successfully authenticates clients using project_id + mobile number combination, (3) Phone Normalization: Handles multiple phone formats correctly (+919876543210, 9876543210, removes country codes), (4) Project Matching: Correctly matches client_contact and client_phone fields from projects, (5) Error Handling: Proper validation (400 for missing params, 401 for invalid credentials, 520 for invalid ObjectId), (6) Response Format: Returns access_token (base64 encoded), project_id, project_name, client_name. TESTED SCENARIOS: ✅ Valid credentials (multiple projects), ✅ Invalid project ID, ✅ Wrong mobile number, ✅ Missing parameters, ✅ Different phone formats. Found 38 projects with client contact info. Authentication working for projects like 'Downtown Plaza Construction' (+919876543210) and 'Sudhir Yellimilli' (9845012345). Client portal login system is production-ready and fully functional."
 
+  - task: "Client Portal Login Flow with New Project Code Format"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented complete Client Portal Login flow with new Project Code format (SCMMYY123456). Features: (1) POST /api/projects/create-with-templates - Creates projects with auto-generated project codes in format SC1225XXXXXX, (2) POST /api/client-portal/login - Supports both project code and MongoDB ObjectId for backward compatibility, (3) POST /api/projects/{id}/send-client-credentials - Sends credentials with project code (not MongoDB ID), (4) Project code generation follows SCMMYY format (SC + month/year + 6-digit sequence), (5) Client authentication via project_code + mobile number, (6) WhatsApp link generation for credential sharing."
+      - working: true
+        agent: "testing"
+        comment: "🎉 ALL CLIENT PORTAL LOGIN FLOW TESTS PASSED! Comprehensive testing completed with 100% success rate (7/7 tests passed). VERIFIED FEATURES: ✅ (1) Project Creation with Templates: POST /api/projects/create-with-templates successfully creates projects with correct SCMMYY format codes (e.g., SC1225000004), includes client_contact and all required fields. ✅ (2) Project Data Verification: GET /api/projects/{id} correctly returns project_code and client_contact fields as saved. ✅ (3) Client Portal Login with Project Code: POST /api/client-portal/login works perfectly with new project codes (SC1225000004), returns access_token, project_name, client_name. ✅ (4) Backward Compatibility: Login also works with MongoDB ObjectId for existing projects. ✅ (5) Send Client Credentials: POST /api/projects/{id}/send-client-credentials generates message containing Project Code (not MongoDB ID), creates proper portal links. ✅ (6) Error Handling: Invalid project codes (401), invalid mobile numbers (401), missing parameters (400) all handled correctly. ✅ (7) Project Code Format: Verified SC + MMYY + 6-digit sequence format (12 characters total). TECHNICAL VERIFICATION: Project codes generated correctly (SC1225000004 for December 2025), client authentication working with +919999888777, access tokens properly encoded, credential messages contain project codes. The complete Client Portal Login flow with new project code format is production-ready and fully functional!"
+
 frontend:
   - task: "CRM Lead List Screen"
     implemented: false
