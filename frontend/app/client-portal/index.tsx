@@ -27,7 +27,7 @@ export default function ClientPortalIndexScreen() {
 
   const handleAccessPortal = async () => {
     if (!projectId.trim()) {
-      Alert.alert('Required', 'Please enter your Project ID');
+      Alert.alert('Required', 'Please enter your Project Code');
       return;
     }
     
