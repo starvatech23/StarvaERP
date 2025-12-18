@@ -95,7 +95,7 @@ export default function ClientPortalIndexScreen() {
             autoCorrect={false}
           />
           <Text style={styles.inputHint}>
-            Your project ID was provided by your project manager
+            Your project code was provided by your project manager
           </Text>
           
           <Text style={styles.inputLabel}>Mobile Number</Text>
