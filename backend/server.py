@@ -8960,6 +8960,82 @@ async def get_client_credentials_history(
     return [serialize_doc(h) for h in history]
 
 
+@api_router.get("/client-portal/{project_id}/updates")
+async def get_client_portal_updates(
+    project_id: str,
+    authorization: str = Header(None)
+):
+    """Get project updates for client portal"""
+    try:
+        if authorization and authorization.startswith("Bearer "):
+            token = authorization.replace("Bearer ", "")
+            await verify_client_token(token)
+        else:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        
+        # Support both project_code and MongoDB ObjectId
+        project = None
+        actual_project_id = project_id
+        
+        if project_id.upper().startswith("SC"):
+            project = await db.projects.find_one({"project_code": project_id.upper()})
+            if project:
+                actual_project_id = str(project["_id"])
+        else:
+            try:
+                project = await db.projects.find_one({"_id": ObjectId(project_id)})
+            except:
+                pass
+        
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Get project updates (from project_updates collection or from milestones/tasks)
+        updates = await db.project_updates.find(
+            {"project_id": actual_project_id}
+        ).sort("created_at", -1).to_list(50)
+        
+        # Also get recent milestone completions as updates
+        completed_milestones = await db.milestones.find({
+            "project_id": actual_project_id,
+            "status": "completed"
+        }).sort("updated_at", -1).to_list(10)
+        
+        # Combine into updates list
+        result = []
+        for update in updates:
+            result.append({
+                "id": str(update["_id"]),
+                "type": update.get("type", "general"),
+                "title": update.get("title", "Project Update"),
+                "content": update.get("content", ""),
+                "created_by": update.get("created_by_name", "Project Team"),
+                "created_at": update.get("created_at"),
+                "attachments": update.get("attachments", [])
+            })
+        
+        for ms in completed_milestones:
+            result.append({
+                "id": str(ms["_id"]),
+                "type": "milestone_completed",
+                "title": f"Milestone Completed: {ms.get('name', 'Milestone')}",
+                "content": ms.get("description", ""),
+                "created_by": "Project Team",
+                "created_at": ms.get("updated_at") or ms.get("created_at"),
+                "attachments": []
+            })
+        
+        # Sort by date
+        result.sort(key=lambda x: x.get("created_at") or datetime.min, reverse=True)
+        
+        return result[:20]  # Return max 20 updates
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.get("/client-portal/{project_id}")
 async def get_client_portal_data(
     project_id: str,
