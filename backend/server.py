@@ -13158,6 +13158,604 @@ async def get_scheduled_jobs(
         raise HTTPException(status_code=500, detail=f"Failed to get scheduled jobs: {str(e)}")
 
 
+# ============= Project Management Templates API =============
+
+# Standard milestone and task templates data
+MILESTONE_TEMPLATES = [
+    {
+        "name": "Preplanning",
+        "description": "Planning and design phase before construction",
+        "order": 1,
+        "phase": "preplanning",
+        "default_duration_days": 30,
+        "is_floor_based": False,
+        "color": "#6366F1",
+        "tasks": [
+            {"name": "Preliminary Agreement Signing", "order": 1, "duration": 2, "work_type": "general"},
+            {"name": "Site Visits & Survey", "order": 2, "duration": 3, "work_type": "general", "deps": ["Preliminary Agreement Signing"]},
+            {"name": "Site Marking", "order": 3, "duration": 2, "work_type": "general", "deps": ["Site Visits & Survey"]},
+            {"name": "Preliminary Floor Plan Creation", "order": 4, "duration": 5, "work_type": "general", "deps": ["Site Visits & Survey"]},
+            {"name": "Plan Review & Updates", "order": 5, "duration": 3, "work_type": "general", "deps": ["Preliminary Floor Plan Creation"]},
+            {"name": "Final Plan Approval", "order": 6, "duration": 2, "work_type": "general", "deps": ["Plan Review & Updates"]},
+            {"name": "Preliminary 3D Views (External)", "order": 7, "duration": 5, "work_type": "general", "deps": ["Final Plan Approval"]},
+            {"name": "Preliminary 3D Views (Internal)", "order": 8, "duration": 5, "work_type": "general", "deps": ["Final Plan Approval"]},
+            {"name": "Detailed 3D Views (External)", "order": 9, "duration": 4, "work_type": "general", "deps": ["Preliminary 3D Views (External)"]},
+            {"name": "Detailed 3D Views (Internal)", "order": 10, "duration": 4, "work_type": "general", "deps": ["Preliminary 3D Views (Internal)"]},
+            {"name": "Structural Design Initiation", "order": 11, "duration": 5, "work_type": "general", "deps": ["Final Plan Approval"]},
+            {"name": "Column Positioning & Orientation", "order": 12, "duration": 3, "work_type": "general", "deps": ["Structural Design Initiation"]},
+            {"name": "Finalization of Column Positions", "order": 13, "duration": 2, "work_type": "general", "deps": ["Column Positioning & Orientation"]},
+        ]
+    },
+    {
+        "name": "Construction Phase - Structure",
+        "description": "Structural construction including foundation, columns, beams and slabs",
+        "order": 2,
+        "phase": "structure",
+        "default_duration_days": 45,
+        "is_floor_based": True,
+        "color": "#F59E0B",
+        "tasks": [
+            {"name": "Centre Line Marking", "order": 1, "duration": 1, "work_type": "general", "labour": [{"skill": "helper", "count": 2}]},
+            {"name": "Survey & Level Marking", "order": 2, "duration": 2, "work_type": "general", "deps": ["Centre Line Marking"], "labour": [{"skill": "surveyor", "count": 1}, {"skill": "helper", "count": 2}]},
+            {"name": "Excavation", "order": 3, "duration": 5, "work_type": "earthwork", "measurement": "volume", "deps": ["Survey & Level Marking"], "labour": [{"skill": "helper", "count": 5}, {"skill": "operator", "count": 1}]},
+            {"name": "PCC Work", "order": 4, "duration": 2, "work_type": "concrete_work", "measurement": "volume", "deps": ["Excavation"], "materials": [{"name": "Cement", "qty": 8, "unit": "bags/cum"}, {"name": "Sand", "qty": 0.42, "unit": "cum/cum"}, {"name": "Aggregate", "qty": 0.84, "unit": "cum/cum"}], "labour": [{"skill": "mason", "count": 3}, {"skill": "helper", "count": 4}]},
+            {"name": "Anti-Termite Treatment", "order": 5, "duration": 1, "work_type": "general", "deps": ["PCC Work"], "labour": [{"skill": "helper", "count": 2}]},
+            {"name": "Footing Reinforcement", "order": 6, "duration": 3, "work_type": "steel_fixing", "measurement": "weight", "deps": ["Anti-Termite Treatment"], "materials": [{"name": "Steel Bars", "qty": 1, "unit": "kg/kg"}, {"name": "Binding Wire", "qty": 0.02, "unit": "kg/kg"}], "labour": [{"skill": "steel_fixer", "count": 3}]},
+            {"name": "Footing Formwork", "order": 7, "duration": 2, "work_type": "carpentry", "measurement": "area", "deps": ["Anti-Termite Treatment"], "labour": [{"skill": "carpenter", "count": 2}, {"skill": "helper", "count": 2}]},
+            {"name": "Footing Concrete", "order": 8, "duration": 2, "work_type": "concrete_work", "measurement": "volume", "deps": ["Footing Reinforcement", "Footing Formwork"], "materials": [{"name": "RMC M25", "qty": 1, "unit": "cum/cum"}], "labour": [{"skill": "mason", "count": 4}, {"skill": "helper", "count": 6}]},
+            {"name": "Column Reinforcement", "order": 9, "duration": 4, "work_type": "steel_fixing", "measurement": "weight", "deps": ["Footing Concrete"], "labour": [{"skill": "steel_fixer", "count": 3}]},
+            {"name": "Column Formwork", "order": 10, "duration": 2, "work_type": "carpentry", "measurement": "area", "deps": ["Footing Concrete"], "labour": [{"skill": "carpenter", "count": 3}]},
+            {"name": "Column Concrete", "order": 11, "duration": 2, "work_type": "concrete_work", "measurement": "volume", "deps": ["Column Reinforcement", "Column Formwork"], "materials": [{"name": "RMC M25", "qty": 1, "unit": "cum/cum"}], "labour": [{"skill": "mason", "count": 3}, {"skill": "helper", "count": 4}]},
+            {"name": "Beam Reinforcement", "order": 12, "duration": 5, "work_type": "steel_fixing", "measurement": "weight", "deps": ["Column Concrete"], "labour": [{"skill": "steel_fixer", "count": 4}]},
+            {"name": "Beam Formwork", "order": 13, "duration": 3, "work_type": "carpentry", "measurement": "area", "deps": ["Column Concrete"], "labour": [{"skill": "carpenter", "count": 4}]},
+            {"name": "Slab Reinforcement", "order": 14, "duration": 4, "work_type": "steel_fixing", "measurement": "weight", "deps": ["Beam Reinforcement"], "labour": [{"skill": "steel_fixer", "count": 4}]},
+            {"name": "Slab Formwork", "order": 15, "duration": 3, "work_type": "carpentry", "measurement": "area", "deps": ["Beam Formwork"], "labour": [{"skill": "carpenter", "count": 4}]},
+            {"name": "Beam & Slab Concrete", "order": 16, "duration": 1, "work_type": "concrete_work", "measurement": "volume", "deps": ["Slab Reinforcement", "Slab Formwork"], "materials": [{"name": "RMC M25", "qty": 1, "unit": "cum/cum"}], "labour": [{"skill": "mason", "count": 6}, {"skill": "helper", "count": 10}]},
+            {"name": "Curing", "order": 17, "duration": 7, "work_type": "general", "deps": ["Beam & Slab Concrete"], "labour": [{"skill": "helper", "count": 2}]},
+            {"name": "Deshuttering", "order": 18, "duration": 2, "work_type": "carpentry", "deps": ["Curing"], "labour": [{"skill": "carpenter", "count": 3}]},
+        ]
+    },
+    {
+        "name": "Construction Phase - Finishing",
+        "description": "Wall work, plastering and basic finishing",
+        "order": 3,
+        "phase": "finishing",
+        "default_duration_days": 30,
+        "is_floor_based": False,
+        "color": "#10B981",
+        "tasks": [
+            {"name": "Brick/Block Work", "order": 1, "duration": 10, "work_type": "brickwork", "measurement": "area", "materials": [{"name": "Bricks", "qty": 55, "unit": "nos/sqm"}, {"name": "Cement", "qty": 0.5, "unit": "bags/sqm"}, {"name": "Sand", "qty": 0.04, "unit": "cum/sqm"}], "labour": [{"skill": "mason", "count": 4}, {"skill": "helper", "count": 4}]},
+            {"name": "Electrical Conduit & Chasing", "order": 2, "duration": 5, "work_type": "electrical", "measurement": "length", "deps": ["Brick/Block Work"], "labour": [{"skill": "electrician", "count": 2}, {"skill": "helper", "count": 2}]},
+            {"name": "Plumbing Lines (Internal)", "order": 3, "duration": 5, "work_type": "plumbing", "measurement": "length", "deps": ["Brick/Block Work"], "labour": [{"skill": "plumber", "count": 2}, {"skill": "helper", "count": 2}]},
+            {"name": "Plumbing Lines (External)", "order": 4, "duration": 3, "work_type": "plumbing", "measurement": "length", "deps": ["Plumbing Lines (Internal)"], "labour": [{"skill": "plumber", "count": 2}]},
+            {"name": "Internal Plastering", "order": 5, "duration": 8, "work_type": "plastering", "measurement": "area", "deps": ["Electrical Conduit & Chasing", "Plumbing Lines (Internal)"], "materials": [{"name": "Cement", "qty": 0.15, "unit": "bags/sqm"}, {"name": "Sand", "qty": 0.015, "unit": "cum/sqm"}], "labour": [{"skill": "mason", "count": 4}, {"skill": "helper", "count": 4}]},
+            {"name": "External Plastering", "order": 6, "duration": 6, "work_type": "plastering", "measurement": "area", "deps": ["Internal Plastering"], "labour": [{"skill": "mason", "count": 3}, {"skill": "helper", "count": 3}]},
+            {"name": "Elevation Detailing", "order": 7, "duration": 5, "work_type": "plastering", "measurement": "area", "deps": ["External Plastering"], "labour": [{"skill": "mason", "count": 2}, {"skill": "helper", "count": 2}]},
+        ]
+    },
+    {
+        "name": "Finishing Phase 1",
+        "description": "Tiling, fixtures and installations",
+        "order": 4,
+        "phase": "finishing_2",
+        "default_duration_days": 25,
+        "is_floor_based": False,
+        "color": "#8B5CF6",
+        "tasks": [
+            {"name": "Floor Tiling", "order": 1, "duration": 8, "work_type": "tiling", "measurement": "area", "materials": [{"name": "Floor Tiles", "qty": 1.05, "unit": "sqm/sqm"}, {"name": "Tile Adhesive", "qty": 4, "unit": "kg/sqm"}, {"name": "Grout", "qty": 0.5, "unit": "kg/sqm"}], "labour": [{"skill": "mason", "count": 3}, {"skill": "helper", "count": 3}]},
+            {"name": "Wall Tiling (Bathrooms/Kitchen)", "order": 2, "duration": 5, "work_type": "tiling", "measurement": "area", "deps": ["Floor Tiling"], "labour": [{"skill": "mason", "count": 2}, {"skill": "helper", "count": 2}]},
+            {"name": "Primer Application", "order": 3, "duration": 3, "work_type": "painting", "measurement": "area", "deps": ["Wall Tiling (Bathrooms/Kitchen)"], "materials": [{"name": "Primer", "qty": 0.1, "unit": "liters/sqm"}], "labour": [{"skill": "painter", "count": 2}]},
+            {"name": "Window Grill Installation", "order": 4, "duration": 3, "work_type": "steel_fixing", "measurement": "count", "labour": [{"skill": "welder", "count": 2}]},
+            {"name": "Window Installation", "order": 5, "duration": 4, "work_type": "carpentry", "measurement": "count", "deps": ["Window Grill Installation"], "labour": [{"skill": "carpenter", "count": 2}]},
+            {"name": "Door Installation", "order": 6, "duration": 4, "work_type": "carpentry", "measurement": "count", "labour": [{"skill": "carpenter", "count": 2}]},
+            {"name": "Sanitary Fixture Installation", "order": 7, "duration": 3, "work_type": "plumbing", "measurement": "count", "deps": ["Floor Tiling"], "labour": [{"skill": "plumber", "count": 2}]},
+            {"name": "Electrical Fixture Installation", "order": 8, "duration": 3, "work_type": "electrical", "measurement": "count", "deps": ["Primer Application"], "labour": [{"skill": "electrician", "count": 2}]},
+        ]
+    },
+    {
+        "name": "Finishing Phase 2 - Handover",
+        "description": "Final finishing, painting and handover",
+        "order": 5,
+        "phase": "handover",
+        "default_duration_days": 15,
+        "is_floor_based": False,
+        "color": "#EF4444",
+        "tasks": [
+            {"name": "First Coat Painting", "order": 1, "duration": 4, "work_type": "painting", "measurement": "area", "materials": [{"name": "Paint", "qty": 0.15, "unit": "liters/sqm"}], "labour": [{"skill": "painter", "count": 3}]},
+            {"name": "Second Coat Painting", "order": 2, "duration": 3, "work_type": "painting", "measurement": "area", "deps": ["First Coat Painting"], "materials": [{"name": "Paint", "qty": 0.1, "unit": "liters/sqm"}], "labour": [{"skill": "painter", "count": 3}]},
+            {"name": "Interior Execution", "order": 3, "duration": 5, "work_type": "general", "deps": ["Second Coat Painting"], "labour": [{"skill": "carpenter", "count": 2}, {"skill": "helper", "count": 2}]},
+            {"name": "Final Elevation Finishing", "order": 4, "duration": 3, "work_type": "painting", "measurement": "area", "deps": ["Second Coat Painting"], "labour": [{"skill": "painter", "count": 2}]},
+            {"name": "Deep Cleaning", "order": 5, "duration": 2, "work_type": "general", "deps": ["Interior Execution", "Final Elevation Finishing"], "labour": [{"skill": "helper", "count": 4}]},
+            {"name": "Final Inspection", "order": 6, "duration": 1, "work_type": "general", "deps": ["Deep Cleaning"]},
+            {"name": "Defect Rectification", "order": 7, "duration": 2, "work_type": "general", "deps": ["Final Inspection"]},
+            {"name": "Handover Documentation", "order": 8, "duration": 1, "work_type": "general", "deps": ["Defect Rectification"]},
+        ]
+    }
+]
+
+LABOUR_RATES = {
+    "mason": {"daily_rate": 800, "description": "Skilled mason for brickwork, plastering, tiling"},
+    "carpenter": {"daily_rate": 750, "description": "Skilled carpenter for formwork and woodwork"},
+    "electrician": {"daily_rate": 700, "description": "Electrical wiring and fixture installation"},
+    "plumber": {"daily_rate": 700, "description": "Plumbing installation and fixture work"},
+    "steel_fixer": {"daily_rate": 750, "description": "Reinforcement bar fixing and tying"},
+    "painter": {"daily_rate": 650, "description": "Interior and exterior painting"},
+    "welder": {"daily_rate": 800, "description": "Metal welding and fabrication"},
+    "helper": {"daily_rate": 500, "description": "General helper for all trades"},
+    "operator": {"daily_rate": 1200, "description": "Heavy equipment operator (JCB, Crane)"},
+    "surveyor": {"daily_rate": 1000, "description": "Land surveying and level marking"},
+    "supervisor": {"daily_rate": 1000, "description": "Site supervisor"}
+}
+
+
+@api_router.get("/templates/milestones")
+async def get_milestone_templates(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all milestone templates with their tasks"""
+    await get_current_user(credentials)
+    return MILESTONE_TEMPLATES
+
+
+@api_router.get("/templates/labour-rates")
+async def get_labour_rate_templates(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get standard labour rates"""
+    await get_current_user(credentials)
+    return LABOUR_RATES
+
+
+@api_router.post("/projects/create-with-templates")
+async def create_project_with_templates(
+    project_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Create a new project with auto-populated milestones and tasks.
+    
+    Input:
+    - name: Project name
+    - client_name: Client name
+    - number_of_floors: Number of floors (default: 1)
+    - planned_start_date: ISO date string
+    - total_built_area: Total built area in sqft (optional)
+    - building_type: residential/commercial/industrial (default: residential)
+    - project_manager_id: Optional PM ID
+    """
+    current_user = await get_current_user(credentials)
+    
+    # Parse input data
+    name = project_data.get("name")
+    if not name:
+        raise HTTPException(status_code=400, detail="Project name is required")
+    
+    client_name = project_data.get("client_name", "")
+    number_of_floors = project_data.get("number_of_floors", 1)
+    planned_start_date_str = project_data.get("planned_start_date")
+    total_built_area = project_data.get("total_built_area", 0)
+    building_type = project_data.get("building_type", "residential")
+    project_manager_id = project_data.get("project_manager_id")
+    description = project_data.get("description", "")
+    location = project_data.get("location", "")
+    
+    if not planned_start_date_str:
+        planned_start_date = datetime.utcnow()
+    else:
+        planned_start_date = datetime.fromisoformat(planned_start_date_str.replace("Z", "+00:00"))
+    
+    # Generate project code
+    project_code = await generate_project_code()
+    
+    # Calculate estimated end date based on milestones
+    total_days = sum(m["default_duration_days"] for m in MILESTONE_TEMPLATES)
+    # Add extra days for floor-based milestones
+    floor_based_days = sum(m["default_duration_days"] * (number_of_floors - 1) 
+                          for m in MILESTONE_TEMPLATES if m["is_floor_based"])
+    total_days += floor_based_days
+    planned_end_date = planned_start_date + timedelta(days=total_days)
+    
+    # Create the project
+    project_doc = {
+        "name": name,
+        "code": project_code,
+        "description": description,
+        "client_name": client_name,
+        "location": location,
+        "status": "planning",
+        "planned_start_date": planned_start_date,
+        "planned_end_date": planned_end_date,
+        "number_of_floors": number_of_floors,
+        "building_type": building_type,
+        "total_built_area": total_built_area,
+        "project_manager_id": project_manager_id,
+        "team_member_ids": [],
+        "total_planned_cost": 0,
+        "total_actual_cost": 0,
+        "material_planned_cost": 0,
+        "material_actual_cost": 0,
+        "labour_planned_cost": 0,
+        "labour_actual_cost": 0,
+        "created_by": str(current_user["_id"]),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    result = await db.projects.insert_one(project_doc)
+    project_id = str(result.inserted_id)
+    
+    # Create milestones and tasks
+    current_date = planned_start_date
+    created_milestones = []
+    created_tasks = []
+    task_name_to_id = {}  # For resolving dependencies
+    
+    for ms_template in MILESTONE_TEMPLATES:
+        # Determine how many times to create this milestone (once or per floor)
+        floor_iterations = number_of_floors if ms_template["is_floor_based"] else 1
+        
+        for floor_num in range(floor_iterations):
+            floor_label = f" - Floor {floor_num + 1}" if ms_template["is_floor_based"] else ""
+            
+            milestone_start = current_date
+            milestone_end = milestone_start + timedelta(days=ms_template["default_duration_days"])
+            
+            milestone_doc = {
+                "project_id": project_id,
+                "name": f"{ms_template['name']}{floor_label}",
+                "description": ms_template["description"],
+                "order": ms_template["order"] + (floor_num * 10 if ms_template["is_floor_based"] else 0),
+                "phase": ms_template["phase"],
+                "floor_number": floor_num + 1 if ms_template["is_floor_based"] else None,
+                "due_date": milestone_end,
+                "start_date": milestone_start,
+                "status": "pending",
+                "completion_percentage": 0,
+                "planned_start_date": milestone_start,
+                "planned_end_date": milestone_end,
+                "color": ms_template["color"],
+                "estimated_cost": 0,
+                "actual_cost": 0,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            
+            ms_result = await db.milestones.insert_one(milestone_doc)
+            milestone_id = str(ms_result.inserted_id)
+            milestone_doc["id"] = milestone_id
+            created_milestones.append(milestone_doc)
+            
+            # Create tasks for this milestone
+            task_start = milestone_start
+            for task_template in ms_template.get("tasks", []):
+                task_name_key = f"{ms_template['name']}{floor_label}:{task_template['name']}"
+                task_duration = task_template.get("duration", 1)
+                task_end = task_start + timedelta(days=task_duration)
+                
+                # Resolve dependencies
+                dep_ids = []
+                for dep_name in task_template.get("deps", []):
+                    dep_key = f"{ms_template['name']}{floor_label}:{dep_name}"
+                    if dep_key in task_name_to_id:
+                        dep_ids.append(task_name_to_id[dep_key])
+                
+                # Calculate labour cost estimate
+                labour_cost = 0
+                labour_estimates = []
+                for labour in task_template.get("labour", []):
+                    skill = labour.get("skill", "helper")
+                    count = labour.get("count", 1)
+                    daily_rate = LABOUR_RATES.get(skill, {}).get("daily_rate", 500)
+                    cost = daily_rate * count * task_duration
+                    labour_cost += cost
+                    labour_estimates.append({
+                        "skill_type": skill,
+                        "planned_workers": count,
+                        "planned_hours": count * 8 * task_duration,
+                        "planned_cost": cost
+                    })
+                
+                task_doc = {
+                    "project_id": project_id,
+                    "milestone_id": milestone_id,
+                    "title": task_template["name"],
+                    "description": "",
+                    "order": task_template["order"],
+                    "status": "pending",
+                    "priority": "medium",
+                    "work_type": task_template.get("work_type", "general"),
+                    "measurement_type": task_template.get("measurement"),
+                    "floor_number": floor_num + 1 if ms_template["is_floor_based"] else None,
+                    "planned_start_date": task_start,
+                    "planned_end_date": task_end,
+                    "due_date": task_end,
+                    "progress_percentage": 0,
+                    "dependencies": dep_ids,
+                    "assigned_to": [],
+                    "estimated_cost": labour_cost,
+                    "actual_cost": 0,
+                    "created_by": str(current_user["_id"]),
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }
+                
+                task_result = await db.tasks.insert_one(task_doc)
+                task_id = str(task_result.inserted_id)
+                task_doc["id"] = task_id
+                task_name_to_id[task_name_key] = task_id
+                created_tasks.append(task_doc)
+                
+                # Create labour estimates
+                for labour_est in labour_estimates:
+                    labour_est["task_id"] = task_id
+                    labour_est["project_id"] = project_id
+                    labour_est["actual_workers"] = 0
+                    labour_est["actual_hours"] = 0
+                    labour_est["actual_cost"] = 0
+                    labour_est["hourly_rate"] = LABOUR_RATES.get(labour_est["skill_type"], {}).get("daily_rate", 500) / 8
+                    labour_est["created_at"] = datetime.utcnow()
+                    await db.task_labour_estimates.insert_one(labour_est)
+                
+                # Move to next task (simplified - in reality would use dependencies)
+                task_start = task_end
+            
+            # Update current_date for next milestone
+            current_date = milestone_end
+    
+    # Calculate total planned costs
+    total_labour_cost = sum(t.get("estimated_cost", 0) for t in created_tasks)
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$set": {
+            "labour_planned_cost": total_labour_cost,
+            "total_planned_cost": total_labour_cost
+        }}
+    )
+    
+    return {
+        "project_id": project_id,
+        "project_code": project_code,
+        "milestones_created": len(created_milestones),
+        "tasks_created": len(created_tasks),
+        "total_planned_cost": total_labour_cost,
+        "planned_start_date": planned_start_date.isoformat(),
+        "planned_end_date": planned_end_date.isoformat(),
+        "message": f"Project created with {len(created_milestones)} milestones and {len(created_tasks)} tasks"
+    }
+
+
+@api_router.get("/projects/{project_id}/budget-summary")
+async def get_project_budget_summary(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get comprehensive budget summary with planned vs actual costs"""
+    await get_current_user(credentials)
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Get all milestones
+    milestones = await db.milestones.find({"project_id": project_id}).to_list(100)
+    
+    # Get all tasks with their estimates
+    tasks = await db.tasks.find({"project_id": project_id}).to_list(1000)
+    
+    # Get all labour estimates
+    labour_estimates = await db.task_labour_estimates.find({"project_id": project_id}).to_list(1000)
+    
+    # Get all material estimates
+    material_estimates = await db.task_material_estimates.find({"project_id": project_id}).to_list(1000)
+    
+    # Calculate totals
+    total_labour_planned = sum(e.get("planned_cost", 0) for e in labour_estimates)
+    total_labour_actual = sum(e.get("actual_cost", 0) for e in labour_estimates)
+    total_material_planned = sum(e.get("planned_cost", 0) for e in material_estimates)
+    total_material_actual = sum(e.get("actual_cost", 0) for e in material_estimates)
+    
+    # Build milestone breakdown
+    milestone_breakdown = []
+    for ms in milestones:
+        ms_id = str(ms["_id"])
+        ms_tasks = [t for t in tasks if t.get("milestone_id") == ms_id]
+        ms_task_ids = [str(t["_id"]) for t in ms_tasks]
+        
+        ms_labour_planned = sum(e.get("planned_cost", 0) for e in labour_estimates if e.get("task_id") in ms_task_ids)
+        ms_labour_actual = sum(e.get("actual_cost", 0) for e in labour_estimates if e.get("task_id") in ms_task_ids)
+        ms_material_planned = sum(e.get("planned_cost", 0) for e in material_estimates if e.get("task_id") in ms_task_ids)
+        ms_material_actual = sum(e.get("actual_cost", 0) for e in material_estimates if e.get("task_id") in ms_task_ids)
+        
+        ms_total_planned = ms_labour_planned + ms_material_planned
+        ms_total_actual = ms_labour_actual + ms_material_actual
+        
+        milestone_breakdown.append({
+            "milestone_id": ms_id,
+            "milestone_name": ms.get("name"),
+            "phase": ms.get("phase"),
+            "status": ms.get("status"),
+            "completion_percentage": ms.get("completion_percentage", 0),
+            "task_count": len(ms_tasks),
+            "completed_tasks": len([t for t in ms_tasks if t.get("status") == "completed"]),
+            "labour_planned": ms_labour_planned,
+            "labour_actual": ms_labour_actual,
+            "material_planned": ms_material_planned,
+            "material_actual": ms_material_actual,
+            "total_planned": ms_total_planned,
+            "total_actual": ms_total_actual,
+            "variance": ms_total_planned - ms_total_actual,
+            "variance_percentage": ((ms_total_planned - ms_total_actual) / ms_total_planned * 100) if ms_total_planned > 0 else 0
+        })
+    
+    total_planned = total_labour_planned + total_material_planned
+    total_actual = total_labour_actual + total_material_actual
+    
+    return {
+        "project_id": project_id,
+        "project_name": project.get("name"),
+        "labour": {
+            "planned": total_labour_planned,
+            "actual": total_labour_actual,
+            "variance": total_labour_planned - total_labour_actual,
+            "variance_percentage": ((total_labour_planned - total_labour_actual) / total_labour_planned * 100) if total_labour_planned > 0 else 0
+        },
+        "material": {
+            "planned": total_material_planned,
+            "actual": total_material_actual,
+            "variance": total_material_planned - total_material_actual,
+            "variance_percentage": ((total_material_planned - total_material_actual) / total_material_planned * 100) if total_material_planned > 0 else 0
+        },
+        "total": {
+            "planned": total_planned,
+            "actual": total_actual,
+            "variance": total_planned - total_actual,
+            "variance_percentage": ((total_planned - total_actual) / total_planned * 100) if total_planned > 0 else 0
+        },
+        "milestones": milestone_breakdown
+    }
+
+
+@api_router.get("/projects/{project_id}/deviation-report")
+async def get_project_deviation_report(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get deviation report showing schedule and cost variances"""
+    await get_current_user(credentials)
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    tasks = await db.tasks.find({"project_id": project_id}).to_list(1000)
+    milestones = await db.milestones.find({"project_id": project_id}).to_list(100)
+    
+    schedule_deviations = []
+    cost_deviations = []
+    
+    for task in tasks:
+        task_id = str(task["_id"])
+        
+        # Schedule deviation
+        planned_end = task.get("planned_end_date")
+        actual_end = task.get("actual_end_date")
+        if planned_end and actual_end:
+            variance_days = (actual_end - planned_end).days
+            if variance_days > 0:
+                severity = "high" if variance_days > 7 else ("medium" if variance_days > 3 else "low")
+                # Get milestone name
+                ms = next((m for m in milestones if str(m["_id"]) == task.get("milestone_id")), None)
+                schedule_deviations.append({
+                    "type": "schedule",
+                    "severity": severity,
+                    "entity_type": "task",
+                    "entity_id": task_id,
+                    "entity_name": task.get("title"),
+                    "milestone_name": ms.get("name") if ms else None,
+                    "planned_value": planned_end.isoformat() if planned_end else None,
+                    "actual_value": actual_end.isoformat() if actual_end else None,
+                    "variance": variance_days,
+                    "variance_percentage": 0,
+                    "reason": task.get("delay_reason")
+                })
+        
+        # Cost deviation
+        estimated_cost = task.get("estimated_cost", 0)
+        actual_cost = task.get("actual_cost", 0)
+        if estimated_cost > 0 and actual_cost > 0:
+            variance = estimated_cost - actual_cost
+            variance_pct = (variance / estimated_cost * 100) if estimated_cost > 0 else 0
+            if abs(variance_pct) > 10:
+                severity = "high" if abs(variance_pct) > 20 else "medium"
+                ms = next((m for m in milestones if str(m["_id"]) == task.get("milestone_id")), None)
+                cost_deviations.append({
+                    "type": "cost",
+                    "severity": severity,
+                    "entity_type": "task",
+                    "entity_id": task_id,
+                    "entity_name": task.get("title"),
+                    "milestone_name": ms.get("name") if ms else None,
+                    "planned_value": estimated_cost,
+                    "actual_value": actual_cost,
+                    "variance": variance,
+                    "variance_percentage": round(variance_pct, 2),
+                    "reason": None
+                })
+    
+    # Count by severity
+    all_deviations = schedule_deviations + cost_deviations
+    high_count = len([d for d in all_deviations if d["severity"] == "high"])
+    medium_count = len([d for d in all_deviations if d["severity"] == "medium"])
+    low_count = len([d for d in all_deviations if d["severity"] == "low"])
+    
+    return {
+        "project_id": project_id,
+        "project_name": project.get("name"),
+        "total_deviations": len(all_deviations),
+        "high_severity_count": high_count,
+        "medium_severity_count": medium_count,
+        "low_severity_count": low_count,
+        "schedule_deviations": sorted(schedule_deviations, key=lambda x: x["variance"], reverse=True),
+        "cost_deviations": sorted(cost_deviations, key=lambda x: abs(x["variance"]), reverse=True)
+    }
+
+
+@api_router.get("/tasks/{task_id}/labour-estimates")
+async def get_task_labour_estimates(
+    task_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get labour estimates for a task"""
+    await get_current_user(credentials)
+    
+    estimates = await db.task_labour_estimates.find({"task_id": task_id}).to_list(100)
+    result = []
+    for est in estimates:
+        est["id"] = str(est.pop("_id"))
+        est["hours_variance"] = est.get("planned_hours", 0) - est.get("actual_hours", 0)
+        est["cost_variance"] = est.get("planned_cost", 0) - est.get("actual_cost", 0)
+        result.append(est)
+    return result
+
+
+@api_router.put("/tasks/{task_id}/labour-estimates/{estimate_id}")
+async def update_task_labour_estimate(
+    task_id: str,
+    estimate_id: str,
+    update_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update actual values for a labour estimate"""
+    await get_current_user(credentials)
+    
+    update_fields = {}
+    if "actual_workers" in update_data:
+        update_fields["actual_workers"] = update_data["actual_workers"]
+    if "actual_hours" in update_data:
+        update_fields["actual_hours"] = update_data["actual_hours"]
+    if "actual_cost" in update_data:
+        update_fields["actual_cost"] = update_data["actual_cost"]
+    if "notes" in update_data:
+        update_fields["notes"] = update_data["notes"]
+    
+    update_fields["updated_at"] = datetime.utcnow()
+    
+    await db.task_labour_estimates.update_one(
+        {"_id": ObjectId(estimate_id), "task_id": task_id},
+        {"$set": update_fields}
+    )
+    
+    # Update task actual cost
+    estimates = await db.task_labour_estimates.find({"task_id": task_id}).to_list(100)
+    total_actual = sum(e.get("actual_cost", 0) for e in estimates)
+    await db.tasks.update_one(
+        {"_id": ObjectId(task_id)},
+        {"$set": {"actual_cost": total_actual, "updated_at": datetime.utcnow()}}
+    )
+    
+    return {"message": "Labour estimate updated", "task_actual_cost": total_actual}
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
