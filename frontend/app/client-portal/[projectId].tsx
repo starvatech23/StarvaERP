@@ -220,21 +220,33 @@ export default function ClientPortalScreen() {
           </Text>
         </TouchableOpacity>
         
-        {hasChat && (
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'chat' && styles.activeTab]}
-            onPress={() => setActiveTab('chat')}
-          >
-            <Ionicons 
-              name="chatbubble-outline" 
-              size={20} 
-              color={activeTab === 'chat' ? Colors.primary : '#6B7280'} 
-            />
-            <Text style={[styles.tabText, activeTab === 'chat' && styles.activeTabText]}>
-              Chat
-            </Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'updates' && styles.activeTab]}
+          onPress={() => setActiveTab('updates')}
+        >
+          <Ionicons 
+            name="newspaper-outline" 
+            size={20} 
+            color={activeTab === 'updates' ? Colors.primary : '#6B7280'} 
+          />
+          <Text style={[styles.tabText, activeTab === 'updates' && styles.activeTabText]}>
+            Updates
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'chat' && styles.activeTab]}
+          onPress={() => setActiveTab('chat')}
+        >
+          <Ionicons 
+            name="chatbubble-outline" 
+            size={20} 
+            color={activeTab === 'chat' ? Colors.primary : '#6B7280'} 
+          />
+          <Text style={[styles.tabText, activeTab === 'chat' && styles.activeTabText]}>
+            Chat
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Content */}
