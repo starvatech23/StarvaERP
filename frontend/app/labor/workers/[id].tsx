@@ -48,14 +48,17 @@ export default function WorkerDetailScreen() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [workerRes, projectsRes] = await Promise.all([
+      const [workerRes, projectsRes, receiptsRes] = await Promise.all([
         workersAPI.getById(id as string),
-        projectsAPI.getAll()
+        projectsAPI.getAll(),
+        weeklyPaymentsAPI.getWorkerReceipts(id as string).catch(() => ({ data: { receipts: [] } }))
       ]);
       
       const workerData = workerRes.data;
       setWorker(workerData);
       setProjects(projectsRes.data || []);
+      setReceiptsData(receiptsRes.data);
+      setReceipts(receiptsRes.data?.receipts || []);
       
       // Set form fields
       setFullName(workerData.full_name || '');
@@ -71,6 +74,18 @@ export default function WorkerDetailScreen() {
       Alert.alert('Error', 'Failed to load worker details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewReceipt = async (paymentId: string) => {
+    try {
+      const response = await weeklyPaymentsAPI.getReceipt(paymentId);
+      if (response.data) {
+        setSelectedReceipt(response.data);
+        setShowReceiptModal(true);
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to load receipt');
     }
   };
 
