@@ -595,10 +595,13 @@ export default function LaborScreen() {
                             </TouchableOpacity>
                           )}
                           {pmt.status === 'paid' && (
-                            <View style={[styles.actionBtn, { backgroundColor: '#10B98120' }]}>
-                              <Ionicons name="checkmark-done" size={14} color="#10B981" />
-                              <Text style={[styles.actionBtnText, { color: '#10B981' }]}>Paid</Text>
-                            </View>
+                            <TouchableOpacity 
+                              style={[styles.actionBtn, { backgroundColor: '#10B98120' }]}
+                              onPress={() => handleViewReceipt(pmt.id)}
+                            >
+                              <Ionicons name="receipt" size={14} color="#10B981" />
+                              <Text style={[styles.actionBtnText, { color: '#10B981' }]}>View Receipt</Text>
+                            </TouchableOpacity>
                           )}
                         </View>
                       </View>
@@ -695,10 +698,13 @@ export default function LaborScreen() {
                             </TouchableOpacity>
                           )}
                           {pmt.status === 'paid' && (
-                            <View style={[styles.actionBtn, { backgroundColor: '#10B98120' }]}>
-                              <Ionicons name="checkmark-done" size={14} color="#10B981" />
-                              <Text style={[styles.actionBtnText, { color: '#10B981' }]}>Paid</Text>
-                            </View>
+                            <TouchableOpacity 
+                              style={[styles.actionBtn, { backgroundColor: '#10B98120' }]}
+                              onPress={() => handleViewReceipt(pmt.id)}
+                            >
+                              <Ionicons name="receipt" size={14} color="#10B981" />
+                              <Text style={[styles.actionBtnText, { color: '#10B981' }]}>View Receipt</Text>
+                            </TouchableOpacity>
                           )}
                         </View>
                       </View>
