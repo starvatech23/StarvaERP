@@ -8793,12 +8793,13 @@ async def send_client_portal_credentials(
     client_email = send_options.get("client_email") or project.get("client_email")
     client_name = project.get("client_name", "Client")
     project_name = project.get("name", "Project")
+    project_code = project.get("project_code") or project.get("code") or project_id
     
-    # Generate client portal link
+    # Generate client portal link using project_code
     base_url = "https://labourmanage.preview.emergentagent.com"
-    portal_link = f"{base_url}/client-portal/?projectId={project_id}"
+    portal_link = f"{base_url}/client-portal/?projectId={project_code}"
     
-    # Create credential message
+    # Create credential message with project_code
     message = f"""
 🏗️ *{project_name}* - Client Portal Access
 
@@ -8811,7 +8812,7 @@ Your project portal is now ready! You can track progress, view updates, and comm
 
 🔐 *Login Credentials:*
 • Phone Number: {client_phone}
-• Project ID: {project_id}
+• Project Code: {project_code}
 
 Simply click the link and enter your registered phone number to access your project dashboard.
 
