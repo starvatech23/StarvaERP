@@ -18,14 +18,11 @@ API_BASE = f"{BACKEND_URL}/api"
 ADMIN_EMAIL = "admin@test.com"
 ADMIN_PASSWORD = "admin123"
 
-class PORequestTester:
+class MultiVendorPOTester:
     def __init__(self):
         self.session = requests.Session()
-        self.access_token = None
-        self.project_id = None
-        self.vendor_id = None
-        self.po_request_id = None
-        self.test_results = []
+        self.auth_token = None
+        self.user_info = None
         
     def log_result(self, test_name: str, success: bool, message: str, details: Any = None):
         """Log test result"""
