@@ -452,20 +452,22 @@ export default function CreatePORequestScreen() {
                   <TextInput
                     style={styles.lineItemInput}
                     value={item.item_name}
-                    onChangeText={(text) => searchMaterials(text, index)}
+                    onChangeText={(text) => handleMaterialNameChange(text, index)}
                     onFocus={() => {
                       setActiveLineItemIndex(index);
                       if (item.item_name.trim()) {
-                        searchMaterials(item.item_name, index);
+                        const filtered = materials.filter((m) =>
+                          m.name.toLowerCase().includes(item.item_name.toLowerCase())
+                        );
+                        setFilteredMaterials(filtered.slice(0, 5));
+                        setShowMaterialSuggestions(filtered.length > 0);
                       }
                     }}
                     onBlur={() => {
                       // Delay hiding suggestions to allow tap
                       setTimeout(() => {
-                        if (activeLineItemIndex === index) {
-                          setShowMaterialSuggestions(false);
-                        }
-                      }, 200);
+                        setShowMaterialSuggestions(false);
+                      }, 300);
                     }}
                     placeholder="Material name * (type to search)"
                     placeholderTextColor={Colors.textSecondary}
