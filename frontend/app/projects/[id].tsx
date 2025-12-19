@@ -295,6 +295,8 @@ export default function ProjectDetailsScreen() {
   const { user } = useAuth();
   const [project, setProject] = useState<any>(null);
   const [tasks, setTasks] = useState([]);
+  const [milestones, setMilestones] = useState<any[]>([]);
+  const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(new Set());
   const [statusUpdates, setStatusUpdates] = useState<StatusUpdate[]>([]);
   const [siteMaterials, setSiteMaterials] = useState<any[]>([]);
   const [incomingTransfers, setIncomingTransfers] = useState<any[]>([]);
@@ -308,6 +310,7 @@ export default function ProjectDetailsScreen() {
   useEffect(() => {
     loadProject();
     loadTasks();
+    loadMilestones();
     loadStatusUpdates();
     loadSiteMaterials();
     loadIncomingTransfers();
