@@ -300,12 +300,20 @@ export default function LeadFollowUpSection({
                         </Text>
                       </View>
                     </View>
-                    <TouchableOpacity
-                      style={styles.completeButton}
-                      onPress={() => openCompleteModal(followUp)}
-                    >
-                      <Ionicons name="checkmark-circle" size={28} color="#10B981" />
-                    </TouchableOpacity>
+                    <View style={styles.actionButtons}>
+                      <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={() => openEditModal(followUp)}
+                      >
+                        <Ionicons name="pencil" size={18} color={Colors.primary} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.completeButton}
+                        onPress={() => openCompleteModal(followUp)}
+                      >
+                        <Ionicons name="checkmark-circle" size={28} color="#10B981" />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                   {followUp.description && (
                     <Text style={styles.followUpDescription}>{followUp.description}</Text>
