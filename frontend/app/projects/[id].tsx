@@ -382,6 +382,15 @@ export default function ProjectDetailsScreen() {
       }
     });
     
+    // Sort tasks by start_date within each milestone group
+    Object.keys(grouped).forEach(key => {
+      grouped[key].sort((a: any, b: any) => {
+        const dateA = a.start_date ? new Date(a.start_date).getTime() : (a.due_date ? new Date(a.due_date).getTime() : Infinity);
+        const dateB = b.start_date ? new Date(b.start_date).getTime() : (b.due_date ? new Date(b.due_date).getTime() : Infinity);
+        return dateA - dateB;
+      });
+    });
+    
     return grouped;
   };
 
