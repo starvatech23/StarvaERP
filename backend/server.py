@@ -7343,6 +7343,251 @@ async def bulk_assign_leads(
     
     return {"message": f"Assigned {result.modified_count} leads to {assignee['full_name']}"}
 
+# ============= Lead Follow-up Task Endpoints =============
+
+@api_router.get("/crm/leads/{lead_id}/follow-ups", response_model=List[LeadFollowUpResponse])
+async def get_lead_follow_ups(
+    lead_id: str,
+    status: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all follow-up tasks for a lead"""
+    current_user = await get_current_user(credentials)
+    require_crm_access(current_user)
+    
+    query = {"lead_id": lead_id, "is_deleted": {"$ne": True}}
+    if status:
+        query["status"] = status
+    
+    follow_ups = await db.lead_follow_ups.find(query).sort("scheduled_date", 1).to_list(100)
+    
+    result = []
+    for fu in follow_ups:
+        fu_dict = serialize_doc(fu)
+        # Get lead info
+        lead = await db.leads.find_one({"_id": ObjectId(lead_id)})
+        if lead:
+            fu_dict["lead_name"] = lead.get("name")
+            fu_dict["lead_phone"] = lead.get("primary_phone")
+        # Get creator info
+        if fu_dict.get("created_by"):
+            creator = await get_user_by_id(fu_dict["created_by"])
+            if creator:
+                fu_dict["created_by_name"] = creator.get("full_name")
+        # Get completer info
+        if fu_dict.get("completed_by"):
+            completer = await get_user_by_id(fu_dict["completed_by"])
+            if completer:
+                fu_dict["completed_by_name"] = completer.get("full_name")
+        result.append(LeadFollowUpResponse(**fu_dict))
+    
+    return result
+
+@api_router.post("/crm/leads/{lead_id}/follow-ups", response_model=LeadFollowUpResponse)
+async def create_lead_follow_up(
+    lead_id: str,
+    follow_up_data: LeadFollowUpCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new follow-up task for a lead"""
+    current_user = await get_current_user(credentials)
+    require_crm_access(current_user)
+    
+    # Verify lead exists
+    lead = await db.leads.find_one({"_id": ObjectId(lead_id), "is_deleted": {"$ne": True}})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    follow_up_dict = follow_up_data.dict()
+    follow_up_dict["lead_id"] = lead_id
+    follow_up_dict["status"] = FollowUpStatus.PENDING
+    follow_up_dict["created_by"] = str(current_user["_id"])
+    follow_up_dict["created_at"] = datetime.utcnow()
+    follow_up_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.lead_follow_ups.insert_one(follow_up_dict)
+    follow_up_dict["id"] = str(result.inserted_id)
+    
+    # Update lead's next_follow_up date
+    await db.leads.update_one(
+        {"_id": ObjectId(lead_id)},
+        {"$set": {"next_follow_up": follow_up_data.scheduled_date, "updated_at": datetime.utcnow()}}
+    )
+    
+    # Create activity log
+    activity_doc = {
+        "lead_id": lead_id,
+        "activity_type": LeadActivityType.NOTE,
+        "title": f"Follow-up Scheduled: {follow_up_data.title}",
+        "description": f"Scheduled {follow_up_data.follow_up_type} for {follow_up_data.scheduled_date.strftime('%d %b %Y at %H:%M')}",
+        "performed_by": str(current_user["_id"]),
+        "created_at": datetime.utcnow()
+    }
+    await db.lead_activities.insert_one(activity_doc)
+    
+    # Send WhatsApp invite if requested (mock for now)
+    if follow_up_data.send_whatsapp_invite and lead.get("primary_phone") and lead.get("whatsapp_consent"):
+        meeting_date = follow_up_data.scheduled_date.strftime("%d %b %Y")
+        meeting_time = follow_up_data.scheduled_time or follow_up_data.scheduled_date.strftime("%H:%M")
+        invite_message = f"Hi {lead.get('name')}, you have a scheduled {follow_up_data.follow_up_type} on {meeting_date} at {meeting_time}. We look forward to connecting with you!"
+        
+        # Log WhatsApp activity (mock - in production would use WhatsApp Business API)
+        whatsapp_activity = {
+            "lead_id": lead_id,
+            "activity_type": LeadActivityType.WHATSAPP,
+            "title": "Meeting Invite Sent",
+            "description": invite_message,
+            "whatsapp_message": invite_message,
+            "whatsapp_status": "sent",
+            "performed_by": str(current_user["_id"]),
+            "created_at": datetime.utcnow()
+        }
+        await db.lead_activities.insert_one(whatsapp_activity)
+        follow_up_dict["whatsapp_invite_sent"] = True
+        await db.lead_follow_ups.update_one(
+            {"_id": result.inserted_id},
+            {"$set": {"whatsapp_invite_sent": True}}
+        )
+        print(f"WhatsApp invite sent to {lead.get('primary_phone')}: {invite_message}")
+    
+    # Create notification/reminder
+    if follow_up_data.reminder_enabled:
+        reminder_time = follow_up_data.scheduled_date - timedelta(minutes=follow_up_data.reminder_before_minutes)
+        notification_doc = {
+            "user_id": str(current_user["_id"]),
+            "title": f"Reminder: {follow_up_data.title}",
+            "message": f"You have a {follow_up_data.follow_up_type} with {lead.get('name')} scheduled in {follow_up_data.reminder_before_minutes} minutes",
+            "type": "crm_reminder",
+            "reference_type": "lead_follow_up",
+            "reference_id": str(result.inserted_id),
+            "scheduled_for": reminder_time,
+            "is_read": False,
+            "created_at": datetime.utcnow()
+        }
+        await db.notifications.insert_one(notification_doc)
+    
+    follow_up_dict["lead_name"] = lead.get("name")
+    follow_up_dict["lead_phone"] = lead.get("primary_phone")
+    creator = await get_user_by_id(str(current_user["_id"]))
+    follow_up_dict["created_by_name"] = creator.get("full_name") if creator else None
+    
+    return LeadFollowUpResponse(**follow_up_dict)
+
+@api_router.put("/crm/follow-ups/{follow_up_id}", response_model=LeadFollowUpResponse)
+async def update_lead_follow_up(
+    follow_up_id: str,
+    update_data: LeadFollowUpUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a follow-up task"""
+    current_user = await get_current_user(credentials)
+    require_crm_access(current_user)
+    
+    follow_up = await db.lead_follow_ups.find_one({"_id": ObjectId(follow_up_id), "is_deleted": {"$ne": True}})
+    if not follow_up:
+        raise HTTPException(status_code=404, detail="Follow-up not found")
+    
+    update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
+    update_dict["updated_at"] = datetime.utcnow()
+    
+    # If marked as completed
+    if update_data.status == FollowUpStatus.COMPLETED:
+        update_dict["completed_at"] = datetime.utcnow()
+        update_dict["completed_by"] = str(current_user["_id"])
+        
+        # Create activity log for completion
+        lead = await db.leads.find_one({"_id": ObjectId(follow_up["lead_id"])})
+        activity_doc = {
+            "lead_id": follow_up["lead_id"],
+            "activity_type": LeadActivityType.NOTE,
+            "title": f"Follow-up Completed: {follow_up.get('title')}",
+            "description": update_data.outcome or "Follow-up completed",
+            "performed_by": str(current_user["_id"]),
+            "created_at": datetime.utcnow()
+        }
+        await db.lead_activities.insert_one(activity_doc)
+    
+    await db.lead_follow_ups.update_one(
+        {"_id": ObjectId(follow_up_id)},
+        {"$set": update_dict}
+    )
+    
+    updated = await db.lead_follow_ups.find_one({"_id": ObjectId(follow_up_id)})
+    fu_dict = serialize_doc(updated)
+    
+    # Get lead info
+    lead = await db.leads.find_one({"_id": ObjectId(fu_dict["lead_id"])})
+    if lead:
+        fu_dict["lead_name"] = lead.get("name")
+        fu_dict["lead_phone"] = lead.get("primary_phone")
+    
+    return LeadFollowUpResponse(**fu_dict)
+
+@api_router.delete("/crm/follow-ups/{follow_up_id}")
+async def delete_lead_follow_up(
+    follow_up_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete (soft delete) a follow-up task"""
+    current_user = await get_current_user(credentials)
+    require_crm_access(current_user)
+    
+    result = await db.lead_follow_ups.update_one(
+        {"_id": ObjectId(follow_up_id)},
+        {"$set": {"is_deleted": True, "updated_at": datetime.utcnow()}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Follow-up not found")
+    
+    return {"message": "Follow-up deleted successfully"}
+
+@api_router.get("/crm/follow-ups/due", response_model=List[LeadFollowUpResponse])
+async def get_due_follow_ups(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all due/overdue follow-ups for the current user"""
+    current_user = await get_current_user(credentials)
+    require_crm_access(current_user)
+    
+    now = datetime.utcnow()
+    
+    # Get pending follow-ups that are due or overdue
+    query = {
+        "status": FollowUpStatus.PENDING,
+        "scheduled_date": {"$lte": now + timedelta(hours=24)},  # Due within 24 hours
+        "is_deleted": {"$ne": True}
+    }
+    
+    # For non-admin, only show own follow-ups or leads assigned to them
+    if current_user["role"] not in [UserRole.ADMIN, UserRole.CRM_MANAGER]:
+        # Get leads assigned to this user
+        assigned_leads = await db.leads.find(
+            {"assigned_to": str(current_user["_id"]), "is_deleted": {"$ne": True}}
+        ).to_list(1000)
+        lead_ids = [str(l["_id"]) for l in assigned_leads]
+        query["$or"] = [
+            {"created_by": str(current_user["_id"])},
+            {"lead_id": {"$in": lead_ids}}
+        ]
+    
+    follow_ups = await db.lead_follow_ups.find(query).sort("scheduled_date", 1).to_list(100)
+    
+    result = []
+    for fu in follow_ups:
+        fu_dict = serialize_doc(fu)
+        # Mark as overdue if past scheduled time
+        if fu_dict.get("scheduled_date") and fu_dict["scheduled_date"] < now:
+            fu_dict["status"] = FollowUpStatus.OVERDUE
+        # Get lead info
+        lead = await db.leads.find_one({"_id": ObjectId(fu_dict["lead_id"])})
+        if lead:
+            fu_dict["lead_name"] = lead.get("name")
+            fu_dict["lead_phone"] = lead.get("primary_phone")
+        result.append(LeadFollowUpResponse(**fu_dict))
+    
+    return result
+
 @api_router.post("/crm/leads/import", response_model=LeadImportResponse)
 async def import_leads(
     leads: List[LeadImportItem],
