@@ -701,6 +701,22 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     fontWeight: '500',
   },
+  followUpDetails: {
+    marginTop: 10,
+    marginLeft: 42,
+    gap: 6,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  detailText: {
+    flex: 1,
+    fontSize: 13,
+    color: Colors.textSecondary,
+    lineHeight: 18,
+  },
   followUpDescription: {
     fontSize: 13,
     color: Colors.textSecondary,
