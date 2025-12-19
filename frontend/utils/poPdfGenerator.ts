@@ -1,7 +1,7 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 
 interface POItem {
   material_name: string;
