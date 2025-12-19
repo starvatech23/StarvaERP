@@ -73,8 +73,11 @@ export default function PORequestDetailScreen() {
   const [sendingToVendor, setSendingToVendor] = useState(false);
   const [showVendorModal, setShowVendorModal] = useState(false);
   const [vendors, setVendors] = useState<any[]>([]);
-  const [selectedVendor, setSelectedVendor] = useState<any>(null);
+  const [selectedVendors, setSelectedVendors] = useState<any[]>([]);
   const [loadingVendors, setLoadingVendors] = useState(false);
+  const [sendEmail, setSendEmail] = useState(true);
+  const [sendWhatsApp, setSendWhatsApp] = useState(true);
+  const [customMessage, setCustomMessage] = useState('');
 
   useEffect(() => {
     loadPORequest();
