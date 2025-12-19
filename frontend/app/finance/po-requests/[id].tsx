@@ -388,7 +388,17 @@ export default function PORequestDetailScreen() {
             </Text>
           </View>
         </View>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity 
+          style={styles.pdfButton} 
+          onPress={() => setShowPdfOptionsModal(true)}
+          disabled={generatingPdf}
+        >
+          {generatingPdf ? (
+            <ActivityIndicator size="small" color={Colors.primary} />
+          ) : (
+            <Ionicons name="document-text" size={24} color={Colors.primary} />
+          )}
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
