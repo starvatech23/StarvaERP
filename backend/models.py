@@ -377,6 +377,14 @@ class ProjectUpdate(BaseModel):
     team_member_ids: Optional[List[str]] = None
     photos: Optional[List[str]] = None
     contacts: Optional[List[ProjectContact]] = None
+    # Construction-specific fields
+    number_of_floors: Optional[int] = None
+    basement_floors: Optional[int] = None
+    parking_spaces: Optional[int] = None
+    built_up_area: Optional[float] = None
+    super_built_up_area: Optional[float] = None
+    plot_area: Optional[float] = None
+    floor_details: Optional[List[dict]] = None
 
 class ProjectTeamMember(BaseModel):
     user_id: str
