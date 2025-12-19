@@ -868,58 +868,158 @@ export default function ProjectDetailsScreen() {
           )}
         </View>
 
-        {/* Tasks Card */}
+        {/* Project Schedule Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Tasks ({tasks.length})</Text>
+            <Text style={styles.cardTitle}>Project Schedule</Text>
             {canEdit && (
               <TouchableOpacity
                 style={styles.addTaskButton}
-                onPress={() => router.push(`/tasks/create?projectId=${id}` as any)}
+                onPress={() => router.push(`/projects/${id}/milestones` as any)}
               >
-                <Ionicons name="add" size={20} color={Colors.secondary} />
-                <Text style={styles.addTaskText}>Add Task</Text>
+                <Ionicons name="calendar" size={20} color={Colors.primary} />
+                <Text style={[styles.addTaskText, { color: Colors.primary }]}>Manage</Text>
               </TouchableOpacity>
             )}
           </View>
 
-          {tasks.length === 0 ? (
-            <Text style={styles.emptyText}>No tasks yet</Text>
+          {milestones.length === 0 && tasks.length === 0 ? (
+            <Text style={styles.emptyText}>No schedule defined yet</Text>
           ) : (
-            <View style={styles.tasksList}>
-              {tasks.map((task: any) => (
-                <TouchableOpacity
-                  key={task.id}
-                  style={styles.taskCard}
-                  onPress={() => router.push(`/tasks/${task.id}` as any)}
-                >
-                  <View style={styles.taskHeader}>
-                    <Text style={styles.taskTitle} numberOfLines={1}>
-                      {task.title}
-                    </Text>
-                    <View
-                      style={[
-                        styles.taskStatusBadge,
-                        { backgroundColor: getTaskStatusColor(task.status) + '20' },
-                      ]}
+            <View style={styles.scheduleList}>
+              {/* Milestones with expandable tasks */}
+              {milestones.map((milestone: any) => {
+                const milestoneTasks = getTasksByMilestone()[milestone.id] || [];
+                const isExpanded = expandedMilestones.has(milestone.id);
+                const completedTasks = milestoneTasks.filter((t: any) => t.status === 'completed').length;
+                
+                return (
+                  <View key={milestone.id} style={styles.milestoneItem}>
+                    <TouchableOpacity 
+                      style={styles.milestoneHeader}
+                      onPress={() => toggleMilestone(milestone.id)}
                     >
-                      <Text
-                        style={[
-                          styles.taskStatusText,
-                          { color: getTaskStatusColor(task.status) },
-                        ]}
-                      >
-                        {getStatusLabel(task.status)}
+                      <View style={styles.milestoneLeft}>
+                        <Ionicons 
+                          name={isExpanded ? 'chevron-down' : 'chevron-forward'} 
+                          size={18} 
+                          color={Colors.textSecondary} 
+                        />
+                        <Ionicons name="flag" size={18} color="#F59E0B" />
+                        <Text style={styles.milestoneName} numberOfLines={1}>{milestone.name}</Text>
+                      </View>
+                      <View style={styles.milestoneRight}>
+                        <Text style={styles.milestoneTaskCount}>
+                          {completedTasks}/{milestoneTasks.length}
+                        </Text>
+                        <View style={[
+                          styles.milestoneStatusDot,
+                          { backgroundColor: milestone.status === 'completed' ? '#10B981' : milestone.status === 'in_progress' ? '#3B82F6' : '#F59E0B' }
+                        ]} />
+                      </View>
+                    </TouchableOpacity>
+                    
+                    {isExpanded && milestoneTasks.length > 0 && (
+                      <View style={styles.milestoneTasks}>
+                        {milestoneTasks.map((task: any) => (
+                          <TouchableOpacity
+                            key={task.id}
+                            style={styles.scheduleTaskItem}
+                            onPress={() => router.push(`/tasks/${task.id}` as any)}
+                          >
+                            <View style={styles.scheduleTaskLeft}>
+                              <Ionicons 
+                                name={task.status === 'completed' ? 'checkmark-circle' : 'ellipse-outline'} 
+                                size={16} 
+                                color={task.status === 'completed' ? '#10B981' : Colors.textSecondary} 
+                              />
+                              <Text style={[
+                                styles.scheduleTaskTitle,
+                                task.status === 'completed' && styles.scheduleTaskCompleted
+                              ]} numberOfLines={1}>
+                                {task.title}
+                              </Text>
+                            </View>
+                            <View style={[
+                              styles.taskStatusBadge,
+                              { backgroundColor: getTaskStatusColor(task.status) + '20' },
+                            ]}>
+                              <Text style={[styles.taskStatusText, { color: getTaskStatusColor(task.status) }]}>
+                                {getStatusLabel(task.status)}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                    
+                    {isExpanded && milestoneTasks.length === 0 && (
+                      <View style={styles.milestoneTasks}>
+                        <Text style={styles.noTasksText}>No tasks in this milestone</Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+
+              {/* Unassigned tasks */}
+              {getTasksByMilestone()['unassigned']?.length > 0 && (
+                <View style={styles.milestoneItem}>
+                  <TouchableOpacity 
+                    style={styles.milestoneHeader}
+                    onPress={() => toggleMilestone('unassigned')}
+                  >
+                    <View style={styles.milestoneLeft}>
+                      <Ionicons 
+                        name={expandedMilestones.has('unassigned') ? 'chevron-down' : 'chevron-forward'} 
+                        size={18} 
+                        color={Colors.textSecondary} 
+                      />
+                      <Ionicons name="list" size={18} color="#6B7280" />
+                      <Text style={styles.milestoneName}>Other Tasks</Text>
+                    </View>
+                    <View style={styles.milestoneRight}>
+                      <Text style={styles.milestoneTaskCount}>
+                        {getTasksByMilestone()['unassigned'].length}
                       </Text>
                     </View>
-                  </View>
-                  {task.assigned_users && task.assigned_users.length > 0 && (
-                    <Text style={styles.taskAssignees}>
-                      Assigned to: {task.assigned_users.map((u: any) => u.name).join(', ')}
-                    </Text>
+                  </TouchableOpacity>
+                  
+                  {expandedMilestones.has('unassigned') && (
+                    <View style={styles.milestoneTasks}>
+                      {getTasksByMilestone()['unassigned'].map((task: any) => (
+                        <TouchableOpacity
+                          key={task.id}
+                          style={styles.scheduleTaskItem}
+                          onPress={() => router.push(`/tasks/${task.id}` as any)}
+                        >
+                          <View style={styles.scheduleTaskLeft}>
+                            <Ionicons 
+                              name={task.status === 'completed' ? 'checkmark-circle' : 'ellipse-outline'} 
+                              size={16} 
+                              color={task.status === 'completed' ? '#10B981' : Colors.textSecondary} 
+                            />
+                            <Text style={[
+                              styles.scheduleTaskTitle,
+                              task.status === 'completed' && styles.scheduleTaskCompleted
+                            ]} numberOfLines={1}>
+                              {task.title}
+                            </Text>
+                          </View>
+                          <View style={[
+                            styles.taskStatusBadge,
+                            { backgroundColor: getTaskStatusColor(task.status) + '20' },
+                          ]}>
+                            <Text style={[styles.taskStatusText, { color: getTaskStatusColor(task.status) }]}>
+                              {getStatusLabel(task.status)}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
                   )}
-                </TouchableOpacity>
-              ))}
+                </View>
+              )}
             </View>
           )}
         </View>
