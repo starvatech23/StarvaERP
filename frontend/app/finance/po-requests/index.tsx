@@ -284,15 +284,15 @@ export default function PORequestsListScreen() {
       <View style={styles.statsRow}>
         <View style={[styles.statBadge, { backgroundColor: '#FEF3C7' }]}>
           <Text style={[styles.statCount, { color: '#F59E0B' }]}>
-            {poRequests.filter((p) => p.status === 'pending_l1').length}
+            {poRequests.filter((p) => p.status === 'pending_ops_manager').length}
           </Text>
-          <Text style={styles.statLabel}>Pending L1</Text>
+          <Text style={styles.statLabel}>Ops Mgr</Text>
         </View>
         <View style={[styles.statBadge, { backgroundColor: '#DBEAFE' }]}>
           <Text style={[styles.statCount, { color: '#3B82F6' }]}>
-            {poRequests.filter((p) => p.status === 'pending_l2').length}
+            {poRequests.filter((p) => p.status === 'pending_head_approval').length}
           </Text>
-          <Text style={styles.statLabel}>Pending L2</Text>
+          <Text style={styles.statLabel}>Heads</Text>
         </View>
         <View style={[styles.statBadge, { backgroundColor: '#EDE9FE' }]}>
           <Text style={[styles.statCount, { color: '#8B5CF6' }]}>
