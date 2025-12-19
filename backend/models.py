@@ -2299,6 +2299,7 @@ class BOQCategory(str, Enum):
 class MaterialPresetBase(BaseModel):
     name: str  # e.g., "Standard Mix 1:2:4"
     description: Optional[str] = None
+    is_active: bool = True
     # Cost per sqft estimates
     cost_per_sqft_basic: Optional[float] = 1800.0  # Basic package
     cost_per_sqft_standard: Optional[float] = 2200.0  # Standard package
@@ -2308,7 +2309,18 @@ class MaterialPresetBase(BaseModel):
     cement_per_cum: float = 7.0  # bags per cubic meter
     sand_per_cum: float = 0.42  # cum per cum of concrete
     aggregate_per_cum: float = 0.84  # cum per cum of concrete
-    # Steel coefficients
+    # Steel coefficients (kg per cubic meter of concrete)
+    steel_kg_per_cum_foundation: float = 80.0
+    steel_kg_per_cum_column: float = 150.0
+    steel_kg_per_cum_beam: float = 120.0
+    steel_kg_per_cum_slab: float = 100.0
+    # Blocks and mortar
+    blocks_per_sqm: float = 12.5  # blocks per sqm of wall
+    mortar_per_sqm: float = 0.02  # cum of mortar per sqm of wall
+    # Wastage factors
+    concrete_wastage: float = 0.05  # 5%
+    steel_wastage: float = 0.08  # 8%
+    block_wastage: float = 0.05  # 5%
 
 
 # ============= Project Management Templates =============
