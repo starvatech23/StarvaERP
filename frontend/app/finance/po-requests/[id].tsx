@@ -78,6 +78,7 @@ export default function PORequestDetailScreen() {
   const [sendEmail, setSendEmail] = useState(true);
   const [sendWhatsApp, setSendWhatsApp] = useState(true);
   const [customMessage, setCustomMessage] = useState('');
+  const [showVendorHistoryModal, setShowVendorHistoryModal] = useState(false);
 
   useEffect(() => {
     loadPORequest();
