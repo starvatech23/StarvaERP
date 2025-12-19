@@ -315,9 +315,27 @@ export default function LeadFollowUpSection({
                       </TouchableOpacity>
                     </View>
                   </View>
-                  {followUp.description && (
-                    <Text style={styles.followUpDescription}>{followUp.description}</Text>
-                  )}
+                  {/* Follow-up Details Section */}
+                  <View style={styles.followUpDetails}>
+                    {followUp.description && (
+                      <View style={styles.detailRow}>
+                        <Ionicons name="document-text-outline" size={14} color={Colors.textSecondary} />
+                        <Text style={styles.detailText}>{followUp.description}</Text>
+                      </View>
+                    )}
+                    {followUp.next_step && (
+                      <View style={styles.detailRow}>
+                        <Ionicons name="arrow-forward-circle-outline" size={14} color={Colors.primary} />
+                        <Text style={[styles.detailText, { color: Colors.primary }]}>Next: {followUp.next_step}</Text>
+                      </View>
+                    )}
+                    {followUp.notes && (
+                      <View style={styles.detailRow}>
+                        <Ionicons name="chatbubble-outline" size={14} color={Colors.textSecondary} />
+                        <Text style={styles.detailText}>{followUp.notes}</Text>
+                      </View>
+                    )}
+                  </View>
                   {followUp.whatsapp_invite_sent && (
                     <View style={styles.inviteSentBadge}>
                       <Ionicons name="logo-whatsapp" size={12} color="#25D366" />
