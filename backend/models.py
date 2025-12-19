@@ -1837,7 +1837,6 @@ class FollowUpType(str, Enum):
     OTHER = "other"
 
 class LeadFollowUpBase(BaseModel):
-    lead_id: str
     follow_up_type: FollowUpType
     scheduled_date: datetime
     scheduled_time: Optional[str] = None  # HH:MM format
@@ -1848,10 +1847,9 @@ class LeadFollowUpBase(BaseModel):
     reminder_enabled: bool = True
     reminder_before_minutes: int = 30  # Remind 30 mins before
     send_whatsapp_invite: bool = False
-    whatsapp_invite_sent: bool = False
 
 class LeadFollowUpCreate(LeadFollowUpBase):
-    pass
+    lead_id: Optional[str] = None  # Optional since it comes from URL path
 
 class LeadFollowUpUpdate(BaseModel):
     follow_up_type: Optional[FollowUpType] = None
