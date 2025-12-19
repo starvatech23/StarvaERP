@@ -133,14 +133,18 @@ export default function PORequestDetailScreen() {
     if (!poRequest || !user) return false;
     const role = user?.role;
     
-    // Only approved POs with vendor can be sent
+    // Only approved POs can be sent
     if (poRequest.status !== 'approved') return false;
     if (poRequest.po_sent_to_vendor) return false;
-    if (!poRequest.vendor_id) return false;
     
     // Operations team can send
     const allowedRoles = ['admin', 'operations_manager', 'operations_head', 'operations_executive', 'project_manager'];
     return allowedRoles.includes(role);
+  };
+
+  const needsVendorSelection = () => {
+    if (!poRequest) return false;
+    return poRequest.status === 'approved' && !poRequest.po_sent_to_vendor && !poRequest.vendor_id;
   };
 
   const handleSendToVendor = async () => {
