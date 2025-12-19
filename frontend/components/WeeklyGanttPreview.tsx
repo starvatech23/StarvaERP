@@ -34,18 +34,25 @@ export default function WeeklyGanttPreview({ projectId, tasks }: WeeklyGanttPrev
   const today = moment();
 
   // Get tasks that overlap with current week
-  const weekTasks = tasks.filter((task) => {
-    if (!task.due_date && !task.start_date) return false;
-    
-    const taskStart = task.start_date ? moment(task.start_date) : moment(task.due_date);
-    const taskEnd = task.due_date ? moment(task.due_date) : moment(task.start_date);
-    
-    const weekStart = weekDays[0];
-    const weekEnd = weekDays[6];
-    
-    // Task overlaps with current week if it starts before week ends and ends after week starts
-    return taskStart.isSameOrBefore(weekEnd, 'day') && taskEnd.isSameOrAfter(weekStart, 'day');
-  });
+  const weekTasks = tasks
+    .filter((task) => {
+      if (!task.due_date && !task.start_date) return false;
+      
+      const taskStart = task.start_date ? moment(task.start_date) : moment(task.due_date);
+      const taskEnd = task.due_date ? moment(task.due_date) : moment(task.start_date);
+      
+      const weekStart = weekDays[0];
+      const weekEnd = weekDays[6];
+      
+      // Task overlaps with current week if it starts before week ends and ends after week starts
+      return taskStart.isSameOrBefore(weekEnd, 'day') && taskEnd.isSameOrAfter(weekStart, 'day');
+    })
+    // Sort tasks by start_date for consistent ordering in timeline
+    .sort((a, b) => {
+      const dateA = a.start_date ? moment(a.start_date).valueOf() : (a.due_date ? moment(a.due_date).valueOf() : Infinity);
+      const dateB = b.start_date ? moment(b.start_date).valueOf() : (b.due_date ? moment(b.due_date).valueOf() : Infinity);
+      return dateA - dateB;
+    });
 
   const getStatusColor = (status: string) => {
     switch (status) {
