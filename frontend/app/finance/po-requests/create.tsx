@@ -130,6 +130,64 @@ export default function CreatePORequestScreen() {
     }
   };
 
+  const loadVendors = async () => {
+    try {
+      const response = await vendorsAPI.getAll();
+      setVendors(response.data || []);
+      setFilteredVendors(response.data || []);
+    } catch (error) {
+      console.error('Error loading vendors:', error);
+    }
+  };
+
+  // Handle vendor search
+  const handleVendorSearch = (query: string) => {
+    setVendorSearchQuery(query);
+    if (query.trim().length > 0) {
+      const filtered = vendors.filter((v) =>
+        v.business_name?.toLowerCase().includes(query.toLowerCase()) ||
+        v.contact_person?.toLowerCase().includes(query.toLowerCase()) ||
+        v.phone?.includes(query)
+      );
+      setFilteredVendors(filtered);
+    } else {
+      setFilteredVendors(vendors);
+    }
+  };
+
+  // Create new vendor
+  const handleCreateVendor = async () => {
+    if (!newVendor.contact_person.trim() || !newVendor.phone.trim()) {
+      Alert.alert('Error', 'Contact person and phone are required');
+      return;
+    }
+    
+    try {
+      setCreatingVendor(true);
+      const response = await vendorsAPI.create(newVendor);
+      const createdVendor = response.data;
+      
+      // Add to vendors list and select it
+      setVendors([...vendors, createdVendor]);
+      setSelectedVendor(createdVendor);
+      setShowNewVendorModal(false);
+      setNewVendor({
+        business_name: '',
+        contact_person: '',
+        phone: '',
+        email: '',
+        address: '',
+        gst_number: '',
+      });
+      Alert.alert('Success', 'Vendor created successfully');
+    } catch (error: any) {
+      const message = error.response?.data?.detail || 'Failed to create vendor';
+      Alert.alert('Error', message);
+    } finally {
+      setCreatingVendor(false);
+    }
+  };
+
   // Handle material name input change
   const handleMaterialNameChange = (text: string, index: number) => {
     // Update line item with the typed text
