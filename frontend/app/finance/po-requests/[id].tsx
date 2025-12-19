@@ -18,6 +18,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { poRequestAPI, vendorsAPI } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
+import { useActivityModal } from '../../../components/ActivityConfirmationModal';
 
 const getStatusColor = (status: string) => {
   switch (status) {
