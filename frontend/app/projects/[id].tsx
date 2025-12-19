@@ -1484,6 +1484,31 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#EF4444',
   },
+  // Construction Details styles
+  constructionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  constructionItem: {
+    width: '30%',
+    backgroundColor: Colors.background,
+    borderRadius: 8,
+    padding: 12,
+    alignItems: 'center',
+  },
+  constructionValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginTop: 4,
+  },
+  constructionLabel: {
+    fontSize: 10,
+    color: Colors.textSecondary,
+    marginTop: 2,
+    textAlign: 'center',
+  },
   teamList: {
     gap: 12,
   },
