@@ -55,6 +55,24 @@ export default function ClientPortalScreen() {
     }
     loadPortalData();
   }, []);
+  
+  // Auto-refresh chat messages every 3 seconds when on chat tab
+  useEffect(() => {
+    let pollInterval: NodeJS.Timeout | null = null;
+    
+    if (activeTab === 'chat' && conversationId) {
+      // Poll for new messages every 3 seconds
+      pollInterval = setInterval(() => {
+        loadMessages(conversationId);
+      }, 3000);
+    }
+    
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+  }, [activeTab, conversationId]);
 
   const loadPortalData = async () => {
     try {
