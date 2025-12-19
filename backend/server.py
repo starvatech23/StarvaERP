@@ -71,6 +71,7 @@ from models import (
     LeadCreate, LeadUpdate, LeadResponse,
     LeadActivityCreate, LeadActivityResponse,
     LeadFieldAuditResponse,
+    FollowUpStatus, FollowUpType, LeadFollowUpCreate, LeadFollowUpUpdate, LeadFollowUpResponse,
     LeadBulkUpdate, LeadBulkAssign, LeadImportItem, LeadImportResponse,
     CRMConfigUpdate, CRMConfigResponse,
     CRMAuditAction, CRMAuditLogCreate, CRMAuditLogResponse,
