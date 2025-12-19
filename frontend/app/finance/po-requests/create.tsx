@@ -69,13 +69,32 @@ export default function CreatePORequestScreen() {
   
   // Material search state
   const [activeLineItemIndex, setActiveLineItemIndex] = useState<number | null>(null);
-  const [materialSearchQuery, setMaterialSearchQuery] = useState('');
   const [filteredMaterials, setFilteredMaterials] = useState<Material[]>([]);
   const [showMaterialSuggestions, setShowMaterialSuggestions] = useState(false);
+  
+  // Vendor state
+  const [vendors, setVendors] = useState<any[]>([]);
+  const [selectedVendor, setSelectedVendor] = useState<any>(null);
+  const [showVendorPicker, setShowVendorPicker] = useState(false);
+  const [vendorSearchQuery, setVendorSearchQuery] = useState('');
+  const [filteredVendors, setFilteredVendors] = useState<any[]>([]);
+  const [showNewVendorModal, setShowNewVendorModal] = useState(false);
+  
+  // New Vendor form
+  const [newVendor, setNewVendor] = useState({
+    business_name: '',
+    contact_person: '',
+    phone: '',
+    email: '',
+    address: '',
+    gst_number: '',
+  });
+  const [creatingVendor, setCreatingVendor] = useState(false);
 
   useEffect(() => {
     loadProjects();
     loadMaterials();
+    loadVendors();
   }, []);
 
   useEffect(() => {
