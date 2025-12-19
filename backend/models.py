@@ -2479,6 +2479,90 @@ class ProjectBudgetSummary(BaseModel):
     # Milestone breakdown
     milestones: List[Dict[str, Any]] = []
 
+
+# ============= Purchase Order Request Models =============
+
+class PORequestStatus(str, Enum):
+    DRAFT = "draft"
+    PENDING_OPS_MANAGER = "pending_ops_manager"  # Level 1
+    PENDING_HEAD_APPROVAL = "pending_head_approval"  # Level 2 (Project Head + Ops Head)
+    PENDING_FINANCE = "pending_finance"  # Level 3
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    PO_CREATED = "po_created"
+
+class POPriority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    URGENT = "urgent"
+
+class POLineItem(BaseModel):
+    material_id: Optional[str] = None
+    material_name: str
+    description: Optional[str] = None
+    quantity: float
+    unit: str
+    estimated_unit_price: float = 0
+    estimated_total: float = 0
+    specifications: Optional[str] = None
+
+class POApproval(BaseModel):
+    level: int  # 1=Ops Manager, 2=Heads, 3=Finance
+    approved_by: str
+    approved_by_name: str
+    approved_at: datetime
+    status: str  # approved/rejected
+    comments: Optional[str] = None
+
+class PurchaseOrderRequestBase(BaseModel):
+    project_id: str
+    title: str
+    description: Optional[str] = None
+    priority: POPriority = POPriority.MEDIUM
+    required_by_date: Optional[datetime] = None
+    delivery_location: Optional[str] = None
+    line_items: List[POLineItem] = []
+    total_estimated_amount: float = 0
+    justification: Optional[str] = None
+    vendor_suggestions: Optional[List[str]] = None
+    attachments: Optional[List[str]] = None
+
+class PurchaseOrderRequestCreate(PurchaseOrderRequestBase):
+    pass
+
+class PurchaseOrderRequestUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[POPriority] = None
+    required_by_date: Optional[datetime] = None
+    delivery_location: Optional[str] = None
+    line_items: Optional[List[POLineItem]] = None
+    total_estimated_amount: Optional[float] = None
+    justification: Optional[str] = None
+    vendor_suggestions: Optional[List[str]] = None
+
+class PurchaseOrderRequestResponse(PurchaseOrderRequestBase):
+    id: str
+    request_number: str  # POR-MMYY-XXXXXX
+    status: PORequestStatus
+    project_name: Optional[str] = None
+    requested_by: str
+    requested_by_name: Optional[str] = None
+    current_approval_level: int = 0
+    approvals: List[POApproval] = []
+    rejection_reason: Optional[str] = None
+    rejected_by: Optional[str] = None
+    rejected_by_name: Optional[str] = None
+    po_number: Optional[str] = None  # Generated after final approval
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+class POApprovalAction(BaseModel):
+    action: str  # "approve" or "reject"
+    comments: Optional[str] = None
+
+
 # Deviation Report Item
 class DeviationItem(BaseModel):
     type: str  # "schedule" or "cost"
