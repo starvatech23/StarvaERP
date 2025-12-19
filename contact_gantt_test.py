@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 
 # Configuration
-BASE_URL = "https://labourmanage.preview.emergentagent.com/api"
+BASE_URL = "https://construsync.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "admin@test.com"
 TEST_USER_PASSWORD = "admin123"
 

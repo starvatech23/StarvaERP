@@ -7,7 +7,7 @@ import requests
 import json
 from datetime import datetime, timedelta
 
-BASE_URL = "https://labourmanage.preview.emergentagent.com/api"
+BASE_URL = "https://construsync.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 def test_payments_api():
