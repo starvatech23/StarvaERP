@@ -465,6 +465,26 @@ export default function PORequestDetailScreen() {
         </View>
       )}
 
+      {/* Send to Vendor Button - for approved POs */}
+      {canSendToVendor() && (
+        <View style={styles.actionBar}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.sendVendorButton, sendingToVendor && { opacity: 0.7 }]}
+            onPress={handleSendToVendor}
+            disabled={sendingToVendor}
+          >
+            {sendingToVendor ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="send" size={20} color="#fff" />
+                <Text style={styles.sendVendorButtonText}>Send PO to Vendor</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Approval Modal */}
       <Modal visible={showApprovalModal} transparent animationType="slide">
         <KeyboardAvoidingView 
