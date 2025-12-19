@@ -202,52 +202,44 @@ export default function PORequestDetailScreen() {
       return;
     }
     
+    // Close modal and start sending immediately
     setShowVendorModal(false);
+    setSendingToVendor(true);
     
-    const vendorNames = selectedVendors.map(v => v.business_name || v.contact_person).join(', ');
-    const methods = [];
-    if (sendEmail) methods.push('Email');
-    if (sendWhatsApp) methods.push('WhatsApp');
-    
-    Alert.alert(
-      'Send PO to Vendors',
-      `Send PO ${poRequest.po_number} to ${selectedVendors.length} vendor(s) via ${methods.join(' & ')}?\n\nVendors: ${vendorNames}`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Send',
-          onPress: async () => {
-            try {
-              setSendingToVendor(true);
-              
-              const response = await poRequestAPI.sendToVendors(id as string, {
-                vendor_ids: selectedVendors.map(v => v.id),
-                send_email: sendEmail,
-                send_whatsapp: sendWhatsApp,
-                message: customMessage,
-              });
-              
-              const sentCount = response.data.sent?.length || 0;
-              const failedCount = response.data.failed?.length || 0;
-              
-              let message = `PO sent to ${sentCount} vendor(s) successfully!`;
-              if (failedCount > 0) {
-                message += `\n\n${failedCount} failed.`;
-              }
-              
-              Alert.alert('Success', message, [
-                { text: 'OK', onPress: () => loadPORequest() }
-              ]);
-            } catch (error: any) {
-              const message = error.response?.data?.detail || 'Failed to send PO to vendors';
-              Alert.alert('Error', message);
-            } finally {
-              setSendingToVendor(false);
-            }
-          }
-        }
-      ]
-    );
+    try {
+      console.log('Sending PO to vendors:', {
+        id,
+        vendor_ids: selectedVendors.map(v => v.id),
+        send_email: sendEmail,
+        send_whatsapp: sendWhatsApp,
+      });
+      
+      const response = await poRequestAPI.sendToVendors(id as string, {
+        vendor_ids: selectedVendors.map(v => v.id),
+        send_email: sendEmail,
+        send_whatsapp: sendWhatsApp,
+        message: customMessage,
+      });
+      
+      console.log('Send response:', response.data);
+      
+      const sentCount = response.data.sent?.length || 0;
+      const failedCount = response.data.failed?.length || 0;
+      
+      let message = `PO sent to ${sentCount} vendor(s) successfully!`;
+      if (failedCount > 0) {
+        message += `\n${failedCount} failed.`;
+      }
+      
+      Alert.alert('Success', message);
+      loadPORequest(); // Reload to get updated data
+    } catch (error: any) {
+      console.error('Error sending PO:', error);
+      const message = error.response?.data?.detail || 'Failed to send PO to vendors';
+      Alert.alert('Error', message);
+    } finally {
+      setSendingToVendor(false);
+    }
   };
 
   const handleApprovalAction = (action: 'approve' | 'reject') => {
