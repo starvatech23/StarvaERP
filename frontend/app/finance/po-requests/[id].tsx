@@ -201,40 +201,38 @@ export default function PORequestDetailScreen() {
 
   const handleSelectVendorAndSend = async (vendor: any) => {
     setShowVendorModal(false);
-    try {
-      setSendingToVendor(true);
-      
-      // First update the PO with vendor info, then send
-      // We need to add a backend endpoint for this, for now just show the flow
-      Alert.alert(
-        'Send PO to Vendor',
-        `Send PO ${poRequest.po_number} to ${vendor.business_name || vendor.contact_person}?`,
-        [
-          { text: 'Cancel', style: 'cancel', onPress: () => setSendingToVendor(false) },
-          {
-            text: 'Send',
-            onPress: async () => {
-              try {
-                // Update PO with vendor and send
-                const response = await poRequestAPI.sendToVendor(id as string);
-                Alert.alert(
-                  'Success',
-                  `PO sent to ${vendor.business_name || vendor.contact_person} successfully!`,
-                  [{ text: 'OK', onPress: () => loadPORequest() }]
-                );
-              } catch (error: any) {
-                const message = error.response?.data?.detail || 'Failed to send PO to vendor';
-                Alert.alert('Error', message);
-              } finally {
-                setSendingToVendor(false);
-              }
+    
+    Alert.alert(
+      'Send PO to Vendor',
+      `Send PO ${poRequest.po_number} to ${vendor.business_name || vendor.contact_person}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Send',
+          onPress: async () => {
+            try {
+              setSendingToVendor(true);
+              
+              // First update PO with vendor
+              await poRequestAPI.updateVendor(id as string, { vendor_id: vendor.id });
+              
+              // Then send to vendor
+              const response = await poRequestAPI.sendToVendor(id as string);
+              Alert.alert(
+                'Success',
+                `PO sent to ${vendor.business_name || vendor.contact_person} successfully!\n\nPhone: ${vendor.phone || 'N/A'}\nEmail: ${vendor.email || 'N/A'}`,
+                [{ text: 'OK', onPress: () => loadPORequest() }]
+              );
+            } catch (error: any) {
+              const message = error.response?.data?.detail || 'Failed to send PO to vendor';
+              Alert.alert('Error', message);
+            } finally {
+              setSendingToVendor(false);
             }
           }
-        ]
-      );
-    } catch (error) {
-      setSendingToVendor(false);
-    }
+        }
+      ]
+    );
   };
 
   const handleApprovalAction = (action: 'approve' | 'reject') => {
