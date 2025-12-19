@@ -71,10 +71,26 @@ export default function PORequestDetailScreen() {
   const [comments, setComments] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [sendingToVendor, setSendingToVendor] = useState(false);
+  const [showVendorModal, setShowVendorModal] = useState(false);
+  const [vendors, setVendors] = useState<any[]>([]);
+  const [selectedVendor, setSelectedVendor] = useState<any>(null);
+  const [loadingVendors, setLoadingVendors] = useState(false);
 
   useEffect(() => {
     loadPORequest();
   }, [id]);
+
+  const loadVendors = async () => {
+    try {
+      setLoadingVendors(true);
+      const response = await vendorsAPI.getAll();
+      setVendors(response.data || []);
+    } catch (error) {
+      console.error('Error loading vendors:', error);
+    } finally {
+      setLoadingVendors(false);
+    }
+  };
 
   const loadPORequest = async () => {
     try {
