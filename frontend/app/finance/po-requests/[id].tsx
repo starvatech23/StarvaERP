@@ -1126,4 +1126,69 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  // Vendor modal styles
+  vendorList: {
+    maxHeight: 300,
+  },
+  vendorListLoading: {
+    alignItems: 'center',
+    padding: 30,
+    gap: 10,
+  },
+  loadingText: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
+  vendorListEmpty: {
+    alignItems: 'center',
+    padding: 30,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginTop: 12,
+  },
+  emptySubtext: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: 4,
+  },
+  vendorOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  vendorOptionInfo: {
+    flex: 1,
+  },
+  vendorOptionName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  vendorOptionContact: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  vendorOptionPhone: {
+    fontSize: 13,
+    color: Colors.primary,
+    marginTop: 2,
+  },
+  vendorModalCancelBtn: {
+    paddingVertical: 14,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    marginTop: 10,
+  },
+  vendorModalCancelText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
 });
