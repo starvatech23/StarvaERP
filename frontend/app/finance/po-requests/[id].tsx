@@ -82,10 +82,66 @@ export default function PORequestDetailScreen() {
   const [sendWhatsApp, setSendWhatsApp] = useState(true);
   const [customMessage, setCustomMessage] = useState('');
   const [showVendorHistoryModal, setShowVendorHistoryModal] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [showPdfOptionsModal, setShowPdfOptionsModal] = useState(false);
 
   useEffect(() => {
     loadPORequest();
   }, [id]);
+
+  // PDF Handlers
+  const handleDownloadPdf = async () => {
+    setShowPdfOptionsModal(false);
+    setGeneratingPdf(true);
+    try {
+      const result = await savePOPdf(poRequest);
+      if (result.success) {
+        showSuccess('PDF Saved', 'Purchase order has been saved to your device.', true);
+      } else {
+        showError('Download Failed', result.error || 'Failed to save PDF');
+      }
+    } catch (error: any) {
+      showError('Download Failed', error.message || 'An error occurred');
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
+  const handleSharePdf = async () => {
+    setShowPdfOptionsModal(false);
+    setGeneratingPdf(true);
+    try {
+      const result = await sharePOPdf(poRequest, {
+        title: `Share PO ${poRequest.po_number}`,
+      });
+      if (result.success) {
+        showSuccess('PDF Shared', 'Purchase order PDF is ready to share.', true);
+      } else {
+        showError('Share Failed', result.error || 'Failed to share PDF');
+      }
+    } catch (error: any) {
+      showError('Share Failed', error.message || 'An error occurred');
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
+  const handlePrintPdf = async () => {
+    setShowPdfOptionsModal(false);
+    setGeneratingPdf(true);
+    try {
+      const result = await printPO(poRequest);
+      if (result.success) {
+        showSuccess('Print Ready', 'Purchase order sent to printer.', true);
+      } else {
+        showError('Print Failed', result.error || 'Failed to print PDF');
+      }
+    } catch (error: any) {
+      showError('Print Failed', error.message || 'An error occurred');
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
 
   const loadVendors = async () => {
     try {
