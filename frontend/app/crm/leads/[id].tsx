@@ -206,6 +206,15 @@ export default function LeadDetailScreen() {
           </View>
         )}
 
+        {/* Follow-ups Section */}
+        <LeadFollowUpSection
+          leadId={String(id)}
+          leadName={lead.name}
+          leadPhone={lead.primary_phone}
+          hasWhatsAppConsent={lead.whatsapp_consent}
+          onFollowUpCreated={loadData}
+        />
+
         {/* Lead Info Card */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Contact Information</Text>
