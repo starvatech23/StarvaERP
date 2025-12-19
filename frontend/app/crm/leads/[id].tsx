@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { crmLeadsAPI, crmActivitiesAPI, estimationAPI } from '../../../services/api';
 import { useActivityModal } from '../../../components/ActivityConfirmationModal';
+import LeadFollowUpSection from '../../../components/LeadFollowUpSection';
 
 export default function LeadDetailScreen() {
   const router = useRouter();
