@@ -460,6 +460,92 @@ export default function CreatePORequestScreen() {
             </View>
           </View>
 
+          {/* Vendor Selection */}
+          <View style={styles.section}>
+            <View style={styles.lineItemsHeader}>
+              <Text style={styles.sectionTitle}>Vendor</Text>
+              <TouchableOpacity style={styles.addItemBtn} onPress={() => setShowNewVendorModal(true)}>
+                <Ionicons name="add-circle" size={20} color={Colors.primary} />
+                <Text style={styles.addItemText}>Add New</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {selectedVendor ? (
+              <View style={styles.vendorCard}>
+                <View style={styles.vendorInfo}>
+                  <Text style={styles.vendorName}>{selectedVendor.business_name || selectedVendor.contact_person}</Text>
+                  {selectedVendor.business_name && selectedVendor.contact_person && (
+                    <Text style={styles.vendorContact}>{selectedVendor.contact_person}</Text>
+                  )}
+                  <Text style={styles.vendorPhone}>{selectedVendor.phone}</Text>
+                  {selectedVendor.email && <Text style={styles.vendorEmail}>{selectedVendor.email}</Text>}
+                </View>
+                <TouchableOpacity onPress={() => { setSelectedVendor(null); setShowVendorPicker(true); }}>
+                  <Ionicons name="close-circle" size={24} color="#EF4444" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <>
+                <TouchableOpacity
+                  style={styles.pickerButton}
+                  onPress={() => setShowVendorPicker(!showVendorPicker)}
+                >
+                  <Ionicons name="storefront" size={20} color={Colors.textSecondary} />
+                  <Text style={styles.pickerPlaceholder}>Select a vendor</Text>
+                  <Ionicons name={showVendorPicker ? 'chevron-up' : 'chevron-down'} size={20} color={Colors.textSecondary} />
+                </TouchableOpacity>
+                
+                {showVendorPicker && (
+                  <View style={styles.pickerDropdown}>
+                    <View style={styles.vendorSearchContainer}>
+                      <Ionicons name="search" size={18} color={Colors.textSecondary} />
+                      <TextInput
+                        style={styles.vendorSearchInput}
+                        value={vendorSearchQuery}
+                        onChangeText={handleVendorSearch}
+                        placeholder="Search vendors..."
+                        placeholderTextColor={Colors.textSecondary}
+                      />
+                    </View>
+                    <ScrollView style={{ maxHeight: 200 }}>
+                      {filteredVendors.length === 0 ? (
+                        <View style={styles.noVendorsContainer}>
+                          <Text style={styles.noVendorsText}>No vendors found</Text>
+                          <TouchableOpacity 
+                            style={styles.createVendorBtn}
+                            onPress={() => { setShowVendorPicker(false); setShowNewVendorModal(true); }}
+                          >
+                            <Ionicons name="add" size={16} color={Colors.primary} />
+                            <Text style={styles.createVendorText}>Create New Vendor</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        filteredVendors.map((vendor) => (
+                          <TouchableOpacity
+                            key={vendor.id}
+                            style={styles.pickerOption}
+                            onPress={() => {
+                              setSelectedVendor(vendor);
+                              setShowVendorPicker(false);
+                              setVendorSearchQuery('');
+                            }}
+                          >
+                            <Text style={styles.pickerOptionText}>
+                              {vendor.business_name || vendor.contact_person}
+                            </Text>
+                            <Text style={styles.pickerOptionSubtext}>
+                              {vendor.contact_person} • {vendor.phone}
+                            </Text>
+                          </TouchableOpacity>
+                        ))
+                      )}
+                    </ScrollView>
+                  </View>
+                )}
+              </>
+            )}
+          </View>
+
           {/* Required By Date */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Required By Date</Text>
