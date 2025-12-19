@@ -36,10 +36,15 @@ export default function WeeklyGanttPreview({ projectId, tasks }: WeeklyGanttPrev
   // Get tasks that overlap with current week
   const weekTasks = tasks
     .filter((task) => {
-      if (!task.due_date && !task.start_date) return false;
+      // Check for any date field
+      if (!task.due_date && !task.start_date && !task.planned_start_date && !task.planned_end_date) return false;
       
-      const taskStart = task.start_date ? moment(task.start_date) : moment(task.due_date);
-      const taskEnd = task.due_date ? moment(task.due_date) : moment(task.start_date);
+      const taskStart = task.start_date ? moment(task.start_date) 
+        : (task.planned_start_date ? moment(task.planned_start_date) 
+        : moment(task.due_date || task.planned_end_date));
+      const taskEnd = task.due_date ? moment(task.due_date) 
+        : (task.planned_end_date ? moment(task.planned_end_date) 
+        : moment(task.start_date || task.planned_start_date));
       
       const weekStart = weekDays[0];
       const weekEnd = weekDays[6];
@@ -48,9 +53,14 @@ export default function WeeklyGanttPreview({ projectId, tasks }: WeeklyGanttPrev
       return taskStart.isSameOrBefore(weekEnd, 'day') && taskEnd.isSameOrAfter(weekStart, 'day');
     })
     // Sort tasks by start_date for consistent ordering in timeline
+    // Use planned_start_date as fallback, then due_date
     .sort((a, b) => {
-      const dateA = a.start_date ? moment(a.start_date).valueOf() : (a.due_date ? moment(a.due_date).valueOf() : Infinity);
-      const dateB = b.start_date ? moment(b.start_date).valueOf() : (b.due_date ? moment(b.due_date).valueOf() : Infinity);
+      const dateA = a.start_date ? moment(a.start_date).valueOf() 
+        : (a.planned_start_date ? moment(a.planned_start_date).valueOf()
+        : (a.due_date ? moment(a.due_date).valueOf() : Infinity));
+      const dateB = b.start_date ? moment(b.start_date).valueOf() 
+        : (b.planned_start_date ? moment(b.planned_start_date).valueOf()
+        : (b.due_date ? moment(b.due_date).valueOf() : Infinity));
       return dateA - dateB;
     });
 
