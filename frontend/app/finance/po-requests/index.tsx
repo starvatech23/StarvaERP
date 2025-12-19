@@ -151,16 +151,16 @@ export default function PORequestsListScreen() {
     const status = po.status;
     
     // Level 1: Operations Manager
-    if (status === 'pending_l1' && (role === 'admin' || role === 'project_manager')) {
-      return true;
+    if (status === 'pending_ops_manager') {
+      return role === 'admin' || role === 'operations_manager';
     }
     // Level 2: Project/Operations Head
-    if (status === 'pending_l2' && (role === 'admin' || role === 'project_manager')) {
-      return true;
+    if (status === 'pending_head_approval') {
+      return role === 'admin' || role === 'project_head' || role === 'operations_head';
     }
     // Level 3: Finance
-    if (status === 'pending_finance' && (role === 'admin' || role === 'project_manager')) {
-      return true;
+    if (status === 'pending_finance') {
+      return role === 'admin' || role === 'finance_head' || role === 'finance_team';
     }
     return false;
   };
