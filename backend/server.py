@@ -14497,6 +14497,80 @@ async def get_po_requests_stats(
     return stats
 
 
+@api_router.post("/purchase-order-requests/{request_id}/send-to-vendor")
+async def send_po_to_vendor(
+    request_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Mark PO as sent to vendor (Operations Team action)"""
+    current_user = await get_current_user(credentials)
+    user_role = current_user.get("role", "")
+    
+    # Check permission - only admin, operations roles can send
+    allowed_roles = ["admin", "operations_manager", "operations_head", "operations_executive", "project_manager"]
+    if user_role not in allowed_roles:
+        raise HTTPException(status_code=403, detail="You don't have permission to send PO to vendor")
+    
+    po_request = await db.purchase_order_requests.find_one({"_id": ObjectId(request_id)})
+    if not po_request:
+        raise HTTPException(status_code=404, detail="PO Request not found")
+    
+    if po_request.get("status") != "approved":
+        raise HTTPException(status_code=400, detail="Only approved PO requests can be sent to vendor")
+    
+    if po_request.get("po_sent_to_vendor"):
+        raise HTTPException(status_code=400, detail="PO has already been sent to vendor")
+    
+    if not po_request.get("vendor_id"):
+        raise HTTPException(status_code=400, detail="No vendor selected for this PO request")
+    
+    # Get vendor details
+    vendor = await db.vendors.find_one({"_id": ObjectId(po_request["vendor_id"])})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Selected vendor not found")
+    
+    # Update PO request
+    await db.purchase_order_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {
+            "$set": {
+                "po_sent_to_vendor": True,
+                "po_sent_at": datetime.utcnow(),
+                "po_sent_by": str(current_user["_id"]),
+                "po_sent_by_name": current_user.get("full_name"),
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    # In a real system, this would send email/SMS to vendor
+    # For now, just log it
+    logger.info(f"PO {po_request.get('po_number')} sent to vendor {vendor.get('business_name', vendor.get('contact_person'))}")
+    
+    # Notify requester
+    await db.notifications.insert_one({
+        "user_id": po_request["requested_by"],
+        "type": "po_sent_to_vendor",
+        "title": "PO Sent to Vendor",
+        "message": f"PO {po_request.get('po_number')} has been sent to {vendor.get('business_name', vendor.get('contact_person'))}",
+        "data": {
+            "po_request_id": request_id,
+            "po_number": po_request.get("po_number"),
+            "vendor_name": vendor.get("business_name", vendor.get("contact_person"))
+        },
+        "read": False,
+        "created_at": datetime.utcnow()
+    })
+    
+    return {
+        "message": f"PO sent to vendor successfully",
+        "po_number": po_request.get("po_number"),
+        "vendor_name": vendor.get("business_name", vendor.get("contact_person")),
+        "vendor_phone": vendor.get("phone"),
+        "vendor_email": vendor.get("email")
+    }
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
