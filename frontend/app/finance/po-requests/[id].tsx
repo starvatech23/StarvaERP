@@ -113,9 +113,17 @@ export default function PORequestDetailScreen() {
     const role = user?.role;
     const status = poRequest.status;
     
-    // Allow admin and project_manager to approve at any level for now
-    if (role === 'admin' || role === 'project_manager') {
-      return status === 'pending_l1' || status === 'pending_l2' || status === 'pending_finance';
+    // Level 1: Operations Manager approval
+    if (status === 'pending_ops_manager') {
+      return role === 'admin' || role === 'operations_manager';
+    }
+    // Level 2: Project Head + Operations Head approval
+    if (status === 'pending_head_approval') {
+      return role === 'admin' || role === 'project_head' || role === 'operations_head';
+    }
+    // Level 3: Finance approval
+    if (status === 'pending_finance') {
+      return role === 'admin' || role === 'finance_head' || role === 'finance_team';
     }
     return false;
   };
