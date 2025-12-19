@@ -1201,9 +1201,9 @@ async def access_gantt_share(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     
-    # Get milestones and tasks for Gantt chart
-    milestones = await db.milestones.find({"project_id": project_id}).to_list(100)
-    tasks = await db.tasks.find({"project_id": project_id}).to_list(1000)
+    # Get milestones and tasks for Gantt chart (sorted by start_date)
+    milestones = await db.milestones.find({"project_id": project_id}).sort("start_date", 1).to_list(100)
+    tasks = await db.tasks.find({"project_id": project_id}).sort("start_date", 1).to_list(1000)
     
     # Prepare Gantt data
     gantt_data = {
