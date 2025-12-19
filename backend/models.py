@@ -1866,8 +1866,10 @@ class LeadFollowUpUpdate(BaseModel):
 
 class LeadFollowUpResponse(LeadFollowUpBase):
     id: str
+    lead_id: str
     status: FollowUpStatus = FollowUpStatus.PENDING
     outcome: Optional[str] = None
+    whatsapp_invite_sent: bool = False
     completed_at: Optional[datetime] = None
     completed_by: Optional[str] = None
     completed_by_name: Optional[str] = None
