@@ -483,7 +483,7 @@ export default function PORequestDetailScreen() {
                         </Text>
                         <Text style={styles.timelineDate}>{formatDate(approval.approved_at)}</Text>
                         {approval.comments && (
-                          <Text style={styles.timelineComments}>"{approval.comments}"</Text>
+                          <Text style={styles.timelineComments}>&quot;{approval.comments}&quot;</Text>
                         )}
                       </>
                     ) : isPending ? (
