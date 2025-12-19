@@ -511,12 +511,11 @@ export default function CreatePORequestScreen() {
                   <View style={styles.lineItemCol}>
                     <Text style={styles.lineItemLabel}>Unit</Text>
                     <TextInput
-                      style={[styles.lineItemInput, !item.is_new_material && styles.readOnlyInput]}
+                      style={styles.lineItemInput}
                       value={item.unit}
                       onChangeText={(text) => updateLineItem(index, 'unit', text)}
                       placeholder="units"
                       placeholderTextColor={Colors.textSecondary}
-                      editable={item.is_new_material}
                     />
                   </View>
                 </View>
