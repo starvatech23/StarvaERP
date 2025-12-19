@@ -16,7 +16,7 @@ import {
 import Colors from '../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { projectsAPI, tasksAPI, statusUpdatesAPI, siteMaterialsAPI, materialTransfersAPI } from '../../services/api';
+import { projectsAPI, tasksAPI, statusUpdatesAPI, siteMaterialsAPI, materialTransfersAPI, milestonesAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import TimelineCard from '../../components/TimelineCard';
 
