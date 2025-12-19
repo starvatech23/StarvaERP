@@ -163,7 +163,8 @@ def is_crm_manager(user: dict) -> bool:
 def is_crm_user(user: dict) -> bool:
     """Check if user has CRM User role or higher"""
     role = user.get('role')
-    return role in [UserRole.ADMIN, UserRole.CRM_MANAGER, UserRole.CRM_USER]
+    # Include project_manager as they often need to create/manage leads
+    return role in [UserRole.ADMIN, UserRole.CRM_MANAGER, UserRole.CRM_USER, UserRole.PROJECT_MANAGER]
 
 def can_delete_lead(user: dict) -> bool:
     """Check if user can delete leads"""
