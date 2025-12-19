@@ -14064,6 +14064,439 @@ async def update_task_labour_estimate(
     return {"message": "Labour estimate updated", "task_actual_cost": total_actual}
 
 
+# ============= Purchase Order Request API =============
+
+# Roles that can create PO Requests
+PO_CREATE_ROLES = ["admin", "project_manager", "engineer", "operations_manager", "operations_executive"]
+
+# Approval roles by level
+PO_APPROVAL_ROLES = {
+    1: ["operations_manager", "admin"],  # Level 1: Operations Manager
+    2: ["project_head", "operations_head", "admin"],  # Level 2: Project Head + Ops Head
+    3: ["finance_head", "admin"]  # Level 3: Finance Head
+}
+
+
+async def generate_po_request_number() -> str:
+    """Generate unique PO Request number: POR-MMYY-XXXXXX"""
+    now = datetime.utcnow()
+    month_year = now.strftime("%m%y")
+    prefix = f"POR{month_year}"
+    
+    pattern = f"^{prefix}"
+    last_request = await db.purchase_order_requests.find_one(
+        {"request_number": {"$regex": pattern}},
+        sort=[("request_number", -1)]
+    )
+    
+    if last_request and last_request.get("request_number"):
+        try:
+            last_seq = int(last_request["request_number"][-6:])
+            next_seq = last_seq + 1
+        except:
+            next_seq = 1
+    else:
+        next_seq = 1
+    
+    return f"{prefix}{next_seq:06d}"
+
+
+async def generate_po_number() -> str:
+    """Generate unique PO number: PO-MMYY-XXXXXX"""
+    now = datetime.utcnow()
+    month_year = now.strftime("%m%y")
+    prefix = f"PO{month_year}"
+    
+    pattern = f"^{prefix}"
+    last_po = await db.purchase_orders.find_one(
+        {"po_number": {"$regex": pattern}},
+        sort=[("po_number", -1)]
+    )
+    
+    if last_po and last_po.get("po_number"):
+        try:
+            last_seq = int(last_po["po_number"][-6:])
+            next_seq = last_seq + 1
+        except:
+            next_seq = 1
+    else:
+        next_seq = 1
+    
+    return f"{prefix}{next_seq:06d}"
+
+
+@api_router.post("/purchase-order-requests")
+async def create_po_request(
+    request_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new Purchase Order Request"""
+    current_user = await get_current_user(credentials)
+    
+    # Check if user has permission to create PO requests
+    user_role = current_user.get("role", "")
+    if user_role not in PO_CREATE_ROLES:
+        raise HTTPException(status_code=403, detail="You don't have permission to create PO requests")
+    
+    # Validate project exists
+    project_id = request_data.get("project_id")
+    if not project_id:
+        raise HTTPException(status_code=400, detail="Project ID is required")
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Generate request number
+    request_number = await generate_po_request_number()
+    
+    # Calculate total from line items
+    line_items = request_data.get("line_items", [])
+    total_amount = sum(item.get("estimated_total", item.get("quantity", 0) * item.get("estimated_unit_price", 0)) for item in line_items)
+    
+    # Create the PO request
+    po_request = {
+        "request_number": request_number,
+        "project_id": project_id,
+        "project_name": project.get("name"),
+        "title": request_data.get("title"),
+        "description": request_data.get("description"),
+        "priority": request_data.get("priority", "medium"),
+        "required_by_date": request_data.get("required_by_date"),
+        "delivery_location": request_data.get("delivery_location"),
+        "line_items": line_items,
+        "total_estimated_amount": total_amount,
+        "justification": request_data.get("justification"),
+        "vendor_suggestions": request_data.get("vendor_suggestions", []),
+        "attachments": request_data.get("attachments", []),
+        "status": "pending_ops_manager",  # Start at Level 1
+        "current_approval_level": 1,
+        "approvals": [],
+        "requested_by": str(current_user["_id"]),
+        "requested_by_name": current_user.get("full_name"),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    result = await db.purchase_order_requests.insert_one(po_request)
+    po_request["id"] = str(result.inserted_id)
+    
+    # Create notification for Operations Managers
+    ops_managers = await db.users.find({"role": {"$in": ["operations_manager", "admin"]}}).to_list(100)
+    for manager in ops_managers:
+        await db.notifications.insert_one({
+            "user_id": str(manager["_id"]),
+            "type": "po_request_pending",
+            "title": "New PO Request Pending Approval",
+            "message": f"PO Request {request_number} for {project.get('name')} requires your approval",
+            "data": {
+                "po_request_id": str(result.inserted_id),
+                "request_number": request_number,
+                "project_id": project_id
+            },
+            "read": False,
+            "created_at": datetime.utcnow()
+        })
+    
+    return {
+        "id": str(result.inserted_id),
+        "request_number": request_number,
+        "status": "pending_ops_manager",
+        "message": "PO Request created and sent for Operations Manager approval"
+    }
+
+
+@api_router.get("/purchase-order-requests")
+async def list_po_requests(
+    status: Optional[str] = None,
+    project_id: Optional[str] = None,
+    my_requests: bool = False,
+    pending_my_approval: bool = False,
+    skip: int = 0,
+    limit: int = 50,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """List Purchase Order Requests with filters"""
+    current_user = await get_current_user(credentials)
+    user_role = current_user.get("role", "")
+    user_id = str(current_user["_id"])
+    
+    query = {}
+    
+    # Filter by status
+    if status:
+        query["status"] = status
+    
+    # Filter by project
+    if project_id:
+        query["project_id"] = project_id
+    
+    # Filter: My requests only
+    if my_requests:
+        query["requested_by"] = user_id
+    
+    # Filter: Pending my approval
+    if pending_my_approval:
+        # Determine which approval level the user can approve
+        pending_statuses = []
+        if user_role in PO_APPROVAL_ROLES.get(1, []):
+            pending_statuses.append("pending_ops_manager")
+        if user_role in PO_APPROVAL_ROLES.get(2, []):
+            pending_statuses.append("pending_head_approval")
+        if user_role in PO_APPROVAL_ROLES.get(3, []):
+            pending_statuses.append("pending_finance")
+        
+        if pending_statuses:
+            query["status"] = {"$in": pending_statuses}
+        else:
+            return []  # User can't approve anything
+    
+    requests = await db.purchase_order_requests.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    
+    result = []
+    for req in requests:
+        req["id"] = str(req.pop("_id"))
+        result.append(req)
+    
+    return result
+
+
+@api_router.get("/purchase-order-requests/{request_id}")
+async def get_po_request(
+    request_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get PO Request details"""
+    await get_current_user(credentials)
+    
+    po_request = await db.purchase_order_requests.find_one({"_id": ObjectId(request_id)})
+    if not po_request:
+        raise HTTPException(status_code=404, detail="PO Request not found")
+    
+    po_request["id"] = str(po_request.pop("_id"))
+    return po_request
+
+
+@api_router.post("/purchase-order-requests/{request_id}/approve")
+async def approve_po_request(
+    request_id: str,
+    approval_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Approve or reject a PO Request"""
+    current_user = await get_current_user(credentials)
+    user_role = current_user.get("role", "")
+    
+    po_request = await db.purchase_order_requests.find_one({"_id": ObjectId(request_id)})
+    if not po_request:
+        raise HTTPException(status_code=404, detail="PO Request not found")
+    
+    current_status = po_request.get("status")
+    action = approval_data.get("action", "approve")
+    comments = approval_data.get("comments", "")
+    
+    # Determine current level and check permissions
+    if current_status == "pending_ops_manager":
+        current_level = 1
+        allowed_roles = PO_APPROVAL_ROLES[1]
+    elif current_status == "pending_head_approval":
+        current_level = 2
+        allowed_roles = PO_APPROVAL_ROLES[2]
+    elif current_status == "pending_finance":
+        current_level = 3
+        allowed_roles = PO_APPROVAL_ROLES[3]
+    else:
+        raise HTTPException(status_code=400, detail=f"PO Request is not pending approval (status: {current_status})")
+    
+    if user_role not in allowed_roles:
+        raise HTTPException(status_code=403, detail="You don't have permission to approve at this level")
+    
+    # Create approval record
+    approval_record = {
+        "level": current_level,
+        "approved_by": str(current_user["_id"]),
+        "approved_by_name": current_user.get("full_name"),
+        "approved_at": datetime.utcnow(),
+        "status": action,
+        "comments": comments
+    }
+    
+    if action == "reject":
+        # Rejection at any level stops the process
+        update_data = {
+            "status": "rejected",
+            "rejection_reason": comments,
+            "rejected_by": str(current_user["_id"]),
+            "rejected_by_name": current_user.get("full_name"),
+            "updated_at": datetime.utcnow()
+        }
+        await db.purchase_order_requests.update_one(
+            {"_id": ObjectId(request_id)},
+            {
+                "$set": update_data,
+                "$push": {"approvals": approval_record}
+            }
+        )
+        
+        # Notify requester
+        await db.notifications.insert_one({
+            "user_id": po_request["requested_by"],
+            "type": "po_request_rejected",
+            "title": "PO Request Rejected",
+            "message": f"Your PO Request {po_request['request_number']} has been rejected by {current_user.get('full_name')}",
+            "data": {
+                "po_request_id": request_id,
+                "request_number": po_request["request_number"],
+                "reason": comments
+            },
+            "read": False,
+            "created_at": datetime.utcnow()
+        })
+        
+        return {"message": "PO Request rejected", "status": "rejected"}
+    
+    # Approval logic
+    next_status = ""
+    next_level = current_level + 1
+    notification_roles = []
+    
+    if current_level == 1:
+        next_status = "pending_head_approval"
+        notification_roles = ["project_head", "operations_head", "admin"]
+    elif current_level == 2:
+        # Check if this is the second approval at level 2 (need both heads)
+        level_2_approvals = [a for a in po_request.get("approvals", []) if a.get("level") == 2 and a.get("status") == "approve"]
+        if len(level_2_approvals) >= 1:  # Already has one approval at level 2
+            next_status = "pending_finance"
+            notification_roles = ["finance_head", "admin"]
+        else:
+            next_status = "pending_head_approval"  # Still waiting for second approval
+            notification_roles = ["project_head", "operations_head", "admin"]
+    elif current_level == 3:
+        next_status = "approved"
+        # Generate PO number
+        po_number = await generate_po_number()
+        await db.purchase_order_requests.update_one(
+            {"_id": ObjectId(request_id)},
+            {"$set": {"po_number": po_number}}
+        )
+        
+        # Create actual PO record
+        po_doc = {
+            "po_number": po_number,
+            "po_request_id": request_id,
+            "project_id": po_request["project_id"],
+            "project_name": po_request.get("project_name"),
+            "vendor_id": None,
+            "line_items": po_request.get("line_items", []),
+            "total_amount": po_request.get("total_estimated_amount", 0),
+            "status": "draft",
+            "created_by": str(current_user["_id"]),
+            "created_by_name": current_user.get("full_name"),
+            "created_at": datetime.utcnow()
+        }
+        await db.purchase_orders.insert_one(po_doc)
+        
+        # Notify requester
+        await db.notifications.insert_one({
+            "user_id": po_request["requested_by"],
+            "type": "po_request_approved",
+            "title": "PO Request Approved",
+            "message": f"Your PO Request {po_request['request_number']} has been fully approved. PO Number: {po_number}",
+            "data": {
+                "po_request_id": request_id,
+                "request_number": po_request["request_number"],
+                "po_number": po_number
+            },
+            "read": False,
+            "created_at": datetime.utcnow()
+        })
+    
+    # Update PO request
+    await db.purchase_order_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {
+            "$set": {
+                "status": next_status,
+                "current_approval_level": next_level if next_status != "approved" else 4,
+                "updated_at": datetime.utcnow()
+            },
+            "$push": {"approvals": approval_record}
+        }
+    )
+    
+    # Send notifications to next approvers
+    if notification_roles and next_status != "approved":
+        next_approvers = await db.users.find({"role": {"$in": notification_roles}}).to_list(100)
+        for approver in next_approvers:
+            await db.notifications.insert_one({
+                "user_id": str(approver["_id"]),
+                "type": "po_request_pending",
+                "title": "PO Request Pending Your Approval",
+                "message": f"PO Request {po_request['request_number']} requires your approval (Level {next_level})",
+                "data": {
+                    "po_request_id": request_id,
+                    "request_number": po_request["request_number"]
+                },
+                "read": False,
+                "created_at": datetime.utcnow()
+            })
+    
+    return {
+        "message": f"PO Request approved at Level {current_level}",
+        "status": next_status,
+        "next_level": next_level if next_status != "approved" else None,
+        "po_number": po_request.get("po_number") if next_status == "approved" else None
+    }
+
+
+@api_router.get("/purchase-order-requests/stats/summary")
+async def get_po_requests_stats(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get PO Request statistics"""
+    current_user = await get_current_user(credentials)
+    user_role = current_user.get("role", "")
+    
+    # Count by status
+    pipeline = [
+        {"$group": {"_id": "$status", "count": {"$sum": 1}}}
+    ]
+    status_counts = await db.purchase_order_requests.aggregate(pipeline).to_list(100)
+    
+    stats = {
+        "total": 0,
+        "pending_ops_manager": 0,
+        "pending_head_approval": 0,
+        "pending_finance": 0,
+        "approved": 0,
+        "rejected": 0,
+        "pending_my_approval": 0
+    }
+    
+    for sc in status_counts:
+        status = sc["_id"]
+        count = sc["count"]
+        stats["total"] += count
+        if status in stats:
+            stats[status] = count
+    
+    # Count pending user's approval
+    pending_statuses = []
+    if user_role in PO_APPROVAL_ROLES.get(1, []):
+        pending_statuses.append("pending_ops_manager")
+    if user_role in PO_APPROVAL_ROLES.get(2, []):
+        pending_statuses.append("pending_head_approval")
+    if user_role in PO_APPROVAL_ROLES.get(3, []):
+        pending_statuses.append("pending_finance")
+    
+    if pending_statuses:
+        pending_count = await db.purchase_order_requests.count_documents({"status": {"$in": pending_statuses}})
+        stats["pending_my_approval"] = pending_count
+    
+    return stats
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
