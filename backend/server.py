@@ -1338,7 +1338,8 @@ async def get_tasks(
     if parent_only:
         query["parent_task_id"] = None
     
-    tasks = await db.tasks.find(query).to_list(1000)
+    # Sort tasks by start_date for timeline ordering (ascending)
+    tasks = await db.tasks.find(query).sort("start_date", 1).to_list(1000)
     
     result = []
     for task in tasks:
