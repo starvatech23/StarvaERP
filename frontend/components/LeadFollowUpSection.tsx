@@ -351,13 +351,13 @@ export default function LeadFollowUpSection({
         </View>
       )}
 
-      {/* Create Follow-up Modal */}
+      {/* Create/Edit Follow-up Modal */}
       <Modal visible={showCreateModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Schedule Follow-up</Text>
-              <TouchableOpacity onPress={() => setShowCreateModal(false)}>
+              <Text style={styles.modalTitle}>{isEditing ? 'Edit Follow-up' : 'Schedule Follow-up'}</Text>
+              <TouchableOpacity onPress={() => { setShowCreateModal(false); resetForm(); }}>
                 <Ionicons name="close" size={24} color={Colors.textPrimary} />
               </TouchableOpacity>
             </View>
