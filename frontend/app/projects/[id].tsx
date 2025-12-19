@@ -347,6 +347,43 @@ export default function ProjectDetailsScreen() {
     }
   };
 
+  const loadMilestones = async () => {
+    try {
+      const response = await milestonesAPI.getAll(id as string);
+      setMilestones(response.data || []);
+    } catch (error) {
+      console.error('Error loading milestones:', error);
+    }
+  };
+
+  const toggleMilestone = (milestoneId: string) => {
+    setExpandedMilestones(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(milestoneId)) {
+        newSet.delete(milestoneId);
+      } else {
+        newSet.add(milestoneId);
+      }
+      return newSet;
+    });
+  };
+
+  // Group tasks by milestone
+  const getTasksByMilestone = () => {
+    const grouped: { [key: string]: any[] } = { unassigned: [] };
+    milestones.forEach(m => { grouped[m.id] = []; });
+    
+    tasks.forEach((task: any) => {
+      if (task.milestone_id && grouped[task.milestone_id]) {
+        grouped[task.milestone_id].push(task);
+      } else {
+        grouped['unassigned'].push(task);
+      }
+    });
+    
+    return grouped;
+  };
+
   const loadSiteMaterials = async () => {
     try {
       const response = await siteMaterialsAPI.list({ project_id: id as string });
