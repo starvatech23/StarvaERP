@@ -167,47 +167,47 @@ export default function PORequestDetailScreen() {
   };
 
   const handleSendToVendor = async () => {
-    // If no vendor selected, show vendor selection modal
-    if (!poRequest.vendor_id) {
-      loadVendors();
-      setShowVendorModal(true);
+    // Always show vendor selection modal for multi-vendor support
+    loadVendors();
+    setSelectedVendors([]);
+    setSendEmail(true);
+    setSendWhatsApp(true);
+    setCustomMessage('');
+    setShowVendorModal(true);
+  };
+
+  const toggleVendorSelection = (vendor: any) => {
+    setSelectedVendors(prev => {
+      const isSelected = prev.some(v => v.id === vendor.id);
+      if (isSelected) {
+        return prev.filter(v => v.id !== vendor.id);
+      } else {
+        return [...prev, vendor];
+      }
+    });
+  };
+
+  const handleSendToSelectedVendors = async () => {
+    if (selectedVendors.length === 0) {
+      Alert.alert('Error', 'Please select at least one vendor');
       return;
     }
     
-    Alert.alert(
-      'Send PO to Vendor',
-      `Are you sure you want to send PO ${poRequest.po_number} to ${poRequest.vendor_name}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Send',
-          onPress: async () => {
-            try {
-              setSendingToVendor(true);
-              const response = await poRequestAPI.sendToVendor(id as string);
-              Alert.alert(
-                'Success',
-                `PO sent to ${response.data.vendor_name} successfully!\n\nPhone: ${response.data.vendor_phone || 'N/A'}\nEmail: ${response.data.vendor_email || 'N/A'}`,
-                [{ text: 'OK', onPress: () => loadPORequest() }]
-              );
-            } catch (error: any) {
-              const message = error.response?.data?.detail || 'Failed to send PO to vendor';
-              Alert.alert('Error', message);
-            } finally {
-              setSendingToVendor(false);
-            }
-          }
-        }
-      ]
-    );
-  };
-
-  const handleSelectVendorAndSend = async (vendor: any) => {
+    if (!sendEmail && !sendWhatsApp) {
+      Alert.alert('Error', 'Please select at least one method (Email or WhatsApp)');
+      return;
+    }
+    
     setShowVendorModal(false);
     
+    const vendorNames = selectedVendors.map(v => v.business_name || v.contact_person).join(', ');
+    const methods = [];
+    if (sendEmail) methods.push('Email');
+    if (sendWhatsApp) methods.push('WhatsApp');
+    
     Alert.alert(
-      'Send PO to Vendor',
-      `Send PO ${poRequest.po_number} to ${vendor.business_name || vendor.contact_person}?`,
+      'Send PO to Vendors',
+      `Send PO ${poRequest.po_number} to ${selectedVendors.length} vendor(s) via ${methods.join(' & ')}?\n\nVendors: ${vendorNames}`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -216,18 +216,26 @@ export default function PORequestDetailScreen() {
             try {
               setSendingToVendor(true);
               
-              // First update PO with vendor
-              await poRequestAPI.updateVendor(id as string, { vendor_id: vendor.id });
+              const response = await poRequestAPI.sendToVendors(id as string, {
+                vendor_ids: selectedVendors.map(v => v.id),
+                send_email: sendEmail,
+                send_whatsapp: sendWhatsApp,
+                message: customMessage,
+              });
               
-              // Then send to vendor
-              const response = await poRequestAPI.sendToVendor(id as string);
-              Alert.alert(
-                'Success',
-                `PO sent to ${vendor.business_name || vendor.contact_person} successfully!\n\nPhone: ${vendor.phone || 'N/A'}\nEmail: ${vendor.email || 'N/A'}`,
-                [{ text: 'OK', onPress: () => loadPORequest() }]
-              );
+              const sentCount = response.data.sent?.length || 0;
+              const failedCount = response.data.failed?.length || 0;
+              
+              let message = `PO sent to ${sentCount} vendor(s) successfully!`;
+              if (failedCount > 0) {
+                message += `\n\n${failedCount} failed.`;
+              }
+              
+              Alert.alert('Success', message, [
+                { text: 'OK', onPress: () => loadPORequest() }
+              ]);
             } catch (error: any) {
-              const message = error.response?.data?.detail || 'Failed to send PO to vendor';
+              const message = error.response?.data?.detail || 'Failed to send PO to vendors';
               Alert.alert('Error', message);
             } finally {
               setSendingToVendor(false);
