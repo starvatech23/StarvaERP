@@ -5587,7 +5587,8 @@ async def get_milestones(
     if project_id:
         query["project_id"] = project_id
     
-    milestones = await db.milestones.find(query).sort("order", 1).to_list(1000)
+    # Sort milestones by order (primary) and start_date (secondary) for timeline ordering
+    milestones = await db.milestones.find(query).sort([("order", 1), ("start_date", 1)]).to_list(1000)
     
     result = []
     for milestone in milestones:
