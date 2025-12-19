@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Purchase Order (PO) Request System with Vendor Management
-Tests the complete PO Request workflow including vendor management, approval workflow, and error cases.
+Backend API Testing for Multi-Vendor PO Sending Feature
+Tests the complete flow from login to PO creation, approval, and sending to multiple vendors
 """
 
 import requests
 import json
 import sys
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
+import os
 
-# Configuration
-BASE_URL = "https://procure-track-7.preview.emergentagent.com/api"
+# Get backend URL from environment
+BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://procure-track-7.preview.emergentagent.com')
+API_BASE = f"{BACKEND_URL}/api"
+
+# Test credentials
 ADMIN_EMAIL = "admin@test.com"
 ADMIN_PASSWORD = "admin123"
 
