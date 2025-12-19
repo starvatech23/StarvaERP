@@ -14510,9 +14510,58 @@ async def get_po_requests_stats(
     return stats
 
 
+@api_router.put("/purchase-order-requests/{request_id}/vendor")
+async def update_po_request_vendor(
+    request_id: str,
+    request_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update vendor for a PO request"""
+    current_user = await get_current_user(credentials)
+    user_role = current_user.get("role", "")
+    
+    allowed_roles = ["admin", "operations_manager", "operations_head", "operations_executive", "project_manager", "finance_head", "finance_team"]
+    if user_role not in allowed_roles:
+        raise HTTPException(status_code=403, detail="You don't have permission to update vendor")
+    
+    po_request = await db.purchase_order_requests.find_one({"_id": ObjectId(request_id)})
+    if not po_request:
+        raise HTTPException(status_code=404, detail="PO Request not found")
+    
+    vendor_id = request_data.get("vendor_id")
+    if not vendor_id:
+        raise HTTPException(status_code=400, detail="Vendor ID is required")
+    
+    # Get vendor details
+    vendor = await db.vendors.find_one({"_id": ObjectId(vendor_id)})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    vendor_name = vendor.get("business_name") or vendor.get("contact_person")
+    
+    # Update PO request with vendor
+    await db.purchase_order_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {
+            "$set": {
+                "vendor_id": vendor_id,
+                "vendor_name": vendor_name,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    return {
+        "message": "Vendor updated successfully",
+        "vendor_id": vendor_id,
+        "vendor_name": vendor_name
+    }
+
+
 @api_router.post("/purchase-order-requests/{request_id}/send-to-vendor")
 async def send_po_to_vendor(
     request_id: str,
+    request_data: dict = None,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """Mark PO as sent to vendor (Operations Team action)"""
