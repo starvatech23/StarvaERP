@@ -571,6 +571,37 @@ async def get_project(
             project_dict["project_manager_name"] = pm["full_name"]
             project_dict["manager_phone"] = pm.get("phone")
     
+    # Get team members info
+    team_members = []
+    team_member_ids = project_dict.get("team_member_ids", [])
+    for member_id in team_member_ids:
+        member = await get_user_by_id(member_id)
+        if member:
+            # Get role name if role_id exists
+            role_name = None
+            if member.get("role_id"):
+                try:
+                    role_id = member["role_id"]
+                    if isinstance(role_id, str):
+                        role = await db.roles.find_one({"_id": ObjectId(role_id)})
+                    else:
+                        role = await db.roles.find_one({"_id": role_id})
+                    role_name = role["name"] if role else None
+                except Exception as e:
+                    print(f"Error getting role: {e}")
+                    role_name = None
+            elif member.get("role"):
+                role_name = member["role"]
+            
+            team_members.append(ProjectTeamMember(
+                user_id=member.get("id", str(member.get("_id", ""))),
+                full_name=member.get("full_name", ""),
+                role_name=role_name,
+                phone=member.get("phone"),
+                email=member.get("email")
+            ))
+    project_dict["team_members"] = team_members
+    
     # Get task counts for this project
     total_tasks = await db.tasks.count_documents({"project_id": project_dict["id"]})
     completed_tasks = await db.tasks.count_documents({
