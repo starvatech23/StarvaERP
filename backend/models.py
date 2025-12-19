@@ -1819,6 +1819,67 @@ class LeadActivityResponse(LeadActivityBase):
     performed_by_name: Optional[str] = None
     created_at: Optional[datetime] = None
 
+# ============= Lead Follow-up Task =============
+
+class FollowUpStatus(str, Enum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+    RESCHEDULED = "rescheduled"
+    CANCELLED = "cancelled"
+    OVERDUE = "overdue"
+
+class FollowUpType(str, Enum):
+    CALL = "call"
+    MEETING = "meeting"
+    SITE_VISIT = "site_visit"
+    EMAIL = "email"
+    WHATSAPP = "whatsapp"
+    OTHER = "other"
+
+class LeadFollowUpBase(BaseModel):
+    lead_id: str
+    follow_up_type: FollowUpType
+    scheduled_date: datetime
+    scheduled_time: Optional[str] = None  # HH:MM format
+    title: str
+    description: Optional[str] = None
+    notes: Optional[str] = None
+    next_step: Optional[str] = None
+    reminder_enabled: bool = True
+    reminder_before_minutes: int = 30  # Remind 30 mins before
+    send_whatsapp_invite: bool = False
+    whatsapp_invite_sent: bool = False
+
+class LeadFollowUpCreate(LeadFollowUpBase):
+    pass
+
+class LeadFollowUpUpdate(BaseModel):
+    follow_up_type: Optional[FollowUpType] = None
+    scheduled_date: Optional[datetime] = None
+    scheduled_time: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    notes: Optional[str] = None
+    next_step: Optional[str] = None
+    status: Optional[FollowUpStatus] = None
+    outcome: Optional[str] = None
+    reminder_enabled: Optional[bool] = None
+    send_whatsapp_invite: Optional[bool] = None
+
+class LeadFollowUpResponse(LeadFollowUpBase):
+    id: str
+    status: FollowUpStatus = FollowUpStatus.PENDING
+    outcome: Optional[str] = None
+    completed_at: Optional[datetime] = None
+    completed_by: Optional[str] = None
+    completed_by_name: Optional[str] = None
+    created_by: Optional[str] = None
+    created_by_name: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    lead_name: Optional[str] = None
+    lead_phone: Optional[str] = None
+
 # ============= Lead Field Audit (Field-Level Change Tracking) =============
 
 class LeadFieldAuditBase(BaseModel):
