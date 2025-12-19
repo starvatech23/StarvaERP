@@ -964,4 +964,44 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  // Vendor styles
+  vendorHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  vendorDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  vendorName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  poSentBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#D1FAE5',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+  },
+  poSentText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#10B981',
+  },
+  sendVendorButton: {
+    backgroundColor: '#3B82F6',
+    flex: 1,
+  },
+  sendVendorButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#fff',
+  },
 });
