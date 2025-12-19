@@ -111,27 +111,31 @@ export default function CreatePORequestScreen() {
     }
   };
 
-  // Filter materials based on search query
-  const searchMaterials = (query: string, index: number) => {
-    setMaterialSearchQuery(query);
-    setActiveLineItemIndex(index);
+  // Handle material name input change
+  const handleMaterialNameChange = (text: string, index: number) => {
+    // Update line item with the typed text
+    const updated = [...lineItems];
+    updated[index] = {
+      ...updated[index],
+      item_name: text,
+      is_new_material: true,
+      material_id: undefined,
+    };
+    setLineItems(updated);
     
-    if (query.trim().length > 0) {
+    // Show suggestions if text is not empty
+    setActiveLineItemIndex(index);
+    if (text.trim().length > 0) {
       const filtered = materials.filter((m) =>
-        m.name.toLowerCase().includes(query.toLowerCase()) ||
-        m.category?.toLowerCase().includes(query.toLowerCase())
+        m.name.toLowerCase().includes(text.toLowerCase()) ||
+        m.category?.toLowerCase().includes(text.toLowerCase())
       );
-      setFilteredMaterials(filtered.slice(0, 5)); // Show max 5 suggestions
-      setShowMaterialSuggestions(true);
+      setFilteredMaterials(filtered.slice(0, 5));
+      setShowMaterialSuggestions(filtered.length > 0);
     } else {
       setFilteredMaterials([]);
       setShowMaterialSuggestions(false);
     }
-    
-    // Update line item name
-    updateLineItem(index, 'item_name', query);
-    updateLineItem(index, 'is_new_material', true);
-    updateLineItem(index, 'material_id', undefined);
   };
 
   // Select material from suggestions
@@ -147,7 +151,6 @@ export default function CreatePORequestScreen() {
     };
     setLineItems(updated);
     setShowMaterialSuggestions(false);
-    setMaterialSearchQuery('');
     setActiveLineItemIndex(null);
   };
 
