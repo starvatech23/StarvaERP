@@ -123,6 +123,15 @@ export const templatesAPI = {
   getLabourRates: () => api.get('/templates/labour-rates'),
 };
 
+// Purchase Order Request API
+export const poRequestAPI = {
+  create: (data: any) => api.post('/purchase-order-requests', data),
+  getAll: (params?: any) => api.get('/purchase-order-requests', { params }),
+  getById: (id: string) => api.get(`/purchase-order-requests/${id}`),
+  approve: (id: string, data: any) => api.post(`/purchase-order-requests/${id}/approve`, data),
+  getStats: () => api.get('/purchase-order-requests/stats/summary'),
+};
+
 // Tasks API
 export const tasksAPI = {
   getAll: (projectId?: string) => api.get('/tasks', { params: { project_id: projectId } }),
