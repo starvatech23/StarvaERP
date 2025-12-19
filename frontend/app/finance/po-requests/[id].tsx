@@ -65,6 +65,7 @@ export default function PORequestDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { user } = useAuth();
+  const { showSuccess, showError, showConfirm, ActivityModal } = useActivityModal();
   const [loading, setLoading] = useState(true);
   const [poRequest, setPoRequest] = useState<any>(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
