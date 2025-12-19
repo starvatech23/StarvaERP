@@ -190,6 +190,15 @@ export const crmActivitiesAPI = {
   sendWhatsApp: (leadId: string, data: any) => api.post(`/crm/leads/${leadId}/whatsapp`, data),
 };
 
+export const crmFollowUpsAPI = {
+  getByLead: (leadId: string, status?: string) => 
+    api.get(`/crm/leads/${leadId}/follow-ups`, { params: status ? { status } : {} }),
+  create: (leadId: string, data: any) => api.post(`/crm/leads/${leadId}/follow-ups`, data),
+  update: (followUpId: string, data: any) => api.put(`/crm/follow-ups/${followUpId}`, data),
+  delete: (followUpId: string) => api.delete(`/crm/follow-ups/${followUpId}`),
+  getDue: () => api.get('/crm/follow-ups/due'),
+};
+
 export const crmCategoriesAPI = {
   getAll: () => api.get('/crm/categories'),
   create: (data: any) => api.post('/crm/categories', data),
