@@ -490,7 +490,7 @@ export default function LeadFollowUpSection({
             <View style={styles.modalFooter}>
               <TouchableOpacity
                 style={styles.cancelButton}
-                onPress={() => setShowCreateModal(false)}
+                onPress={() => { setShowCreateModal(false); resetForm(); }}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
@@ -502,7 +502,7 @@ export default function LeadFollowUpSection({
                 {creating ? (
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
-                  <Text style={styles.submitButtonText}>Schedule</Text>
+                  <Text style={styles.submitButtonText}>{isEditing ? 'Update' : 'Schedule'}</Text>
                 )}
               </TouchableOpacity>
             </View>
