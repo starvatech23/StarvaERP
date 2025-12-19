@@ -657,6 +657,17 @@ export default function ProjectDetailsScreen() {
 
             <TouchableOpacity
               style={styles.quickActionButton}
+              onPress={() => router.push({ pathname: '/finance/po-requests/create', params: { projectId: id, projectName: project?.name } } as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#EDE9FE' }]}>
+                <Ionicons name="cart" size={24} color="#8B5CF6" />
+              </View>
+              <Text style={styles.quickActionLabel}>Raise PO</Text>
+              <Text style={styles.quickActionSubtext}>Request purchase</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
               onPress={() => router.push(`/projects/${id}/budget` as any)}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: '#D1FAE5' }]}>
