@@ -126,6 +126,37 @@ export default function LeadFollowUpSection({
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      follow_up_type: 'call',
+      scheduled_date: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      title: '',
+      description: '',
+      next_step: '',
+      reminder_enabled: true,
+      reminder_before_minutes: 30,
+      send_whatsapp_invite: false,
+    });
+    setIsEditing(false);
+    setSelectedFollowUp(null);
+  };
+
+  const openEditModal = (followUp: FollowUp) => {
+    setSelectedFollowUp(followUp);
+    setIsEditing(true);
+    setFormData({
+      follow_up_type: followUp.follow_up_type,
+      scheduled_date: new Date(followUp.scheduled_date),
+      title: followUp.title,
+      description: followUp.description || '',
+      next_step: followUp.next_step || '',
+      reminder_enabled: followUp.reminder_enabled,
+      reminder_before_minutes: 30,
+      send_whatsapp_invite: followUp.send_whatsapp_invite,
+    });
+    setShowCreateModal(true);
+  };
+
   const handleCreateFollowUp = async () => {
     if (!formData.title.trim()) {
       return;
@@ -133,32 +164,40 @@ export default function LeadFollowUpSection({
 
     try {
       setCreating(true);
-      await crmFollowUpsAPI.create(leadId, {
-        follow_up_type: formData.follow_up_type,
-        scheduled_date: formData.scheduled_date.toISOString(),
-        scheduled_time: formData.scheduled_date.toTimeString().slice(0, 5),
-        title: formData.title.trim() || `${FOLLOW_UP_TYPES.find(t => t.value === formData.follow_up_type)?.label} with ${leadName}`,
-        description: formData.description || null,
-        next_step: formData.next_step || null,
-        reminder_enabled: formData.reminder_enabled,
-        reminder_before_minutes: formData.reminder_before_minutes,
-        send_whatsapp_invite: formData.send_whatsapp_invite,
-      });
+      
+      if (isEditing && selectedFollowUp) {
+        // Update existing follow-up
+        await crmFollowUpsAPI.update(selectedFollowUp.id, {
+          follow_up_type: formData.follow_up_type,
+          scheduled_date: formData.scheduled_date.toISOString(),
+          scheduled_time: formData.scheduled_date.toTimeString().slice(0, 5),
+          title: formData.title.trim(),
+          description: formData.description || null,
+          next_step: formData.next_step || null,
+          reminder_enabled: formData.reminder_enabled,
+          send_whatsapp_invite: formData.send_whatsapp_invite,
+        });
+      } else {
+        // Create new follow-up
+        await crmFollowUpsAPI.create(leadId, {
+          follow_up_type: formData.follow_up_type,
+          scheduled_date: formData.scheduled_date.toISOString(),
+          scheduled_time: formData.scheduled_date.toTimeString().slice(0, 5),
+          title: formData.title.trim() || `${FOLLOW_UP_TYPES.find(t => t.value === formData.follow_up_type)?.label} with ${leadName}`,
+          description: formData.description || null,
+          next_step: formData.next_step || null,
+          reminder_enabled: formData.reminder_enabled,
+          reminder_before_minutes: formData.reminder_before_minutes,
+          send_whatsapp_invite: formData.send_whatsapp_invite,
+        });
+      }
+      
       setShowCreateModal(false);
-      setFormData({
-        follow_up_type: 'call',
-        scheduled_date: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        title: '',
-        description: '',
-        next_step: '',
-        reminder_enabled: true,
-        reminder_before_minutes: 30,
-        send_whatsapp_invite: false,
-      });
+      resetForm();
       loadFollowUps();
       onFollowUpCreated?.();
     } catch (error) {
-      console.error('Error creating follow-up:', error);
+      console.error('Error saving follow-up:', error);
     } finally {
       setCreating(false);
     }
