@@ -70,6 +70,7 @@ export default function PORequestDetailScreen() {
   const [approvalAction, setApprovalAction] = useState<'approve' | 'reject'>('approve');
   const [comments, setComments] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [sendingToVendor, setSendingToVendor] = useState(false);
 
   useEffect(() => {
     loadPORequest();
