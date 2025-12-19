@@ -14154,6 +14154,16 @@ async def create_po_request(
     line_items = request_data.get("line_items", [])
     total_amount = sum(item.get("estimated_total", item.get("quantity", 0) * item.get("estimated_unit_price", 0)) for item in line_items)
     
+    # Get vendor info if provided
+    vendor_id = request_data.get("vendor_id")
+    vendor_name = request_data.get("vendor_name")
+    
+    # If vendor_id provided, fetch vendor details
+    if vendor_id:
+        vendor = await db.vendors.find_one({"_id": ObjectId(vendor_id)})
+        if vendor:
+            vendor_name = vendor.get("business_name") or vendor.get("contact_person") or vendor_name
+    
     # Create the PO request
     po_request = {
         "request_number": request_number,
@@ -14167,11 +14177,14 @@ async def create_po_request(
         "line_items": line_items,
         "total_estimated_amount": total_amount,
         "justification": request_data.get("justification"),
+        "vendor_id": vendor_id,  # Store vendor ID
+        "vendor_name": vendor_name,  # Store vendor name
         "vendor_suggestions": request_data.get("vendor_suggestions", []),
         "attachments": request_data.get("attachments", []),
         "status": "pending_ops_manager",  # Start at Level 1
         "current_approval_level": 1,
         "approvals": [],
+        "po_sent_to_vendor": False,  # Track if sent to vendor
         "requested_by": str(current_user["_id"]),
         "requested_by_name": current_user.get("full_name"),
         "created_at": datetime.utcnow(),
