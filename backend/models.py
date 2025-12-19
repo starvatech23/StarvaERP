@@ -348,6 +348,14 @@ class ProjectBase(BaseModel):
     budget: Optional[float] = None
     description: Optional[str] = None
     photos: List[str] = []  # base64 images
+    # Construction-specific fields
+    number_of_floors: Optional[int] = None  # Including ground floor
+    basement_floors: Optional[int] = 0  # Number of basement levels
+    parking_spaces: Optional[int] = None
+    built_up_area: Optional[float] = None  # in sq.ft
+    super_built_up_area: Optional[float] = None  # including common areas, parking
+    plot_area: Optional[float] = None  # in sq.ft
+    floor_details: Optional[List[dict]] = None  # [{floor_number: 0, name: "Ground Floor", area: 1500}, ...]
 
 class ProjectCreate(ProjectBase):
     project_manager_id: Optional[str] = None
