@@ -12,6 +12,12 @@ class UserRole(str, Enum):
     VENDOR = "vendor"
     CRM_MANAGER = "crm_manager"
     CRM_USER = "crm_user"
+    FINANCE_HEAD = "finance_head"
+    FINANCE_TEAM = "finance_team"
+    OPERATIONS_MANAGER = "operations_manager"
+    OPERATIONS_HEAD = "operations_head"
+    PROJECT_HEAD = "project_head"
+    OPERATIONS_EXECUTIVE = "operations_executive"
 
 class ProjectStatus(str, Enum):
     PLANNING = "planning"
