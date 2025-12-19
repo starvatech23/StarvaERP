@@ -11,11 +11,12 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  FlatList,
 } from 'react-native';
 import Colors from '../../../constants/Colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { poRequestAPI, projectsAPI } from '../../../services/api';
+import { poRequestAPI, projectsAPI, materialsAPI } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 
 const PRIORITY_OPTIONS = [
@@ -25,12 +26,23 @@ const PRIORITY_OPTIONS = [
   { value: 'urgent', label: 'Urgent', color: '#EF4444' },
 ];
 
+interface Material {
+  id: string;
+  name: string;
+  category: string;
+  unit: string;
+  min_stock_level?: number;
+  unit_price?: number;
+}
+
 interface LineItem {
   item_name: string;
   quantity: number;
   unit: string;
   estimated_unit_price: number;
   specifications: string;
+  material_id?: string;
+  is_new_material: boolean;
 }
 
 export default function CreatePORequestScreen() {
@@ -40,6 +52,7 @@ export default function CreatePORequestScreen() {
   
   const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState<any[]>([]);
+  const [materials, setMaterials] = useState<Material[]>([]);
   const [showProjectPicker, setShowProjectPicker] = useState(false);
   
   // Form state
@@ -51,20 +64,31 @@ export default function CreatePORequestScreen() {
   const [deliveryLocation, setDeliveryLocation] = useState('');
   const [justification, setJustification] = useState('');
   const [lineItems, setLineItems] = useState<LineItem[]>([
-    { item_name: '', quantity: 0, unit: 'units', estimated_unit_price: 0, specifications: '' },
+    { item_name: '', quantity: 0, unit: 'units', estimated_unit_price: 0, specifications: '', is_new_material: true },
   ]);
+  
+  // Material search state
+  const [activeLineItemIndex, setActiveLineItemIndex] = useState<number | null>(null);
+  const [materialSearchQuery, setMaterialSearchQuery] = useState('');
+  const [filteredMaterials, setFilteredMaterials] = useState<Material[]>([]);
+  const [showMaterialSuggestions, setShowMaterialSuggestions] = useState(false);
 
   useEffect(() => {
     loadProjects();
+    loadMaterials();
   }, []);
 
   useEffect(() => {
-    // Pre-select project if passed as param
+    // Pre-select project if passed as param and auto-populate details
     if (projectId && projects.length > 0) {
       const project = projects.find((p) => p.id === projectId);
       if (project) {
         setSelectedProject(project);
-        setDeliveryLocation(project.location || '');
+        setDeliveryLocation(project.location || project.address || '');
+        // Auto-set title based on project
+        if (!title) {
+          setTitle(`Material Purchase - ${project.name}`);
+        }
       }
     }
   }, [projectId, projects]);
@@ -76,6 +100,55 @@ export default function CreatePORequestScreen() {
     } catch (error) {
       console.error('Error loading projects:', error);
     }
+  };
+
+  const loadMaterials = async () => {
+    try {
+      const response = await materialsAPI.getAll();
+      setMaterials(response.data || []);
+    } catch (error) {
+      console.error('Error loading materials:', error);
+    }
+  };
+
+  // Filter materials based on search query
+  const searchMaterials = (query: string, index: number) => {
+    setMaterialSearchQuery(query);
+    setActiveLineItemIndex(index);
+    
+    if (query.trim().length > 0) {
+      const filtered = materials.filter((m) =>
+        m.name.toLowerCase().includes(query.toLowerCase()) ||
+        m.category?.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredMaterials(filtered.slice(0, 5)); // Show max 5 suggestions
+      setShowMaterialSuggestions(true);
+    } else {
+      setFilteredMaterials([]);
+      setShowMaterialSuggestions(false);
+    }
+    
+    // Update line item name
+    updateLineItem(index, 'item_name', query);
+    updateLineItem(index, 'is_new_material', true);
+    updateLineItem(index, 'material_id', undefined);
+  };
+
+  // Select material from suggestions
+  const selectMaterial = (material: Material, index: number) => {
+    const updated = [...lineItems];
+    updated[index] = {
+      ...updated[index],
+      item_name: material.name,
+      unit: material.unit || 'units',
+      estimated_unit_price: material.unit_price || 0,
+      material_id: material.id,
+      is_new_material: false,
+    };
+    setLineItems(updated);
+    setShowMaterialSuggestions(false);
+    setMaterialSearchQuery('');
+    setActiveLineItemIndex(null);
   };
 
   const calculateTotal = () => {
@@ -93,7 +166,7 @@ export default function CreatePORequestScreen() {
   };
 
   const addLineItem = () => {
-    setLineItems([...lineItems, { item_name: '', quantity: 0, unit: 'units', estimated_unit_price: 0, specifications: '' }]);
+    setLineItems([...lineItems, { item_name: '', quantity: 0, unit: 'units', estimated_unit_price: 0, specifications: '', is_new_material: true }]);
   };
 
   const removeLineItem = (index: number) => {
@@ -134,8 +207,14 @@ export default function CreatePORequestScreen() {
       const validItems = lineItems
         .filter((item) => item.item_name.trim() && item.quantity > 0)
         .map((item) => ({
-          ...item,
+          item_name: item.item_name,
+          quantity: item.quantity,
+          unit: item.unit,
+          estimated_unit_price: item.estimated_unit_price,
           estimated_total: item.quantity * item.estimated_unit_price,
+          specifications: item.specifications,
+          material_id: item.material_id,
+          is_new_material: item.is_new_material,
         }));
 
       const payload = {
@@ -180,44 +259,64 @@ export default function CreatePORequestScreen() {
           <View style={{ width: 40 }} />
         </View>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Project Selection */}
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {/* Project Selection - Read-only if pre-selected */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Project *</Text>
-            <TouchableOpacity
-              style={styles.pickerButton}
-              onPress={() => setShowProjectPicker(!showProjectPicker)}
-            >
-              <Ionicons name="business" size={20} color={Colors.textSecondary} />
-              <Text style={selectedProject ? styles.pickerText : styles.pickerPlaceholder}>
-                {selectedProject?.name || 'Select a project'}
-              </Text>
-              <Ionicons name={showProjectPicker ? 'chevron-up' : 'chevron-down'} size={20} color={Colors.textSecondary} />
-            </TouchableOpacity>
-            {showProjectPicker && (
-              <View style={styles.pickerDropdown}>
-                <ScrollView style={{ maxHeight: 200 }}>
-                  {projects.map((project) => (
-                    <TouchableOpacity
-                      key={project.id}
-                      style={[
-                        styles.pickerOption,
-                        selectedProject?.id === project.id && styles.pickerOptionSelected,
-                      ]}
-                      onPress={() => {
-                        setSelectedProject(project);
-                        setDeliveryLocation(project.location || '');
-                        setShowProjectPicker(false);
-                      }}
-                    >
-                      <Text style={styles.pickerOptionText}>{project.name}</Text>
-                      {project.location && (
-                        <Text style={styles.pickerOptionSubtext}>{project.location}</Text>
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
+            {projectId && selectedProject ? (
+              <View style={styles.projectInfoCard}>
+                <Ionicons name="business" size={24} color={Colors.primary} />
+                <View style={styles.projectInfoContent}>
+                  <Text style={styles.projectInfoName}>{selectedProject.name}</Text>
+                  {selectedProject.location && (
+                    <Text style={styles.projectInfoLocation}>{selectedProject.location}</Text>
+                  )}
+                  {selectedProject.client_name && (
+                    <Text style={styles.projectInfoClient}>Client: {selectedProject.client_name}</Text>
+                  )}
+                </View>
               </View>
+            ) : (
+              <>
+                <TouchableOpacity
+                  style={styles.pickerButton}
+                  onPress={() => setShowProjectPicker(!showProjectPicker)}
+                >
+                  <Ionicons name="business" size={20} color={Colors.textSecondary} />
+                  <Text style={selectedProject ? styles.pickerText : styles.pickerPlaceholder}>
+                    {selectedProject?.name || 'Select a project'}
+                  </Text>
+                  <Ionicons name={showProjectPicker ? 'chevron-up' : 'chevron-down'} size={20} color={Colors.textSecondary} />
+                </TouchableOpacity>
+                {showProjectPicker && (
+                  <View style={styles.pickerDropdown}>
+                    <ScrollView style={{ maxHeight: 200 }}>
+                      {projects.map((project) => (
+                        <TouchableOpacity
+                          key={project.id}
+                          style={[
+                            styles.pickerOption,
+                            selectedProject?.id === project.id && styles.pickerOptionSelected,
+                          ]}
+                          onPress={() => {
+                            setSelectedProject(project);
+                            setDeliveryLocation(project.location || project.address || '');
+                            if (!title) {
+                              setTitle(`Material Purchase - ${project.name}`);
+                            }
+                            setShowProjectPicker(false);
+                          }}
+                        >
+                          <Text style={styles.pickerOptionText}>{project.name}</Text>
+                          {project.location && (
+                            <Text style={styles.pickerOptionSubtext}>{project.location}</Text>
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+              </>
             )}
           </View>
 
@@ -291,7 +390,7 @@ export default function CreatePORequestScreen() {
             />
           </View>
 
-          {/* Delivery Location */}
+          {/* Delivery Location - Pre-filled from project */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Delivery Location</Text>
             <TextInput
@@ -303,7 +402,7 @@ export default function CreatePORequestScreen() {
             />
           </View>
 
-          {/* Line Items */}
+          {/* Line Items with Material Autocomplete */}
           <View style={styles.section}>
             <View style={styles.lineItemsHeader}>
               <Text style={styles.sectionTitle}>Line Items *</Text>
@@ -313,24 +412,84 @@ export default function CreatePORequestScreen() {
               </TouchableOpacity>
             </View>
 
+            <View style={styles.materialHint}>
+              <Ionicons name="information-circle" size={16} color={Colors.primary} />
+              <Text style={styles.materialHintText}>
+                Start typing to search existing materials. Price & unit will auto-fill.
+              </Text>
+            </View>
+
             {lineItems.map((item, index) => (
               <View key={index} style={styles.lineItemCard}>
                 <View style={styles.lineItemHeader}>
                   <Text style={styles.lineItemNumber}>Item #{index + 1}</Text>
-                  {lineItems.length > 1 && (
-                    <TouchableOpacity onPress={() => removeLineItem(index)}>
-                      <Ionicons name="trash-outline" size={20} color="#EF4444" />
-                    </TouchableOpacity>
-                  )}
+                  <View style={styles.lineItemHeaderRight}>
+                    {!item.is_new_material && (
+                      <View style={styles.existingMaterialBadge}>
+                        <Ionicons name="checkmark-circle" size={14} color="#10B981" />
+                        <Text style={styles.existingMaterialText}>From Library</Text>
+                      </View>
+                    )}
+                    {item.is_new_material && item.item_name.trim() && (
+                      <View style={styles.newMaterialBadge}>
+                        <Ionicons name="add-circle" size={14} color="#F59E0B" />
+                        <Text style={styles.newMaterialText}>New Item</Text>
+                      </View>
+                    )}
+                    {lineItems.length > 1 && (
+                      <TouchableOpacity onPress={() => removeLineItem(index)}>
+                        <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
 
-                <TextInput
-                  style={styles.lineItemInput}
-                  value={item.item_name}
-                  onChangeText={(text) => updateLineItem(index, 'item_name', text)}
-                  placeholder="Item name *"
-                  placeholderTextColor={Colors.textSecondary}
-                />
+                {/* Material Name with Autocomplete */}
+                <View style={styles.materialInputContainer}>
+                  <TextInput
+                    style={styles.lineItemInput}
+                    value={item.item_name}
+                    onChangeText={(text) => searchMaterials(text, index)}
+                    onFocus={() => {
+                      setActiveLineItemIndex(index);
+                      if (item.item_name.trim()) {
+                        searchMaterials(item.item_name, index);
+                      }
+                    }}
+                    onBlur={() => {
+                      // Delay hiding suggestions to allow tap
+                      setTimeout(() => {
+                        if (activeLineItemIndex === index) {
+                          setShowMaterialSuggestions(false);
+                        }
+                      }, 200);
+                    }}
+                    placeholder="Material name * (type to search)"
+                    placeholderTextColor={Colors.textSecondary}
+                  />
+                  
+                  {/* Material Suggestions Dropdown */}
+                  {showMaterialSuggestions && activeLineItemIndex === index && filteredMaterials.length > 0 && (
+                    <View style={styles.suggestionsDropdown}>
+                      {filteredMaterials.map((material) => (
+                        <TouchableOpacity
+                          key={material.id}
+                          style={styles.suggestionItem}
+                          onPress={() => selectMaterial(material, index)}
+                        >
+                          <View>
+                            <Text style={styles.suggestionName}>{material.name}</Text>
+                            <Text style={styles.suggestionDetails}>
+                              {material.category} • {material.unit} 
+                              {material.unit_price ? ` • ₹${material.unit_price}` : ''}
+                            </Text>
+                          </View>
+                          <Ionicons name="chevron-forward" size={16} color={Colors.textSecondary} />
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
 
                 <View style={styles.lineItemRow}>
                   <View style={styles.lineItemCol}>
@@ -347,11 +506,12 @@ export default function CreatePORequestScreen() {
                   <View style={styles.lineItemCol}>
                     <Text style={styles.lineItemLabel}>Unit</Text>
                     <TextInput
-                      style={styles.lineItemInput}
+                      style={[styles.lineItemInput, !item.is_new_material && styles.readOnlyInput]}
                       value={item.unit}
                       onChangeText={(text) => updateLineItem(index, 'unit', text)}
                       placeholder="units"
                       placeholderTextColor={Colors.textSecondary}
+                      editable={item.is_new_material}
                     />
                   </View>
                 </View>
@@ -360,12 +520,13 @@ export default function CreatePORequestScreen() {
                   <View style={styles.lineItemColFull}>
                     <Text style={styles.lineItemLabel}>Estimated Unit Price (₹)</Text>
                     <TextInput
-                      style={styles.lineItemInput}
+                      style={[styles.lineItemInput, !item.is_new_material && styles.readOnlyInput]}
                       value={item.estimated_unit_price > 0 ? String(item.estimated_unit_price) : ''}
                       onChangeText={(text) => updateLineItem(index, 'estimated_unit_price', parseFloat(text) || 0)}
                       placeholder="0"
                       placeholderTextColor={Colors.textSecondary}
                       keyboardType="numeric"
+                      editable={item.is_new_material}
                     />
                   </View>
                 </View>
@@ -488,6 +649,34 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
   },
+  projectInfoCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.primary + '10',
+    borderWidth: 1,
+    borderColor: Colors.primary + '30',
+    borderRadius: 12,
+    padding: 16,
+    gap: 12,
+  },
+  projectInfoContent: {
+    flex: 1,
+  },
+  projectInfoName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  projectInfoLocation: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  projectInfoClient: {
+    fontSize: 12,
+    color: Colors.primary,
+    marginTop: 4,
+  },
   pickerButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -552,6 +741,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.textSecondary,
   },
+  materialHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Colors.primary + '10',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  materialHintText: {
+    flex: 1,
+    fontSize: 12,
+    color: Colors.primary,
+  },
   lineItemsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -582,10 +785,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  lineItemHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   lineItemNumber: {
     fontSize: 13,
     fontWeight: '600',
     color: Colors.primary,
+  },
+  existingMaterialBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#D1FAE5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  existingMaterialText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#10B981',
+  },
+  newMaterialBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  newMaterialText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#F59E0B',
+  },
+  materialInputContainer: {
+    position: 'relative',
+    zIndex: 100,
   },
   lineItemInput: {
     backgroundColor: Colors.background,
@@ -596,6 +836,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.textPrimary,
     marginBottom: 10,
+  },
+  readOnlyInput: {
+    backgroundColor: '#F3F4F6',
+    color: Colors.textSecondary,
+  },
+  suggestionsDropdown: {
+    position: 'absolute',
+    top: 48,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    zIndex: 1000,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  suggestionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  suggestionName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.textPrimary,
+  },
+  suggestionDetails: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
   },
   lineItemRow: {
     flexDirection: 'row',
