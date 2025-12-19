@@ -446,12 +446,12 @@ async def get_users(credentials: HTTPAuthorizationCredentials = Depends(security
         id=str(u["_id"]),
         email=u.get("email"),
         phone=u.get("phone"),
-        full_name=u["full_name"],
-        role=u["role"],
+        full_name=u.get("full_name", "Unknown User"),
+        role=u.get("role", "worker"),  # Default to worker if role is missing
         address=u.get("address"),
         profile_photo=u.get("profile_photo"),
-        is_active=u["is_active"],
-        date_joined=u["date_joined"],
+        is_active=u.get("is_active", True),
+        date_joined=u.get("date_joined", datetime.utcnow()),
         last_login=u.get("last_login")
     ) for u in users]
 
