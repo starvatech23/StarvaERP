@@ -439,9 +439,40 @@ export const sharePOPdf = async (
   }
 ): Promise<{ success: boolean; uri?: string; error?: string }> => {
   try {
+    // On web, use browser share or fallback to print
+    if (Platform.OS === 'web') {
+      const html = generatePOHtml(po);
+      
+      // Try Web Share API first (for mobile browsers)
+      if (navigator.share) {
+        try {
+          const blob = new Blob([html], { type: 'text/html' });
+          const file = new File([blob], `PO_${po.po_number}.html`, { type: 'text/html' });
+          await navigator.share({
+            title: `Purchase Order ${po.po_number}`,
+            text: `Purchase Order for ${po.project_name || 'Project'}`,
+            files: [file],
+          });
+          return { success: true };
+        } catch (shareError) {
+          console.log('Web Share failed, falling back to print:', shareError);
+        }
+      }
+      
+      // Fallback to opening in new window
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(html);
+        printWindow.document.close();
+        return { success: true };
+      }
+      return { success: false, error: 'Could not open share window' };
+    }
+    
+    // On mobile
     const pdfUri = await generatePOPdf(po);
     
-    if (!pdfUri) {
+    if (!pdfUri || typeof pdfUri !== 'string' || !pdfUri.startsWith('file')) {
       return { success: false, error: 'Failed to generate PDF' };
     }
     
@@ -467,6 +498,23 @@ export const sharePOPdf = async (
 export const printPO = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
   try {
     const html = generatePOHtml(po);
+    
+    // On web, use browser print
+    if (Platform.OS === 'web') {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          printWindow.print();
+        }, 500);
+        return { success: true };
+      }
+      return { success: false, error: 'Could not open print window' };
+    }
+    
+    // On mobile
     await Print.printAsync({ html });
     return { success: true };
   } catch (error: any) {
