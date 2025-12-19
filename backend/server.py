@@ -14699,17 +14699,194 @@ async def update_po_request_vendor(
     }
 
 
+@api_router.post("/purchase-order-requests/{request_id}/send-to-vendors")
+async def send_po_to_vendors(
+    request_id: str,
+    request_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Send PO to multiple vendors via Email and WhatsApp.
+    
+    Request body:
+    {
+        "vendor_ids": ["vendor_id_1", "vendor_id_2", ...],
+        "send_email": true,
+        "send_whatsapp": true,
+        "message": "Optional custom message"
+    }
+    """
+    current_user = await get_current_user(credentials)
+    user_role = current_user.get("role", "")
+    
+    # Check permission
+    allowed_roles = ["admin", "operations_manager", "operations_head", "operations_executive", "project_manager"]
+    if user_role not in allowed_roles:
+        raise HTTPException(status_code=403, detail="You don't have permission to send PO to vendors")
+    
+    po_request = await db.purchase_order_requests.find_one({"_id": ObjectId(request_id)})
+    if not po_request:
+        raise HTTPException(status_code=404, detail="PO Request not found")
+    
+    if po_request.get("status") != "approved":
+        raise HTTPException(status_code=400, detail="Only approved PO requests can be sent to vendors")
+    
+    vendor_ids = request_data.get("vendor_ids", [])
+    if not vendor_ids:
+        raise HTTPException(status_code=400, detail="At least one vendor must be selected")
+    
+    send_email = request_data.get("send_email", True)
+    send_whatsapp = request_data.get("send_whatsapp", True)
+    custom_message = request_data.get("message", "")
+    
+    # Get project details
+    project = await db.projects.find_one({"_id": ObjectId(po_request["project_id"])})
+    project_name = project.get("name", "N/A") if project else "N/A"
+    
+    # Build PO details for message
+    po_number = po_request.get("po_number", po_request.get("request_number"))
+    line_items = po_request.get("line_items", [])
+    total_amount = po_request.get("total_estimated_amount", 0)
+    delivery_location = po_request.get("delivery_location", "As per discussion")
+    required_by = po_request.get("required_by_date")
+    
+    # Format line items for message
+    items_text = ""
+    for idx, item in enumerate(line_items, 1):
+        items_text += f"\n{idx}. {item.get('item_name')} - Qty: {item.get('quantity')} {item.get('unit')} @ ₹{item.get('estimated_unit_price', 0):,.0f}"
+    
+    # Format required date
+    required_date_str = ""
+    if required_by:
+        if isinstance(required_by, str):
+            required_date_str = required_by[:10]
+        else:
+            required_date_str = required_by.strftime("%Y-%m-%d")
+    
+    # Process each vendor
+    sent_results = []
+    failed_results = []
+    
+    for vendor_id in vendor_ids:
+        try:
+            vendor = await db.vendors.find_one({"_id": ObjectId(vendor_id)})
+            if not vendor:
+                failed_results.append({"vendor_id": vendor_id, "error": "Vendor not found"})
+                continue
+            
+            vendor_name = vendor.get("business_name") or vendor.get("contact_person", "Vendor")
+            vendor_phone = vendor.get("phone", "")
+            vendor_email = vendor.get("email", "")
+            
+            # Compose message
+            message = f"""
+📋 *PURCHASE ORDER - {po_number}*
+
+Dear {vendor_name},
+
+We are pleased to place the following order:
+
+*Project:* {project_name}
+*PO Number:* {po_number}
+
+*Items Ordered:*{items_text}
+
+*Total Amount:* ₹{total_amount:,.0f}
+
+*Delivery Location:* {delivery_location}
+{f'*Required By:* {required_date_str}' if required_date_str else ''}
+
+{custom_message if custom_message else 'Please confirm receipt of this order and expected delivery timeline.'}
+
+Thank you for your business!
+
+Best regards,
+{current_user.get('full_name', 'Operations Team')}
+"""
+            
+            email_sent = False
+            whatsapp_sent = False
+            
+            # Send Email (mock for now - log the action)
+            if send_email and vendor_email:
+                logger.info(f"[EMAIL] Sending PO {po_number} to {vendor_email}")
+                logger.info(f"[EMAIL CONTENT]\nTo: {vendor_email}\nSubject: Purchase Order {po_number}\n{message}")
+                email_sent = True
+            
+            # Send WhatsApp (mock for now - log the action)
+            if send_whatsapp and vendor_phone:
+                # Format phone for WhatsApp (remove spaces, add country code if needed)
+                whatsapp_phone = vendor_phone.replace(" ", "").replace("-", "")
+                if not whatsapp_phone.startswith("+"):
+                    whatsapp_phone = "+91" + whatsapp_phone.lstrip("0")
+                
+                logger.info(f"[WHATSAPP] Sending PO {po_number} to {whatsapp_phone}")
+                logger.info(f"[WHATSAPP CONTENT]\nTo: {whatsapp_phone}\n{message}")
+                whatsapp_sent = True
+            
+            sent_results.append({
+                "vendor_id": vendor_id,
+                "vendor_name": vendor_name,
+                "email_sent": email_sent,
+                "whatsapp_sent": whatsapp_sent,
+                "email": vendor_email if email_sent else None,
+                "phone": vendor_phone if whatsapp_sent else None
+            })
+            
+        except Exception as e:
+            logger.error(f"Error sending to vendor {vendor_id}: {str(e)}")
+            failed_results.append({"vendor_id": vendor_id, "error": str(e)})
+    
+    # Update PO request with sent status
+    vendor_names = [r["vendor_name"] for r in sent_results]
+    await db.purchase_order_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {
+            "$set": {
+                "po_sent_to_vendor": True,
+                "po_sent_at": datetime.utcnow(),
+                "po_sent_by": str(current_user["_id"]),
+                "po_sent_by_name": current_user.get("full_name"),
+                "sent_to_vendors": sent_results,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    # Notify requester
+    await db.notifications.insert_one({
+        "user_id": po_request["requested_by"],
+        "type": "po_sent_to_vendor",
+        "title": "PO Sent to Vendors",
+        "message": f"PO {po_number} has been sent to {len(sent_results)} vendor(s): {', '.join(vendor_names)}",
+        "data": {
+            "po_request_id": request_id,
+            "po_number": po_number,
+            "vendors": vendor_names
+        },
+        "read": False,
+        "created_at": datetime.utcnow()
+    })
+    
+    return {
+        "message": f"PO sent to {len(sent_results)} vendor(s) successfully",
+        "po_number": po_number,
+        "sent": sent_results,
+        "failed": failed_results
+    }
+
+
+# Legacy single vendor endpoint for backward compatibility
 @api_router.post("/purchase-order-requests/{request_id}/send-to-vendor")
 async def send_po_to_vendor(
     request_id: str,
     request_data: dict = None,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    """Mark PO as sent to vendor (Operations Team action)"""
+    """Send PO to single vendor (legacy endpoint)"""
     current_user = await get_current_user(credentials)
     user_role = current_user.get("role", "")
     
-    # Check permission - only admin, operations roles can send
     allowed_roles = ["admin", "operations_manager", "operations_head", "operations_executive", "project_manager"]
     if user_role not in allowed_roles:
         raise HTTPException(status_code=403, detail="You don't have permission to send PO to vendor")
@@ -14721,57 +14898,19 @@ async def send_po_to_vendor(
     if po_request.get("status") != "approved":
         raise HTTPException(status_code=400, detail="Only approved PO requests can be sent to vendor")
     
-    if po_request.get("po_sent_to_vendor"):
-        raise HTTPException(status_code=400, detail="PO has already been sent to vendor")
-    
     if not po_request.get("vendor_id"):
         raise HTTPException(status_code=400, detail="No vendor selected for this PO request")
     
-    # Get vendor details
-    vendor = await db.vendors.find_one({"_id": ObjectId(po_request["vendor_id"])})
-    if not vendor:
-        raise HTTPException(status_code=404, detail="Selected vendor not found")
-    
-    # Update PO request
-    await db.purchase_order_requests.update_one(
-        {"_id": ObjectId(request_id)},
+    # Use the new multi-vendor endpoint
+    return await send_po_to_vendors(
+        request_id,
         {
-            "$set": {
-                "po_sent_to_vendor": True,
-                "po_sent_at": datetime.utcnow(),
-                "po_sent_by": str(current_user["_id"]),
-                "po_sent_by_name": current_user.get("full_name"),
-                "updated_at": datetime.utcnow()
-            }
-        }
-    )
-    
-    # In a real system, this would send email/SMS to vendor
-    # For now, just log it
-    logger.info(f"PO {po_request.get('po_number')} sent to vendor {vendor.get('business_name', vendor.get('contact_person'))}")
-    
-    # Notify requester
-    await db.notifications.insert_one({
-        "user_id": po_request["requested_by"],
-        "type": "po_sent_to_vendor",
-        "title": "PO Sent to Vendor",
-        "message": f"PO {po_request.get('po_number')} has been sent to {vendor.get('business_name', vendor.get('contact_person'))}",
-        "data": {
-            "po_request_id": request_id,
-            "po_number": po_request.get("po_number"),
-            "vendor_name": vendor.get("business_name", vendor.get("contact_person"))
+            "vendor_ids": [po_request["vendor_id"]],
+            "send_email": True,
+            "send_whatsapp": True
         },
-        "read": False,
-        "created_at": datetime.utcnow()
-    })
-    
-    return {
-        "message": f"PO sent to vendor successfully",
-        "po_number": po_request.get("po_number"),
-        "vendor_name": vendor.get("business_name", vendor.get("contact_person")),
-        "vendor_phone": vendor.get("phone"),
-        "vendor_email": vendor.get("email")
-    }
+        credentials
+    )
 
 
 # Include the routers in the main app (after all routes are defined)
