@@ -626,6 +626,55 @@ export default function ProjectDetailsScreen() {
           )}
         </View>
 
+        {/* Construction Details Card */}
+        {(project.number_of_floors || project.built_up_area || project.parking_spaces) && (
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Construction Details</Text>
+              <TouchableOpacity onPress={() => router.push(`/projects/${id}/construction-details` as any)}>
+                <Ionicons name="create-outline" size={20} color={Colors.primary} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.constructionGrid}>
+              {project.number_of_floors && (
+                <View style={styles.constructionItem}>
+                  <Ionicons name="layers" size={20} color="#F59E0B" />
+                  <Text style={styles.constructionValue}>{project.number_of_floors}</Text>
+                  <Text style={styles.constructionLabel}>Floors</Text>
+                </View>
+              )}
+              {project.basement_floors > 0 && (
+                <View style={styles.constructionItem}>
+                  <Ionicons name="caret-down" size={20} color="#6B7280" />
+                  <Text style={styles.constructionValue}>{project.basement_floors}</Text>
+                  <Text style={styles.constructionLabel}>Basement</Text>
+                </View>
+              )}
+              {project.parking_spaces && (
+                <View style={styles.constructionItem}>
+                  <Ionicons name="car" size={20} color="#3B82F6" />
+                  <Text style={styles.constructionValue}>{project.parking_spaces}</Text>
+                  <Text style={styles.constructionLabel}>Parking</Text>
+                </View>
+              )}
+              {project.built_up_area && (
+                <View style={styles.constructionItem}>
+                  <Ionicons name="resize" size={20} color="#10B981" />
+                  <Text style={styles.constructionValue}>{project.built_up_area.toLocaleString()}</Text>
+                  <Text style={styles.constructionLabel}>Built Up (sqft)</Text>
+                </View>
+              )}
+              {project.super_built_up_area && (
+                <View style={styles.constructionItem}>
+                  <Ionicons name="expand" size={20} color="#8B5CF6" />
+                  <Text style={styles.constructionValue}>{project.super_built_up_area.toLocaleString()}</Text>
+                  <Text style={styles.constructionLabel}>Super Built Up</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
         {/* Quick Actions */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Quick Actions</Text>
