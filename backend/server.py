@@ -1314,8 +1314,11 @@ async def get_tasks(
         task_dict = serialize_doc(task)
         
         # Get creator name
-        creator = await get_user_by_id(task_dict["created_by"])
-        task_dict["created_by_name"] = creator["full_name"] if creator else None
+        if task_dict.get("created_by"):
+            creator = await get_user_by_id(task_dict["created_by"])
+            task_dict["created_by_name"] = creator["full_name"] if creator else None
+        else:
+            task_dict["created_by_name"] = None
         
         # Get milestone name if linked
         if task_dict.get("milestone_id"):
