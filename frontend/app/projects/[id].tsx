@@ -784,18 +784,11 @@ export default function ProjectDetailsScreen() {
           </View>
         )}
 
-        {/* Project Timeline Card */}
-        {tasks.length > 0 && (
-          <TimelineCard
-            projectId={id as string}
-            projectName={project.name}
-            tasks={tasks}
-            onRefresh={() => {
-              loadProject();
-              loadTasks();
-            }}
-          />
-        )}
+        {/* Project Timeline - Weekly Gantt Preview */}
+        <WeeklyGanttPreview
+          projectId={id as string}
+          tasks={tasks}
+        />
 
         {/* Team Card */}
         <View style={styles.card}>
