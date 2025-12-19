@@ -65,25 +65,26 @@ export default function LeadDetailScreen() {
 
   const handleCall = () => {
     if (lead?.primary_phone) {
-      Alert.alert(
+      showConfirm(
         'Make a Call',
         `Call ${lead.primary_phone}?`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Call',
-            onPress: async () => {
-              await Linking.openURL(`tel:${lead.primary_phone}`);
-              // Log call activity
-              await crmActivitiesAPI.logCall(String(id), {
-                duration: 0,
-                outcome: 'connected',
-                notes: 'Called from mobile app',
-              });
-              loadData();
-            },
-          },
-        ]
+        async () => {
+          try {
+            await Linking.openURL(`tel:${lead.primary_phone}`);
+            // Log call activity
+            await crmActivitiesAPI.logCall(String(id), {
+              duration: 0,
+              outcome: 'connected',
+              notes: 'Called from mobile app',
+            });
+            showSuccess('Call Logged', 'Call activity has been recorded.', true);
+            loadData();
+          } catch (error) {
+            showError('Call Failed', 'Unable to initiate call.');
+          }
+        },
+        'Call',
+        'Cancel'
       );
     }
   };
@@ -93,7 +94,7 @@ export default function LeadDetailScreen() {
       const message = `Hello ${lead.name}, thank you for your interest!`;
       Linking.openURL(`whatsapp://send?phone=${lead.primary_phone}&text=${encodeURIComponent(message)}`);
     } else if (!lead?.whatsapp_consent) {
-      Alert.alert('No Consent', 'This lead has not consented to WhatsApp messages');
+      showWarning('No Consent', 'This lead has not consented to WhatsApp messages.');
     }
   };
 
