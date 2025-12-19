@@ -139,6 +139,7 @@ export const poRequestAPI = {
   approve: (id: string, data: any) => api.post(`/purchase-order-requests/${id}/approve`, data),
   updateVendor: (id: string, data: any) => api.put(`/purchase-order-requests/${id}/vendor`, data),
   sendToVendor: (id: string, data?: any) => api.post(`/purchase-order-requests/${id}/send-to-vendor`, data || {}),
+  sendToVendors: (id: string, data: any) => api.post(`/purchase-order-requests/${id}/send-to-vendors`, data),
   getStats: () => api.get('/purchase-order-requests/stats/summary'),
 };
 
