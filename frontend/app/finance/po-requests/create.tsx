@@ -525,13 +525,12 @@ export default function CreatePORequestScreen() {
                   <View style={styles.lineItemColFull}>
                     <Text style={styles.lineItemLabel}>Estimated Unit Price (₹)</Text>
                     <TextInput
-                      style={[styles.lineItemInput, !item.is_new_material && styles.readOnlyInput]}
+                      style={styles.lineItemInput}
                       value={item.estimated_unit_price > 0 ? String(item.estimated_unit_price) : ''}
                       onChangeText={(text) => updateLineItem(index, 'estimated_unit_price', parseFloat(text) || 0)}
                       placeholder="0"
                       placeholderTextColor={Colors.textSecondary}
                       keyboardType="numeric"
-                      editable={item.is_new_material}
                     />
                   </View>
                 </View>
