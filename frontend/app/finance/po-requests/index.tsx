@@ -35,8 +35,8 @@ const PRIORITY_OPTIONS = [
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'pending_l1': return '#F59E0B';
-    case 'pending_l2': return '#3B82F6';
+    case 'pending_ops_manager': return '#F59E0B';
+    case 'pending_head_approval': return '#3B82F6';
     case 'pending_finance': return '#8B5CF6';
     case 'approved': return '#10B981';
     case 'rejected': return '#EF4444';
@@ -46,8 +46,8 @@ const getStatusColor = (status: string) => {
 
 const getStatusLabel = (status: string) => {
   switch (status) {
-    case 'pending_l1': return 'Pending L1';
-    case 'pending_l2': return 'Pending L2';
+    case 'pending_ops_manager': return 'Pending Ops Mgr';
+    case 'pending_head_approval': return 'Pending Heads';
     case 'pending_finance': return 'Pending Finance';
     case 'approved': return 'Approved';
     case 'rejected': return 'Rejected';
