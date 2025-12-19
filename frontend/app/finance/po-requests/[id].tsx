@@ -181,8 +181,8 @@ export default function PORequestDetailScreen() {
   }
 
   const currentLevel = 
-    poRequest.status === 'pending_l1' ? 1 :
-    poRequest.status === 'pending_l2' ? 2 :
+    poRequest.status === 'pending_ops_manager' ? 1 :
+    poRequest.status === 'pending_head_approval' ? 2 :
     poRequest.status === 'pending_finance' ? 3 : 0;
 
   return (
