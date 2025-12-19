@@ -14073,7 +14073,7 @@ PO_CREATE_ROLES = ["admin", "project_manager", "engineer", "operations_manager",
 PO_APPROVAL_ROLES = {
     1: ["operations_manager", "admin"],  # Level 1: Operations Manager
     2: ["project_head", "operations_head", "admin"],  # Level 2: Project Head + Ops Head
-    3: ["finance_head", "admin"]  # Level 3: Finance Head
+    3: ["finance_head", "finance_team", "admin"]  # Level 3: Finance Head or Finance Team
 }
 
 
