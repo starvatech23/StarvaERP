@@ -195,12 +195,12 @@ export default function PORequestDetailScreen() {
 
   const handleSendToSelectedVendors = async () => {
     if (selectedVendors.length === 0) {
-      Alert.alert('Error', 'Please select at least one vendor');
+      showError('Selection Required', 'Please select at least one vendor');
       return;
     }
     
     if (!sendEmail && !sendWhatsApp) {
-      Alert.alert('Error', 'Please select at least one method (Email or WhatsApp)');
+      showError('Method Required', 'Please select at least one method (Email or WhatsApp)');
       return;
     }
     
@@ -228,17 +228,26 @@ export default function PORequestDetailScreen() {
       const sentCount = response.data.sent?.length || 0;
       const failedCount = response.data.failed?.length || 0;
       
-      let message = `PO sent to ${sentCount} vendor(s) successfully!`;
+      const vendorNames = selectedVendors.map(v => v.business_name || v.contact_person).join(', ');
+      
       if (failedCount > 0) {
-        message += `\n${failedCount} failed.`;
+        showError(
+          'Partial Success',
+          `Sent to ${sentCount} vendor(s), ${failedCount} failed.`
+        );
+      } else {
+        showSuccess(
+          'PO Sent Successfully!',
+          `Purchase order has been sent to ${sentCount} vendor(s) via ${sendEmail ? 'Email' : ''}${sendEmail && sendWhatsApp ? ' & ' : ''}${sendWhatsApp ? 'WhatsApp' : ''}.`,
+          true
+        );
       }
       
-      Alert.alert('Success', message);
       loadPORequest(); // Reload to get updated data
     } catch (error: any) {
       console.error('Error sending PO:', error);
       const message = error.response?.data?.detail || 'Failed to send PO to vendors';
-      Alert.alert('Error', message);
+      showError('Send Failed', message);
     } finally {
       setSendingToVendor(false);
     }
