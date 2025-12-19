@@ -13982,21 +13982,38 @@ async def create_project_with_templates(
         created_milestones.append(milestone_doc)
         
         # Create tasks for this milestone
-        # For floor-based milestones, create tasks for ALL floors under this ONE milestone
+        # For floor-based milestones, create tasks based on floor applicability
         floor_iterations = number_of_floors if ms_template["is_floor_based"] else 1
         task_order_base = 0
+        current_task_start = milestone_start
         
         for floor_num in range(floor_iterations):
-            floor_label = f" - Floor {floor_num + 1}" if ms_template["is_floor_based"] and number_of_floors > 1 else ""
-            if floor_num == 0 and ms_template["is_floor_based"] and number_of_floors > 1:
-                floor_label = " - Ground Floor"
+            is_ground_floor = (floor_num == 0)
+            is_top_floor = (floor_num == floor_iterations - 1)
             
-            # Calculate start date for this floor's tasks
-            floor_duration_offset = floor_num * ms_template["default_duration_days"] if ms_template["is_floor_based"] else 0
-            floor_start = milestone_start + timedelta(days=floor_duration_offset)
+            # Determine floor label
+            floor_label = ""
+            if ms_template["is_floor_based"] and number_of_floors > 1:
+                floor_label = f" - Floor {floor_num + 1}" if floor_num > 0 else " - Ground Floor"
             
-            task_start = floor_start
+            task_start = current_task_start
             for task_template in ms_template.get("tasks", []):
+                # Check floor applicability
+                floor_applicable = task_template.get("floor_applicable", "all")
+                
+                should_create = False
+                if floor_applicable == "ground_only" and is_ground_floor:
+                    should_create = True
+                elif floor_applicable == "top_only" and is_top_floor:
+                    should_create = True
+                elif floor_applicable == "all":
+                    should_create = True
+                elif not ms_template["is_floor_based"]:
+                    should_create = True  # Non-floor-based milestones create all tasks
+                
+                if not should_create:
+                    continue
+                
                 task_name_key = f"{ms_template['name']}{floor_label}:{task_template['name']}"
                 task_duration = task_template.get("duration", 1)
                 task_end = task_start + timedelta(days=task_duration)
@@ -14024,17 +14041,22 @@ async def create_project_with_templates(
                         "planned_cost": cost
                     })
                 
+                # Task title includes floor label only for multi-floor projects
+                task_title = task_template['name']
+                if floor_label:
+                    task_title = f"{task_template['name']}{floor_label}"
+                
                 task_doc = {
                     "project_id": project_id,
                     "milestone_id": milestone_id,
-                    "title": f"{task_template['name']}{floor_label}",  # Task name includes floor label
+                    "title": task_title,
                     "description": "",
                     "order": task_order_base + task_template["order"],
                     "status": "pending",
                     "priority": "medium",
                     "work_type": task_template.get("work_type", "general"),
                     "measurement_type": task_template.get("measurement"),
-                    "floor_number": floor_num + 1 if ms_template["is_floor_based"] else None,
+                    "floor_number": floor_num if ms_template["is_floor_based"] else None,
                     "planned_start_date": task_start,
                     "planned_end_date": task_end,
                     "start_date": task_start,
@@ -14068,6 +14090,8 @@ async def create_project_with_templates(
                 
                 # Move to next task
                 task_start = task_end
+            
+            current_task_start = task_start  # Next floor starts where this floor ended
             
             # Increment order base for next floor
             task_order_base += len(ms_template.get("tasks", [])) * 100
