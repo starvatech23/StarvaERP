@@ -358,6 +358,12 @@ export const generatePOPdf = async (po: PORequest): Promise<string | null> => {
   try {
     const html = generatePOHtml(po);
     
+    // On web, printToFileAsync may not work the same way
+    if (Platform.OS === 'web') {
+      // Return the HTML for web - will use print dialog
+      return html;
+    }
+    
     const { uri } = await Print.printToFileAsync({
       html,
       base64: false,
@@ -381,6 +387,24 @@ export const generatePOPdf = async (po: PORequest): Promise<string | null> => {
 
 export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; uri?: string; error?: string }> => {
   try {
+    // On web, use browser print functionality
+    if (Platform.OS === 'web') {
+      const html = generatePOHtml(po);
+      // Open in new window and print
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          printWindow.print();
+        }, 500);
+        return { success: true };
+      }
+      return { success: false, error: 'Could not open print window' };
+    }
+    
+    // On mobile
     const pdfUri = await generatePOPdf(po);
     
     if (!pdfUri) {
@@ -398,17 +422,9 @@ export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; uri?
         UTI: 'com.adobe.pdf',
       });
       return { success: true, uri: pdfUri };
-    } else {
-      // On web, trigger download
-      if (Platform.OS === 'web') {
-        const link = document.createElement('a');
-        link.href = pdfUri;
-        link.download = `PO_${po.po_number}.pdf`;
-        link.click();
-        return { success: true, uri: pdfUri };
-      }
-      return { success: false, error: 'Sharing not available on this device' };
     }
+    
+    return { success: false, error: 'Sharing not available on this device' };
   } catch (error: any) {
     console.error('Error saving PDF:', error);
     return { success: false, error: error.message || 'Failed to save PDF' };
