@@ -836,6 +836,9 @@ export default function PORequestDetailScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Activity Confirmation Modal */}
+      <ActivityModal />
     </SafeAreaView>
   );
 }
