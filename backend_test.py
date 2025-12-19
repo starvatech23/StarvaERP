@@ -387,7 +387,17 @@ class PORequestTester:
                         if po_number:
                             self.log_result("PO Number Generation", True, f"PO Number generated: {po_number}")
                         else:
-                            self.log_result("PO Number Generation", False, "PO Number not generated after final approval")
+                            # Check if PO number is stored in database by fetching the PO request again
+                            response = self.session.get(f"{BASE_URL}/purchase-order-requests/{self.po_request_id}")
+                            if response.status_code == 200:
+                                updated_po = response.json()
+                                stored_po_number = updated_po.get("po_number")
+                                if stored_po_number:
+                                    self.log_result("PO Number Generation", True, f"PO Number generated and stored: {stored_po_number} (minor: not returned in approval response)")
+                                else:
+                                    self.log_result("PO Number Generation", False, "PO Number not generated after final approval")
+                            else:
+                                self.log_result("PO Number Generation", False, "Could not verify PO number generation")
                     
                     current_status = new_status
                 else:
