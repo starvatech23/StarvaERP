@@ -35,6 +35,14 @@ export default function FinanceMainScreen() {
 
   const financialModules = [
     {
+      id: 'po-requests',
+      title: 'PO Requests',
+      description: 'Approve & manage purchase orders',
+      icon: 'cart',
+      color: '#8B5CF6',
+      route: '/finance/po-requests',
+    },
+    {
       id: 'budgets',
       title: 'Budgets',
       description: 'Manage project budgets',
@@ -63,7 +71,7 @@ export default function FinanceMainScreen() {
       title: 'Payments',
       description: 'Record payments received',
       icon: 'cash',
-      color: '#8B5CF6',
+      color: '#6366F1',
       route: '/finance/payments',
     },
   ];
