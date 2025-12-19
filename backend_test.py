@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Client Portal Login Flow
-Tests the complete Client Portal Login flow with new Project Code format
+Backend API Testing for Purchase Order Request APIs
+Tests the multi-level approval workflow for PO requests
 """
 
 import requests
@@ -11,354 +11,461 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://construsync.preview.emergentagent.com/api"
-ADMIN_EMAIL = "admin@test.com"
-ADMIN_PASSWORD = "admin123"
+BACKEND_URL = "https://construsync.preview.emergentagent.com/api"
 
-class BackendTester:
+# Test credentials from review request
+TEST_CREDENTIALS = {
+    "admin": {"email": "admin@test.com", "password": "admin123"},
+    "manager": {"email": "crm.manager@test.com", "password": "test123"}
+}
+
+class PurchaseOrderRequestTester:
     def __init__(self):
         self.session = requests.Session()
-        self.admin_token = None
-        self.test_project_id = None
-        self.test_project_code = None
-        self.test_client_contact = None
+        self.tokens = {}
+        self.test_data = {}
         
     def log(self, message: str, level: str = "INFO"):
         """Log test messages"""
         timestamp = datetime.now().strftime("%H:%M:%S")
         print(f"[{timestamp}] {level}: {message}")
         
-    def make_request(self, method: str, endpoint: str, data: Dict = None, 
-                    headers: Dict = None, auth_token: str = None) -> requests.Response:
-        """Make HTTP request with proper error handling"""
-        url = f"{BASE_URL}{endpoint}"
-        
-        # Set up headers
-        req_headers = {"Content-Type": "application/json"}
-        if headers:
-            req_headers.update(headers)
-        if auth_token:
-            req_headers["Authorization"] = f"Bearer {auth_token}"
-            
+    def login(self, role: str) -> bool:
+        """Login and get access token"""
         try:
-            if method.upper() == "GET":
-                response = self.session.get(url, headers=req_headers, params=data)
-            elif method.upper() == "POST":
-                response = self.session.post(url, headers=req_headers, json=data)
-            elif method.upper() == "PUT":
-                response = self.session.put(url, headers=req_headers, json=data)
-            elif method.upper() == "DELETE":
-                response = self.session.delete(url, headers=req_headers)
+            creds = TEST_CREDENTIALS[role]
+            response = self.session.post(
+                f"{BACKEND_URL}/auth/login",
+                json={
+                    "identifier": creds["email"],
+                    "password": creds["password"],
+                    "auth_type": "email"
+                }
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.tokens[role] = data["access_token"]
+                self.log(f"✅ Login successful for {role}: {creds['email']}")
+                return True
             else:
-                raise ValueError(f"Unsupported method: {method}")
+                self.log(f"❌ Login failed for {role}: {response.status_code} - {response.text}", "ERROR")
+                return False
                 
-            return response
-        except requests.exceptions.RequestException as e:
-            self.log(f"Request failed: {str(e)}", "ERROR")
-            raise
-            
-    def authenticate_admin(self) -> bool:
-        """Authenticate as admin user"""
-        self.log("🔐 Authenticating as admin...")
-        
-        response = self.make_request("POST", "/auth/login", {
-            "identifier": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD,
-            "auth_type": "email"
-        })
-        
-        if response.status_code == 200:
-            data = response.json()
-            self.admin_token = data.get("access_token")
-            self.log(f"✅ Admin authentication successful")
-            return True
-        else:
-            self.log(f"❌ Admin authentication failed: {response.status_code} - {response.text}", "ERROR")
+        except Exception as e:
+            self.log(f"❌ Login error for {role}: {str(e)}", "ERROR")
             return False
-            
-    def test_create_project_with_templates(self) -> bool:
-        """Test 1: Create a new project with templates to get fresh project code"""
-        self.log("🏗️ Testing: Create project with templates...")
-        
-        # Generate test data
-        test_phone = "+919999888777"
-        project_data = {
-            "name": f"Test Project {datetime.now().strftime('%Y%m%d_%H%M%S')}",
-            "client_name": "Test Client Portal User",
-            "client_contact": test_phone,
-            "client_email": "testclient@example.com",
-            "number_of_floors": 1,
-            "planned_start_date": (datetime.utcnow() + timedelta(days=7)).isoformat(),
-            "total_built_area": 2000,
-            "building_type": "residential",
-            "description": "Test project for client portal login testing",
-            "location": "Test Location"
+    
+    def get_headers(self, role: str) -> Dict[str, str]:
+        """Get authorization headers for role"""
+        return {
+            "Authorization": f"Bearer {self.tokens[role]}",
+            "Content-Type": "application/json"
         }
-        
-        response = self.make_request("POST", "/projects/create-with-templates", 
-                                   project_data, auth_token=self.admin_token)
-        
-        if response.status_code == 200:
-            data = response.json()
-            self.test_project_id = data.get("project_id")
-            self.test_project_code = data.get("project_code")
-            self.test_client_contact = test_phone
+    
+    def get_projects(self, role: str) -> Optional[list]:
+        """Get available projects"""
+        try:
+            response = self.session.get(
+                f"{BACKEND_URL}/projects",
+                headers=self.get_headers(role)
+            )
             
-            # Verify project code format (SC + MMYY + 6 digits)
-            if self.test_project_code and self.test_project_code.startswith("SC"):
-                month_year = datetime.utcnow().strftime("%m%y")
-                expected_prefix = f"SC{month_year}"
-                if self.test_project_code.startswith(expected_prefix) and len(self.test_project_code) == 12:
-                    self.log(f"✅ Project created successfully with code: {self.test_project_code}")
-                    self.log(f"   Project ID: {self.test_project_id}")
-                    self.log(f"   Client Contact: {self.test_client_contact}")
+            if response.status_code == 200:
+                projects = response.json()
+                self.log(f"✅ Retrieved {len(projects)} projects")
+                return projects
+            else:
+                self.log(f"❌ Failed to get projects: {response.status_code} - {response.text}", "ERROR")
+                return None
+                
+        except Exception as e:
+            self.log(f"❌ Error getting projects: {str(e)}", "ERROR")
+            return None
+    
+    def test_create_po_request(self, role: str, project_id: str) -> Optional[str]:
+        """Test POST /api/purchase-order-requests"""
+        self.log("🧪 Testing PO Request Creation...")
+        
+        try:
+            # Create realistic PO request data
+            po_request_data = {
+                "project_id": project_id,
+                "title": "Construction Materials for Foundation Work",
+                "description": "Required materials for foundation work including cement, steel bars, and aggregates",
+                "priority": "high",
+                "required_by_date": (datetime.now() + timedelta(days=7)).isoformat(),
+                "delivery_location": "Construction Site - Main Gate",
+                "line_items": [
+                    {
+                        "item_name": "Portland Cement (50kg bags)",
+                        "quantity": 100,
+                        "unit": "bags",
+                        "estimated_unit_price": 350.0,
+                        "estimated_total": 35000.0,
+                        "specifications": "Grade 53, OPC"
+                    },
+                    {
+                        "item_name": "TMT Steel Bars (12mm)",
+                        "quantity": 50,
+                        "unit": "pieces",
+                        "estimated_unit_price": 650.0,
+                        "estimated_total": 32500.0,
+                        "specifications": "Fe 500D grade"
+                    },
+                    {
+                        "item_name": "Coarse Aggregates (20mm)",
+                        "quantity": 10,
+                        "unit": "cubic meters",
+                        "estimated_unit_price": 1200.0,
+                        "estimated_total": 12000.0,
+                        "specifications": "Clean, graded aggregates"
+                    }
+                ],
+                "justification": "Foundation work scheduled to start next week. Current inventory insufficient.",
+                "vendor_suggestions": ["Shree Cement Ltd", "Modern Steel Works"],
+                "attachments": []
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/purchase-order-requests",
+                headers=self.get_headers(role),
+                json=po_request_data
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                request_id = data.get("id")
+                request_number = data.get("request_number")
+                status = data.get("status")
+                
+                self.log(f"✅ PO Request created successfully!")
+                self.log(f"   Request ID: {request_id}")
+                self.log(f"   Request Number: {request_number}")
+                self.log(f"   Status: {status}")
+                
+                # Verify request number format (POR-MMYY-XXXXXX)
+                if request_number and request_number.startswith("POR"):
+                    self.log(f"✅ Request number format correct: {request_number}")
+                else:
+                    self.log(f"❌ Invalid request number format: {request_number}", "ERROR")
+                
+                # Verify initial status
+                if status == "pending_ops_manager":
+                    self.log(f"✅ Initial status correct: {status}")
+                else:
+                    self.log(f"❌ Unexpected initial status: {status}", "ERROR")
+                
+                self.test_data["po_request_id"] = request_id
+                self.test_data["request_number"] = request_number
+                return request_id
+                
+            else:
+                self.log(f"❌ PO Request creation failed: {response.status_code} - {response.text}", "ERROR")
+                return None
+                
+        except Exception as e:
+            self.log(f"❌ Error creating PO request: {str(e)}", "ERROR")
+            return None
+    
+    def test_list_po_requests(self, role: str) -> bool:
+        """Test GET /api/purchase-order-requests"""
+        self.log("🧪 Testing PO Request Listing...")
+        
+        try:
+            # Test basic listing
+            response = self.session.get(
+                f"{BACKEND_URL}/purchase-order-requests",
+                headers=self.get_headers(role)
+            )
+            
+            if response.status_code == 200:
+                requests_list = response.json()
+                self.log(f"✅ Retrieved {len(requests_list)} PO requests")
+                
+                # Test filtering by status
+                test_statuses = ["pending_ops_manager", "pending_head_approval", "pending_finance", "approved", "rejected"]
+                
+                for status in test_statuses:
+                    response = self.session.get(
+                        f"{BACKEND_URL}/purchase-order-requests?status={status}",
+                        headers=self.get_headers(role)
+                    )
+                    
+                    if response.status_code == 200:
+                        filtered_requests = response.json()
+                        self.log(f"✅ Status filter '{status}': {len(filtered_requests)} requests")
+                    else:
+                        self.log(f"❌ Status filter '{status}' failed: {response.status_code}", "ERROR")
+                        return False
+                
+                return True
+                
+            else:
+                self.log(f"❌ PO Request listing failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Error listing PO requests: {str(e)}", "ERROR")
+            return False
+    
+    def test_get_po_request_details(self, role: str, request_id: str) -> bool:
+        """Test GET /api/purchase-order-requests/{id}"""
+        self.log("🧪 Testing PO Request Details Retrieval...")
+        
+        try:
+            response = self.session.get(
+                f"{BACKEND_URL}/purchase-order-requests/{request_id}",
+                headers=self.get_headers(role)
+            )
+            
+            if response.status_code == 200:
+                po_request = response.json()
+                
+                # Verify required fields
+                required_fields = ["id", "request_number", "project_id", "title", "description", 
+                                 "priority", "line_items", "status", "approvals", "total_estimated_amount"]
+                
+                missing_fields = [field for field in required_fields if field not in po_request]
+                
+                if not missing_fields:
+                    self.log(f"✅ PO Request details retrieved successfully")
+                    self.log(f"   Request Number: {po_request.get('request_number')}")
+                    self.log(f"   Status: {po_request.get('status')}")
+                    self.log(f"   Total Amount: ₹{po_request.get('total_estimated_amount', 0):,.2f}")
+                    self.log(f"   Line Items: {len(po_request.get('line_items', []))}")
+                    self.log(f"   Approvals: {len(po_request.get('approvals', []))}")
                     return True
                 else:
-                    self.log(f"❌ Invalid project code format: {self.test_project_code} (Expected: {expected_prefix}XXXXXX with length 12)", "ERROR")
+                    self.log(f"❌ Missing required fields: {missing_fields}", "ERROR")
+                    return False
+                    
+            else:
+                self.log(f"❌ PO Request details retrieval failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Error getting PO request details: {str(e)}", "ERROR")
+            return False
+    
+    def test_approve_po_request(self, role: str, request_id: str, action: str = "approve", comments: str = "") -> bool:
+        """Test POST /api/purchase-order-requests/{id}/approve"""
+        self.log(f"🧪 Testing PO Request {action.title()}...")
+        
+        try:
+            approval_data = {
+                "action": action,
+                "comments": comments or f"{action.title()} by {role} - automated test"
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/purchase-order-requests/{request_id}/approve",
+                headers=self.get_headers(role),
+                json=approval_data
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                message = result.get("message", "")
+                new_status = result.get("status", "")
+                next_level = result.get("next_level")
+                po_number = result.get("po_number")
+                
+                self.log(f"✅ PO Request {action} successful!")
+                self.log(f"   Message: {message}")
+                self.log(f"   New Status: {new_status}")
+                
+                if next_level:
+                    self.log(f"   Next Level: {next_level}")
+                
+                if po_number:
+                    self.log(f"   PO Number Generated: {po_number}")
+                    self.test_data["po_number"] = po_number
+                
+                return True
+                
+            else:
+                self.log(f"❌ PO Request {action} failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Error {action}ing PO request: {str(e)}", "ERROR")
+            return False
+    
+    def test_approval_workflow(self) -> bool:
+        """Test the complete 3-level approval workflow"""
+        self.log("🧪 Testing Complete Approval Workflow...")
+        
+        if not self.test_data.get("po_request_id"):
+            self.log("❌ No PO request ID available for workflow test", "ERROR")
+            return False
+        
+        request_id = self.test_data["po_request_id"]
+        
+        # Level 1: Operations Manager approval (using admin role)
+        self.log("📋 Level 1: Operations Manager Approval")
+        if not self.test_approve_po_request("admin", request_id, "approve", "Approved for L1 - Operations Manager"):
+            return False
+        
+        # Verify status changed to pending_head_approval
+        if not self.verify_status_change(request_id, "pending_head_approval"):
+            return False
+        
+        # Level 2: Project/Ops Head approval (using admin role)
+        self.log("📋 Level 2: Project/Ops Head Approval")
+        if not self.test_approve_po_request("admin", request_id, "approve", "Approved for L2 - Project Head"):
+            return False
+        
+        # Verify status changed to pending_finance
+        if not self.verify_status_change(request_id, "pending_finance"):
+            return False
+        
+        # Level 3: Finance approval (using admin role)
+        self.log("📋 Level 3: Finance Approval")
+        if not self.test_approve_po_request("admin", request_id, "approve", "Approved for L3 - Finance Head"):
+            return False
+        
+        # Verify final status is approved and PO number is generated
+        if not self.verify_status_change(request_id, "approved"):
+            return False
+        
+        # Verify PO number was generated
+        if self.test_data.get("po_number"):
+            self.log(f"✅ Complete workflow successful! PO Number: {self.test_data['po_number']}")
+            return True
+        else:
+            self.log("❌ PO number not generated after final approval", "ERROR")
+            return False
+    
+    def verify_status_change(self, request_id: str, expected_status: str) -> bool:
+        """Verify that PO request status has changed"""
+        try:
+            response = self.session.get(
+                f"{BACKEND_URL}/purchase-order-requests/{request_id}",
+                headers=self.get_headers("admin")
+            )
+            
+            if response.status_code == 200:
+                po_request = response.json()
+                current_status = po_request.get("status")
+                
+                if current_status == expected_status:
+                    self.log(f"✅ Status correctly changed to: {current_status}")
+                    return True
+                else:
+                    self.log(f"❌ Status mismatch. Expected: {expected_status}, Got: {current_status}", "ERROR")
                     return False
             else:
-                self.log(f"❌ Project code missing or invalid: {self.test_project_code}", "ERROR")
-                return False
-        else:
-            self.log(f"❌ Project creation failed: {response.status_code} - {response.text}", "ERROR")
-            return False
-            
-    def test_verify_project_data(self) -> bool:
-        """Test 2: Verify project has correct data saved"""
-        self.log("🔍 Testing: Verify project data saved correctly...")
-        
-        if not self.test_project_id:
-            self.log("❌ No test project ID available", "ERROR")
-            return False
-            
-        response = self.make_request("GET", f"/projects/{self.test_project_id}", 
-                                   auth_token=self.admin_token)
-        
-        if response.status_code == 200:
-            data = response.json()
-            project_code = data.get("project_code")
-            client_contact = data.get("client_contact")
-            
-            # Verify project_code
-            if project_code == self.test_project_code:
-                self.log(f"✅ Project code verified: {project_code}")
-            else:
-                self.log(f"❌ Project code mismatch. Expected: {self.test_project_code}, Got: {project_code}", "ERROR")
+                self.log(f"❌ Failed to verify status: {response.status_code}", "ERROR")
                 return False
                 
-            # Verify client_contact
-            if client_contact == self.test_client_contact:
-                self.log(f"✅ Client contact verified: {client_contact}")
-            else:
-                self.log(f"❌ Client contact mismatch. Expected: {self.test_client_contact}, Got: {client_contact}", "ERROR")
-                return False
-                
-            return True
-        else:
-            self.log(f"❌ Failed to retrieve project: {response.status_code} - {response.text}", "ERROR")
+        except Exception as e:
+            self.log(f"❌ Error verifying status: {str(e)}", "ERROR")
             return False
-            
-    def test_client_portal_login_with_project_code(self) -> bool:
-        """Test 3: Test Client Portal Login with Project Code"""
-        self.log("🔑 Testing: Client Portal Login with Project Code...")
+    
+    def test_rejection_workflow(self) -> bool:
+        """Test PO request rejection"""
+        self.log("🧪 Testing Rejection Workflow...")
         
-        if not self.test_project_code or not self.test_client_contact:
-            self.log("❌ Missing test project code or client contact", "ERROR")
+        # Create another PO request for rejection test
+        projects = self.get_projects("admin")
+        if not projects:
+            self.log("❌ No projects available for rejection test", "ERROR")
             return False
-            
-        # Test with project code (new format)
-        login_data = {
-            "project_id": self.test_project_code,
-            "mobile": self.test_client_contact
-        }
         
-        response = self.make_request("POST", "/client-portal/login", login_data)
+        project_id = projects[0]["id"]
         
-        if response.status_code == 200:
-            data = response.json()
-            access_token = data.get("access_token")
-            project_name = data.get("project_name")
-            client_name = data.get("client_name")
-            
-            if access_token and project_name and client_name:
-                self.log(f"✅ Client portal login successful with project code")
-                self.log(f"   Access Token: {access_token[:20]}...")
-                self.log(f"   Project Name: {project_name}")
-                self.log(f"   Client Name: {client_name}")
-                return True
-            else:
-                self.log(f"❌ Login response missing required fields", "ERROR")
-                return False
-        else:
-            self.log(f"❌ Client portal login failed: {response.status_code} - {response.text}", "ERROR")
+        # Create a new PO request
+        rejection_request_id = self.test_create_po_request("admin", project_id)
+        if not rejection_request_id:
             return False
-            
-    def test_client_portal_login_with_mongodb_id(self) -> bool:
-        """Test 4: Test Client Portal Login with MongoDB ObjectId (backward compatibility)"""
-        self.log("🔑 Testing: Client Portal Login with MongoDB ObjectId...")
         
-        if not self.test_project_id or not self.test_client_contact:
-            self.log("❌ Missing test project ID or client contact", "ERROR")
+        # Reject at Level 1
+        self.log("📋 Testing Rejection at Level 1")
+        if not self.test_approve_po_request("admin", rejection_request_id, "reject", "Budget exceeded - rejecting request"):
             return False
-            
-        # Test with MongoDB ObjectId (backward compatibility)
-        login_data = {
-            "project_id": self.test_project_id,
-            "mobile": self.test_client_contact
-        }
         
-        response = self.make_request("POST", "/client-portal/login", login_data)
-        
-        if response.status_code == 200:
-            data = response.json()
-            access_token = data.get("access_token")
-            project_name = data.get("project_name")
-            client_name = data.get("client_name")
-            
-            if access_token and project_name and client_name:
-                self.log(f"✅ Client portal login successful with MongoDB ObjectId")
-                self.log(f"   Access Token: {access_token[:20]}...")
-                self.log(f"   Project Name: {project_name}")
-                self.log(f"   Client Name: {client_name}")
-                return True
-            else:
-                self.log(f"❌ Login response missing required fields", "ERROR")
-                return False
-        else:
-            self.log(f"❌ Client portal login failed: {response.status_code} - {response.text}", "ERROR")
+        # Verify status changed to rejected
+        if not self.verify_status_change(rejection_request_id, "rejected"):
             return False
-            
-    def test_send_client_credentials(self) -> bool:
-        """Test 5: Test Send Client Credentials"""
-        self.log("📱 Testing: Send Client Credentials...")
         
-        if not self.test_project_id:
-            self.log("❌ Missing test project ID", "ERROR")
-            return False
-            
-        # Test sending credentials
-        send_data = {
-            "send_whatsapp": True,
-            "send_sms": False,
-            "send_email": False,
-            "custom_message": "Test message for client portal credentials"
-        }
-        
-        response = self.make_request("POST", f"/projects/{self.test_project_id}/send-client-credentials", 
-                                   send_data, auth_token=self.admin_token)
-        
-        if response.status_code == 200:
-            data = response.json()
-            message = data.get("message", "")
-            whatsapp_link = data.get("whatsapp_link", "")
-            
-            # Verify the message contains Project Code (not MongoDB ID)
-            if self.test_project_code in message:
-                self.log(f"✅ Client credentials sent successfully")
-                self.log(f"   Message contains Project Code: {self.test_project_code}")
-                
-                # Verify WhatsApp link is generated
-                if whatsapp_link and "wa.me" in whatsapp_link:
-                    self.log(f"✅ WhatsApp link generated: {whatsapp_link[:50]}...")
-                    return True
-                else:
-                    self.log(f"⚠️ WhatsApp link not generated or invalid: {whatsapp_link}")
-                    # Still consider test passed if message contains project code
-                    return True
-            else:
-                self.log(f"❌ Message does not contain Project Code. Message: {message[:100]}...", "ERROR")
-                return False
-        else:
-            self.log(f"❌ Send client credentials failed: {response.status_code} - {response.text}", "ERROR")
-            return False
-            
-    def test_invalid_login_scenarios(self) -> bool:
-        """Test 6: Test invalid login scenarios"""
-        self.log("🚫 Testing: Invalid login scenarios...")
-        
-        test_cases = [
-            {
-                "name": "Invalid project code",
-                "data": {"project_id": "SC1225999999", "mobile": self.test_client_contact},
-                "expected_status": 401
-            },
-            {
-                "name": "Invalid mobile number",
-                "data": {"project_id": self.test_project_code, "mobile": "+919999999999"},
-                "expected_status": 401
-            },
-            {
-                "name": "Missing project_id",
-                "data": {"mobile": self.test_client_contact},
-                "expected_status": 400
-            },
-            {
-                "name": "Missing mobile",
-                "data": {"project_id": self.test_project_code},
-                "expected_status": 400
-            }
-        ]
-        
-        all_passed = True
-        for test_case in test_cases:
-            response = self.make_request("POST", "/client-portal/login", test_case["data"])
-            
-            if response.status_code == test_case["expected_status"]:
-                self.log(f"✅ {test_case['name']}: Correctly rejected with status {response.status_code}")
-            else:
-                self.log(f"❌ {test_case['name']}: Expected status {test_case['expected_status']}, got {response.status_code}", "ERROR")
-                all_passed = False
-                
-        return all_passed
-        
+        self.log("✅ Rejection workflow successful!")
+        return True
+    
     def run_all_tests(self) -> bool:
-        """Run all tests in sequence"""
-        self.log("🚀 Starting Client Portal Login Flow Tests...")
-        self.log("=" * 60)
+        """Run all PO request tests"""
+        self.log("🚀 Starting Purchase Order Request API Testing...")
         
-        tests = [
-            ("Admin Authentication", self.authenticate_admin),
-            ("Create Project with Templates", self.test_create_project_with_templates),
-            ("Verify Project Data", self.test_verify_project_data),
-            ("Client Portal Login with Project Code", self.test_client_portal_login_with_project_code),
-            ("Client Portal Login with MongoDB ObjectId", self.test_client_portal_login_with_mongodb_id),
-            ("Send Client Credentials", self.test_send_client_credentials),
-            ("Invalid Login Scenarios", self.test_invalid_login_scenarios)
-        ]
-        
-        passed = 0
-        total = len(tests)
-        
-        for test_name, test_func in tests:
-            self.log(f"\n📋 Running: {test_name}")
-            try:
-                if test_func():
-                    passed += 1
-                    self.log(f"✅ {test_name}: PASSED")
-                else:
-                    self.log(f"❌ {test_name}: FAILED")
-            except Exception as e:
-                self.log(f"❌ {test_name}: ERROR - {str(e)}", "ERROR")
-                
-        self.log("\n" + "=" * 60)
-        self.log(f"🏁 Test Results: {passed}/{total} tests passed")
-        
-        if passed == total:
-            self.log("🎉 ALL TESTS PASSED! Client Portal Login flow is working correctly.")
-            return True
-        else:
-            self.log(f"⚠️ {total - passed} tests failed. Please check the issues above.")
+        # Login with test credentials
+        if not self.login("admin"):
             return False
+        
+        if not self.login("manager"):
+            return False
+        
+        # Get available projects
+        projects = self.get_projects("admin")
+        if not projects:
+            self.log("❌ No projects available for testing", "ERROR")
+            return False
+        
+        project_id = projects[0]["id"]
+        self.log(f"📋 Using project: {projects[0].get('name', 'Unknown')} (ID: {project_id})")
+        
+        # Test 1: Create PO Request
+        request_id = self.test_create_po_request("admin", project_id)
+        if not request_id:
+            return False
+        
+        # Test 2: List PO Requests
+        if not self.test_list_po_requests("admin"):
+            return False
+        
+        # Test 3: Get PO Request Details
+        if not self.test_get_po_request_details("admin", request_id):
+            return False
+        
+        # Test 4: Complete Approval Workflow
+        if not self.test_approval_workflow():
+            return False
+        
+        # Test 5: Rejection Workflow
+        if not self.test_rejection_workflow():
+            return False
+        
+        self.log("🎉 All Purchase Order Request API tests completed successfully!")
+        return True
 
 def main():
     """Main test execution"""
-    tester = BackendTester()
-    success = tester.run_all_tests()
+    tester = PurchaseOrderRequestTester()
     
-    if success:
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    try:
+        success = tester.run_all_tests()
+        
+        if success:
+            print("\n" + "="*80)
+            print("✅ PURCHASE ORDER REQUEST API TESTING COMPLETE")
+            print("="*80)
+            print("All tests passed successfully!")
+            print(f"Test Data Summary:")
+            print(f"  - PO Request ID: {tester.test_data.get('po_request_id', 'N/A')}")
+            print(f"  - Request Number: {tester.test_data.get('request_number', 'N/A')}")
+            print(f"  - Final PO Number: {tester.test_data.get('po_number', 'N/A')}")
+            return 0
+        else:
+            print("\n" + "="*80)
+            print("❌ PURCHASE ORDER REQUEST API TESTING FAILED")
+            print("="*80)
+            print("Some tests failed. Check the logs above for details.")
+            return 1
+            
+    except KeyboardInterrupt:
+        print("\n❌ Testing interrupted by user")
+        return 1
+    except Exception as e:
+        print(f"\n❌ Unexpected error during testing: {str(e)}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
