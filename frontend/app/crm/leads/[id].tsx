@@ -15,10 +15,12 @@ import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { crmLeadsAPI, crmActivitiesAPI, estimationAPI } from '../../../services/api';
+import { useActivityModal } from '../../../components/ActivityConfirmationModal';
 
 export default function LeadDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { showSuccess, showError, showConfirm, showWarning, ActivityModal } = useActivityModal();
   const [lead, setLead] = useState(null);
   const [activities, setActivities] = useState([]);
   const [estimates, setEstimates] = useState([]);
