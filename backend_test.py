@@ -279,19 +279,56 @@ class PORequestTester:
             
             self.log_result("Approval Workflow - Initial Status", True, f"Current status: {current_status}")
             
-            # Test approval at each level
-            approval_levels = [
-                ("pending_ops_manager", "L1 approved - Operations Manager"),
-                ("pending_head_approval", "L2 approved - Project/Operations Head"),
-                ("pending_finance", "L3 approved - Finance Head")
-            ]
+            # Level 1: Operations Manager approval
+            if current_status == "pending_ops_manager":
+                approval_data = {
+                    "action": "approve",
+                    "comments": "L1 approved - Operations Manager"
+                }
+                
+                response = self.session.post(f"{BASE_URL}/purchase-order-requests/{self.po_request_id}/approve", 
+                                           json=approval_data)
+                
+                if response.status_code == 200:
+                    approval_result = response.json()
+                    new_status = approval_result.get("status")
+                    
+                    self.log_result("Approval Level 1 - Operations Manager", True, 
+                        f"Approved successfully, new status: {new_status}")
+                    current_status = new_status
+                else:
+                    self.log_result("Approval Level 1 - Operations Manager", False, 
+                        f"Approval failed: {response.status_code}", response.text)
+                    return False
             
-            for expected_status, comment in approval_levels:
-                if current_status == expected_status:
-                    # Approve at this level
+            # Level 2: Head approvals (need 2 approvals - project_head and operations_head)
+            if current_status == "pending_head_approval":
+                # First head approval
+                approval_data = {
+                    "action": "approve",
+                    "comments": "L2 approved - First Head (Project Head)"
+                }
+                
+                response = self.session.post(f"{BASE_URL}/purchase-order-requests/{self.po_request_id}/approve", 
+                                           json=approval_data)
+                
+                if response.status_code == 200:
+                    approval_result = response.json()
+                    new_status = approval_result.get("status")
+                    
+                    self.log_result("Approval Level 2 - First Head", True, 
+                        f"First head approved, new status: {new_status}")
+                    current_status = new_status
+                else:
+                    self.log_result("Approval Level 2 - First Head", False, 
+                        f"Approval failed: {response.status_code}", response.text)
+                    return False
+                
+                # Second head approval (if still pending)
+                if current_status == "pending_head_approval":
                     approval_data = {
                         "action": "approve",
-                        "comments": comment
+                        "comments": "L2 approved - Second Head (Operations Head)"
                     }
                     
                     response = self.session.post(f"{BASE_URL}/purchase-order-requests/{self.po_request_id}/approve", 
@@ -301,29 +338,51 @@ class PORequestTester:
                         approval_result = response.json()
                         new_status = approval_result.get("status")
                         
-                        self.log_result(f"Approval Level - {expected_status}", True, 
-                            f"Approved successfully, new status: {new_status}")
-                        
-                        # Update current status for next iteration
+                        self.log_result("Approval Level 2 - Second Head", True, 
+                            f"Second head approved, new status: {new_status}")
                         current_status = new_status
-                        
-                        # If fully approved, check for PO number
-                        if new_status == "approved":
-                            po_number = approval_result.get("po_number")
-                            if po_number:
-                                self.log_result("PO Number Generation", True, f"PO Number generated: {po_number}")
-                            else:
-                                self.log_result("PO Number Generation", False, "PO Number not generated after final approval")
-                            break
                     else:
-                        self.log_result(f"Approval Level - {expected_status}", False, 
+                        self.log_result("Approval Level 2 - Second Head", False, 
                             f"Approval failed: {response.status_code}", response.text)
                         return False
-                elif current_status == "approved":
-                    self.log_result("Approval Workflow", True, "PO Request already fully approved")
-                    break
             
-            return True
+            # Level 3: Finance approval
+            if current_status == "pending_finance":
+                approval_data = {
+                    "action": "approve",
+                    "comments": "L3 approved - Finance Head"
+                }
+                
+                response = self.session.post(f"{BASE_URL}/purchase-order-requests/{self.po_request_id}/approve", 
+                                           json=approval_data)
+                
+                if response.status_code == 200:
+                    approval_result = response.json()
+                    new_status = approval_result.get("status")
+                    
+                    self.log_result("Approval Level 3 - Finance", True, 
+                        f"Finance approved, new status: {new_status}")
+                    
+                    # Check for PO number generation
+                    if new_status == "approved":
+                        po_number = approval_result.get("po_number")
+                        if po_number:
+                            self.log_result("PO Number Generation", True, f"PO Number generated: {po_number}")
+                        else:
+                            self.log_result("PO Number Generation", False, "PO Number not generated after final approval")
+                    
+                    current_status = new_status
+                else:
+                    self.log_result("Approval Level 3 - Finance", False, 
+                        f"Approval failed: {response.status_code}", response.text)
+                    return False
+            
+            if current_status == "approved":
+                self.log_result("Approval Workflow Complete", True, "PO Request fully approved through all levels")
+                return True
+            else:
+                self.log_result("Approval Workflow Incomplete", False, f"PO Request not fully approved, final status: {current_status}")
+                return False
             
         except Exception as e:
             self.log_result("Approval Workflow", False, f"Error in approval workflow: {str(e)}")
