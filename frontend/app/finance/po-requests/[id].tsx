@@ -254,6 +254,25 @@ export default function PORequestDetailScreen() {
           </View>
         </View>
 
+        {/* Vendor Information */}
+        {(poRequest.vendor_name || poRequest.vendor_id) && (
+          <View style={styles.card}>
+            <View style={styles.vendorHeader}>
+              <Ionicons name="storefront" size={20} color={Colors.primary} />
+              <Text style={styles.sectionTitle}>Vendor</Text>
+            </View>
+            <View style={styles.vendorDetails}>
+              <Text style={styles.vendorName}>{poRequest.vendor_name || 'Vendor Selected'}</Text>
+              {poRequest.po_sent_to_vendor && (
+                <View style={styles.poSentBadge}>
+                  <Ionicons name="checkmark-circle" size={14} color="#10B981" />
+                  <Text style={styles.poSentText}>PO Sent</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
         {/* Amount Summary */}
         <View style={styles.amountCard}>
           <Text style={styles.amountLabel}>Total Estimated Amount</Text>
