@@ -2531,7 +2531,9 @@ class PurchaseOrderRequestBase(BaseModel):
     line_items: List[POLineItem] = []
     total_estimated_amount: float = 0
     justification: Optional[str] = None
-    vendor_suggestions: Optional[List[str]] = None
+    vendor_id: Optional[str] = None  # Selected vendor from system
+    vendor_name: Optional[str] = None  # Populated from vendor record
+    vendor_suggestions: Optional[List[str]] = None  # Legacy field for text suggestions
     attachments: Optional[List[str]] = None
 
 class PurchaseOrderRequestCreate(PurchaseOrderRequestBase):
