@@ -123,6 +123,14 @@ export const templatesAPI = {
   getLabourRates: () => api.get('/templates/labour-rates'),
 };
 
+// Project Templates API (Extended)
+export const projectTemplatesAPI = {
+  getMilestones: () => api.get('/templates/milestones'),
+  getLabourRates: () => api.get('/templates/labour-rates'),
+  createProjectWithTemplates: (data: any) => api.post('/projects/create-with-templates', data),
+  updateProjectFloors: (projectId: string, data: any) => api.post(`/projects/${projectId}/update-floors`, data),
+};
+
 // Purchase Order Request API
 export const poRequestAPI = {
   create: (data: any) => api.post('/purchase-order-requests', data),
