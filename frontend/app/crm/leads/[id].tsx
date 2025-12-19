@@ -353,6 +353,9 @@ export default function LeadDetailScreen() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+      
+      {/* Activity Confirmation Modal */}
+      <ActivityModal />
     </SafeAreaView>
   );
 }
