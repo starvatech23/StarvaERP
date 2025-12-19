@@ -904,6 +904,50 @@ export default function PORequestDetailScreen() {
         </View>
       </Modal>
 
+      {/* PDF Options Modal */}
+      <Modal visible={showPdfOptionsModal} transparent animationType="fade">
+        <TouchableOpacity 
+          style={styles.pdfModalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowPdfOptionsModal(false)}
+        >
+          <View style={styles.pdfModalContent}>
+            <Text style={styles.pdfModalTitle}>Purchase Order PDF</Text>
+            <Text style={styles.pdfModalSubtitle}>{poRequest?.po_number}</Text>
+            
+            <View style={styles.pdfOptionsContainer}>
+              <TouchableOpacity style={styles.pdfOptionButton} onPress={handleDownloadPdf}>
+                <View style={[styles.pdfOptionIcon, { backgroundColor: '#EFF6FF' }]}>
+                  <Ionicons name="download-outline" size={28} color="#2563EB" />
+                </View>
+                <Text style={styles.pdfOptionText}>Save to Device</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.pdfOptionButton} onPress={handleSharePdf}>
+                <View style={[styles.pdfOptionIcon, { backgroundColor: '#F0FDF4' }]}>
+                  <Ionicons name="share-social-outline" size={28} color="#16A34A" />
+                </View>
+                <Text style={styles.pdfOptionText}>Share PDF</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.pdfOptionButton} onPress={handlePrintPdf}>
+                <View style={[styles.pdfOptionIcon, { backgroundColor: '#FEF3C7' }]}>
+                  <Ionicons name="print-outline" size={28} color="#D97706" />
+                </View>
+                <Text style={styles.pdfOptionText}>Print</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <TouchableOpacity 
+              style={styles.pdfModalCancelBtn}
+              onPress={() => setShowPdfOptionsModal(false)}
+            >
+              <Text style={styles.pdfModalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
       {/* Activity Confirmation Modal */}
       <ActivityModal />
     </SafeAreaView>
