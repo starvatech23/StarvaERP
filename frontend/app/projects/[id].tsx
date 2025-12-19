@@ -1337,6 +1337,84 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.textSecondary,
   },
+  // Project Schedule styles
+  scheduleList: {
+    gap: 8,
+  },
+  milestoneItem: {
+    backgroundColor: Colors.background,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  milestoneHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+  },
+  milestoneLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+  },
+  milestoneRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  milestoneName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    flex: 1,
+  },
+  milestoneTaskCount: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontWeight: '500',
+  },
+  milestoneStatusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  milestoneTasks: {
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+    paddingTop: 4,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  scheduleTaskItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingLeft: 26,
+  },
+  scheduleTaskLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+  },
+  scheduleTaskTitle: {
+    fontSize: 13,
+    color: Colors.textPrimary,
+    flex: 1,
+  },
+  scheduleTaskCompleted: {
+    textDecorationLine: 'line-through',
+    color: Colors.textSecondary,
+  },
+  noTasksText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontStyle: 'italic',
+    paddingLeft: 26,
+    paddingVertical: 8,
+  },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
