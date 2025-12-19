@@ -311,12 +311,20 @@ class PurchaseOrderRequestTester:
         if not self.verify_status_change(request_id, "pending_head_approval"):
             return False
         
-        # Level 2: Project/Ops Head approval (using admin role)
-        self.log("📋 Level 2: Project/Ops Head Approval")
+        # Level 2: Project/Ops Head approval (requires TWO approvals)
+        self.log("📋 Level 2: First Head Approval (Project Head)")
         if not self.test_approve_po_request("admin", request_id, "approve", "Approved for L2 - Project Head"):
             return False
         
-        # Verify status changed to pending_finance
+        # Verify status is still pending_head_approval (waiting for second approval)
+        if not self.verify_status_change(request_id, "pending_head_approval"):
+            return False
+        
+        self.log("📋 Level 2: Second Head Approval (Operations Head)")
+        if not self.test_approve_po_request("admin", request_id, "approve", "Approved for L2 - Operations Head"):
+            return False
+        
+        # Now verify status changed to pending_finance
         if not self.verify_status_change(request_id, "pending_finance"):
             return False
         
