@@ -1338,8 +1338,18 @@ async def get_tasks(
     if parent_only:
         query["parent_task_id"] = None
     
-    # Sort tasks by start_date for timeline ordering (ascending)
-    tasks = await db.tasks.find(query).sort("start_date", 1).to_list(1000)
+    # Get tasks and sort by start_date (fallback to due_date) for timeline ordering
+    tasks_raw = await db.tasks.find(query).to_list(1000)
+    
+    # Custom sort: use start_date if available, otherwise due_date
+    def get_sort_date(task):
+        if task.get("start_date"):
+            return task["start_date"]
+        if task.get("due_date"):
+            return task["due_date"]
+        return datetime(9999, 12, 31)  # Put tasks without dates at the end
+    
+    tasks = sorted(tasks_raw, key=get_sort_date)
     
     result = []
     for task in tasks:
