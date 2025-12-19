@@ -153,18 +153,21 @@ export default function PORequestDetailScreen() {
     if (!poRequest || !user) return false;
     const role = user?.role;
     
-    // Only approved POs can be sent
+    // Only approved POs can be sent (but can be sent multiple times to different vendors)
     if (poRequest.status !== 'approved') return false;
-    if (poRequest.po_sent_to_vendor) return false;
     
     // Operations team can send
     const allowedRoles = ['admin', 'operations_manager', 'operations_head', 'operations_executive', 'project_manager'];
     return allowedRoles.includes(role);
   };
 
+  const hasSentVendorHistory = () => {
+    return poRequest?.sent_to_vendors_history && poRequest.sent_to_vendors_history.length > 0;
+  };
+
   const needsVendorSelection = () => {
     if (!poRequest) return false;
-    return poRequest.status === 'approved' && !poRequest.po_sent_to_vendor && !poRequest.vendor_id;
+    return poRequest.status === 'approved';
   };
 
   const handleSendToVendor = async () => {
