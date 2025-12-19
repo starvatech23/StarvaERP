@@ -18,8 +18,8 @@ import { useAuth } from '../../../context/AuthContext';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All Status' },
-  { value: 'pending_l1', label: 'Pending L1' },
-  { value: 'pending_l2', label: 'Pending L2' },
+  { value: 'pending_ops_manager', label: 'Pending Ops Manager' },
+  { value: 'pending_head_approval', label: 'Pending Heads' },
   { value: 'pending_finance', label: 'Pending Finance' },
   { value: 'approved', label: 'Approved' },
   { value: 'rejected', label: 'Rejected' },
