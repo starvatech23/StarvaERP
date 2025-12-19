@@ -630,19 +630,40 @@ export default function PORequestDetailScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Vendor Selection Modal */}
+      {/* Multi-Vendor Selection Modal */}
       <Modal visible={showVendorModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { maxHeight: '90%' }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Vendor</Text>
+              <Text style={styles.modalTitle}>Send PO to Vendors</Text>
               <TouchableOpacity onPress={() => setShowVendorModal(false)}>
                 <Ionicons name="close" size={24} color={Colors.textPrimary} />
               </TouchableOpacity>
             </View>
 
+            {/* Send Method Toggles */}
+            <View style={styles.sendMethodContainer}>
+              <Text style={styles.sendMethodTitle}>Send via:</Text>
+              <View style={styles.sendMethodRow}>
+                <TouchableOpacity 
+                  style={[styles.sendMethodBtn, sendEmail && styles.sendMethodBtnActive]}
+                  onPress={() => setSendEmail(!sendEmail)}
+                >
+                  <Ionicons name="mail" size={18} color={sendEmail ? '#fff' : Colors.textSecondary} />
+                  <Text style={[styles.sendMethodText, sendEmail && styles.sendMethodTextActive]}>Email</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.sendMethodBtn, sendWhatsApp && styles.sendMethodBtnActive]}
+                  onPress={() => setSendWhatsApp(!sendWhatsApp)}
+                >
+                  <Ionicons name="logo-whatsapp" size={18} color={sendWhatsApp ? '#fff' : Colors.textSecondary} />
+                  <Text style={[styles.sendMethodText, sendWhatsApp && styles.sendMethodTextActive]}>WhatsApp</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <Text style={styles.modalSubtitle}>
-              Choose a vendor to send this PO to:
+              Select vendors ({selectedVendors.length} selected):
             </Text>
 
             {loadingVendors ? (
@@ -658,33 +679,64 @@ export default function PORequestDetailScreen() {
               </View>
             ) : (
               <ScrollView style={styles.vendorList}>
-                {vendors.map((vendor) => (
-                  <TouchableOpacity
-                    key={vendor.id}
-                    style={styles.vendorOption}
-                    onPress={() => handleSelectVendorAndSend(vendor)}
-                  >
-                    <View style={styles.vendorOptionInfo}>
-                      <Text style={styles.vendorOptionName}>
-                        {vendor.business_name || vendor.contact_person}
-                      </Text>
-                      {vendor.business_name && vendor.contact_person && (
-                        <Text style={styles.vendorOptionContact}>{vendor.contact_person}</Text>
-                      )}
-                      <Text style={styles.vendorOptionPhone}>{vendor.phone}</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
-                  </TouchableOpacity>
-                ))}
+                {vendors.map((vendor) => {
+                  const isSelected = selectedVendors.some(v => v.id === vendor.id);
+                  return (
+                    <TouchableOpacity
+                      key={vendor.id}
+                      style={[styles.vendorOption, isSelected && styles.vendorOptionSelected]}
+                      onPress={() => toggleVendorSelection(vendor)}
+                    >
+                      <View style={[styles.vendorCheckbox, isSelected && styles.vendorCheckboxSelected]}>
+                        {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
+                      </View>
+                      <View style={styles.vendorOptionInfo}>
+                        <Text style={styles.vendorOptionName}>
+                          {vendor.business_name || vendor.contact_person}
+                        </Text>
+                        <View style={styles.vendorContactRow}>
+                          {vendor.phone && (
+                            <View style={styles.vendorContactItem}>
+                              <Ionicons name="call" size={12} color={Colors.textSecondary} />
+                              <Text style={styles.vendorContactText}>{vendor.phone}</Text>
+                            </View>
+                          )}
+                          {vendor.email && (
+                            <View style={styles.vendorContactItem}>
+                              <Ionicons name="mail" size={12} color={Colors.textSecondary} />
+                              <Text style={styles.vendorContactText}>{vendor.email}</Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
               </ScrollView>
             )}
 
-            <TouchableOpacity
-              style={styles.vendorModalCancelBtn}
-              onPress={() => setShowVendorModal(false)}
-            >
-              <Text style={styles.vendorModalCancelText}>Cancel</Text>
-            </TouchableOpacity>
+            {/* Action Buttons */}
+            <View style={styles.vendorModalActions}>
+              <TouchableOpacity
+                style={styles.vendorModalCancelBtn}
+                onPress={() => setShowVendorModal(false)}
+              >
+                <Text style={styles.vendorModalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.vendorModalSendBtn, 
+                  (selectedVendors.length === 0 || (!sendEmail && !sendWhatsApp)) && styles.vendorModalSendBtnDisabled
+                ]}
+                onPress={handleSendToSelectedVendors}
+                disabled={selectedVendors.length === 0 || (!sendEmail && !sendWhatsApp)}
+              >
+                <Ionicons name="send" size={18} color="#fff" />
+                <Text style={styles.vendorModalSendText}>
+                  Send to {selectedVendors.length} Vendor{selectedVendors.length !== 1 ? 's' : ''}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
