@@ -2563,6 +2563,8 @@ class PurchaseOrderRequestResponse(PurchaseOrderRequestBase):
     rejected_by: Optional[str] = None
     rejected_by_name: Optional[str] = None
     po_number: Optional[str] = None  # Generated after final approval
+    po_sent_to_vendor: bool = False  # Track if PO has been sent to vendor
+    po_sent_at: Optional[datetime] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
