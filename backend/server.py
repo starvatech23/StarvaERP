@@ -1392,8 +1392,11 @@ async def get_task(
     
     task_dict = serialize_doc(task)
     
-    creator = await get_user_by_id(task_dict["created_by"])
-    task_dict["created_by_name"] = creator["full_name"] if creator else None
+    if task_dict.get("created_by"):
+        creator = await get_user_by_id(task_dict["created_by"])
+        task_dict["created_by_name"] = creator["full_name"] if creator else None
+    else:
+        task_dict["created_by_name"] = None
     
     # Get assigned users - handle both string and list cases
     assigned_to = task_dict.get("assigned_to", [])
