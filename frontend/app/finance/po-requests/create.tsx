@@ -307,6 +307,8 @@ export default function CreatePORequestScreen() {
         justification: justification.trim() || undefined,
         line_items: validItems,
         total_estimated_amount: calculateTotal(),
+        vendor_id: selectedVendor?.id || undefined,
+        vendor_name: selectedVendor?.business_name || selectedVendor?.contact_person || undefined,
       };
 
       await poRequestAPI.create(payload);
