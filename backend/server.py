@@ -6979,6 +6979,33 @@ async def create_lead(
     }
     await db.lead_activities.insert_one(activity)
     
+    # Create default follow-up task for 24 hours later
+    default_follow_up_time = datetime.utcnow() + timedelta(hours=24)
+    default_follow_up = {
+        "lead_id": lead_id,
+        "follow_up_type": FollowUpType.CALL,
+        "scheduled_date": default_follow_up_time,
+        "scheduled_time": default_follow_up_time.strftime("%H:%M"),
+        "title": f"Initial Follow-up Call - {lead.name}",
+        "description": "Default 24-hour follow-up call scheduled automatically when lead was created",
+        "reminder_enabled": True,
+        "reminder_before_minutes": 30,
+        "send_whatsapp_invite": False,
+        "whatsapp_invite_sent": False,
+        "status": FollowUpStatus.PENDING,
+        "created_by": str(current_user["_id"]),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    await db.lead_follow_ups.insert_one(default_follow_up)
+    
+    # Update lead's next_follow_up
+    await db.leads.update_one(
+        {"_id": result.inserted_id},
+        {"$set": {"next_follow_up": default_follow_up_time}}
+    )
+    lead_dict["next_follow_up"] = default_follow_up_time
+    
     # Prepare response
     lead_dict = serialize_doc(lead_dict)
     lead_dict["category_name"] = category["name"]
