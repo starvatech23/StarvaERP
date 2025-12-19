@@ -759,6 +759,120 @@ export default function CreatePORequestScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      {/* New Vendor Modal */}
+      <Modal visible={showNewVendorModal} transparent animationType="slide">
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Add New Vendor</Text>
+              <TouchableOpacity onPress={() => setShowNewVendorModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalInputLabel}>Business Name</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={newVendor.business_name}
+                  onChangeText={(text) => setNewVendor({ ...newVendor, business_name: text })}
+                  placeholder="Enter business name"
+                  placeholderTextColor={Colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalInputLabel}>Contact Person *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={newVendor.contact_person}
+                  onChangeText={(text) => setNewVendor({ ...newVendor, contact_person: text })}
+                  placeholder="Enter contact person name"
+                  placeholderTextColor={Colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalInputLabel}>Phone *</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={newVendor.phone}
+                  onChangeText={(text) => setNewVendor({ ...newVendor, phone: text })}
+                  placeholder="Enter phone number"
+                  placeholderTextColor={Colors.textSecondary}
+                  keyboardType="phone-pad"
+                />
+              </View>
+
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalInputLabel}>Email</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={newVendor.email}
+                  onChangeText={(text) => setNewVendor({ ...newVendor, email: text })}
+                  placeholder="Enter email address"
+                  placeholderTextColor={Colors.textSecondary}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
+
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalInputLabel}>Address</Text>
+                <TextInput
+                  style={[styles.modalInput, { minHeight: 60 }]}
+                  value={newVendor.address}
+                  onChangeText={(text) => setNewVendor({ ...newVendor, address: text })}
+                  placeholder="Enter business address"
+                  placeholderTextColor={Colors.textSecondary}
+                  multiline
+                />
+              </View>
+
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalInputLabel}>GST Number</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={newVendor.gst_number}
+                  onChangeText={(text) => setNewVendor({ ...newVendor, gst_number: text })}
+                  placeholder="Enter GST number"
+                  placeholderTextColor={Colors.textSecondary}
+                  autoCapitalize="characters"
+                />
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
+                onPress={() => setShowNewVendorModal(false)}
+                disabled={creatingVendor}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalConfirmBtn, creatingVendor && styles.modalBtnDisabled]}
+                onPress={handleCreateVendor}
+                disabled={creatingVendor}
+              >
+                {creatingVendor ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="checkmark-circle" size={18} color="#fff" />
+                    <Text style={styles.modalConfirmText}>Create Vendor</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
