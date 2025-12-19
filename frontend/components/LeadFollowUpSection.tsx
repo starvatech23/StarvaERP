@@ -82,8 +82,20 @@ export default function LeadFollowUpSection({
   const [selectedFollowUp, setSelectedFollowUp] = useState<FollowUp | null>(null);
   const [creating, setCreating] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Form state
+  const defaultFormData = {
+    follow_up_type: 'call',
+    scheduled_date: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+    title: '',
+    description: '',
+    next_step: '',
+    reminder_enabled: true,
+    reminder_before_minutes: 30,
+    send_whatsapp_invite: false,
+  };
+  
   const [formData, setFormData] = useState({
     follow_up_type: 'call',
     scheduled_date: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
