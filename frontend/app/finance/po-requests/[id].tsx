@@ -129,6 +129,49 @@ export default function PORequestDetailScreen() {
     return false;
   };
 
+  const canSendToVendor = () => {
+    if (!poRequest || !user) return false;
+    const role = user?.role;
+    
+    // Only approved POs with vendor can be sent
+    if (poRequest.status !== 'approved') return false;
+    if (poRequest.po_sent_to_vendor) return false;
+    if (!poRequest.vendor_id) return false;
+    
+    // Operations team can send
+    const allowedRoles = ['admin', 'operations_manager', 'operations_head', 'operations_executive', 'project_manager'];
+    return allowedRoles.includes(role);
+  };
+
+  const handleSendToVendor = async () => {
+    Alert.alert(
+      'Send PO to Vendor',
+      `Are you sure you want to send PO ${poRequest.po_number} to ${poRequest.vendor_name}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Send',
+          onPress: async () => {
+            try {
+              setSendingToVendor(true);
+              const response = await poRequestAPI.sendToVendor(id as string);
+              Alert.alert(
+                'Success',
+                `PO sent to ${response.data.vendor_name} successfully!\n\nPhone: ${response.data.vendor_phone || 'N/A'}\nEmail: ${response.data.vendor_email || 'N/A'}`,
+                [{ text: 'OK', onPress: () => loadPORequest() }]
+              );
+            } catch (error: any) {
+              const message = error.response?.data?.detail || 'Failed to send PO to vendor';
+              Alert.alert('Error', message);
+            } finally {
+              setSendingToVendor(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const handleApprovalAction = (action: 'approve' | 'reject') => {
     setApprovalAction(action);
     setComments('');
