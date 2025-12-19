@@ -698,6 +698,17 @@ export default function ProjectDetailsScreen() {
 
             <TouchableOpacity
               style={styles.quickActionButton}
+              onPress={() => router.push(`/projects/${id}/construction-details` as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#FEF3C7' }]}>
+                <Ionicons name="layers" size={24} color="#F59E0B" />
+              </View>
+              <Text style={styles.quickActionLabel}>Floors</Text>
+              <Text style={styles.quickActionSubtext}>Construction info</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
               onPress={() => router.push(`/projects/${id}/budget` as any)}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: '#D1FAE5' }]}>
