@@ -754,6 +754,79 @@ export default function PORequestDetailScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Vendor History Modal */}
+      <Modal visible={showVendorHistoryModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.vendorHistoryModalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>PO Sent History</Text>
+              <TouchableOpacity onPress={() => setShowVendorHistoryModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.vendorHistoryList}>
+              {poRequest?.sent_to_vendors_history?.length > 0 ? (
+                poRequest.sent_to_vendors_history.map((entry: any, index: number) => (
+                  <View key={index} style={styles.vendorHistoryItem}>
+                    <View style={styles.vendorHistoryHeader}>
+                      <Ionicons name="business" size={20} color={Colors.primary} />
+                      <Text style={styles.vendorHistoryName}>{entry.vendor_name || 'Unknown Vendor'}</Text>
+                    </View>
+                    <View style={styles.vendorHistoryDetails}>
+                      <View style={styles.vendorHistoryRow}>
+                        <Ionicons name="calendar-outline" size={14} color={Colors.textSecondary} />
+                        <Text style={styles.vendorHistoryText}>
+                          {entry.sent_at ? new Date(entry.sent_at).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) : 'N/A'}
+                        </Text>
+                      </View>
+                      <View style={styles.vendorHistoryMethods}>
+                        {entry.email_sent && (
+                          <View style={styles.methodBadge}>
+                            <Ionicons name="mail" size={12} color="#10B981" />
+                            <Text style={styles.methodBadgeText}>Email</Text>
+                          </View>
+                        )}
+                        {entry.whatsapp_sent && (
+                          <View style={styles.methodBadge}>
+                            <Ionicons name="logo-whatsapp" size={12} color="#25D366" />
+                            <Text style={styles.methodBadgeText}>WhatsApp</Text>
+                          </View>
+                        )}
+                      </View>
+                      {entry.sent_by_name && (
+                        <View style={styles.vendorHistoryRow}>
+                          <Ionicons name="person-outline" size={14} color={Colors.textSecondary} />
+                          <Text style={styles.vendorHistoryText}>Sent by: {entry.sent_by_name}</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <View style={styles.emptyHistory}>
+                  <Ionicons name="document-text-outline" size={48} color={Colors.textSecondary} />
+                  <Text style={styles.emptyHistoryText}>No sending history yet</Text>
+                </View>
+              )}
+            </ScrollView>
+            
+            <TouchableOpacity
+              style={styles.vendorHistoryCloseBtn}
+              onPress={() => setShowVendorHistoryModal(false)}
+            >
+              <Text style={styles.vendorHistoryCloseBtnText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
