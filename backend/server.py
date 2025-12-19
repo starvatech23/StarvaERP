@@ -13782,26 +13782,49 @@ async def update_project_floors(
             milestone_doc["id"] = milestone_id
             created_milestones.append(milestone_doc)
             
-            # Create tasks for ALL floors under this ONE milestone
-            # Tasks are ordered: all tasks for floor 0, then all for floor 1, etc.
-            # But sorted by start_date within each task type across floors
+            # Create tasks based on floor applicability
+            # ground_only: Only for ground floor (floor_num == 0)
+            # top_only: Only for top floor (floor_num == number_of_floors - 1)
+            # all: For all floors
             task_order_base = 0
+            current_task_start = base_start
+            
             for floor_num in range(number_of_floors):
+                is_ground_floor = (floor_num == 0)
+                is_top_floor = (floor_num == number_of_floors - 1)
                 floor_label = f" - Floor {floor_num + 1}" if floor_num > 0 else " - Ground Floor"
                 
-                # Calculate start date offset for this floor (each floor starts after previous floor tasks)
-                floor_duration_offset = floor_num * template.get("default_duration_days", 30)
-                floor_start = base_start + timedelta(days=floor_duration_offset)
+                floor_task_start = current_task_start
                 
                 for task_template in template.get("tasks", []):
+                    floor_applicable = task_template.get("floor_applicable", "all")
+                    
+                    # Check if this task applies to current floor
+                    should_create = False
+                    if floor_applicable == "ground_only" and is_ground_floor:
+                        should_create = True
+                    elif floor_applicable == "top_only" and is_top_floor:
+                        should_create = True
+                    elif floor_applicable == "all":
+                        should_create = True
+                    
+                    if not should_create:
+                        continue
+                    
                     task_duration = task_template.get("duration", 1)
-                    task_start = floor_start + timedelta(days=task_template.get("order", 0))
+                    task_start = floor_task_start
                     task_end = task_start + timedelta(days=task_duration)
+                    floor_task_start = task_end  # Sequential task scheduling
+                    
+                    # For single floor projects, don't add floor label
+                    task_title = task_template['name']
+                    if number_of_floors > 1:
+                        task_title = f"{task_template['name']}{floor_label}"
                     
                     task_doc = {
                         "project_id": project_id,
                         "milestone_id": milestone_id,
-                        "title": f"{task_template['name']}{floor_label}",  # Task name includes floor
+                        "title": task_title,
                         "floor_number": floor_num,
                         "status": "pending",
                         "priority": "medium",
@@ -13810,6 +13833,8 @@ async def update_project_floors(
                         "estimated_duration": task_duration,
                         "start_date": task_start,
                         "due_date": task_end,
+                        "planned_start_date": task_start,
+                        "planned_end_date": task_end,
                         "created_at": datetime.utcnow(),
                         "updated_at": datetime.utcnow()
                     }
@@ -13818,7 +13843,8 @@ async def update_project_floors(
                     task_doc["id"] = str(task_result.inserted_id)
                     created_tasks.append(task_doc)
                 
-                task_order_base += len(template.get("tasks", [])) * 100  # Increment order base for next floor
+                task_order_base += 100  # Increment order base for next floor
+                current_task_start = floor_task_start  # Next floor starts after this floor's tasks
     
     return {
         "message": "Floor details updated successfully",
