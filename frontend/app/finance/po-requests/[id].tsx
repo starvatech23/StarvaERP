@@ -258,19 +258,25 @@ export default function PORequestDetailScreen() {
         comments: comments.trim() || undefined,
       });
       
-      Alert.alert(
-        'Success',
-        approvalAction === 'approve' 
-          ? 'PO Request has been approved successfully' 
-          : 'PO Request has been rejected',
-        [{ text: 'OK', onPress: () => {
-          setShowApprovalModal(false);
-          loadPORequest();
-        }}]
-      );
+      setShowApprovalModal(false);
+      
+      if (approvalAction === 'approve') {
+        showSuccess(
+          'PO Approved!',
+          'The purchase order request has been approved and moved to the next level.',
+          true
+        );
+      } else {
+        showError(
+          'PO Rejected',
+          'The purchase order request has been rejected.'
+        );
+      }
+      
+      loadPORequest();
     } catch (error: any) {
       const message = error.response?.data?.detail || 'Failed to process approval';
-      Alert.alert('Error', message);
+      showError('Approval Failed', message);
     } finally {
       setSubmitting(false);
     }
