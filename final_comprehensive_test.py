@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timedelta
 import uuid
 
-BASE_URL = "https://construsync.preview.emergentagent.com/api"
+BASE_URL = "https://procure-track-7.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 class FinalComprehensiveTest:

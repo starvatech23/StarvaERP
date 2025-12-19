@@ -666,7 +666,7 @@ async def create_project(
 def generate_client_portal_link(project_id: str, base_url: str = None) -> str:
     """Generate a client portal access link for a project"""
     if not base_url:
-        base_url = "https://construsync.preview.emergentagent.com"
+        base_url = "https://procure-track-7.preview.emergentagent.com"
     return f"{base_url}/client-portal/?projectId={project_id}"
 
 
@@ -8802,7 +8802,7 @@ async def send_client_portal_credentials(
     project_code = project.get("project_code") or project.get("code") or project_id
     
     # Generate client portal link using project_code
-    base_url = "https://construsync.preview.emergentagent.com"
+    base_url = "https://procure-track-7.preview.emergentagent.com"
     portal_link = f"{base_url}/client-portal/?projectId={project_code}"
     
     # Create credential message with project_code

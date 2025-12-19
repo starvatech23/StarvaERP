@@ -61,7 +61,7 @@ export default function GanttShareModal({ visible, projectId, onClose, onSuccess
 
       // Get base URL from environment variable
       const baseUrl = process.env.EXPO_PUBLIC_BACKEND_URL || 
-                     'https://construsync.preview.emergentagent.com';
+                     'https://procure-track-7.preview.emergentagent.com';
       
       // Check if share_url exists in response
       const shareUrl = response.data?.share_url || response.data?.shareUrl || `/projects/${projectId}/gantt-share/${response.data?.token}`;

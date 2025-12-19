@@ -68,7 +68,7 @@ export default function GanttShareLinksScreen() {
 
   const handleShare = async (shareUrl: string, hasPassword: boolean) => {
     const baseUrl = process.env.EXPO_PUBLIC_BACKEND_URL || 
-                   'https://construsync.preview.emergentagent.com';
+                   'https://procure-track-7.preview.emergentagent.com';
     const fullUrl = `${baseUrl}${shareUrl}`;
     try {
       await Share.share({
@@ -82,7 +82,7 @@ export default function GanttShareLinksScreen() {
 
   const handleCopy = (shareUrl: string) => {
     const baseUrl = process.env.EXPO_PUBLIC_BACKEND_URL || 
-                   'https://construsync.preview.emergentagent.com';
+                   'https://procure-track-7.preview.emergentagent.com';
     const fullUrl = `${baseUrl}${shareUrl}`;
     
     if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
