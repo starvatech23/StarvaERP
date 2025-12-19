@@ -122,13 +122,12 @@ export default function LeadFollowUpSection({
     try {
       setCreating(true);
       await crmFollowUpsAPI.create(leadId, {
-        lead_id: leadId,
         follow_up_type: formData.follow_up_type,
         scheduled_date: formData.scheduled_date.toISOString(),
         scheduled_time: formData.scheduled_date.toTimeString().slice(0, 5),
         title: formData.title.trim() || `${FOLLOW_UP_TYPES.find(t => t.value === formData.follow_up_type)?.label} with ${leadName}`,
-        description: formData.description || undefined,
-        next_step: formData.next_step || undefined,
+        description: formData.description || null,
+        next_step: formData.next_step || null,
         reminder_enabled: formData.reminder_enabled,
         reminder_before_minutes: formData.reminder_before_minutes,
         send_whatsapp_invite: formData.send_whatsapp_invite,
