@@ -13609,6 +13609,147 @@ async def get_labour_rate_templates(
     return LABOUR_RATES
 
 
+@api_router.post("/projects/{project_id}/update-floors")
+async def update_project_floors(
+    project_id: str,
+    floor_data: dict,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Update project floor count and regenerate floor-based milestones.
+    
+    Input:
+    - number_of_floors: Total number of floors (including ground floor)
+    - basement_floors: Number of basement levels (optional)
+    - regenerate_milestones: Boolean - whether to regenerate floor-based milestones
+    """
+    current_user = await get_current_user(credentials)
+    
+    project = await db.projects.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    number_of_floors = floor_data.get("number_of_floors")
+    basement_floors = floor_data.get("basement_floors", 0)
+    regenerate_milestones = floor_data.get("regenerate_milestones", True)
+    
+    if number_of_floors is None or number_of_floors < 1:
+        raise HTTPException(status_code=400, detail="Number of floors must be at least 1")
+    
+    # Generate floor details
+    floor_details = []
+    
+    # Add basement floors
+    for i in range(basement_floors, 0, -1):
+        floor_details.append({
+            "floor_number": -i,
+            "name": f"Basement {i}",
+            "type": "basement"
+        })
+    
+    # Add ground floor and upper floors
+    for i in range(number_of_floors):
+        if i == 0:
+            floor_details.append({
+                "floor_number": 0,
+                "name": "Ground Floor",
+                "type": "ground"
+            })
+        else:
+            floor_details.append({
+                "floor_number": i,
+                "name": f"Floor {i}",
+                "type": "upper"
+            })
+    
+    # Update project
+    update_data = {
+        "number_of_floors": number_of_floors,
+        "basement_floors": basement_floors,
+        "floor_details": floor_details,
+        "updated_at": datetime.utcnow()
+    }
+    
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$set": update_data}
+    )
+    
+    # Regenerate floor-based milestones if requested
+    created_milestones = []
+    created_tasks = []
+    
+    if regenerate_milestones:
+        # Get current milestones to check what exists
+        existing_milestones = await db.milestones.find({"project_id": project_id}).to_list(1000)
+        
+        # Find floor-based milestone templates
+        floor_based_templates = [m for m in MILESTONE_TEMPLATES if m["is_floor_based"]]
+        
+        for template in floor_based_templates:
+            # Delete existing floor-based milestones of this type
+            for existing in existing_milestones:
+                if template["name"] in existing.get("name", "") and existing.get("floor_number") is not None:
+                    # Delete tasks for this milestone
+                    await db.tasks.delete_many({"milestone_id": str(existing["_id"])})
+                    # Delete milestone
+                    await db.milestones.delete_one({"_id": existing["_id"]})
+            
+            # Create new milestones for each floor
+            base_start = project.get("start_date") or datetime.utcnow()
+            
+            for floor_num in range(number_of_floors):
+                floor_label = f" - Floor {floor_num}" if floor_num > 0 else " - Ground Floor"
+                
+                milestone_doc = {
+                    "project_id": project_id,
+                    "name": f"{template['name']}{floor_label}",
+                    "description": template["description"],
+                    "order": template["order"] + (floor_num * 10),
+                    "phase": template["phase"],
+                    "floor_number": floor_num,
+                    "status": "pending",
+                    "completion_percentage": 0,
+                    "color": template["color"],
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }
+                
+                ms_result = await db.milestones.insert_one(milestone_doc)
+                milestone_id = str(ms_result.inserted_id)
+                milestone_doc["id"] = milestone_id
+                created_milestones.append(milestone_doc)
+                
+                # Create tasks for this milestone
+                for task_template in template.get("tasks", []):
+                    task_doc = {
+                        "project_id": project_id,
+                        "milestone_id": milestone_id,
+                        "title": task_template["name"],
+                        "floor_number": floor_num,
+                        "status": "pending",
+                        "priority": "medium",
+                        "order": task_template.get("order", 0),
+                        "work_type": task_template.get("work_type", "general"),
+                        "estimated_duration": task_template.get("duration", 1),
+                        "created_at": datetime.utcnow(),
+                        "updated_at": datetime.utcnow()
+                    }
+                    
+                    task_result = await db.tasks.insert_one(task_doc)
+                    task_doc["id"] = str(task_result.inserted_id)
+                    created_tasks.append(task_doc)
+    
+    return {
+        "message": "Floor details updated successfully",
+        "number_of_floors": number_of_floors,
+        "basement_floors": basement_floors,
+        "floor_details": floor_details,
+        "milestones_created": len(created_milestones),
+        "tasks_created": len(created_tasks)
+    }
+
+
 @api_router.post("/projects/create-with-templates")
 async def create_project_with_templates(
     project_data: dict,
