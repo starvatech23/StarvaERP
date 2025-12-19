@@ -305,8 +305,8 @@ export default function PORequestDetailScreen() {
             {[1, 2, 3].map((level) => {
               const levelInfo = getLevelInfo(level);
               const approval = poRequest.approvals?.find((a: any) => a.level === level);
-              const isCompleted = approval?.status === 'approved';
-              const isRejected = approval?.status === 'rejected';
+              const isCompleted = approval?.status === 'approve' || approval?.status === 'approved';
+              const isRejected = approval?.status === 'reject' || approval?.status === 'rejected';
               const isCurrent = currentLevel === level;
               const isPending = level > currentLevel && !isRejected && poRequest.status !== 'rejected';
 
