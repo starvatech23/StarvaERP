@@ -618,6 +618,65 @@ export default function PORequestDetailScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* Vendor Selection Modal */}
+      <Modal visible={showVendorModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Vendor</Text>
+              <TouchableOpacity onPress={() => setShowVendorModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.modalSubtitle}>
+              Choose a vendor to send this PO to:
+            </Text>
+
+            {loadingVendors ? (
+              <View style={styles.vendorListLoading}>
+                <ActivityIndicator size="small" color={Colors.primary} />
+                <Text style={styles.loadingText}>Loading vendors...</Text>
+              </View>
+            ) : vendors.length === 0 ? (
+              <View style={styles.vendorListEmpty}>
+                <Ionicons name="storefront-outline" size={48} color={Colors.textSecondary} />
+                <Text style={styles.emptyText}>No vendors found</Text>
+                <Text style={styles.emptySubtext}>Add vendors in the Vendors section</Text>
+              </View>
+            ) : (
+              <ScrollView style={styles.vendorList}>
+                {vendors.map((vendor) => (
+                  <TouchableOpacity
+                    key={vendor.id}
+                    style={styles.vendorOption}
+                    onPress={() => handleSelectVendorAndSend(vendor)}
+                  >
+                    <View style={styles.vendorOptionInfo}>
+                      <Text style={styles.vendorOptionName}>
+                        {vendor.business_name || vendor.contact_person}
+                      </Text>
+                      {vendor.business_name && vendor.contact_person && (
+                        <Text style={styles.vendorOptionContact}>{vendor.contact_person}</Text>
+                      )}
+                      <Text style={styles.vendorOptionPhone}>{vendor.phone}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
+
+            <TouchableOpacity
+              style={styles.vendorModalCancelBtn}
+              onPress={() => setShowVendorModal(false)}
+            >
+              <Text style={styles.vendorModalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
