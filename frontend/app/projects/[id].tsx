@@ -602,17 +602,6 @@ export default function ProjectDetailsScreen() {
 
             <TouchableOpacity
               style={styles.quickActionButton}
-              onPress={() => router.push(`/projects/${id}/gantt-share` as any)}
-            >
-              <View style={[styles.quickActionIcon, { backgroundColor: '#F0FDF4' }]}>
-                <Ionicons name="share-social" size={24} color="#10B981" />
-              </View>
-              <Text style={styles.quickActionLabel}>Share Gantt</Text>
-              <Text style={styles.quickActionSubtext}>Generate links</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.quickActionButton}
               onPress={() => router.push(`/projects/${id}/status` as any)}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: '#DBEAFE' }]}>
