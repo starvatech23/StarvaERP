@@ -13736,51 +13736,66 @@ async def update_project_floors(
         floor_based_templates = [m for m in MILESTONE_TEMPLATES if m["is_floor_based"]]
         
         for template in floor_based_templates:
-            # Delete existing floor-based milestones of this type
+            # Delete existing floor-based milestones of this type and their tasks
             for existing in existing_milestones:
-                if template["name"] in existing.get("name", "") and existing.get("floor_number") is not None:
+                # Match milestones that contain the template name (covers both old floor-specific and new unified format)
+                if template["name"] in existing.get("name", ""):
                     # Delete tasks for this milestone
                     await db.tasks.delete_many({"milestone_id": str(existing["_id"])})
                     # Delete milestone
                     await db.milestones.delete_one({"_id": existing["_id"]})
             
-            # Create new milestones for each floor
             base_start = project.get("start_date") or datetime.utcnow()
             
+            # Create ONE milestone for this phase (not per floor)
+            milestone_doc = {
+                "project_id": project_id,
+                "name": template['name'],  # No floor suffix - one milestone for all floors
+                "description": template["description"],
+                "order": template["order"],
+                "phase": template["phase"],
+                "floor_number": None,  # Not floor-specific anymore
+                "status": "pending",
+                "completion_percentage": 0,
+                "color": template["color"],
+                "start_date": base_start,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            
+            ms_result = await db.milestones.insert_one(milestone_doc)
+            milestone_id = str(ms_result.inserted_id)
+            milestone_doc["id"] = milestone_id
+            created_milestones.append(milestone_doc)
+            
+            # Create tasks for ALL floors under this ONE milestone
+            # Tasks are ordered: all tasks for floor 0, then all for floor 1, etc.
+            # But sorted by start_date within each task type across floors
+            task_order_base = 0
             for floor_num in range(number_of_floors):
-                floor_label = f" - Floor {floor_num}" if floor_num > 0 else " - Ground Floor"
+                floor_label = f" - Floor {floor_num + 1}" if floor_num > 0 else " - Ground Floor"
                 
-                milestone_doc = {
-                    "project_id": project_id,
-                    "name": f"{template['name']}{floor_label}",
-                    "description": template["description"],
-                    "order": template["order"] + (floor_num * 10),
-                    "phase": template["phase"],
-                    "floor_number": floor_num,
-                    "status": "pending",
-                    "completion_percentage": 0,
-                    "color": template["color"],
-                    "created_at": datetime.utcnow(),
-                    "updated_at": datetime.utcnow()
-                }
+                # Calculate start date offset for this floor (each floor starts after previous floor tasks)
+                floor_duration_offset = floor_num * template.get("default_duration_days", 30)
+                floor_start = base_start + timedelta(days=floor_duration_offset)
                 
-                ms_result = await db.milestones.insert_one(milestone_doc)
-                milestone_id = str(ms_result.inserted_id)
-                milestone_doc["id"] = milestone_id
-                created_milestones.append(milestone_doc)
-                
-                # Create tasks for this milestone
                 for task_template in template.get("tasks", []):
+                    task_duration = task_template.get("duration", 1)
+                    task_start = floor_start + timedelta(days=task_template.get("order", 0))
+                    task_end = task_start + timedelta(days=task_duration)
+                    
                     task_doc = {
                         "project_id": project_id,
                         "milestone_id": milestone_id,
-                        "title": task_template["name"],
+                        "title": f"{task_template['name']}{floor_label}",  # Task name includes floor
                         "floor_number": floor_num,
                         "status": "pending",
                         "priority": "medium",
-                        "order": task_template.get("order", 0),
+                        "order": task_order_base + task_template.get("order", 0),
                         "work_type": task_template.get("work_type", "general"),
-                        "estimated_duration": task_template.get("duration", 1),
+                        "estimated_duration": task_duration,
+                        "start_date": task_start,
+                        "due_date": task_end,
                         "created_at": datetime.utcnow(),
                         "updated_at": datetime.utcnow()
                     }
@@ -13788,6 +13803,8 @@ async def update_project_floors(
                     task_result = await db.tasks.insert_one(task_doc)
                     task_doc["id"] = str(task_result.inserted_id)
                     created_tasks.append(task_doc)
+                
+                task_order_base += len(template.get("tasks", [])) * 100  # Increment order base for next floor
     
     return {
         "message": "Floor details updated successfully",
