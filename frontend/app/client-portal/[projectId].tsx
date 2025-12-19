@@ -797,7 +797,7 @@ const styles = StyleSheet.create({
   },
   messageContent: {
     fontSize: 14,
-    color: Colors.surface,
+    color: '#1F2937',  // Dark gray for good contrast on light backgrounds
     lineHeight: 20,
   },
   emptyChat: {
