@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { projectsAPI, tasksAPI, statusUpdatesAPI, siteMaterialsAPI, materialTransfersAPI, milestonesAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import TimelineCard from '../../components/TimelineCard';
+import WeeklyGanttPreview from '../../components/WeeklyGanttPreview';
 
 const { width } = Dimensions.get('window');
 
