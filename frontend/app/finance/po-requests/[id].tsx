@@ -543,23 +543,33 @@ export default function PORequestDetailScreen() {
         </View>
       )}
 
-      {/* Send to Vendor Button - for approved POs */}
+      {/* Send to Vendor Button - for approved POs (always available) */}
       {canSendToVendor() && (
         <View style={styles.actionBar}>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.sendVendorButton, sendingToVendor && { opacity: 0.7 }]}
-            onPress={handleSendToVendor}
-            disabled={sendingToVendor}
-          >
-            {sendingToVendor ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <>
-                <Ionicons name="send" size={20} color="#fff" />
-                <Text style={styles.sendVendorButtonText}>Send PO to Vendor</Text>
-              </>
+          <View style={styles.sendVendorRow}>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.sendVendorButton, sendingToVendor && { opacity: 0.7 }]}
+              onPress={handleSendToVendor}
+              disabled={sendingToVendor}
+            >
+              {sendingToVendor ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <Ionicons name="send" size={20} color="#fff" />
+                  <Text style={styles.sendVendorButtonText}>Send PO to Vendor</Text>
+                </>
+              )}
+            </TouchableOpacity>
+            {hasSentVendorHistory() && (
+              <TouchableOpacity
+                style={styles.vendorHistoryButton}
+                onPress={() => setShowVendorHistoryModal(true)}
+              >
+                <Ionicons name="information-circle" size={28} color={Colors.primary} />
+              </TouchableOpacity>
             )}
-          </TouchableOpacity>
+          </View>
         </View>
       )}
 
