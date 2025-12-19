@@ -13906,48 +13906,62 @@ async def create_project_with_templates(
     task_name_to_id = {}  # For resolving dependencies
     
     for ms_template in MILESTONE_TEMPLATES:
-        # Determine how many times to create this milestone (once or per floor)
+        # Create ONE milestone per phase (not per floor)
+        milestone_start = current_date
+        
+        # For floor-based milestones, multiply duration by number of floors
+        ms_duration = ms_template["default_duration_days"]
+        if ms_template["is_floor_based"]:
+            ms_duration = ms_duration * number_of_floors
+        
+        milestone_end = milestone_start + timedelta(days=ms_duration)
+        
+        milestone_doc = {
+            "project_id": project_id,
+            "name": ms_template['name'],  # No floor suffix - one milestone for all floors
+            "description": ms_template["description"],
+            "order": ms_template["order"],
+            "phase": ms_template["phase"],
+            "floor_number": None,  # Not floor-specific
+            "due_date": milestone_end,
+            "start_date": milestone_start,
+            "status": "pending",
+            "completion_percentage": 0,
+            "planned_start_date": milestone_start,
+            "planned_end_date": milestone_end,
+            "color": ms_template["color"],
+            "estimated_cost": 0,
+            "actual_cost": 0,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        ms_result = await db.milestones.insert_one(milestone_doc)
+        milestone_id = str(ms_result.inserted_id)
+        milestone_doc["id"] = milestone_id
+        created_milestones.append(milestone_doc)
+        
+        # Create tasks for this milestone
+        # For floor-based milestones, create tasks for ALL floors under this ONE milestone
         floor_iterations = number_of_floors if ms_template["is_floor_based"] else 1
+        task_order_base = 0
         
         for floor_num in range(floor_iterations):
-            floor_label = f" - Floor {floor_num + 1}" if ms_template["is_floor_based"] else ""
+            floor_label = f" - Floor {floor_num + 1}" if ms_template["is_floor_based"] and number_of_floors > 1 else ""
+            if floor_num == 0 and ms_template["is_floor_based"] and number_of_floors > 1:
+                floor_label = " - Ground Floor"
             
-            milestone_start = current_date
-            milestone_end = milestone_start + timedelta(days=ms_template["default_duration_days"])
+            # Calculate start date for this floor's tasks
+            floor_duration_offset = floor_num * ms_template["default_duration_days"] if ms_template["is_floor_based"] else 0
+            floor_start = milestone_start + timedelta(days=floor_duration_offset)
             
-            milestone_doc = {
-                "project_id": project_id,
-                "name": f"{ms_template['name']}{floor_label}",
-                "description": ms_template["description"],
-                "order": ms_template["order"] + (floor_num * 10 if ms_template["is_floor_based"] else 0),
-                "phase": ms_template["phase"],
-                "floor_number": floor_num + 1 if ms_template["is_floor_based"] else None,
-                "due_date": milestone_end,
-                "start_date": milestone_start,
-                "status": "pending",
-                "completion_percentage": 0,
-                "planned_start_date": milestone_start,
-                "planned_end_date": milestone_end,
-                "color": ms_template["color"],
-                "estimated_cost": 0,
-                "actual_cost": 0,
-                "created_at": datetime.utcnow(),
-                "updated_at": datetime.utcnow()
-            }
-            
-            ms_result = await db.milestones.insert_one(milestone_doc)
-            milestone_id = str(ms_result.inserted_id)
-            milestone_doc["id"] = milestone_id
-            created_milestones.append(milestone_doc)
-            
-            # Create tasks for this milestone
-            task_start = milestone_start
+            task_start = floor_start
             for task_template in ms_template.get("tasks", []):
                 task_name_key = f"{ms_template['name']}{floor_label}:{task_template['name']}"
                 task_duration = task_template.get("duration", 1)
                 task_end = task_start + timedelta(days=task_duration)
                 
-                # Resolve dependencies
+                # Resolve dependencies (within same floor)
                 dep_ids = []
                 for dep_name in task_template.get("deps", []):
                     dep_key = f"{ms_template['name']}{floor_label}:{dep_name}"
@@ -13973,9 +13987,9 @@ async def create_project_with_templates(
                 task_doc = {
                     "project_id": project_id,
                     "milestone_id": milestone_id,
-                    "title": task_template["name"],
+                    "title": f"{task_template['name']}{floor_label}",  # Task name includes floor label
                     "description": "",
-                    "order": task_template["order"],
+                    "order": task_order_base + task_template["order"],
                     "status": "pending",
                     "priority": "medium",
                     "work_type": task_template.get("work_type", "general"),
@@ -13983,6 +13997,7 @@ async def create_project_with_templates(
                     "floor_number": floor_num + 1 if ms_template["is_floor_based"] else None,
                     "planned_start_date": task_start,
                     "planned_end_date": task_end,
+                    "start_date": task_start,
                     "due_date": task_end,
                     "progress_percentage": 0,
                     "dependencies": dep_ids,
@@ -14011,11 +14026,14 @@ async def create_project_with_templates(
                     labour_est["created_at"] = datetime.utcnow()
                     await db.task_labour_estimates.insert_one(labour_est)
                 
-                # Move to next task (simplified - in reality would use dependencies)
+                # Move to next task
                 task_start = task_end
             
-            # Update current_date for next milestone
-            current_date = milestone_end
+            # Increment order base for next floor
+            task_order_base += len(ms_template.get("tasks", [])) * 100
+        
+        # Update current_date for next milestone
+        current_date = milestone_end
     
     # Calculate total planned costs
     total_labour_cost = sum(t.get("estimated_cost", 0) for t in created_tasks)
