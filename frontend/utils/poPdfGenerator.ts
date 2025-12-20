@@ -1,16 +1,16 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { Platform, Alert } from 'react-native';
+import { Platform } from 'react-native';
 
-// VERSION 2 - Fixed field mapping
-console.log('[PDF Generator] Version 2 loaded');
+// VERSION 3 - Complete rewrite
+console.log('[PDF Generator] Version 3 loaded');
 
 interface POItem {
   item_name?: string;
   material_name?: string;
-  quantity: number;
-  unit: string;
-  estimated_unit_price: number;
+  quantity?: number;
+  unit?: string;
+  estimated_unit_price?: number;
   estimated_total?: number;
 }
 
@@ -34,7 +34,7 @@ interface PORequest {
   description?: string;
 }
 
-const formatCurrency = (amount: number): string => {
+const formatCurrency = (amount?: number): string => {
   if (!amount || isNaN(amount)) return '₹0';
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -57,9 +57,7 @@ const formatDate = (dateString?: string): string => {
 };
 
 export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon'): string => {
-  console.log('[PDF] generatePOHtml called with:', JSON.stringify(po, null, 2));
-  
-  // Safely handle all field mappings with fallbacks
+  // Safely handle all field mappings
   const poItems = po?.items || po?.line_items || [];
   const poNumber = po?.po_number || po?.request_number || 'N/A';
   const totalAmount = po?.total_amount || po?.total_estimated_amount || 0;
@@ -67,21 +65,27 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
   const notes = po?.notes || po?.description || '';
   const status = po?.status || 'pending';
   
-  console.log('[PDF] Mapped values:', { poNumber, totalAmount, itemCount: poItems.length });
+  console.log('[PDF] Generating HTML for PO:', poNumber, 'Items:', poItems.length);
   
   const itemsHtml = poItems.map((item, index) => {
     const itemName = item?.material_name || item?.item_name || 'Unknown Item';
-    const amount = item?.estimated_total || ((item?.quantity || 0) * (item?.estimated_unit_price || 0));
+    const qty = item?.quantity || 0;
+    const unit = item?.unit || '';
+    const unitPrice = item?.estimated_unit_price || 0;
+    const amount = item?.estimated_total || (qty * unitPrice);
     return `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${index + 1}</td>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${itemName}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: center;">${item?.quantity || 0} ${item?.unit || ''}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(item?.estimated_unit_price || 0)}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: center;">${qty} ${unit}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(unitPrice)}</td>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(amount)}</td>
     </tr>
   `;
   }).join('');
+
+  const statusClass = status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : 'pending';
+  const statusText = (status || 'pending').replace(/_/g, ' ').toUpperCase();
 
   return `
     <!DOCTYPE html>
@@ -96,11 +100,11 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
           box-sizing: border-box;
         }
         body {
-          font-family: 'Helvetica Neue', Arial, sans-serif;
-          color: #1F2937;
-          line-height: 1.5;
-          padding: 40px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           background: #fff;
+          color: #1F2937;
+          padding: 40px;
+          line-height: 1.6;
         }
         .header {
           display: flex;
@@ -108,168 +112,136 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
           align-items: flex-start;
           margin-bottom: 40px;
           padding-bottom: 20px;
-          border-bottom: 3px solid #2563EB;
+          border-bottom: 2px solid #F97316;
         }
         .company-name {
           font-size: 28px;
           font-weight: 700;
-          color: #2563EB;
+          color: #F97316;
         }
         .document-title {
           font-size: 24px;
           font-weight: 600;
-          color: #1F2937;
-          text-align: right;
+          color: #374151;
         }
         .po-number {
-          font-size: 16px;
+          font-size: 18px;
           color: #6B7280;
           margin-top: 4px;
         }
+        .status-badge {
+          display: inline-block;
+          padding: 6px 16px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          margin-top: 8px;
+        }
+        .status-approved { background: #D1FAE5; color: #065F46; }
+        .status-pending { background: #FEF3C7; color: #92400E; }
+        .status-rejected { background: #FEE2E2; color: #991B1B; }
         .info-section {
           display: flex;
-          justify-content: space-between;
+          gap: 30px;
           margin-bottom: 30px;
         }
         .info-box {
-          width: 48%;
-          padding: 20px;
+          flex: 1;
           background: #F9FAFB;
-          border-radius: 8px;
+          padding: 20px;
+          border-radius: 12px;
         }
         .info-title {
-          font-size: 12px;
+          font-size: 14px;
           font-weight: 600;
-          color: #6B7280;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+          color: #F97316;
           margin-bottom: 12px;
+          text-transform: uppercase;
         }
         .info-row {
+          display: flex;
+          justify-content: space-between;
           margin-bottom: 8px;
         }
         .info-label {
-          font-size: 12px;
           color: #6B7280;
+          font-size: 13px;
         }
         .info-value {
-          font-size: 14px;
-          font-weight: 500;
           color: #1F2937;
+          font-weight: 500;
+          font-size: 13px;
         }
-        .items-table {
+        table {
           width: 100%;
           border-collapse: collapse;
           margin-bottom: 30px;
         }
-        .items-table th {
-          background: #2563EB;
+        th {
+          background: #F97316;
           color: white;
           padding: 14px 12px;
           text-align: left;
-          font-size: 12px;
           font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+          font-size: 13px;
         }
-        .items-table th:nth-child(3),
-        .items-table th:nth-child(4),
-        .items-table th:nth-child(5) {
-          text-align: right;
-        }
-        .items-table td {
-          font-size: 14px;
-        }
+        th:first-child { border-radius: 8px 0 0 0; }
+        th:last-child { border-radius: 0 8px 0 0; text-align: right; }
+        th:nth-child(3), th:nth-child(4) { text-align: center; }
+        td { font-size: 13px; }
         .total-section {
           display: flex;
           justify-content: flex-end;
-          margin-bottom: 40px;
         }
         .total-box {
           width: 300px;
+          background: #FFF7ED;
           padding: 20px;
-          background: #EFF6FF;
-          border-radius: 8px;
-          border: 2px solid #2563EB;
+          border-radius: 12px;
+          border: 1px solid #FDBA74;
         }
         .total-row {
           display: flex;
           justify-content: space-between;
           margin-bottom: 8px;
         }
-        .total-label {
-          font-size: 14px;
-          color: #6B7280;
-        }
-        .total-value {
-          font-size: 14px;
-          font-weight: 500;
-        }
+        .total-label { color: #9A3412; font-size: 14px; }
+        .total-value { font-weight: 600; color: #1F2937; }
         .grand-total {
-          border-top: 2px solid #2563EB;
+          border-top: 2px solid #FDBA74;
           padding-top: 12px;
-          margin-top: 12px;
+          margin-top: 8px;
         }
-        .grand-total .total-label,
-        .grand-total .total-value {
-          font-size: 18px;
-          font-weight: 700;
-          color: #2563EB;
-        }
+        .grand-total .total-label { font-weight: 700; color: #F97316; }
+        .grand-total .total-value { font-size: 18px; color: #F97316; }
         .notes-section {
+          background: #F3F4F6;
           padding: 20px;
-          background: #FFFBEB;
-          border-radius: 8px;
-          border-left: 4px solid #F59E0B;
-          margin-bottom: 40px;
+          border-radius: 12px;
+          margin-top: 30px;
         }
         .notes-title {
-          font-size: 14px;
           font-weight: 600;
-          color: #92400E;
+          color: #374151;
           margin-bottom: 8px;
         }
-        .notes-text {
-          font-size: 14px;
-          color: #78350F;
-        }
+        .notes-text { color: #6B7280; font-size: 13px; }
         .footer {
-          margin-top: 60px;
-          padding-top: 20px;
-          border-top: 1px solid #E5E7EB;
-          text-align: center;
-          color: #9CA3AF;
-          font-size: 12px;
-        }
-        .signature-section {
+          margin-top: 50px;
           display: flex;
           justify-content: space-between;
-          margin-top: 60px;
         }
         .signature-box {
           width: 200px;
           text-align: center;
         }
         .signature-line {
-          border-top: 1px solid #1F2937;
+          border-top: 1px solid #D1D5DB;
           padding-top: 8px;
-          margin-top: 60px;
-        }
-        .signature-label {
-          font-size: 12px;
           color: #6B7280;
-        }
-        .status-badge {
-          display: inline-block;
-          padding: 4px 12px;
-          border-radius: 12px;
           font-size: 12px;
-          font-weight: 600;
-          text-transform: uppercase;
         }
-        .status-approved { background: #D1FAE5; color: #065F46; }
-        .status-pending { background: #FEF3C7; color: #92400E; }
-        .status-rejected { background: #FEE2E2; color: #991B1B; }
       </style>
     </head>
     <body>
@@ -281,9 +253,7 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
         <div style="text-align: right;">
           <div class="document-title">PURCHASE ORDER</div>
           <div class="po-number">${poNumber}</div>
-          <div class="status-badge status-${status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : 'pending'}">
-            ${(status || 'pending').replace(/_/g, ' ').toUpperCase()}
-          </div>
+          <div class="status-badge status-${statusClass}">${statusText}</div>
         </div>
       </div>
 
@@ -292,15 +262,11 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
           <div class="info-title">Order Details</div>
           <div class="info-row">
             <div class="info-label">Project</div>
-            <div class="info-value">${po.project_name || 'N/A'}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">Project Code</div>
-            <div class="info-value">${po.project_code || 'N/A'}</div>
+            <div class="info-value">${po?.project_name || 'N/A'}</div>
           </div>
           <div class="info-row">
             <div class="info-label">Order Date</div>
-            <div class="info-value">${formatDate(po.created_at)}</div>
+            <div class="info-value">${formatDate(po?.created_at)}</div>
           </div>
           <div class="info-row">
             <div class="info-label">Required By</div>
@@ -308,34 +274,34 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
           </div>
         </div>
         <div class="info-box">
-          <div class="info-title">Delivery Information</div>
+          <div class="info-title">Vendor Details</div>
           <div class="info-row">
             <div class="info-label">Vendor</div>
-            <div class="info-value">${po.vendor_name || 'To Be Assigned'}</div>
+            <div class="info-value">${po?.vendor_name || 'N/A'}</div>
           </div>
           <div class="info-row">
             <div class="info-label">Delivery Location</div>
-            <div class="info-value">${po.delivery_location || 'N/A'}</div>
+            <div class="info-value">${po?.delivery_location || 'N/A'}</div>
           </div>
           <div class="info-row">
             <div class="info-label">Requested By</div>
-            <div class="info-value">${po.requested_by_name || 'N/A'}</div>
+            <div class="info-value">${po?.requested_by_name || 'N/A'}</div>
           </div>
         </div>
       </div>
 
-      <table class="items-table">
+      <table>
         <thead>
           <tr>
             <th style="width: 50px;">#</th>
-            <th>Material Description</th>
-            <th style="width: 120px; text-align: center;">Quantity</th>
-            <th style="width: 120px; text-align: right;">Unit Price</th>
-            <th style="width: 120px; text-align: right;">Amount</th>
+            <th>Item Description</th>
+            <th style="width: 100px;">Quantity</th>
+            <th style="width: 120px;">Unit Price</th>
+            <th style="width: 120px;">Amount</th>
           </tr>
         </thead>
         <tbody>
-          ${itemsHtml}
+          ${itemsHtml || '<tr><td colspan="5" style="text-align: center; padding: 20px;">No items</td></tr>'}
         </tbody>
       </table>
 
@@ -363,177 +329,82 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
       </div>
       ` : ''}
 
-      <div class="signature-section">
+      <div class="footer">
         <div class="signature-box">
-          <div class="signature-line">Prepared By</div>
+          <div style="height: 60px;"></div>
+          <div class="signature-line">Authorized Signature</div>
         </div>
         <div class="signature-box">
+          <div style="height: 60px;"></div>
           <div class="signature-line">Approved By</div>
         </div>
-        <div class="signature-box">
-          <div class="signature-line">Received By</div>
-        </div>
-      </div>
-
-      <div class="footer">
-        <p>This is a computer-generated document. No signature is required.</p>
-        <p style="margin-top: 8px;">Generated on ${new Date().toLocaleString('en-IN')}</p>
       </div>
     </body>
     </html>
   `;
 };
 
-export const generatePOPdf = async (po: PORequest): Promise<string | null> => {
-  try {
-    const html = generatePOHtml(po);
-    
-    // On web, printToFileAsync may not work the same way
-    if (Platform.OS === 'web') {
-      // Return the HTML for web - will use print dialog
-      return html;
-    }
-    
-    const { uri } = await Print.printToFileAsync({
-      html,
-      base64: false,
-    });
-    
-    // Return the URI directly - no need to move file
-    return uri;
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    return null;
-  }
-};
-
-export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; uri?: string; error?: string }> => {
-  const poNumber = po?.po_number || po?.request_number || 'PO';
+export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
   console.log('[PDF] savePOPdf called, Platform:', Platform.OS);
   try {
-    // On web, use browser print functionality
-    if (Platform.OS === 'web') {
-      console.log('[PDF] Web platform - opening print window');
-      const html = generatePOHtml(po);
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(html);
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => {
-          printWindow.print();
-        }, 500);
-        return { success: true };
-      }
-      return { success: false, error: 'Could not open print window' };
-    }
-    
-    // On mobile - use Print.printAsync directly for immediate print dialog
-    console.log('[PDF] Mobile platform - generating HTML');
     const html = generatePOHtml(po);
-    console.log('[PDF] HTML generated, length:', html.length);
+    console.log('[PDF] HTML generated, calling Print.printAsync...');
     
-    // Use printAsync which shows print dialog directly
-    console.log('[PDF] Calling Print.printAsync...');
     await Print.printAsync({ html });
-    console.log('[PDF] Print dialog shown successfully');
     
+    console.log('[PDF] Print dialog shown successfully');
     return { success: true };
   } catch (error: any) {
     console.error('[PDF] Error in savePOPdf:', error);
-    return { success: false, error: error?.message || 'Failed to save PDF' };
+    return { success: false, error: error?.message || 'Failed to generate PDF' };
   }
 };
 
-export const sharePOPdf = async (
-  po: PORequest, 
-  options?: { 
-    title?: string; 
-    message?: string;
-  }
-): Promise<{ success: boolean; uri?: string; error?: string }> => {
-  const poNumber = po.po_number || po.request_number || 'PO';
+export const sharePOPdf = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
+  console.log('[PDF] sharePOPdf called, Platform:', Platform.OS);
   try {
-    // On web, use browser share or fallback to print
+    const html = generatePOHtml(po);
+    
     if (Platform.OS === 'web') {
-      const html = generatePOHtml(po);
-      
-      // Try Web Share API first (for mobile browsers)
-      if (navigator.share) {
-        try {
-          const blob = new Blob([html], { type: 'text/html' });
-          const file = new File([blob], `PO_${poNumber}.html`, { type: 'text/html' });
-          await navigator.share({
-            title: `Purchase Order ${poNumber}`,
-            text: `Purchase Order for ${po.project_name || 'Project'}`,
-            files: [file],
-          });
-          return { success: true };
-        } catch (shareError) {
-          console.log('Web Share failed, falling back to print:', shareError);
-        }
-      }
-      
-      // Fallback to opening in new window
       const printWindow = window.open('', '_blank');
       if (printWindow) {
         printWindow.document.write(html);
         printWindow.document.close();
         return { success: true };
       }
-      return { success: false, error: 'Could not open share window' };
+      return { success: false, error: 'Could not open window' };
     }
     
-    // On mobile
-    const pdfUri = await generatePOPdf(po);
-    
-    if (!pdfUri || typeof pdfUri !== 'string' || !pdfUri.startsWith('file')) {
-      return { success: false, error: 'Failed to generate PDF' };
-    }
+    // Mobile - generate PDF file then share
+    console.log('[PDF] Generating PDF file...');
+    const { uri } = await Print.printToFileAsync({ html });
+    console.log('[PDF] PDF file created at:', uri);
     
     const isAvailable = await Sharing.isAvailableAsync();
-    
     if (!isAvailable) {
-      return { success: false, error: 'Sharing not available on this device' };
+      return { success: false, error: 'Sharing not available' };
     }
     
-    await Sharing.shareAsync(pdfUri, {
+    await Sharing.shareAsync(uri, {
       mimeType: 'application/pdf',
-      dialogTitle: options?.title || `Share PO ${poNumber}`,
       UTI: 'com.adobe.pdf',
     });
     
-    return { success: true, uri: pdfUri };
+    return { success: true };
   } catch (error: any) {
-    console.error('Error sharing PDF:', error);
-    return { success: false, error: error.message || 'Failed to share PDF' };
+    console.error('[PDF] Error in sharePOPdf:', error);
+    return { success: false, error: error?.message || 'Failed to share PDF' };
   }
 };
 
 export const printPO = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
+  console.log('[PDF] printPO called');
   try {
     const html = generatePOHtml(po);
-    
-    // On web, use browser print
-    if (Platform.OS === 'web') {
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(html);
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => {
-          printWindow.print();
-        }, 500);
-        return { success: true };
-      }
-      return { success: false, error: 'Could not open print window' };
-    }
-    
-    // On mobile
     await Print.printAsync({ html });
     return { success: true };
   } catch (error: any) {
-    console.error('Error printing PO:', error);
-    return { success: false, error: error.message || 'Failed to print' };
+    console.error('[PDF] Error in printPO:', error);
+    return { success: false, error: error?.message || 'Failed to print' };
   }
 };
