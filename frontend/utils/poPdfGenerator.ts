@@ -1,7 +1,9 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
 import { Platform, Alert } from 'react-native';
+
+// VERSION 2 - Fixed field mapping
+console.log('[PDF Generator] Version 2 loaded');
 
 interface POItem {
   item_name?: string;
@@ -26,13 +28,14 @@ interface PORequest {
   line_items?: POItem[];
   total_amount?: number;
   total_estimated_amount?: number;
-  status: string;
-  created_at: string;
+  status?: string;
+  created_at?: string;
   notes?: string;
   description?: string;
 }
 
 const formatCurrency = (amount: number): string => {
+  if (!amount || isNaN(amount)) return '₹0';
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -40,32 +43,41 @@ const formatCurrency = (amount: number): string => {
   }).format(amount);
 };
 
-const formatDate = (dateString: string): string => {
+const formatDate = (dateString?: string): string => {
   if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  try {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return 'N/A';
+  }
 };
 
 export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon'): string => {
-  // Handle both 'items' and 'line_items' field names from API
-  const poItems = po.items || po.line_items || [];
-  const poNumber = po.po_number || po.request_number || 'N/A';
-  const totalAmount = po.total_amount || po.total_estimated_amount || 0;
-  const requiredDate = po.required_date || po.required_by_date || '';
-  const notes = po.notes || po.description || '';
+  console.log('[PDF] generatePOHtml called with:', JSON.stringify(po, null, 2));
+  
+  // Safely handle all field mappings with fallbacks
+  const poItems = po?.items || po?.line_items || [];
+  const poNumber = po?.po_number || po?.request_number || 'N/A';
+  const totalAmount = po?.total_amount || po?.total_estimated_amount || 0;
+  const requiredDate = po?.required_date || po?.required_by_date || '';
+  const notes = po?.notes || po?.description || '';
+  const status = po?.status || 'pending';
+  
+  console.log('[PDF] Mapped values:', { poNumber, totalAmount, itemCount: poItems.length });
   
   const itemsHtml = poItems.map((item, index) => {
-    const itemName = item.material_name || item.item_name || 'Unknown Item';
-    const amount = item.estimated_total || (item.quantity * item.estimated_unit_price);
+    const itemName = item?.material_name || item?.item_name || 'Unknown Item';
+    const amount = item?.estimated_total || ((item?.quantity || 0) * (item?.estimated_unit_price || 0));
     return `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${index + 1}</td>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${itemName}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: center;">${item.quantity} ${item.unit}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(item.estimated_unit_price)}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: center;">${item?.quantity || 0} ${item?.unit || ''}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(item?.estimated_unit_price || 0)}</td>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(amount)}</td>
     </tr>
   `;
