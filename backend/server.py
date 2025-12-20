@@ -15239,6 +15239,7 @@ Best regards,
             
             email_sent = False
             whatsapp_sent = False
+            whatsapp_error = None
             
             # Send Email (mock for now - log the action)
             if send_email and vendor_email:
@@ -15246,16 +15247,19 @@ Best regards,
                 logger.info(f"[EMAIL CONTENT]\nTo: {vendor_email}\nSubject: Purchase Order {po_number}\n{message}")
                 email_sent = True
             
-            # Send WhatsApp (mock for now - log the action)
+            # Send WhatsApp using real API
             if send_whatsapp and vendor_phone:
-                # Format phone for WhatsApp (remove spaces, add country code if needed)
-                whatsapp_phone = vendor_phone.replace(" ", "").replace("-", "")
-                if not whatsapp_phone.startswith("+"):
-                    whatsapp_phone = "+91" + whatsapp_phone.lstrip("0")
-                
-                logger.info(f"[WHATSAPP] Sending PO {po_number} to {whatsapp_phone}")
-                logger.info(f"[WHATSAPP CONTENT]\nTo: {whatsapp_phone}\n{message}")
-                whatsapp_sent = True
+                try:
+                    wa_result = await whatsapp_service.send_text_message(vendor_phone, message)
+                    if wa_result.get("success"):
+                        whatsapp_sent = True
+                        logger.info(f"[WHATSAPP] PO {po_number} sent to {vendor_phone}, Message ID: {wa_result.get('message_id')}")
+                    else:
+                        whatsapp_error = wa_result.get("error", "Unknown error")
+                        logger.error(f"[WHATSAPP] Failed to send PO {po_number} to {vendor_phone}: {whatsapp_error}")
+                except Exception as wa_ex:
+                    whatsapp_error = str(wa_ex)
+                    logger.error(f"[WHATSAPP] Exception sending to {vendor_phone}: {whatsapp_error}")
             
             sent_results.append({
                 "vendor_id": vendor_id,
