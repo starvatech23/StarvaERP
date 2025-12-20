@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   pickerContainer: {
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.surface,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -576,6 +576,12 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: 50,
+    color: Colors.textPrimary,
+    backgroundColor: Colors.surface,
+  },
+  pickerItem: {
+    color: Colors.textPrimary,
+    backgroundColor: Colors.surface,
   },
   row: {
     flexDirection: 'row',
