@@ -281,8 +281,8 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
         <div style="text-align: right;">
           <div class="document-title">PURCHASE ORDER</div>
           <div class="po-number">${poNumber}</div>
-          <div class="status-badge status-${po.status === 'approved' ? 'approved' : po.status === 'rejected' ? 'rejected' : 'pending'}">
-            ${po.status.replace(/_/g, ' ').toUpperCase()}
+          <div class="status-badge status-${status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : 'pending'}">
+            ${(status || 'pending').replace(/_/g, ' ').toUpperCase()}
           </div>
         </div>
       </div>
