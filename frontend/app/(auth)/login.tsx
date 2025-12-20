@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -16,10 +15,12 @@ import Colors from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { useActivityModal } from '../../components/ActivityConfirmationModal';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { signIn, sendOTP, verifyOTP } = useAuth();
+  const { showSuccess, showError, showInfo, ActivityModal } = useActivityModal();
   const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -31,16 +32,17 @@ export default function LoginScreen() {
 
   const handleEmailLogin = async () => {
     if (!identifier || !password) {
-      Alert.alert('Error', 'Please enter email and password');
+      showError('Missing Information', 'Please enter email and password');
       return;
     }
 
     setLoading(true);
     try {
       await signIn(identifier, password, 'email');
-      router.replace('/(tabs)');
+      showSuccess('Login Successful', 'Welcome back!', true);
+      setTimeout(() => router.replace('/(tabs)'), 1000);
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message);
+      showError('Login Failed', error.message || 'Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
     }
