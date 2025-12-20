@@ -258,10 +258,9 @@ export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; erro
 
 // Share PDF via WhatsApp
 export const shareViaWhatsApp = async (po: PORequest, phoneNumber?: string): Promise<{ success: boolean; error?: string }> => {
-  console.log('[PDF] shareViaWhatsApp');
+  console.log('[PDF] shareViaWhatsApp called');
   try {
     if (Platform.OS === 'web') {
-      // Web: Open WhatsApp web with message
       const poNumber = po?.po_number || po?.request_number || 'PO';
       const message = `Purchase Order: ${poNumber}\nProject: ${po?.project_name || 'N/A'}\nTotal: ${formatCurrency(po?.total_amount || po?.total_estimated_amount)}`;
       const whatsappUrl = `https://wa.me/${phoneNumber || ''}?text=${encodeURIComponent(message)}`;
@@ -270,23 +269,32 @@ export const shareViaWhatsApp = async (po: PORequest, phoneNumber?: string): Pro
     }
 
     // Mobile: Generate PDF first
+    console.log('[PDF] Generating PDF for WhatsApp share...');
     const pdfUri = await generatePdfFile(po);
+    console.log('[PDF] PDF URI:', pdfUri);
+    
     if (!pdfUri) {
+      console.log('[PDF] ERROR: PDF generation failed');
       return { success: false, error: 'Failed to generate PDF' };
     }
 
-    // Try to share directly (which will show WhatsApp as an option)
+    // Check if sharing is available
+    console.log('[PDF] Checking if sharing is available...');
     const isAvailable = await Sharing.isAvailableAsync();
+    console.log('[PDF] Sharing available:', isAvailable);
+    
     if (!isAvailable) {
       return { success: false, error: 'Sharing not available' };
     }
 
     // Share the PDF - user can select WhatsApp from share sheet
+    console.log('[PDF] Opening share sheet...');
     await Sharing.shareAsync(pdfUri, {
       mimeType: 'application/pdf',
       dialogTitle: 'Share PO via WhatsApp',
       UTI: 'com.adobe.pdf',
     });
+    console.log('[PDF] Share sheet closed');
 
     return { success: true };
   } catch (error: any) {
