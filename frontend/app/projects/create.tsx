@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
@@ -19,9 +18,11 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { projectsAPI, usersAPI, userManagementAPI } from '../../services/api';
 import ModalSelector from '../../components/ModalSelector';
+import { useActivityModal } from '../../components/ActivityConfirmationModal';
 
 export default function CreateProjectScreen() {
   const router = useRouter();
+  const { showSuccess, showError, showWarning, showInfo, ActivityModal } = useActivityModal();
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
