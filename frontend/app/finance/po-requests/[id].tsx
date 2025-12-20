@@ -114,13 +114,28 @@ export default function PORequestDetailScreen() {
     setShowPdfOptionsModal(false);
     setGeneratingPdf(true);
     try {
-      const result = await sharePOPdf(poRequest, {
-        title: `Share PO ${poRequest.po_number}`,
-      });
+      const result = await sharePOPdf(poRequest);
       if (result.success) {
         showSuccess('PDF Shared', 'Purchase order PDF is ready to share.', true);
       } else {
         showError('Share Failed', result.error || 'Failed to share PDF');
+      }
+    } catch (error: any) {
+      showError('Share Failed', error.message || 'An error occurred');
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
+  const handleWhatsAppShare = async () => {
+    setShowPdfOptionsModal(false);
+    setGeneratingPdf(true);
+    try {
+      const result = await shareViaWhatsApp(poRequest);
+      if (result.success) {
+        showSuccess('WhatsApp Share', 'Select WhatsApp from the share options to send the PDF.', true);
+      } else {
+        showError('Share Failed', result.error || 'Failed to share via WhatsApp');
       }
     } catch (error: any) {
       showError('Share Failed', error.message || 'An error occurred');
