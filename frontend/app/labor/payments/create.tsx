@@ -212,13 +212,16 @@ export default function CreatePaymentScreen() {
               selectedValue={selectedWorker}
               onValueChange={setSelectedWorker}
               style={styles.picker}
+              dropdownIconColor={Colors.textPrimary}
+              itemStyle={styles.pickerItem}
             >
-              <Picker.Item label="Select Worker" value="" />
+              <Picker.Item label="Select Worker" value="" color={Colors.textTertiary} />
               {workers.map((worker: any) => (
                 <Picker.Item 
                   key={worker.id} 
                   label={worker.full_name} 
-                  value={worker.id} 
+                  value={worker.id}
+                  color={Colors.textPrimary}
                 />
               ))}
             </Picker>
@@ -230,13 +233,16 @@ export default function CreatePaymentScreen() {
               selectedValue={selectedProject}
               onValueChange={setSelectedProject}
               style={styles.picker}
+              dropdownIconColor={Colors.textPrimary}
+              itemStyle={styles.pickerItem}
             >
-              <Picker.Item label="Select Project" value="" />
+              <Picker.Item label="Select Project" value="" color={Colors.textTertiary} />
               {projects.map((project: any) => (
                 <Picker.Item 
                   key={project.id} 
                   label={project.name} 
-                  value={project.id} 
+                  value={project.id}
+                  color={Colors.textPrimary}
                 />
               ))}
             </Picker>
