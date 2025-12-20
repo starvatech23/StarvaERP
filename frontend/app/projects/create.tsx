@@ -50,15 +50,14 @@ export default function CreateProjectScreen() {
       
       if (response.data && response.data.length > 0) {
         setManagers(response.data);
-        Alert.alert('Success', `Loaded ${response.data.length} users for selection`);
       } else {
         console.warn('⚠️ No users returned from API');
-        Alert.alert('Warning', 'No users available. Please create users first.');
+        showWarning('No Users Available', 'Please create users first before creating a project.');
       }
     } catch (error: any) {
       console.error('❌ Error loading users:', error);
       console.error('Error details:', error.response?.data || error.message);
-      Alert.alert('Error', `Failed to load users: ${error.response?.data?.detail || error.message}`);
+      showError('Failed to Load Users', error.response?.data?.detail || error.message);
       
       // Try fallback to old API
       try {
@@ -75,7 +74,7 @@ export default function CreateProjectScreen() {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant camera roll permissions');
+      showWarning('Permission Required', 'Please grant camera roll permissions to add photos');
       return;
     }
 
@@ -98,7 +97,7 @@ export default function CreateProjectScreen() {
 
   const handleCreate = async () => {
     if (!name || !location || !clientName) {
-      Alert.alert('Error', 'Please fill in all required fields');
+      showError('Missing Information', 'Please fill in all required fields: Project Name, Location, and Client Name');
       return;
     }
 
@@ -117,10 +116,10 @@ export default function CreateProjectScreen() {
         photos,
       });
 
-      Alert.alert('Success', 'Project created successfully');
-      router.back();
+      showSuccess('Project Created', `"${name}" has been created successfully!`, true);
+      setTimeout(() => router.back(), 1500);
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to create project');
+      showError('Creation Failed', error.response?.data?.detail || 'Failed to create project. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -128,6 +127,7 @@ export default function CreateProjectScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ActivityModal />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
