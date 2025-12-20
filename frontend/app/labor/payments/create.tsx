@@ -420,12 +420,12 @@ export default function CreatePaymentScreen() {
                 <Picker
                   selectedValue={recoveryMode}
                   onValueChange={setRecoveryMode}
-                  style={styles.picker}
-                  dropdownIconColor={Colors.textPrimary}
-                  itemStyle={styles.pickerItem}
+                  style={[styles.picker, { color: '#000000' }]}
+                  dropdownIconColor="#000000"
+                  mode="dropdown"
                 >
-                  <Picker.Item label="Full (Deduct from next payment)" value="full" color={Colors.textPrimary} />
-                  <Picker.Item label="Installment" value="installment" color={Colors.textPrimary} />
+                  <Picker.Item label="Full (Deduct from next payment)" value="full" color="#000000" style={{ backgroundColor: '#FFFFFF' }} />
+                  <Picker.Item label="Installment" value="installment" color="#000000" style={{ backgroundColor: '#FFFFFF' }} />
                 </Picker>
               </View>
 
