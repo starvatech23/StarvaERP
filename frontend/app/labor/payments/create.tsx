@@ -211,17 +211,18 @@ export default function CreatePaymentScreen() {
             <Picker
               selectedValue={selectedWorker}
               onValueChange={setSelectedWorker}
-              style={styles.picker}
-              dropdownIconColor={Colors.textPrimary}
-              itemStyle={styles.pickerItem}
+              style={[styles.picker, { color: '#000000' }]}
+              dropdownIconColor="#000000"
+              mode="dropdown"
             >
-              <Picker.Item label="Select Worker" value="" color={Colors.textTertiary} />
+              <Picker.Item label="Select Worker" value="" color="#666666" style={{ backgroundColor: '#FFFFFF' }} />
               {workers.map((worker: any) => (
                 <Picker.Item 
                   key={worker.id} 
-                  label={worker.full_name} 
+                  label={worker.full_name || worker.name || 'Unknown'} 
                   value={worker.id}
-                  color={Colors.textPrimary}
+                  color="#000000"
+                  style={{ backgroundColor: '#FFFFFF' }}
                 />
               ))}
             </Picker>
@@ -232,17 +233,18 @@ export default function CreatePaymentScreen() {
             <Picker
               selectedValue={selectedProject}
               onValueChange={setSelectedProject}
-              style={styles.picker}
-              dropdownIconColor={Colors.textPrimary}
-              itemStyle={styles.pickerItem}
+              style={[styles.picker, { color: '#000000' }]}
+              dropdownIconColor="#000000"
+              mode="dropdown"
             >
-              <Picker.Item label="Select Project" value="" color={Colors.textTertiary} />
+              <Picker.Item label="Select Project" value="" color="#666666" style={{ backgroundColor: '#FFFFFF' }} />
               {projects.map((project: any) => (
                 <Picker.Item 
                   key={project.id} 
                   label={project.name} 
                   value={project.id}
-                  color={Colors.textPrimary}
+                  color="#000000"
+                  style={{ backgroundColor: '#FFFFFF' }}
                 />
               ))}
             </Picker>
