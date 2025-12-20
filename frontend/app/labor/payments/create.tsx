@@ -63,7 +63,7 @@ export default function CreatePaymentScreen() {
       setProjects(projectsRes.data || []);
     } catch (error) {
       console.error('Error loading data:', error);
-      Alert.alert('Error', 'Failed to load workers and projects');
+      showError('Loading Failed', 'Failed to load workers and projects. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -85,11 +85,11 @@ export default function CreatePaymentScreen() {
 
   const handleSave = async () => {
     if (!selectedWorker) {
-      Alert.alert('Error', 'Please select a worker');
+      showError('Missing Information', 'Please select a worker');
       return;
     }
     if (!selectedProject) {
-      Alert.alert('Error', 'Please select a project');
+      showError('Missing Information', 'Please select a project');
       return;
     }
 
@@ -115,15 +115,15 @@ export default function CreatePaymentScreen() {
           notes: notes,
         };
         await weeklyPaymentsAPI.create(paymentData);
-        Alert.alert('Success', 'Weekly payment created successfully');
+        showSuccess('Payment Created', 'Weekly payment has been created successfully!', true);
       } else {
         if (!advanceAmount || parseFloat(advanceAmount) <= 0) {
-          Alert.alert('Error', 'Please enter a valid advance amount');
+          showError('Invalid Amount', 'Please enter a valid advance amount');
           setSaving(false);
           return;
         }
         if (!advanceReason) {
-          Alert.alert('Error', 'Please enter a reason for the advance');
+          showError('Missing Information', 'Please enter a reason for the advance');
           setSaving(false);
           return;
         }
@@ -137,12 +137,12 @@ export default function CreatePaymentScreen() {
           notes: notes,
         };
         await advancePaymentsAPI.create(advanceData);
-        Alert.alert('Success', 'Advance payment request created successfully');
+        showSuccess('Advance Requested', 'Advance payment request has been created successfully!', true);
       }
-      router.back();
+      setTimeout(() => router.back(), 1500);
     } catch (error: any) {
       console.error('Error saving payment:', error);
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to save payment');
+      showError('Save Failed', error.response?.data?.detail || 'Failed to save payment. Please try again.');
     } finally {
       setSaving(false);
     }
