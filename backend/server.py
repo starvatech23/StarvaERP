@@ -6981,12 +6981,12 @@ async def create_lead(
     lead_id = str(result.inserted_id)
     
     # Send WhatsApp if enabled and requested
-    if lead.send_whatsapp and lead.whatsapp_consent:
+    if lead.send_whatsapp and lead.whatsapp_consent and lead.primary_phone:
         config = await db.crm_config.find_one({})
         if config and config.get("whatsapp_enabled"):
             template = config.get("whatsapp_template_on_create", "Hello {name}, thank you for your interest!")
             message = template.replace("{name}", lead.name)
-            await send_mock_whatsapp(lead_id, lead.name, message, str(current_user["_id"]))
+            await send_crm_whatsapp(lead_id, lead.name, lead.primary_phone, message, str(current_user["_id"]))
     
     # Create initial activity log
     activity = {
