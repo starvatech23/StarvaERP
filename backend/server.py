@@ -16,6 +16,17 @@ import csv
 import io
 from fastapi.responses import StreamingResponse, Response
 
+# Import WhatsApp Service
+from whatsapp_service import (
+    whatsapp_service,
+    send_po_notification,
+    send_lead_notification,
+    send_followup_reminder,
+    send_meeting_invite,
+    send_payment_receipt,
+    send_project_update
+)
+
 # Import models and auth
 from models import (
     UserCreate, UserLogin, UserResponse, UserUpdate, UserApprovalRequest, UserCreateByAdmin, Token, OTPRequest, OTPVerify,
