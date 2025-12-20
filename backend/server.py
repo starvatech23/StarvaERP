@@ -6750,22 +6750,31 @@ async def get_category_with_count(category_doc):
     category_dict["lead_count"] = lead_count
     return LeadCategoryResponse(**category_dict)
 
-# Helper function to send mock WhatsApp
-async def send_mock_whatsapp(lead_id: str, lead_name: str, message: str, performed_by: str):
-    """Mock WhatsApp send - creates activity log"""
+# Helper function to send WhatsApp for CRM
+async def send_crm_whatsapp(lead_id: str, lead_name: str, lead_phone: str, message: str, performed_by: str):
+    """Send WhatsApp message and create activity log"""
+    whatsapp_result = await whatsapp_service.send_text_message(lead_phone, message)
+    
     activity = {
         "lead_id": lead_id,
         "activity_type": LeadActivityType.WHATSAPP,
         "title": "WhatsApp Message Sent",
         "description": f"Sent: {message}",
-        "whatsapp_message_id": f"mock_wa_{ObjectId()}",
-        "whatsapp_status": WhatsAppStatus.SENT,
+        "whatsapp_message_id": whatsapp_result.get("message_id", f"failed_{ObjectId()}"),
+        "whatsapp_status": WhatsAppStatus.SENT if whatsapp_result.get("success") else WhatsAppStatus.FAILED,
         "whatsapp_message": message,
+        "whatsapp_error": whatsapp_result.get("error") if not whatsapp_result.get("success") else None,
         "performed_by": performed_by,
         "created_at": datetime.utcnow()
     }
     result = await db.lead_activities.insert_one(activity)
-    return str(result.inserted_id)
+    
+    if whatsapp_result.get("success"):
+        logger.info(f"[CRM WHATSAPP] Message sent to {lead_name} ({lead_phone})")
+    else:
+        logger.error(f"[CRM WHATSAPP] Failed to send to {lead_name}: {whatsapp_result.get('error')}")
+    
+    return str(result.inserted_id), whatsapp_result.get("success", False)
 
 # ============= Lead Category Routes =============
 
