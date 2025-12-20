@@ -220,7 +220,6 @@ export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; erro
   console.log('[PDF] savePOPdf - Save to Device');
   try {
     if (Platform.OS === 'web') {
-      // Web: Open PDF in new tab for download
       const html = generatePOHtml(po);
       const printWindow = window.open('', '_blank');
       if (printWindow) {
@@ -232,23 +231,15 @@ export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; erro
       return { success: false, error: 'Could not open window' };
     }
 
-    // Mobile: Generate PDF and share to save
-    const pdfUri = await generatePdfFile(po);
-    if (!pdfUri) {
-      return { success: false, error: 'Failed to generate PDF' };
-    }
-
-    const isAvailable = await Sharing.isAvailableAsync();
-    if (!isAvailable) {
-      return { success: false, error: 'Sharing not available on this device' };
-    }
-
-    await Sharing.shareAsync(pdfUri, {
-      mimeType: 'application/pdf',
-      dialogTitle: 'Save Purchase Order PDF',
-      UTI: 'com.adobe.pdf',
-    });
-
+    // Mobile: Generate HTML and use Print.printAsync which shows iOS native print/share UI
+    console.log('[PDF] Generating HTML...');
+    const html = generatePOHtml(po);
+    console.log('[PDF] HTML generated, showing print dialog...');
+    
+    // This shows the native iOS print dialog which has "Save to Files" option
+    await Print.printAsync({ html });
+    console.log('[PDF] Print dialog closed');
+    
     return { success: true };
   } catch (error: any) {
     console.error('[PDF] Error saving PDF:', error);
