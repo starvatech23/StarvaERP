@@ -50,7 +50,7 @@ export default function LoginScreen() {
 
   const handleSendOTP = async () => {
     if (!identifier) {
-      Alert.alert('Error', 'Please enter phone number');
+      showError('Missing Information', 'Please enter phone number');
       return;
     }
 
@@ -59,9 +59,9 @@ export default function LoginScreen() {
       const otpCode = await sendOTP(identifier);
       setMockOtp(otpCode);
       setOtpSent(true);
-      Alert.alert('OTP Sent', `Your OTP is: ${otpCode} (This is a mock OTP)`);
+      showInfo('OTP Sent', `Your OTP is: ${otpCode}\n\nThis OTP is valid for 10 minutes.`);
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      showError('OTP Failed', error.message || 'Failed to send OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -69,16 +69,17 @@ export default function LoginScreen() {
 
   const handleVerifyOTP = async () => {
     if (!otp) {
-      Alert.alert('Error', 'Please enter OTP');
+      showError('Missing OTP', 'Please enter the OTP sent to your phone');
       return;
     }
 
     setLoading(true);
     try {
       await verifyOTP(identifier, otp);
-      router.replace('/(tabs)');
+      showSuccess('Login Successful', 'Welcome back!', true);
+      setTimeout(() => router.replace('/(tabs)'), 1000);
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      showError('Verification Failed', error.message || 'Invalid OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -86,6 +87,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ActivityModal />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
