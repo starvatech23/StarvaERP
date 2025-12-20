@@ -444,11 +444,6 @@ export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; uri?
     return { success: false, error: error?.message || 'Failed to save PDF' };
   }
 };
-  } catch (error: any) {
-    console.error('Error saving PDF:', error);
-    return { success: false, error: error.message || 'Failed to save PDF' };
-  }
-};
 
 export const sharePOPdf = async (
   po: PORequest, 
