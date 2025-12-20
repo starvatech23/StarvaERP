@@ -7333,8 +7333,12 @@ async def send_whatsapp(
     if not lead.get("whatsapp_consent"):
         raise HTTPException(status_code=400, detail="Lead has not consented to WhatsApp messages")
     
+    lead_phone = lead.get("primary_phone", "")
+    if not lead_phone:
+        raise HTTPException(status_code=400, detail="Lead has no phone number")
+    
     message = whatsapp_data.get("message", "")
-    activity_id = await send_mock_whatsapp(lead_id, lead["name"], message, str(current_user["_id"]))
+    activity_id, success = await send_crm_whatsapp(lead_id, lead["name"], lead_phone, message, str(current_user["_id"]))
     
     # Update last_contacted
     await db.leads.update_one(
@@ -7342,7 +7346,10 @@ async def send_whatsapp(
         {"$set": {"last_contacted": datetime.utcnow()}}
     )
     
-    return {"message": "WhatsApp message sent (mock)", "activity_id": activity_id}
+    if success:
+        return {"message": "WhatsApp message sent successfully", "activity_id": activity_id, "success": True}
+    else:
+        return {"message": "WhatsApp message failed to send", "activity_id": activity_id, "success": False}
 
 # ============= Bulk Operations Routes =============
 
