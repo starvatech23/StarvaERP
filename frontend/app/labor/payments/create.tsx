@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,9 +15,11 @@ import { Picker } from '@react-native-picker/picker';
 import moment from 'moment';
 import Colors from '../../../constants/Colors';
 import { workersAPI, projectsAPI, weeklyPaymentsAPI, advancePaymentsAPI } from '../../../services/api';
+import { useActivityModal } from '../../../components/ActivityConfirmationModal';
 
 export default function CreatePaymentScreen() {
   const router = useRouter();
+  const { showSuccess, showError, showWarning, ActivityModal } = useActivityModal();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [workers, setWorkers] = useState<any[]>([]);
