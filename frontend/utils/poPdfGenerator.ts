@@ -331,7 +331,7 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
         <div class="total-box">
           <div class="total-row">
             <span class="total-label">Subtotal</span>
-            <span class="total-value">${formatCurrency(po.total_amount)}</span>
+            <span class="total-value">${formatCurrency(totalAmount)}</span>
           </div>
           <div class="total-row">
             <span class="total-label">Tax (GST)</span>
@@ -339,15 +339,15 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
           </div>
           <div class="total-row grand-total">
             <span class="total-label">Grand Total</span>
-            <span class="total-value">${formatCurrency(po.total_amount)}</span>
+            <span class="total-value">${formatCurrency(totalAmount)}</span>
           </div>
         </div>
       </div>
 
-      ${po.notes ? `
+      ${notes ? `
       <div class="notes-section">
         <div class="notes-title">Notes & Instructions</div>
-        <div class="notes-text">${po.notes}</div>
+        <div class="notes-text">${notes}</div>
       </div>
       ` : ''}
 
