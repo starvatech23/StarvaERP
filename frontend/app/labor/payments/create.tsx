@@ -151,6 +151,7 @@ export default function CreatePaymentScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
+        <ActivityModal />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.secondary} />
           <Text style={styles.loadingText}>Loading...</Text>
@@ -161,6 +162,7 @@ export default function CreatePaymentScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ActivityModal />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
