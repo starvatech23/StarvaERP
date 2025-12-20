@@ -236,17 +236,18 @@ export default function AddWorkerScreen() {
                   selectedValue={formData.skill_group}
                   onValueChange={(value) => setFormData({ ...formData, skill_group: value })}
                   style={styles.picker}
+                  dropdownIconColor={Colors.textPrimary}
                 >
-                  <Picker.Item label="Helper" value="helper" />
-                  <Picker.Item label="Mason" value="mason" />
-                  <Picker.Item label="Carpenter" value="carpenter" />
-                  <Picker.Item label="Electrician" value="electrician" />
-                  <Picker.Item label="Plumber" value="plumber" />
-                  <Picker.Item label="Painter" value="painter" />
-                  <Picker.Item label="Welder" value="welder" />
-                  <Picker.Item label="Machine Operator" value="machine_operator" />
-                  <Picker.Item label="Supervisor" value="supervisor" />
-                  <Picker.Item label="Other" value="other" />
+                  <Picker.Item label="Helper" value="helper" color={Colors.textPrimary} />
+                  <Picker.Item label="Mason" value="mason" color={Colors.textPrimary} />
+                  <Picker.Item label="Carpenter" value="carpenter" color={Colors.textPrimary} />
+                  <Picker.Item label="Electrician" value="electrician" color={Colors.textPrimary} />
+                  <Picker.Item label="Plumber" value="plumber" color={Colors.textPrimary} />
+                  <Picker.Item label="Painter" value="painter" color={Colors.textPrimary} />
+                  <Picker.Item label="Welder" value="welder" color={Colors.textPrimary} />
+                  <Picker.Item label="Machine Operator" value="machine_operator" color={Colors.textPrimary} />
+                  <Picker.Item label="Supervisor" value="supervisor" color={Colors.textPrimary} />
+                  <Picker.Item label="Other" value="other" color={Colors.textPrimary} />
                 </Picker>
               </View>
             </View>
@@ -258,12 +259,13 @@ export default function AddWorkerScreen() {
                   selectedValue={formData.pay_scale}
                   onValueChange={(value) => setFormData({ ...formData, pay_scale: value })}
                   style={styles.picker}
+                  dropdownIconColor={Colors.textPrimary}
                 >
-                  <Picker.Item label="Daily" value="daily" />
-                  <Picker.Item label="Hourly" value="hourly" />
-                  <Picker.Item label="Weekly" value="weekly" />
-                  <Picker.Item label="Monthly" value="monthly" />
-                  <Picker.Item label="Contract" value="contract" />
+                  <Picker.Item label="Daily" value="daily" color={Colors.textPrimary} />
+                  <Picker.Item label="Hourly" value="hourly" color={Colors.textPrimary} />
+                  <Picker.Item label="Weekly" value="weekly" color={Colors.textPrimary} />
+                  <Picker.Item label="Monthly" value="monthly" color={Colors.textPrimary} />
+                  <Picker.Item label="Contract" value="contract" color={Colors.textPrimary} />
                 </Picker>
               </View>
             </View>
