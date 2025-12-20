@@ -387,16 +387,8 @@ export const generatePOPdf = async (po: PORequest): Promise<string | null> => {
       base64: false,
     });
     
-    // Move to a more permanent location with proper filename
-    const fileName = `PO_${po.po_number.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.pdf`;
-    const newUri = `${FileSystem.documentDirectory}${fileName}`;
-    
-    await FileSystem.moveAsync({
-      from: uri,
-      to: newUri,
-    });
-    
-    return newUri;
+    // Return the URI directly - no need to move file
+    return uri;
   } catch (error) {
     console.error('Error generating PDF:', error);
     return null;
