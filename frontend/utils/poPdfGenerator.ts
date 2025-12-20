@@ -396,6 +396,7 @@ export const generatePOPdf = async (po: PORequest): Promise<string | null> => {
 };
 
 export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; uri?: string; error?: string }> => {
+  const poNumber = po.po_number || po.request_number || 'PO';
   try {
     // On web, use browser print functionality
     if (Platform.OS === 'web') {
@@ -428,7 +429,7 @@ export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; uri?
       // On mobile, use sharing to save
       await Sharing.shareAsync(pdfUri, {
         mimeType: 'application/pdf',
-        dialogTitle: `Save PO ${po.po_number}`,
+        dialogTitle: `Save PO ${poNumber}`,
         UTI: 'com.adobe.pdf',
       });
       return { success: true, uri: pdfUri };
@@ -448,6 +449,7 @@ export const sharePOPdf = async (
     message?: string;
   }
 ): Promise<{ success: boolean; uri?: string; error?: string }> => {
+  const poNumber = po.po_number || po.request_number || 'PO';
   try {
     // On web, use browser share or fallback to print
     if (Platform.OS === 'web') {
@@ -457,9 +459,9 @@ export const sharePOPdf = async (
       if (navigator.share) {
         try {
           const blob = new Blob([html], { type: 'text/html' });
-          const file = new File([blob], `PO_${po.po_number}.html`, { type: 'text/html' });
+          const file = new File([blob], `PO_${poNumber}.html`, { type: 'text/html' });
           await navigator.share({
-            title: `Purchase Order ${po.po_number}`,
+            title: `Purchase Order ${poNumber}`,
             text: `Purchase Order for ${po.project_name || 'Project'}`,
             files: [file],
           });
@@ -494,7 +496,7 @@ export const sharePOPdf = async (
     
     await Sharing.shareAsync(pdfUri, {
       mimeType: 'application/pdf',
-      dialogTitle: options?.title || `Share PO ${po.po_number}`,
+      dialogTitle: options?.title || `Share PO ${poNumber}`,
       UTI: 'com.adobe.pdf',
     });
     
