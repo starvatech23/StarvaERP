@@ -268,7 +268,7 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
         </div>
         <div style="text-align: right;">
           <div class="document-title">PURCHASE ORDER</div>
-          <div class="po-number">${po.po_number}</div>
+          <div class="po-number">${poNumber}</div>
           <div class="status-badge status-${po.status === 'approved' ? 'approved' : po.status === 'rejected' ? 'rejected' : 'pending'}">
             ${po.status.replace(/_/g, ' ').toUpperCase()}
           </div>
@@ -292,7 +292,7 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
           </div>
           <div class="info-row">
             <div class="info-label">Required By</div>
-            <div class="info-value">${formatDate(po.required_date || '')}</div>
+            <div class="info-value">${formatDate(requiredDate)}</div>
           </div>
         </div>
         <div class="info-box">
