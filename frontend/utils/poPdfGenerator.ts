@@ -4,25 +4,32 @@ import * as FileSystem from 'expo-file-system';
 import { Platform, Alert } from 'react-native';
 
 interface POItem {
-  material_name: string;
+  item_name?: string;
+  material_name?: string;
   quantity: number;
   unit: string;
   estimated_unit_price: number;
+  estimated_total?: number;
 }
 
 interface PORequest {
-  po_number: string;
+  po_number?: string;
+  request_number?: string;
   project_name?: string;
   project_code?: string;
   vendor_name?: string;
   requested_by_name?: string;
   delivery_location?: string;
   required_date?: string;
-  items: POItem[];
-  total_amount: number;
+  required_by_date?: string;
+  items?: POItem[];
+  line_items?: POItem[];
+  total_amount?: number;
+  total_estimated_amount?: number;
   status: string;
   created_at: string;
   notes?: string;
+  description?: string;
 }
 
 const formatCurrency = (amount: number): string => {
