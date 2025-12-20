@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   pickerContainer: {
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: 8,
@@ -517,6 +517,8 @@ const styles = StyleSheet.create({
   },
   picker: {
     color: Colors.textPrimary,
+    backgroundColor: Colors.surface,
+    height: 50,
   },
   uploadButton: {
     flexDirection: 'row',
