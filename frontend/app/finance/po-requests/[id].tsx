@@ -931,7 +931,7 @@ export default function PORequestDetailScreen() {
         >
           <View style={styles.pdfModalContent}>
             <Text style={styles.pdfModalTitle}>Purchase Order PDF</Text>
-            <Text style={styles.pdfModalSubtitle}>{poRequest?.po_number}</Text>
+            <Text style={styles.pdfModalSubtitle}>{poRequest?.po_number || poRequest?.request_number}</Text>
             
             <View style={styles.pdfOptionsContainer}>
               <TouchableOpacity style={styles.pdfOptionButton} onPress={handleDownloadPdf}>
@@ -939,6 +939,13 @@ export default function PORequestDetailScreen() {
                   <Ionicons name="download-outline" size={28} color="#2563EB" />
                 </View>
                 <Text style={styles.pdfOptionText}>Save to Device</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.pdfOptionButton} onPress={handleWhatsAppShare}>
+                <View style={[styles.pdfOptionIcon, { backgroundColor: '#DCFCE7' }]}>
+                  <Ionicons name="logo-whatsapp" size={28} color="#25D366" />
+                </View>
+                <Text style={styles.pdfOptionText}>WhatsApp</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.pdfOptionButton} onPress={handleSharePdf}>
