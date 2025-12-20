@@ -50,15 +50,26 @@ const formatDate = (dateString: string): string => {
 };
 
 export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon'): string => {
-  const itemsHtml = po.items.map((item, index) => `
+  // Handle both 'items' and 'line_items' field names from API
+  const poItems = po.items || po.line_items || [];
+  const poNumber = po.po_number || po.request_number || 'N/A';
+  const totalAmount = po.total_amount || po.total_estimated_amount || 0;
+  const requiredDate = po.required_date || po.required_by_date || '';
+  const notes = po.notes || po.description || '';
+  
+  const itemsHtml = poItems.map((item, index) => {
+    const itemName = item.material_name || item.item_name || 'Unknown Item';
+    const amount = item.estimated_total || (item.quantity * item.estimated_unit_price);
+    return `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${index + 1}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${item.material_name}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${itemName}</td>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: center;">${item.quantity} ${item.unit}</td>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(item.estimated_unit_price)}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(item.quantity * item.estimated_unit_price)}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(amount)}</td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 
   return `
     <!DOCTYPE html>
