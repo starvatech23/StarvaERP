@@ -608,6 +608,18 @@ frontend:
         agent: "main"
         comment: "Comprehensive material reports screen with weekly/monthly spending analysis. Features: Period toggle, date navigation, project filtering, total spending dashboard. Three interactive chart sections: (1) Category-wise spending with pie chart toggle, (2) Site-wise spending with pie chart toggle, (3) Top vendors bar chart. Additional low stock alerts section at bottom. Uses react-native-chart-kit for PieChart and BarChart visualizations."
 
+  - task: "Labour Module UI - Payment & OTP Flow"
+    implemented: true
+    working: false
+    file: "/app/frontend/app/(tabs)/labor.tsx"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ FRONTEND LOGIN ISSUE BLOCKING LABOUR MODULE TESTING: Unable to complete Labour module UI testing due to login form submission failure. ISSUE IDENTIFIED: Login form expects 'identifier' and 'auth_type' fields but frontend may be sending 'email' and 'password'. Backend API works correctly (verified via curl with proper payload: {identifier: 'admin@test.com', password: 'admin123', auth_type: 'email'}). FRONTEND PROBLEM: Login button click not working in browser automation - credentials fill correctly but form submission fails. BACKEND VERIFICATION: ✅ All Labour Payment APIs working perfectly (27 payments found with various statuses: draft, otp_sent, paid). ✅ Payment flow complete: Generate → Validate → Send OTP → Verify OTP → Receipt. RECOMMENDATION: Fix frontend login form to use correct API payload format and ensure login button click handlers work properly."
+
   - task: "API Services for Materials"
     implemented: true
     working: "NA"
