@@ -408,12 +408,13 @@ export const generatePOPdf = async (po: PORequest): Promise<string | null> => {
 };
 
 export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; uri?: string; error?: string }> => {
-  const poNumber = po.po_number || po.request_number || 'PO';
+  const poNumber = po?.po_number || po?.request_number || 'PO';
+  console.log('[PDF] savePOPdf called, Platform:', Platform.OS);
   try {
     // On web, use browser print functionality
     if (Platform.OS === 'web') {
+      console.log('[PDF] Web platform - opening print window');
       const html = generatePOHtml(po);
-      // Open in new window and print
       const printWindow = window.open('', '_blank');
       if (printWindow) {
         printWindow.document.write(html);
@@ -427,27 +428,22 @@ export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; uri?
       return { success: false, error: 'Could not open print window' };
     }
     
-    // On mobile
-    const pdfUri = await generatePOPdf(po);
+    // On mobile - use Print.printAsync directly for immediate print dialog
+    console.log('[PDF] Mobile platform - generating HTML');
+    const html = generatePOHtml(po);
+    console.log('[PDF] HTML generated, length:', html.length);
     
-    if (!pdfUri) {
-      return { success: false, error: 'Failed to generate PDF' };
-    }
+    // Use printAsync which shows print dialog directly
+    console.log('[PDF] Calling Print.printAsync...');
+    await Print.printAsync({ html });
+    console.log('[PDF] Print dialog shown successfully');
     
-    // Check if sharing is available
-    const isAvailable = await Sharing.isAvailableAsync();
-    
-    if (isAvailable) {
-      // On mobile, use sharing to save
-      await Sharing.shareAsync(pdfUri, {
-        mimeType: 'application/pdf',
-        dialogTitle: `Save PO ${poNumber}`,
-        UTI: 'com.adobe.pdf',
-      });
-      return { success: true, uri: pdfUri };
-    }
-    
-    return { success: false, error: 'Sharing not available on this device' };
+    return { success: true };
+  } catch (error: any) {
+    console.error('[PDF] Error in savePOPdf:', error);
+    return { success: false, error: error?.message || 'Failed to save PDF' };
+  }
+};
   } catch (error: any) {
     console.error('Error saving PDF:', error);
     return { success: false, error: error.message || 'Failed to save PDF' };
