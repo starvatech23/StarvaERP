@@ -1,9 +1,9 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { Platform } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import { Platform, Linking } from 'react-native';
 
-// VERSION 3 - Complete rewrite
-console.log('[PDF Generator] Version 3 loaded');
+console.log('[PDF Generator] Version 4 loaded - Share/Save focused');
 
 interface POItem {
   item_name?: string;
@@ -17,6 +17,7 @@ interface POItem {
 interface PORequest {
   po_number?: string;
   request_number?: string;
+  project_id?: string;
   project_name?: string;
   project_code?: string;
   vendor_name?: string;
@@ -57,15 +58,13 @@ const formatDate = (dateString?: string): string => {
 };
 
 export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon'): string => {
-  // Safely handle all field mappings
   const poItems = po?.items || po?.line_items || [];
   const poNumber = po?.po_number || po?.request_number || 'N/A';
+  const projectId = po?.project_id || 'N/A';
   const totalAmount = po?.total_amount || po?.total_estimated_amount || 0;
   const requiredDate = po?.required_date || po?.required_by_date || '';
   const notes = po?.notes || po?.description || '';
   const status = po?.status || 'pending';
-  
-  console.log('[PDF] Generating HTML for PO:', poNumber, 'Items:', poItems.length);
   
   const itemsHtml = poItems.map((item, index) => {
     const itemName = item?.material_name || item?.item_name || 'Unknown Item';
@@ -75,297 +74,233 @@ export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon')
     const amount = item?.estimated_total || (qty * unitPrice);
     return `
     <tr>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${index + 1}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${itemName}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: center;">${qty} ${unit}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(unitPrice)}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(amount)}</td>
-    </tr>
-  `;
+      <td>${index + 1}</td>
+      <td>${itemName}</td>
+      <td style="text-align: center;">${qty} ${unit}</td>
+      <td style="text-align: right;">${formatCurrency(unitPrice)}</td>
+      <td style="text-align: right;">${formatCurrency(amount)}</td>
+    </tr>`;
   }).join('');
 
   const statusClass = status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : 'pending';
   const statusText = (status || 'pending').replace(/_/g, ' ').toUpperCase();
 
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          background: #fff;
-          color: #1F2937;
-          padding: 40px;
-          line-height: 1.6;
-        }
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 40px;
-          padding-bottom: 20px;
-          border-bottom: 2px solid #F97316;
-        }
-        .company-name {
-          font-size: 28px;
-          font-weight: 700;
-          color: #F97316;
-        }
-        .document-title {
-          font-size: 24px;
-          font-weight: 600;
-          color: #374151;
-        }
-        .po-number {
-          font-size: 18px;
-          color: #6B7280;
-          margin-top: 4px;
-        }
-        .status-badge {
-          display: inline-block;
-          padding: 6px 16px;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: 600;
-          text-transform: uppercase;
-          margin-top: 8px;
-        }
-        .status-approved { background: #D1FAE5; color: #065F46; }
-        .status-pending { background: #FEF3C7; color: #92400E; }
-        .status-rejected { background: #FEE2E2; color: #991B1B; }
-        .info-section {
-          display: flex;
-          gap: 30px;
-          margin-bottom: 30px;
-        }
-        .info-box {
-          flex: 1;
-          background: #F9FAFB;
-          padding: 20px;
-          border-radius: 12px;
-        }
-        .info-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #F97316;
-          margin-bottom: 12px;
-          text-transform: uppercase;
-        }
-        .info-row {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 8px;
-        }
-        .info-label {
-          color: #6B7280;
-          font-size: 13px;
-        }
-        .info-value {
-          color: #1F2937;
-          font-weight: 500;
-          font-size: 13px;
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 30px;
-        }
-        th {
-          background: #F97316;
-          color: white;
-          padding: 14px 12px;
-          text-align: left;
-          font-weight: 600;
-          font-size: 13px;
-        }
-        th:first-child { border-radius: 8px 0 0 0; }
-        th:last-child { border-radius: 0 8px 0 0; text-align: right; }
-        th:nth-child(3), th:nth-child(4) { text-align: center; }
-        td { font-size: 13px; }
-        .total-section {
-          display: flex;
-          justify-content: flex-end;
-        }
-        .total-box {
-          width: 300px;
-          background: #FFF7ED;
-          padding: 20px;
-          border-radius: 12px;
-          border: 1px solid #FDBA74;
-        }
-        .total-row {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 8px;
-        }
-        .total-label { color: #9A3412; font-size: 14px; }
-        .total-value { font-weight: 600; color: #1F2937; }
-        .grand-total {
-          border-top: 2px solid #FDBA74;
-          padding-top: 12px;
-          margin-top: 8px;
-        }
-        .grand-total .total-label { font-weight: 700; color: #F97316; }
-        .grand-total .total-value { font-size: 18px; color: #F97316; }
-        .notes-section {
-          background: #F3F4F6;
-          padding: 20px;
-          border-radius: 12px;
-          margin-top: 30px;
-        }
-        .notes-title {
-          font-weight: 600;
-          color: #374151;
-          margin-bottom: 8px;
-        }
-        .notes-text { color: #6B7280; font-size: 13px; }
-        .footer {
-          margin-top: 50px;
-          display: flex;
-          justify-content: space-between;
-        }
-        .signature-box {
-          width: 200px;
-          text-align: center;
-        }
-        .signature-line {
-          border-top: 1px solid #D1D5DB;
-          padding-top: 8px;
-          color: #6B7280;
-          font-size: 12px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <div>
-          <div class="company-name">${companyName}</div>
-          <div style="color: #6B7280; font-size: 12px; margin-top: 4px;">Construction & Infrastructure</div>
-        </div>
-        <div style="text-align: right;">
-          <div class="document-title">PURCHASE ORDER</div>
-          <div class="po-number">${poNumber}</div>
-          <div class="status-badge status-${statusClass}">${statusText}</div>
-        </div>
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase Order - ${poNumber}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; padding: 30px; color: #333; font-size: 12px; }
+    .header { border-bottom: 3px solid #F97316; padding-bottom: 15px; margin-bottom: 20px; }
+    .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .company { font-size: 24px; font-weight: bold; color: #F97316; }
+    .company-sub { font-size: 11px; color: #666; }
+    .doc-title { font-size: 20px; font-weight: bold; text-align: right; }
+    .po-ref { background: #FFF7ED; border: 1px solid #F97316; padding: 10px 15px; margin-top: 10px; border-radius: 5px; }
+    .po-ref-row { display: flex; justify-content: space-between; margin: 3px 0; }
+    .po-ref-label { color: #666; }
+    .po-ref-value { font-weight: bold; color: #F97316; }
+    .status { display: inline-block; padding: 4px 12px; border-radius: 15px; font-size: 10px; font-weight: bold; margin-top: 8px; }
+    .status-approved { background: #D1FAE5; color: #065F46; }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-rejected { background: #FEE2E2; color: #991B1B; }
+    .info-grid { display: flex; gap: 20px; margin-bottom: 20px; }
+    .info-box { flex: 1; background: #F9FAFB; padding: 15px; border-radius: 8px; }
+    .info-title { font-weight: bold; color: #F97316; margin-bottom: 10px; font-size: 11px; text-transform: uppercase; }
+    .info-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 11px; }
+    .info-label { color: #666; }
+    .info-value { font-weight: 500; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th { background: #F97316; color: white; padding: 10px 8px; text-align: left; font-size: 11px; }
+    td { padding: 10px 8px; border-bottom: 1px solid #E5E7EB; }
+    .total-section { display: flex; justify-content: flex-end; }
+    .total-box { width: 250px; background: #FFF7ED; padding: 15px; border-radius: 8px; border: 1px solid #FDBA74; }
+    .total-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 12px; }
+    .grand-total { border-top: 2px solid #F97316; padding-top: 10px; margin-top: 10px; }
+    .grand-total .total-value { font-size: 16px; font-weight: bold; color: #F97316; }
+    .notes { background: #F3F4F6; padding: 15px; border-radius: 8px; margin-top: 20px; }
+    .notes-title { font-weight: bold; margin-bottom: 5px; }
+    .footer { margin-top: 40px; display: flex; justify-content: space-between; }
+    .sig-box { width: 180px; text-align: center; }
+    .sig-line { border-top: 1px solid #999; padding-top: 5px; font-size: 10px; color: #666; margin-top: 50px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="company">${companyName}</div>
+        <div class="company-sub">Construction & Infrastructure</div>
       </div>
-
-      <div class="info-section">
-        <div class="info-box">
-          <div class="info-title">Order Details</div>
-          <div class="info-row">
-            <div class="info-label">Project</div>
-            <div class="info-value">${po?.project_name || 'N/A'}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">Order Date</div>
-            <div class="info-value">${formatDate(po?.created_at)}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">Required By</div>
-            <div class="info-value">${formatDate(requiredDate)}</div>
-          </div>
-        </div>
-        <div class="info-box">
-          <div class="info-title">Vendor Details</div>
-          <div class="info-row">
-            <div class="info-label">Vendor</div>
-            <div class="info-value">${po?.vendor_name || 'N/A'}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">Delivery Location</div>
-            <div class="info-value">${po?.delivery_location || 'N/A'}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">Requested By</div>
-            <div class="info-value">${po?.requested_by_name || 'N/A'}</div>
-          </div>
-        </div>
+      <div class="doc-title">PURCHASE ORDER</div>
+    </div>
+    <div class="po-ref">
+      <div class="po-ref-row">
+        <span class="po-ref-label">PO Reference Number:</span>
+        <span class="po-ref-value">${poNumber}</span>
       </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 50px;">#</th>
-            <th>Item Description</th>
-            <th style="width: 100px;">Quantity</th>
-            <th style="width: 120px;">Unit Price</th>
-            <th style="width: 120px;">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${itemsHtml || '<tr><td colspan="5" style="text-align: center; padding: 20px;">No items</td></tr>'}
-        </tbody>
-      </table>
-
-      <div class="total-section">
-        <div class="total-box">
-          <div class="total-row">
-            <span class="total-label">Subtotal</span>
-            <span class="total-value">${formatCurrency(totalAmount)}</span>
-          </div>
-          <div class="total-row">
-            <span class="total-label">Tax (GST)</span>
-            <span class="total-value">As Applicable</span>
-          </div>
-          <div class="total-row grand-total">
-            <span class="total-label">Grand Total</span>
-            <span class="total-value">${formatCurrency(totalAmount)}</span>
-          </div>
-        </div>
+      <div class="po-ref-row">
+        <span class="po-ref-label">Project ID:</span>
+        <span class="po-ref-value">${projectId}</span>
       </div>
-
-      ${notes ? `
-      <div class="notes-section">
-        <div class="notes-title">Notes & Instructions</div>
-        <div class="notes-text">${notes}</div>
+      <div class="po-ref-row">
+        <span class="po-ref-label">Project Name:</span>
+        <span class="po-ref-value">${po?.project_name || 'N/A'}</span>
       </div>
-      ` : ''}
+      <div><span class="status status-${statusClass}">${statusText}</span></div>
+    </div>
+  </div>
 
-      <div class="footer">
-        <div class="signature-box">
-          <div style="height: 60px;"></div>
-          <div class="signature-line">Authorized Signature</div>
-        </div>
-        <div class="signature-box">
-          <div style="height: 60px;"></div>
-          <div class="signature-line">Approved By</div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+  <div class="info-grid">
+    <div class="info-box">
+      <div class="info-title">Order Details</div>
+      <div class="info-row"><span class="info-label">Order Date:</span><span class="info-value">${formatDate(po?.created_at)}</span></div>
+      <div class="info-row"><span class="info-label">Required By:</span><span class="info-value">${formatDate(requiredDate)}</span></div>
+      <div class="info-row"><span class="info-label">Requested By:</span><span class="info-value">${po?.requested_by_name || 'N/A'}</span></div>
+    </div>
+    <div class="info-box">
+      <div class="info-title">Vendor Details</div>
+      <div class="info-row"><span class="info-label">Vendor:</span><span class="info-value">${po?.vendor_name || 'N/A'}</span></div>
+      <div class="info-row"><span class="info-label">Delivery Location:</span><span class="info-value">${po?.delivery_location || 'N/A'}</span></div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:40px">#</th>
+        <th>Item Description</th>
+        <th style="width:80px;text-align:center">Qty</th>
+        <th style="width:100px;text-align:right">Unit Price</th>
+        <th style="width:100px;text-align:right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${itemsHtml || '<tr><td colspan="5" style="text-align:center">No items</td></tr>'}
+    </tbody>
+  </table>
+
+  <div class="total-section">
+    <div class="total-box">
+      <div class="total-row"><span>Subtotal:</span><span>${formatCurrency(totalAmount)}</span></div>
+      <div class="total-row"><span>Tax (GST):</span><span>As Applicable</span></div>
+      <div class="total-row grand-total"><span>Grand Total:</span><span class="total-value">${formatCurrency(totalAmount)}</span></div>
+    </div>
+  </div>
+
+  ${notes ? `<div class="notes"><div class="notes-title">Notes:</div><div>${notes}</div></div>` : ''}
+
+  <div class="footer">
+    <div class="sig-box"><div class="sig-line">Authorized Signature</div></div>
+    <div class="sig-box"><div class="sig-line">Approved By</div></div>
+  </div>
+</body>
+</html>`;
 };
 
-export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
-  console.log('[PDF] savePOPdf called, Platform:', Platform.OS);
+// Generate PDF and return file URI
+export const generatePdfFile = async (po: PORequest): Promise<string | null> => {
   try {
+    console.log('[PDF] Generating PDF file...');
     const html = generatePOHtml(po);
-    console.log('[PDF] HTML generated, calling Print.printAsync...');
-    
-    await Print.printAsync({ html });
-    
-    console.log('[PDF] Print dialog shown successfully');
-    return { success: true };
-  } catch (error: any) {
-    console.error('[PDF] Error in savePOPdf:', error);
-    return { success: false, error: error?.message || 'Failed to generate PDF' };
+    const { uri } = await Print.printToFileAsync({ html });
+    console.log('[PDF] PDF created at:', uri);
+    return uri;
+  } catch (error) {
+    console.error('[PDF] Error generating PDF file:', error);
+    return null;
   }
 };
 
-export const sharePOPdf = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
-  console.log('[PDF] sharePOPdf called, Platform:', Platform.OS);
+// Save PDF to device (shows share sheet to save)
+export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
+  console.log('[PDF] savePOPdf - Save to Device');
   try {
-    const html = generatePOHtml(po);
-    
     if (Platform.OS === 'web') {
+      // Web: Open PDF in new tab for download
+      const html = generatePOHtml(po);
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.print();
+        return { success: true };
+      }
+      return { success: false, error: 'Could not open window' };
+    }
+
+    // Mobile: Generate PDF and share to save
+    const pdfUri = await generatePdfFile(po);
+    if (!pdfUri) {
+      return { success: false, error: 'Failed to generate PDF' };
+    }
+
+    const isAvailable = await Sharing.isAvailableAsync();
+    if (!isAvailable) {
+      return { success: false, error: 'Sharing not available on this device' };
+    }
+
+    await Sharing.shareAsync(pdfUri, {
+      mimeType: 'application/pdf',
+      dialogTitle: 'Save Purchase Order PDF',
+      UTI: 'com.adobe.pdf',
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('[PDF] Error saving PDF:', error);
+    return { success: false, error: error?.message || 'Failed to save PDF' };
+  }
+};
+
+// Share PDF via WhatsApp
+export const shareViaWhatsApp = async (po: PORequest, phoneNumber?: string): Promise<{ success: boolean; error?: string }> => {
+  console.log('[PDF] shareViaWhatsApp');
+  try {
+    if (Platform.OS === 'web') {
+      // Web: Open WhatsApp web with message
+      const poNumber = po?.po_number || po?.request_number || 'PO';
+      const message = `Purchase Order: ${poNumber}\nProject: ${po?.project_name || 'N/A'}\nTotal: ${formatCurrency(po?.total_amount || po?.total_estimated_amount)}`;
+      const whatsappUrl = `https://wa.me/${phoneNumber || ''}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      return { success: true };
+    }
+
+    // Mobile: Generate PDF first
+    const pdfUri = await generatePdfFile(po);
+    if (!pdfUri) {
+      return { success: false, error: 'Failed to generate PDF' };
+    }
+
+    // Try to share directly (which will show WhatsApp as an option)
+    const isAvailable = await Sharing.isAvailableAsync();
+    if (!isAvailable) {
+      return { success: false, error: 'Sharing not available' };
+    }
+
+    // Share the PDF - user can select WhatsApp from share sheet
+    await Sharing.shareAsync(pdfUri, {
+      mimeType: 'application/pdf',
+      dialogTitle: 'Share PO via WhatsApp',
+      UTI: 'com.adobe.pdf',
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('[PDF] Error sharing via WhatsApp:', error);
+    return { success: false, error: error?.message || 'Failed to share' };
+  }
+};
+
+// General share function
+export const sharePOPdf = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
+  console.log('[PDF] sharePOPdf - General Share');
+  try {
+    if (Platform.OS === 'web') {
+      const html = generatePOHtml(po);
       const printWindow = window.open('', '_blank');
       if (printWindow) {
         printWindow.document.write(html);
@@ -374,37 +309,38 @@ export const sharePOPdf = async (po: PORequest): Promise<{ success: boolean; err
       }
       return { success: false, error: 'Could not open window' };
     }
-    
-    // Mobile - generate PDF file then share
-    console.log('[PDF] Generating PDF file...');
-    const { uri } = await Print.printToFileAsync({ html });
-    console.log('[PDF] PDF file created at:', uri);
-    
+
+    const pdfUri = await generatePdfFile(po);
+    if (!pdfUri) {
+      return { success: false, error: 'Failed to generate PDF' };
+    }
+
     const isAvailable = await Sharing.isAvailableAsync();
     if (!isAvailable) {
       return { success: false, error: 'Sharing not available' };
     }
-    
-    await Sharing.shareAsync(uri, {
+
+    await Sharing.shareAsync(pdfUri, {
       mimeType: 'application/pdf',
       UTI: 'com.adobe.pdf',
     });
-    
+
     return { success: true };
   } catch (error: any) {
-    console.error('[PDF] Error in sharePOPdf:', error);
-    return { success: false, error: error?.message || 'Failed to share PDF' };
+    console.error('[PDF] Error sharing PDF:', error);
+    return { success: false, error: error?.message || 'Failed to share' };
   }
 };
 
+// Print function
 export const printPO = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
-  console.log('[PDF] printPO called');
+  console.log('[PDF] printPO');
   try {
     const html = generatePOHtml(po);
     await Print.printAsync({ html });
     return { success: true };
   } catch (error: any) {
-    console.error('[PDF] Error in printPO:', error);
+    console.error('[PDF] Error printing:', error);
     return { success: false, error: error?.message || 'Failed to print' };
   }
 };
