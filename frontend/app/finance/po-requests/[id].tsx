@@ -94,6 +94,9 @@ export default function PORequestDetailScreen() {
     setShowPdfOptionsModal(false);
     setGeneratingPdf(true);
     try {
+      console.log('PDF Debug - poRequest:', JSON.stringify(poRequest, null, 2));
+      console.log('PDF Debug - line_items:', poRequest?.line_items);
+      console.log('PDF Debug - items:', poRequest?.items);
       const result = await savePOPdf(poRequest);
       if (result.success) {
         showSuccess('PDF Saved', 'Purchase order has been saved to your device.', true);
