@@ -578,20 +578,20 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   pickerContainer: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#E2E8F0',
     overflow: 'hidden',
   },
   picker: {
     height: 50,
-    color: Colors.textPrimary,
-    backgroundColor: Colors.surface,
+    color: '#000000',
+    backgroundColor: '#FFFFFF',
   },
   pickerItem: {
-    color: Colors.textPrimary,
-    backgroundColor: Colors.surface,
+    color: '#000000',
+    backgroundColor: '#FFFFFF',
   },
   row: {
     flexDirection: 'row',
