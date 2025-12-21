@@ -221,14 +221,65 @@ export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; erro
   try {
     if (Platform.OS === 'web') {
       const html = generatePOHtml(po);
-      const printWindow = window.open('', '_blank');
+      const poNumber = po?.po_number || po?.request_number || 'PO';
+      
+      // Create a styled print window
+      const printWindow = window.open('', '_blank', 'width=800,height=600');
       if (printWindow) {
-        printWindow.document.write(html);
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Purchase Order - ${poNumber}</title>
+            <style>
+              @media print {
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .no-print { display: none !important; }
+              }
+              .print-toolbar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: #F97316;
+                padding: 10px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                z-index: 1000;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+              }
+              .print-toolbar button {
+                background: white;
+                color: #F97316;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                margin-left: 10px;
+              }
+              .print-toolbar button:hover { background: #FFF7ED; }
+              .print-toolbar span { color: white; font-weight: bold; }
+              body { padding-top: 60px; }
+            </style>
+          </head>
+          <body>
+            <div class="print-toolbar no-print">
+              <span>📄 Purchase Order: ${poNumber}</span>
+              <div>
+                <button onclick="window.print()">🖨️ Print / Save PDF</button>
+                <button onclick="window.close()">✕ Close</button>
+              </div>
+            </div>
+            ${html}
+          </body>
+          </html>
+        `);
         printWindow.document.close();
-        printWindow.print();
         return { success: true };
       }
-      return { success: false, error: 'Could not open window' };
+      return { success: false, error: 'Could not open window. Please allow popups.' };
     }
 
     // Mobile: Generate PDF file first, then share it
