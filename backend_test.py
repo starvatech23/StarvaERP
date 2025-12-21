@@ -219,7 +219,38 @@ class TwilioSMSTestSuite:
             )
             return payment
         
-        # If no validated payment, look for any payment we can use for testing
+        # If no validated payment, try to validate a draft payment
+        draft_payments = [p for p in payments if p.get("status") == "draft"]
+        if draft_payments:
+            payment = draft_payments[0]
+            payment_id = payment.get("id")
+            
+            # Try to validate this payment
+            try:
+                validate_response = self.session.post(f"{BACKEND_URL}/labour/payments/{payment_id}/validate")
+                if validate_response.status_code == 200:
+                    validated_payment = validate_response.json()
+                    self.log_result(
+                        "Validate Payment for Testing",
+                        True,
+                        f"Successfully validated payment: {payment_id} for worker {payment.get('worker_name')}",
+                        {"payment_id": payment_id, "new_status": validated_payment.get("status")}
+                    )
+                    return validated_payment
+                else:
+                    self.log_result(
+                        "Validate Payment for Testing",
+                        False,
+                        f"Failed to validate payment: {validate_response.status_code} - {validate_response.text}"
+                    )
+            except Exception as e:
+                self.log_result(
+                    "Validate Payment for Testing",
+                    False,
+                    f"Error validating payment: {str(e)}"
+                )
+        
+        # If no draft payment, look for any payment we can use for testing
         if payments:
             payment = payments[0]
             self.log_result(
