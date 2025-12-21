@@ -29,7 +29,7 @@ export default function CRMScreen() {
         <Text style={styles.headerSubtitle}>Lead Management System</Text>
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 100 }}>
         {menuItems.map((item, index) => (
           <TouchableOpacity
             key={index}
