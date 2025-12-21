@@ -19,6 +19,11 @@ TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER", "")
 
+# Debug logging
+print(f"DEBUG: TWILIO_ACCOUNT_SID = {TWILIO_ACCOUNT_SID}")
+print(f"DEBUG: TWILIO_AUTH_TOKEN = {'SET' if TWILIO_AUTH_TOKEN else 'NOT SET'}")
+print(f"DEBUG: TWILIO_PHONE_NUMBER = {TWILIO_PHONE_NUMBER}")
+
 
 class TwilioSMSService:
     """Service class for Twilio SMS operations"""
