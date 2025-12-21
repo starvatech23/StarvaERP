@@ -57,7 +57,7 @@ const formatDate = (dateString?: string): string => {
   }
 };
 
-export const generatePOHtml = (po: PORequest, companyName: string = 'StarVacon'): string => {
+export const generatePOHtml = (po: PORequest, companyName: string = 'SiteOps'): string => {
   const poItems = po?.items || po?.line_items || [];
   const poNumber = po?.po_number || po?.request_number || 'N/A';
   const projectId = po?.project_id || 'N/A';
