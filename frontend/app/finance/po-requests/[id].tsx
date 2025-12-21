@@ -84,6 +84,11 @@ export default function PORequestDetailScreen() {
   const [showVendorHistoryModal, setShowVendorHistoryModal] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [showPdfOptionsModal, setShowPdfOptionsModal] = useState(false);
+  const [showShareToVendorModal, setShowShareToVendorModal] = useState(false);
+  const [pdfPreviewHtml, setPdfPreviewHtml] = useState<string | null>(null);
+  const [sharingStep, setSharingStep] = useState<'preview' | 'share'>('preview');
+  const [selectedShareMethod, setSelectedShareMethod] = useState<'whatsapp' | 'email' | null>(null);
+  const [sharingToVendor, setSharingToVendor] = useState(false);
 
   useEffect(() => {
     loadPORequest();
