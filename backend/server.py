@@ -112,6 +112,9 @@ from data_export_import import (
     validate_import_data, EXPORT_TEMPLATES
 )
 
+# Import Twilio SMS Service
+from twilio_service import twilio_sms_service
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
