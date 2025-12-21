@@ -39,7 +39,7 @@ export default function ClientPortalIndexScreen() {
     try {
       setIsLoading(true);
       
-      const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://project-hub-208.preview.emergentagent.com';
+      const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://pm-launch-check.preview.emergentagent.com';
       const response = await fetch(`${API_URL}/api/client-portal/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

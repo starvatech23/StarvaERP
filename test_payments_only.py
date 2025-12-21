@@ -7,7 +7,7 @@ import requests
 import json
 from datetime import datetime, timedelta
 
-BASE_URL = "https://project-hub-208.preview.emergentagent.com/api"
+BASE_URL = "https://pm-launch-check.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 def test_payments_api():
