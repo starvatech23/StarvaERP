@@ -2991,7 +2991,6 @@ async def send_payment_otp(
     """Send OTP to worker for payment verification"""
     import random
     import hashlib
-    from twilio_service import twilio_sms_service
     
     current_user = await get_current_user(credentials)
     
