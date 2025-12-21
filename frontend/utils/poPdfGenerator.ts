@@ -215,7 +215,7 @@ export const generatePdfFile = async (po: PORequest): Promise<string | null> => 
   }
 };
 
-// Save PDF to device (shows share sheet to save)
+// Save PDF to device - Uses Print dialog on mobile (more reliable than sharing)
 export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
   console.log('[PDF] savePOPdf - Save to Device START');
   try {
@@ -282,33 +282,44 @@ export const savePOPdf = async (po: PORequest): Promise<{ success: boolean; erro
       return { success: false, error: 'Could not open window. Please allow popups.' };
     }
 
-    // Mobile: Generate PDF file first, then share it
-    console.log('[PDF] Step 1: Generating PDF file...');
-    const pdfUri = await generatePdfFile(po);
-    console.log('[PDF] Step 2: PDF URI =', pdfUri);
+    // Mobile: Use Print.printAsync which is more reliable on Expo Go
+    // This opens the native print dialog where users can:
+    // - iOS: Select "Save to Files" or AirPrint
+    // - Android: Select "Save as PDF" or print to a printer
+    console.log('[PDF] Mobile: Using Print dialog for save...');
+    const html = generatePOHtml(po);
     
-    if (!pdfUri) {
-      console.log('[PDF] ERROR: No PDF URI returned');
-      return { success: false, error: 'Failed to generate PDF file' };
-    }
+    try {
+      console.log('[PDF] Opening print dialog...');
+      await Print.printAsync({
+        html,
+        // On iOS this will show the print preview with save option
+        // On Android it shows print dialog with "Save as PDF" option
+      });
+      console.log('[PDF] Print dialog completed');
+      return { success: true };
+    } catch (printError: any) {
+      // If print fails or is cancelled, try sharing as fallback
+      console.log('[PDF] Print failed, trying share as fallback:', printError?.message);
+      
+      // Generate PDF file for sharing
+      const pdfUri = await generatePdfFile(po);
+      if (!pdfUri) {
+        return { success: false, error: 'Failed to generate PDF file' };
+      }
 
-    console.log('[PDF] Step 3: Checking sharing availability...');
-    const canShare = await Sharing.isAvailableAsync();
-    console.log('[PDF] Step 4: Can share =', canShare);
-    
-    if (!canShare) {
-      console.log('[PDF] ERROR: Sharing not available');
-      return { success: false, error: 'Sharing not available on this device' };
-    }
+      const canShare = await Sharing.isAvailableAsync();
+      if (!canShare) {
+        return { success: false, error: 'Neither print nor share available on this device' };
+      }
 
-    console.log('[PDF] Step 5: Opening share dialog...');
-    await Sharing.shareAsync(pdfUri, {
-      mimeType: 'application/pdf',
-      UTI: 'com.adobe.pdf',
-    });
-    console.log('[PDF] Step 6: Share dialog completed');
-    
-    return { success: true };
+      await Sharing.shareAsync(pdfUri, {
+        mimeType: 'application/pdf',
+        UTI: 'com.adobe.pdf',
+        dialogTitle: 'Save Purchase Order PDF',
+      });
+      return { success: true };
+    }
   } catch (error: any) {
     console.error('[PDF] ERROR in savePOPdf:', error?.message || error);
     return { success: false, error: error?.message || 'Failed to save PDF' };
