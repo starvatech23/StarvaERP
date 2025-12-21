@@ -988,19 +988,31 @@ export default function PORequestDetailScreen() {
             <Text style={styles.pdfModalTitle}>Purchase Order PDF</Text>
             <Text style={styles.pdfModalSubtitle}>{poRequest?.po_number || poRequest?.request_number}</Text>
             
+            {/* Share to Vendor - Only for approved POs */}
+            {poRequest?.status === 'approved' && poRequest?.vendor_id && (
+              <TouchableOpacity 
+                style={styles.shareToVendorMainBtn}
+                onPress={handleShareToVendorStart}
+              >
+                <View style={styles.shareToVendorMainContent}>
+                  <View style={styles.shareToVendorIcon}>
+                    <Ionicons name="send" size={24} color="#fff" />
+                  </View>
+                  <View style={styles.shareToVendorTextContainer}>
+                    <Text style={styles.shareToVendorTitle}>Share to Vendor</Text>
+                    <Text style={styles.shareToVendorSubtitle}>{poRequest?.vendor_name}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#fff" />
+                </View>
+              </TouchableOpacity>
+            )}
+            
             <View style={styles.pdfOptionsContainer}>
               <TouchableOpacity style={styles.pdfOptionButton} onPress={handleDownloadPdf}>
                 <View style={[styles.pdfOptionIcon, { backgroundColor: '#EFF6FF' }]}>
                   <Ionicons name="download-outline" size={28} color="#2563EB" />
                 </View>
                 <Text style={styles.pdfOptionText}>Save to Device</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity style={styles.pdfOptionButton} onPress={handleWhatsAppShare}>
-                <View style={[styles.pdfOptionIcon, { backgroundColor: '#DCFCE7' }]}>
-                  <Ionicons name="logo-whatsapp" size={28} color="#25D366" />
-                </View>
-                <Text style={styles.pdfOptionText}>WhatsApp</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.pdfOptionButton} onPress={handleSharePdf}>
@@ -1026,6 +1038,191 @@ export default function PORequestDetailScreen() {
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
+      </Modal>
+
+      {/* NEW: Share to Vendor Modal - 2 Step Flow */}
+      <Modal visible={showShareToVendorModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: '85%' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {sharingStep === 'preview' ? 'Step 1: Preview PO' : 'Step 2: Send to Vendor'}
+              </Text>
+              <TouchableOpacity onPress={() => setShowShareToVendorModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Step Indicator */}
+            <View style={styles.stepIndicator}>
+              <View style={[styles.stepDot, sharingStep === 'preview' && styles.stepDotActive]}>
+                <Text style={[styles.stepDotText, sharingStep === 'preview' && styles.stepDotTextActive]}>1</Text>
+              </View>
+              <View style={[styles.stepLine, sharingStep === 'share' && styles.stepLineActive]} />
+              <View style={[styles.stepDot, sharingStep === 'share' && styles.stepDotActive]}>
+                <Text style={[styles.stepDotText, sharingStep === 'share' && styles.stepDotTextActive]}>2</Text>
+              </View>
+            </View>
+            <View style={styles.stepLabels}>
+              <Text style={[styles.stepLabel, sharingStep === 'preview' && styles.stepLabelActive]}>Preview</Text>
+              <Text style={[styles.stepLabel, sharingStep === 'share' && styles.stepLabelActive]}>Send</Text>
+            </View>
+
+            {sharingStep === 'preview' ? (
+              /* Step 1: Preview Content */
+              <ScrollView style={styles.previewContainer}>
+                <View style={styles.previewCard}>
+                  <View style={styles.previewHeader}>
+                    <Ionicons name="document-text" size={40} color={Colors.primary} />
+                    <View style={styles.previewHeaderText}>
+                      <Text style={styles.previewTitle}>{poRequest?.po_number || poRequest?.request_number}</Text>
+                      <Text style={styles.previewSubtitle}>{poRequest?.title}</Text>
+                    </View>
+                  </View>
+                  
+                  <View style={styles.previewDetails}>
+                    <View style={styles.previewRow}>
+                      <Text style={styles.previewLabel}>Vendor:</Text>
+                      <Text style={styles.previewValue}>{poRequest?.vendor_name || 'Not assigned'}</Text>
+                    </View>
+                    <View style={styles.previewRow}>
+                      <Text style={styles.previewLabel}>Project:</Text>
+                      <Text style={styles.previewValue}>{poRequest?.project_name || 'N/A'}</Text>
+                    </View>
+                    <View style={styles.previewRow}>
+                      <Text style={styles.previewLabel}>Items:</Text>
+                      <Text style={styles.previewValue}>{poRequest?.line_items?.length || 0} items</Text>
+                    </View>
+                    <View style={styles.previewRow}>
+                      <Text style={styles.previewLabel}>Total Amount:</Text>
+                      <Text style={[styles.previewValue, { color: '#10B981', fontWeight: '700' }]}>
+                        {formatCurrency(poRequest?.total_estimated_amount || 0)}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Quick preview of line items */}
+                  <View style={styles.previewItemsSection}>
+                    <Text style={styles.previewSectionTitle}>Line Items</Text>
+                    {poRequest?.line_items?.slice(0, 3).map((item: any, index: number) => (
+                      <View key={index} style={styles.previewItem}>
+                        <Text style={styles.previewItemName}>{item.item_name}</Text>
+                        <Text style={styles.previewItemAmount}>{formatCurrency(item.estimated_total)}</Text>
+                      </View>
+                    ))}
+                    {(poRequest?.line_items?.length || 0) > 3 && (
+                      <Text style={styles.previewMoreItems}>
+                        +{(poRequest?.line_items?.length || 0) - 3} more items...
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                <TouchableOpacity style={styles.viewFullPdfBtn} onPress={handleDownloadPdf}>
+                  <Ionicons name="eye-outline" size={18} color={Colors.primary} />
+                  <Text style={styles.viewFullPdfText}>View Full PDF</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            ) : (
+              /* Step 2: Select Share Method */
+              <View style={styles.shareMethodContainer}>
+                <Text style={styles.shareMethodTitle}>Send PO to:</Text>
+                <View style={styles.vendorShareCard}>
+                  <Ionicons name="storefront" size={24} color={Colors.primary} />
+                  <View style={styles.vendorShareInfo}>
+                    <Text style={styles.vendorShareName}>{poRequest?.vendor_name}</Text>
+                    <Text style={styles.vendorShareContact}>
+                      {/* Show vendor contact if available */}
+                      Contact from vendor profile
+                    </Text>
+                  </View>
+                </View>
+
+                <Text style={styles.shareMethodSubtitle}>Choose delivery method:</Text>
+                
+                <TouchableOpacity 
+                  style={[
+                    styles.shareMethodOption, 
+                    selectedShareMethod === 'whatsapp' && styles.shareMethodOptionSelected
+                  ]}
+                  onPress={() => setSelectedShareMethod('whatsapp')}
+                >
+                  <View style={[styles.shareMethodIconBg, { backgroundColor: '#25D36620' }]}>
+                    <Ionicons name="logo-whatsapp" size={28} color="#25D366" />
+                  </View>
+                  <View style={styles.shareMethodTextContainer}>
+                    <Text style={styles.shareMethodOptionTitle}>WhatsApp</Text>
+                    <Text style={styles.shareMethodOptionSubtitle}>Send via WhatsApp Business API</Text>
+                  </View>
+                  <View style={[styles.radioButton, selectedShareMethod === 'whatsapp' && styles.radioButtonSelected]}>
+                    {selectedShareMethod === 'whatsapp' && <View style={styles.radioButtonInner} />}
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={[
+                    styles.shareMethodOption, 
+                    selectedShareMethod === 'email' && styles.shareMethodOptionSelected
+                  ]}
+                  onPress={() => setSelectedShareMethod('email')}
+                >
+                  <View style={[styles.shareMethodIconBg, { backgroundColor: '#3B82F620' }]}>
+                    <Ionicons name="mail" size={28} color="#3B82F6" />
+                  </View>
+                  <View style={styles.shareMethodTextContainer}>
+                    <Text style={styles.shareMethodOptionTitle}>Email</Text>
+                    <Text style={styles.shareMethodOptionSubtitle}>Send to vendor's email address</Text>
+                  </View>
+                  <View style={[styles.radioButton, selectedShareMethod === 'email' && styles.radioButtonSelected]}>
+                    {selectedShareMethod === 'email' && <View style={styles.radioButtonInner} />}
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Action Buttons */}
+            <View style={styles.shareModalActions}>
+              {sharingStep === 'preview' ? (
+                <TouchableOpacity 
+                  style={styles.nextStepBtn}
+                  onPress={() => setSharingStep('share')}
+                >
+                  <Text style={styles.nextStepBtnText}>Next: Choose Delivery Method</Text>
+                  <Ionicons name="arrow-forward" size={20} color="#fff" />
+                </TouchableOpacity>
+              ) : (
+                <>
+                  <TouchableOpacity 
+                    style={styles.backStepBtn}
+                    onPress={() => setSharingStep('preview')}
+                  >
+                    <Ionicons name="arrow-back" size={18} color={Colors.textSecondary} />
+                    <Text style={styles.backStepBtnText}>Back</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[
+                      styles.sendToVendorBtn,
+                      (!selectedShareMethod || sharingToVendor) && styles.sendToVendorBtnDisabled
+                    ]}
+                    onPress={handleShareToVendorSend}
+                    disabled={!selectedShareMethod || sharingToVendor}
+                  >
+                    {sharingToVendor ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <>
+                        <Ionicons name="send" size={18} color="#fff" />
+                        <Text style={styles.sendToVendorBtnText}>
+                          Send via {selectedShareMethod === 'whatsapp' ? 'WhatsApp' : selectedShareMethod === 'email' ? 'Email' : '...'}
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          </View>
+        </View>
       </Modal>
 
       {/* Activity Confirmation Modal */}
