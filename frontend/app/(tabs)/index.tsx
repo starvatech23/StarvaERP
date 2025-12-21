@@ -678,6 +678,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+    paddingBottom: 100, // Extra padding to avoid overlap with Android navigation
   },
   loadingContainer: {
     flex: 1,
