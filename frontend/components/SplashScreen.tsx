@@ -39,21 +39,21 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
         }),
       ]),
       // Delay
-      Animated.delay(200),
+      Animated.delay(300),
       // Text appears
       Animated.timing(textOpacity, {
         toValue: 1,
-        duration: 400,
+        duration: 500,
         useNativeDriver: true,
       }),
       // Tagline appears
       Animated.timing(taglineOpacity, {
         toValue: 1,
-        duration: 400,
+        duration: 500,
         useNativeDriver: true,
       }),
-      // Hold for a moment
-      Animated.delay(1000),
+      // Hold for 6 seconds (total ~7-8 seconds with animations)
+      Animated.delay(6000),
     ]).start(() => {
       onFinish();
     });
