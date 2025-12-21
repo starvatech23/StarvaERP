@@ -118,6 +118,9 @@ from twilio_service import twilio_sms_service
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# Log Twilio service status at startup
+logger.info(f"Twilio SMS Service - Configured: {twilio_sms_service.is_configured()}, Client: {twilio_sms_service.client is not None}")
+
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
