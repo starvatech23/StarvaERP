@@ -93,36 +93,57 @@ def require_role(allowed_roles: list):
         return user
     return role_checker
 
-# Mock OTP Functions
+# OTP Functions with Twilio SMS
+from twilio_service import send_otp_sms, twilio_sms_service
+
 def generate_otp() -> str:
     """Generate a 6-digit OTP"""
     return ''.join(random.choices(string.digits, k=6))
 
-def send_otp_mock(phone: str, otp: str) -> bool:
-    """Mock OTP sending - stores in memory"""
-    # In production, integrate with Twilio or other SMS service
+def send_otp(phone: str, otp: str) -> dict:
+    """Send OTP via Twilio SMS"""
+    # Store OTP in memory for verification
     otp_storage[phone] = {
         "otp": otp,
         "created_at": datetime.utcnow(),
         "attempts": 0
     }
-    print(f"[MOCK SMS] Sending OTP {otp} to {phone}")
-    return True
+    
+    # Check if Twilio is configured
+    if twilio_sms_service.is_configured():
+        result = send_otp_sms(phone, otp)
+        if result.get("success"):
+            print(f"[TWILIO SMS] OTP sent to {phone}, SID: {result.get('message_sid')}")
+            return {"success": True, "provider": "twilio", "message_sid": result.get("message_sid")}
+        else:
+            print(f"[TWILIO SMS] Failed to send OTP to {phone}: {result.get('error')}")
+            # Fall back to mock if Twilio fails
+            print(f"[MOCK SMS] Fallback - OTP {otp} for {phone}")
+            return {"success": True, "provider": "mock", "otp_for_testing": otp, "twilio_error": result.get("error")}
+    else:
+        # Mock mode - just store and return OTP for testing
+        print(f"[MOCK SMS] Twilio not configured - OTP {otp} for {phone}")
+        return {"success": True, "provider": "mock", "otp_for_testing": otp}
 
-def verify_otp_mock(phone: str, otp: str) -> bool:
+def send_otp_mock(phone: str, otp: str) -> bool:
+    """Legacy mock OTP sending - stores in memory"""
+    result = send_otp(phone, otp)
+    return result.get("success", False)
+
+def verify_otp(phone: str, otp: str) -> bool:
     """Verify OTP from storage"""
     if phone not in otp_storage:
         return False
     
     stored_data = otp_storage[phone]
     
-    # Check if OTP expired (5 minutes)
-    if (datetime.utcnow() - stored_data["created_at"]).seconds > 300:
+    # Check if OTP expired (10 minutes)
+    if (datetime.utcnow() - stored_data["created_at"]).seconds > 600:
         del otp_storage[phone]
         return False
     
-    # Check attempts
-    if stored_data["attempts"] >= 3:
+    # Check attempts (max 5)
+    if stored_data["attempts"] >= 5:
         del otp_storage[phone]
         return False
     
@@ -133,3 +154,7 @@ def verify_otp_mock(phone: str, otp: str) -> bool:
     else:
         stored_data["attempts"] += 1
         return False
+
+def verify_otp_mock(phone: str, otp: str) -> bool:
+    """Legacy verify OTP function"""
+    return verify_otp(phone, otp)
