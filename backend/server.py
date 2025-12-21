@@ -355,21 +355,33 @@ async def login(credentials: UserLogin):
     return Token(access_token=access_token, token_type="bearer", user=user_response)
 
 @api_router.post("/auth/send-otp")
-async def send_otp(request: OTPRequest):
-    """Send OTP to phone number (mock for now)"""
+async def send_otp_endpoint(request: OTPRequest):
+    """Send OTP to phone number via Twilio SMS"""
     otp = generate_otp()
-    success = send_otp_mock(request.phone, otp)
+    result = send_otp(request.phone, otp)
     
-    if success:
-        return {"message": "OTP sent successfully", "otp": otp}  # Remove otp in production
+    if result.get("success"):
+        response = {
+            "message": "OTP sent successfully",
+            "provider": result.get("provider", "unknown"),
+            "expires_in_minutes": 10
+        }
+        # Include OTP for testing if mock mode or Twilio failed
+        if result.get("otp_for_testing"):
+            response["otp_for_testing"] = result["otp_for_testing"]
+        if result.get("message_sid"):
+            response["message_sid"] = result["message_sid"]
+        if result.get("twilio_error"):
+            response["twilio_error"] = result["twilio_error"]
+        return response
     else:
-        raise HTTPException(status_code=500, detail="Failed to send OTP")
+        raise HTTPException(status_code=500, detail=result.get("error", "Failed to send OTP"))
 
 @api_router.post("/auth/verify-otp", response_model=Token)
-async def verify_otp(request: OTPVerify):
+async def verify_otp_endpoint(request: OTPVerify):
     """Verify OTP and register/login user"""
     
-    if not verify_otp_mock(request.phone, request.otp):
+    if not verify_otp(request.phone, request.otp):
         raise HTTPException(status_code=400, detail="Invalid or expired OTP")
     
     # Check if user exists
