@@ -1,14 +1,21 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import Colors from '../../constants/Colors';
 
 export default function TabsLayout() {
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const canAccessCRM = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'crm_manager' || user?.role === 'crm_user';
   const canAccessProjects = user?.role !== 'vendor';
   const isWorker = user?.role === 'worker';
+
+  // Calculate proper bottom padding for Android navigation bar
+  const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : 8;
+  const tabBarHeight = 60 + (Platform.OS === 'android' ? insets.bottom : 0);
 
   return (
     <Tabs
@@ -18,8 +25,8 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: Colors.surface,
           borderTopColor: Colors.border,
-          height: 60,
-          paddingBottom: 8,
+          height: tabBarHeight,
+          paddingBottom: bottomPadding,
           paddingTop: 8,
         },
         headerShown: false,
