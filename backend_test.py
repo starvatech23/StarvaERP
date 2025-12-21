@@ -1,351 +1,505 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Multi-Vendor PO Sending Feature
-Tests the complete flow from login to PO creation, approval, and sending to multiple vendors
+Backend Test Suite for Twilio SMS OTP Integration - Labour Payments
+Tests the complete Twilio SMS service integration for labour payment OTP flow
 """
 
 import requests
 import json
 import sys
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
 
-# Get backend URL from environment
-BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://pm-launch-check.preview.emergentagent.com')
-API_BASE = f"{BACKEND_URL}/api"
+# Backend URL from environment
+BACKEND_URL = "https://pm-launch-check.preview.emergentagent.com/api"
 
 # Test credentials
 ADMIN_EMAIL = "admin@test.com"
 ADMIN_PASSWORD = "admin123"
 
-class MultiVendorPOTester:
+class TwilioSMSTestSuite:
     def __init__(self):
         self.session = requests.Session()
-        self.auth_token = None
-        self.user_info = None
+        self.access_token = None
+        self.test_results = []
         
-    def log(self, message):
-        """Log test messages with timestamp"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {message}")
-        
-    def login(self, email, password):
-        """Login and get auth token"""
-        self.log(f"🔐 Logging in as {email}...")
-        
-        login_data = {
-            "identifier": email,
-            "password": password,
-            "auth_type": "email"
+    def log_result(self, test_name: str, success: bool, message: str, details: dict = None):
+        """Log test result"""
+        result = {
+            "test": test_name,
+            "success": success,
+            "message": message,
+            "timestamp": datetime.now().isoformat(),
+            "details": details or {}
         }
+        self.test_results.append(result)
         
-        response = self.session.post(f"{API_BASE}/auth/login", json=login_data)
-        
-        if response.status_code != 200:
-            self.log(f"❌ Login failed: {response.status_code} - {response.text}")
-            return False
-            
-        data = response.json()
-        self.auth_token = data.get("access_token")
-        self.user_info = data.get("user", {})
-        
-        # Set auth header for future requests
-        self.session.headers.update({
-            "Authorization": f"Bearer {self.auth_token}"
-        })
-        
-        self.log(f"✅ Login successful! User: {self.user_info.get('full_name')} ({self.user_info.get('role')})")
-        return True
-        
-    def get_approved_po_requests(self):
-        """Get list of approved PO requests"""
-        self.log("📋 Getting approved PO requests...")
-        
-        response = self.session.get(f"{API_BASE}/purchase-order-requests?status=approved")
-        
-        if response.status_code != 200:
-            self.log(f"❌ Failed to get PO requests: {response.status_code} - {response.text}")
-            return []
-            
-        data = response.json()
-        self.log(f"✅ Found {len(data)} approved PO requests")
-        return data
-        
-    def create_po_request(self):
-        """Create a new PO request"""
-        self.log("📝 Creating new PO request...")
-        
-        # First get a project to use
-        projects_response = self.session.get(f"{API_BASE}/projects")
-        if projects_response.status_code != 200:
-            self.log(f"❌ Failed to get projects: {projects_response.status_code}")
-            return None
-            
-        projects = projects_response.json()
-        if not projects:
-            self.log("❌ No projects found")
-            return None
-            
-        project = projects[0]
-        project_id = project["id"]
-        
-        po_data = {
-            "project_id": project_id,
-            "title": "Test Multi-Vendor PO Request",
-            "description": "Testing multi-vendor PO sending functionality",
-            "priority": "high",
-            "required_by_date": (datetime.now() + timedelta(days=7)).isoformat(),
-            "delivery_location": "Project Site",
-            "line_items": [
-                {
-                    "item_name": "Cement Bags",
-                    "description": "OPC 53 Grade Cement",
-                    "quantity": 100,
-                    "unit": "bags",
-                    "estimated_unit_price": 450,
-                    "estimated_total": 45000
-                },
-                {
-                    "item_name": "Steel Rods",
-                    "description": "TMT Steel Rods 12mm",
-                    "quantity": 50,
-                    "unit": "pieces",
-                    "estimated_unit_price": 800,
-                    "estimated_total": 40000
-                }
-            ],
-            "justification": "Required for foundation work - urgent requirement"
-        }
-        
-        response = self.session.post(f"{API_BASE}/purchase-order-requests", json=po_data)
-        
-        if response.status_code != 200:
-            self.log(f"❌ Failed to create PO request: {response.status_code} - {response.text}")
-            return None
-            
-        data = response.json()
-        po_request_id = data.get("id")
-        request_number = data.get("request_number")
-        
-        self.log(f"✅ PO request created: {request_number} (ID: {po_request_id})")
-        return po_request_id
-        
-    def approve_po_request(self, po_request_id, level_description):
-        """Approve PO request at current level"""
-        self.log(f"✅ Approving PO request at {level_description}...")
-        
-        approval_data = {
-            "action": "approve",
-            "comments": f"Approved by {self.user_info.get('full_name')} - {level_description}"
-        }
-        
-        response = self.session.post(f"{API_BASE}/purchase-order-requests/{po_request_id}/approve", json=approval_data)
-        
-        if response.status_code != 200:
-            self.log(f"❌ Failed to approve PO request: {response.status_code} - {response.text}")
-            return False
-            
-        data = response.json()
-        new_status = data.get("status")
-        self.log(f"✅ PO request approved! New status: {new_status}")
-        return True
-        
-    def get_vendors(self):
-        """Get list of vendors"""
-        self.log("🏢 Getting vendors list...")
-        
-        response = self.session.get(f"{API_BASE}/vendors")
-        
-        if response.status_code != 200:
-            self.log(f"❌ Failed to get vendors: {response.status_code} - {response.text}")
-            return []
-            
-        data = response.json()
-        self.log(f"✅ Found {len(data)} vendors")
-        
-        # Log vendor details for debugging
-        for vendor in data[:3]:  # Show first 3 vendors
-            vendor_name = vendor.get("business_name") or vendor.get("contact_person", "Unknown")
-            self.log(f"   - {vendor_name} (ID: {vendor['id']})")
-            
-        return data
-        
-    def send_po_to_vendors(self, po_request_id, vendor_ids):
-        """Send PO to multiple vendors"""
-        self.log(f"📤 Sending PO to {len(vendor_ids)} vendors...")
-        
-        send_data = {
-            "vendor_ids": vendor_ids,
-            "send_email": True,
-            "send_whatsapp": True,
-            "message": "Please provide your best quote for the attached purchase order. We need competitive pricing and quick delivery."
-        }
-        
-        response = self.session.post(f"{API_BASE}/purchase-order-requests/{po_request_id}/send-to-vendors", json=send_data)
-        
-        if response.status_code != 200:
-            self.log(f"❌ Failed to send PO to vendors: {response.status_code} - {response.text}")
-            return None
-            
-        data = response.json()
-        self.log(f"✅ {data.get('message')}")
-        
-        # Log sent results
-        sent_results = data.get("sent", [])
-        for result in sent_results:
-            vendor_name = result.get("vendor_name")
-            email_sent = result.get("email_sent", False)
-            whatsapp_sent = result.get("whatsapp_sent", False)
-            self.log(f"   📧 {vendor_name}: Email={email_sent}, WhatsApp={whatsapp_sent}")
-            
-        # Log failed results
-        failed_results = data.get("failed", [])
-        if failed_results:
-            self.log(f"❌ Failed to send to {len(failed_results)} vendors:")
-            for failure in failed_results:
-                self.log(f"   - Vendor {failure.get('vendor_id')}: {failure.get('error')}")
-                
-        return data
-        
-    def verify_po_sent_status(self, po_request_id):
-        """Verify that PO request is marked as sent to vendor"""
-        self.log("🔍 Verifying PO sent status...")
-        
-        response = self.session.get(f"{API_BASE}/purchase-order-requests/{po_request_id}")
-        
-        if response.status_code != 200:
-            self.log(f"❌ Failed to get PO request details: {response.status_code}")
-            return False
-            
-        data = response.json()
-        po_sent_to_vendor = data.get("po_sent_to_vendor", False)
-        po_sent_at = data.get("po_sent_at")
-        sent_to_vendors = data.get("sent_to_vendors", [])
-        
-        if po_sent_to_vendor:
-            self.log(f"✅ PO marked as sent to vendor: {po_sent_at}")
-            self.log(f"✅ Sent to {len(sent_to_vendors)} vendors")
-            return True
-        else:
-            self.log("❌ PO not marked as sent to vendor")
-            return False
-            
-    def run_multi_vendor_po_test(self):
-        """Run the complete multi-vendor PO sending test"""
-        self.log("🚀 Starting Multi-Vendor PO Sending Test")
-        self.log("=" * 60)
-        
-        # Step 1: Login
-        if not self.login(ADMIN_EMAIL, ADMIN_PASSWORD):
-            return False
-            
-        # Step 2: Check for existing approved PO requests
-        approved_pos = self.get_approved_po_requests()
-        
-        po_request_id = None
-        if approved_pos:
-            # Use existing approved PO
-            po_request_id = approved_pos[0]["id"]
-            self.log(f"📋 Using existing approved PO: {po_request_id}")
-        else:
-            # Create new PO and approve it through all levels
-            self.log("📝 No approved PO found, creating new one...")
-            
-            po_request_id = self.create_po_request()
-            if not po_request_id:
-                return False
-                
-            # Approve through all 3 levels (admin can approve at any level)
-            for level in range(1, 4):
-                level_names = {1: "Level 1 (Operations Manager)", 2: "Level 2 (Project/Operations Head)", 3: "Level 3 (Finance)"}
-                if not self.approve_po_request(po_request_id, level_names[level]):
-                    return False
-                    
-        # Step 3: Get vendors
-        vendors = self.get_vendors()
-        if len(vendors) < 2:
-            self.log("❌ Need at least 2 vendors for multi-vendor test")
-            return False
-            
-        # Select first 2 vendors
-        selected_vendors = vendors[:2]
-        vendor_ids = [v["id"] for v in selected_vendors]
-        vendor_names = [v.get("business_name") or v.get("contact_person", "Unknown") for v in selected_vendors]
-        
-        self.log(f"🎯 Selected vendors: {', '.join(vendor_names)}")
-        
-        # Step 4: Send PO to vendors
-        send_result = self.send_po_to_vendors(po_request_id, vendor_ids)
-        if not send_result:
-            return False
-            
-        # Step 5: Verify response structure
-        self.log("🔍 Verifying response structure...")
-        
-        required_fields = ["sent", "failed"]
-        for field in required_fields:
-            if field not in send_result:
-                self.log(f"❌ Missing required field in response: {field}")
-                return False
-                
-        sent_results = send_result.get("sent", [])
-        if not sent_results:
-            self.log("❌ No vendors in 'sent' results")
-            return False
-            
-        # Verify each sent result has required fields
-        for result in sent_results:
-            required_sent_fields = ["vendor_name", "email_sent", "whatsapp_sent"]
-            for field in required_sent_fields:
-                if field not in result:
-                    self.log(f"❌ Missing field in sent result: {field}")
-                    return False
-                    
-        self.log("✅ Response structure is correct")
-        
-        # Step 6: Verify PO request is updated
-        if not self.verify_po_sent_status(po_request_id):
-            return False
-            
-        # Step 7: Verify mocked email/WhatsApp behavior
-        self.log("📧 Verifying mocked email/WhatsApp behavior...")
-        all_email_sent = all(r.get("email_sent", False) for r in sent_results)
-        all_whatsapp_sent = all(r.get("whatsapp_sent", False) for r in sent_results)
-        
-        if all_email_sent and all_whatsapp_sent:
-            self.log("✅ Email and WhatsApp sending is **mocked** (logs only) - this is expected behavior")
-        else:
-            self.log("⚠️  Some email/WhatsApp sends failed - check vendor contact details")
-            
-        self.log("=" * 60)
-        self.log("🎉 Multi-Vendor PO Sending Test COMPLETED SUCCESSFULLY!")
-        self.log("✅ All features working as expected:")
-        self.log("   - PO request creation and approval flow")
-        self.log("   - Multi-vendor selection and sending")
-        self.log("   - Email/WhatsApp integration (mocked)")
-        self.log("   - PO status updates")
-        self.log("   - Response structure validation")
-        
-        return True
-
-def main():
-    """Main test execution"""
-    tester = MultiVendorPOTester()
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status}: {test_name}")
+        print(f"   {message}")
+        if details:
+            print(f"   Details: {details}")
+        print()
     
-    try:
-        success = tester.run_multi_vendor_po_test()
-        if success:
-            print("\n🎯 TEST RESULT: PASS")
-            sys.exit(0)
-        else:
-            print("\n❌ TEST RESULT: FAIL")
-            sys.exit(1)
+    def login_admin(self):
+        """Login as admin user"""
+        try:
+            login_data = {
+                "identifier": ADMIN_EMAIL,
+                "password": ADMIN_PASSWORD,
+                "auth_type": "email"
+            }
             
-    except Exception as e:
-        print(f"\n💥 TEST ERROR: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+            response = self.session.post(f"{BACKEND_URL}/auth/login", json=login_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.access_token = data["access_token"]
+                self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
+                
+                self.log_result(
+                    "Admin Login",
+                    True,
+                    f"Successfully logged in as {ADMIN_EMAIL}",
+                    {"user_role": data.get("user", {}).get("role")}
+                )
+                return True
+            else:
+                self.log_result(
+                    "Admin Login",
+                    False,
+                    f"Login failed: {response.status_code} - {response.text}"
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Admin Login", False, f"Login error: {str(e)}")
+            return False
+    
+    def test_twilio_service_configuration(self):
+        """Test 1: Verify Twilio service configuration"""
+        try:
+            # Import and test the Twilio service directly
+            sys.path.append('/app/backend')
+            from twilio_service import twilio_sms_service
+            
+            # Check if service is configured
+            is_configured = twilio_sms_service.is_configured()
+            
+            config_details = {
+                "account_sid_set": bool(twilio_sms_service.account_sid),
+                "auth_token_set": bool(twilio_sms_service.auth_token),
+                "phone_number_set": bool(twilio_sms_service.from_number),
+                "client_initialized": twilio_sms_service.client is not None,
+                "account_sid": twilio_sms_service.account_sid[:10] + "..." if twilio_sms_service.account_sid else "Not set",
+                "phone_number": twilio_sms_service.from_number
+            }
+            
+            if is_configured and twilio_sms_service.client:
+                self.log_result(
+                    "Twilio Service Configuration",
+                    True,
+                    "Twilio service is properly configured and initialized",
+                    config_details
+                )
+                return True
+            else:
+                self.log_result(
+                    "Twilio Service Configuration",
+                    False,
+                    "Twilio service configuration incomplete",
+                    config_details
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result(
+                "Twilio Service Configuration",
+                False,
+                f"Error testing Twilio configuration: {str(e)}"
+            )
+            return False
+    
+    def test_phone_number_formatting(self):
+        """Test 4: Test phone number formatting for E.164 format"""
+        try:
+            sys.path.append('/app/backend')
+            from twilio_service import twilio_sms_service
+            
+            test_cases = [
+                ("9886588992", "+919886588992"),  # 10 digit Indian number
+                ("09886588992", "+919886588992"),  # 11 digit with leading 0
+                ("919886588992", "+919886588992"),  # 12 digit with country code
+                ("+919886588992", "+919886588992"),  # Already formatted
+                ("98-865-88992", "+919886588992"),  # With dashes
+                ("98 865 88992", "+919886588992"),  # With spaces
+            ]
+            
+            all_passed = True
+            formatting_results = []
+            
+            for input_phone, expected in test_cases:
+                formatted = twilio_sms_service.format_phone_number(input_phone)
+                passed = formatted == expected
+                all_passed = all_passed and passed
+                
+                formatting_results.append({
+                    "input": input_phone,
+                    "expected": expected,
+                    "actual": formatted,
+                    "passed": passed
+                })
+            
+            self.log_result(
+                "Phone Number Formatting",
+                all_passed,
+                f"Phone formatting test: {len([r for r in formatting_results if r['passed']])}/{len(test_cases)} passed",
+                {"test_cases": formatting_results}
+            )
+            
+            return all_passed
+            
+        except Exception as e:
+            self.log_result(
+                "Phone Number Formatting",
+                False,
+                f"Error testing phone formatting: {str(e)}"
+            )
+            return False
+    
+    def get_labour_payments(self):
+        """Get existing labour payments"""
+        try:
+            response = self.session.get(f"{BACKEND_URL}/labour/payments")
+            
+            if response.status_code == 200:
+                payments = response.json()
+                self.log_result(
+                    "Get Labour Payments",
+                    True,
+                    f"Retrieved {len(payments)} labour payments",
+                    {"payment_count": len(payments)}
+                )
+                return payments
+            else:
+                self.log_result(
+                    "Get Labour Payments",
+                    False,
+                    f"Failed to get payments: {response.status_code} - {response.text}"
+                )
+                return []
+                
+        except Exception as e:
+            self.log_result("Get Labour Payments", False, f"Error: {str(e)}")
+            return []
+    
+    def find_or_create_validated_payment(self, payments):
+        """Find a validated payment or create one for testing"""
+        # Look for a validated payment
+        validated_payments = [p for p in payments if p.get("status") == "validated"]
+        
+        if validated_payments:
+            payment = validated_payments[0]
+            self.log_result(
+                "Find Validated Payment",
+                True,
+                f"Found validated payment: {payment.get('id')} for worker {payment.get('worker_name')}",
+                {"payment_id": payment.get("id"), "amount": payment.get("amount")}
+            )
+            return payment
+        
+        # If no validated payment, look for any payment we can use for testing
+        if payments:
+            payment = payments[0]
+            self.log_result(
+                "Find Test Payment",
+                True,
+                f"Using existing payment: {payment.get('id')} (status: {payment.get('status')})",
+                {"payment_id": payment.get("id"), "status": payment.get("status")}
+            )
+            return payment
+        
+        self.log_result(
+            "Find Validated Payment",
+            False,
+            "No payments found for testing"
+        )
+        return None
+    
+    def test_send_otp_flow(self):
+        """Test 2: Test Send OTP Flow for Labour Payment"""
+        try:
+            # Get existing payments
+            payments = self.get_labour_payments()
+            if not payments:
+                self.log_result(
+                    "Send OTP Flow",
+                    False,
+                    "No labour payments available for testing"
+                )
+                return False
+            
+            # Find or create a validated payment
+            payment = self.find_or_create_validated_payment(payments)
+            if not payment:
+                return False
+            
+            payment_id = payment.get("id")
+            
+            # Test send OTP endpoint
+            response = self.session.post(f"{BACKEND_URL}/labour/payments/{payment_id}/send-otp")
+            
+            if response.status_code == 200:
+                otp_response = response.json()
+                
+                # Check if response contains expected fields
+                expected_fields = ["success", "message"]
+                has_all_fields = all(field in otp_response for field in expected_fields)
+                
+                # Check if it's using Twilio (should have message_sid) or mock (should have otp_for_testing)
+                is_twilio_response = "message_sid" in otp_response
+                is_mock_response = "otp_for_testing" in otp_response
+                
+                response_details = {
+                    "payment_id": payment_id,
+                    "worker_name": payment.get("worker_name"),
+                    "response_fields": list(otp_response.keys()),
+                    "is_twilio_integration": is_twilio_response,
+                    "is_mock_response": is_mock_response,
+                    "success": otp_response.get("success"),
+                    "message": otp_response.get("message")
+                }
+                
+                if is_twilio_response:
+                    response_details.update({
+                        "message_sid": otp_response.get("message_sid"),
+                        "twilio_status": otp_response.get("status")
+                    })
+                
+                if is_mock_response:
+                    response_details["otp_for_testing"] = otp_response.get("otp_for_testing")
+                
+                self.log_result(
+                    "Send OTP Flow",
+                    True,
+                    f"OTP send request successful: {otp_response.get('message')}",
+                    response_details
+                )
+                
+                return otp_response
+                
+            else:
+                self.log_result(
+                    "Send OTP Flow",
+                    False,
+                    f"Send OTP failed: {response.status_code} - {response.text}",
+                    {"payment_id": payment_id}
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Send OTP Flow", False, f"Error: {str(e)}")
+            return False
+    
+    def test_sms_delivery_verification(self, otp_response):
+        """Test 3: Test SMS Delivery Verification"""
+        if not otp_response:
+            self.log_result(
+                "SMS Delivery Verification",
+                False,
+                "No OTP response to verify"
+            )
+            return False
+        
+        try:
+            # Check if response contains Twilio message details
+            has_message_sid = "message_sid" in otp_response
+            has_status = "status" in otp_response
+            
+            if has_message_sid and has_status:
+                # Real Twilio integration
+                verification_details = {
+                    "integration_type": "Twilio SMS",
+                    "message_sid": otp_response.get("message_sid"),
+                    "status": otp_response.get("status"),
+                    "success": otp_response.get("success")
+                }
+                
+                self.log_result(
+                    "SMS Delivery Verification",
+                    True,
+                    f"Twilio SMS integration working - Message SID: {otp_response.get('message_sid')}",
+                    verification_details
+                )
+                return True
+                
+            elif "otp_for_testing" in otp_response:
+                # Mock implementation
+                verification_details = {
+                    "integration_type": "Mock/Testing",
+                    "otp_for_testing": otp_response.get("otp_for_testing"),
+                    "success": otp_response.get("success"),
+                    "message": otp_response.get("message")
+                }
+                
+                self.log_result(
+                    "SMS Delivery Verification",
+                    False,
+                    "SMS delivery is MOCKED - Twilio integration not implemented in send-otp endpoint",
+                    verification_details
+                )
+                return False
+                
+            else:
+                self.log_result(
+                    "SMS Delivery Verification",
+                    False,
+                    "Response missing expected Twilio fields (message_sid, status)",
+                    {"response_fields": list(otp_response.keys())}
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("SMS Delivery Verification", False, f"Error: {str(e)}")
+            return False
+    
+    def test_twilio_direct_sms(self):
+        """Test direct Twilio SMS functionality"""
+        try:
+            sys.path.append('/app/backend')
+            from twilio_service import twilio_sms_service
+            
+            # Test with a sample Indian phone number (won't actually send)
+            test_phone = "9886588992"
+            test_message = "Test OTP: 123456. This is a test message from StarVacon."
+            
+            # This will attempt to send but may fail due to Twilio account limitations
+            result = twilio_sms_service.send_sms(test_phone, test_message)
+            
+            test_details = {
+                "test_phone": test_phone,
+                "formatted_phone": twilio_sms_service.format_phone_number(test_phone),
+                "message_length": len(test_message),
+                "twilio_configured": twilio_sms_service.is_configured(),
+                "result": result
+            }
+            
+            if result.get("success"):
+                self.log_result(
+                    "Direct Twilio SMS Test",
+                    True,
+                    f"Twilio SMS sent successfully - SID: {result.get('message_sid')}",
+                    test_details
+                )
+                return True
+            else:
+                # Even if it fails, we can check if it's a Twilio configuration issue
+                error_msg = result.get("error", "Unknown error")
+                
+                if "not configured" in error_msg.lower():
+                    self.log_result(
+                        "Direct Twilio SMS Test",
+                        False,
+                        "Twilio SMS service not configured properly",
+                        test_details
+                    )
+                elif "account" in error_msg.lower() or "auth" in error_msg.lower():
+                    self.log_result(
+                        "Direct Twilio SMS Test",
+                        False,
+                        f"Twilio account/authentication issue: {error_msg}",
+                        test_details
+                    )
+                else:
+                    self.log_result(
+                        "Direct Twilio SMS Test",
+                        False,
+                        f"Twilio SMS failed: {error_msg}",
+                        test_details
+                    )
+                return False
+                
+        except Exception as e:
+            self.log_result("Direct Twilio SMS Test", False, f"Error: {str(e)}")
+            return False
+    
+    def run_all_tests(self):
+        """Run all Twilio SMS OTP integration tests"""
+        print("=" * 80)
+        print("TWILIO SMS OTP INTEGRATION TEST SUITE")
+        print("=" * 80)
+        print()
+        
+        # Test 1: Login
+        if not self.login_admin():
+            print("❌ Cannot proceed without admin login")
+            return False
+        
+        # Test 2: Twilio Service Configuration
+        twilio_configured = self.test_twilio_service_configuration()
+        
+        # Test 3: Phone Number Formatting
+        self.test_phone_number_formatting()
+        
+        # Test 4: Direct Twilio SMS (if configured)
+        if twilio_configured:
+            self.test_twilio_direct_sms()
+        
+        # Test 5: Send OTP Flow
+        otp_response = self.test_send_otp_flow()
+        
+        # Test 6: SMS Delivery Verification
+        self.test_sms_delivery_verification(otp_response)
+        
+        # Summary
+        self.print_summary()
+        
+        return True
+    
+    def print_summary(self):
+        """Print test summary"""
+        print("=" * 80)
+        print("TEST SUMMARY")
+        print("=" * 80)
+        
+        total_tests = len(self.test_results)
+        passed_tests = len([r for r in self.test_results if r["success"]])
+        failed_tests = total_tests - passed_tests
+        
+        print(f"Total Tests: {total_tests}")
+        print(f"Passed: {passed_tests}")
+        print(f"Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        print()
+        
+        # Show failed tests
+        if failed_tests > 0:
+            print("FAILED TESTS:")
+            for result in self.test_results:
+                if not result["success"]:
+                    print(f"❌ {result['test']}: {result['message']}")
+            print()
+        
+        # Key findings
+        print("KEY FINDINGS:")
+        
+        # Check if Twilio is properly integrated
+        twilio_config_test = next((r for r in self.test_results if r["test"] == "Twilio Service Configuration"), None)
+        sms_delivery_test = next((r for r in self.test_results if r["test"] == "SMS Delivery Verification"), None)
+        
+        if twilio_config_test and twilio_config_test["success"]:
+            print("✅ Twilio service is properly configured")
+        else:
+            print("❌ Twilio service configuration issues detected")
+        
+        if sms_delivery_test and sms_delivery_test["success"]:
+            print("✅ Twilio SMS integration is working in labour payment OTP flow")
+        else:
+            print("❌ Labour payment OTP flow is using MOCK implementation, not Twilio SMS")
+        
+        print()
+
 
 if __name__ == "__main__":
-    main()
+    test_suite = TwilioSMSTestSuite()
+    test_suite.run_all_tests()
