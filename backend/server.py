@@ -149,6 +149,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Log Twilio service status at startup
+logger.info(f"Twilio SMS Service - Configured: {twilio_sms_service.is_configured()}, Client: {twilio_sms_service.client is not None}")
+
 # Helper functions
 def serialize_doc(doc):
     """Convert MongoDB document to JSON serializable format"""
