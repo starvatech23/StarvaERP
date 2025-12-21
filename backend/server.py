@@ -2988,6 +2988,7 @@ async def send_payment_otp(
     """Send OTP to worker for payment verification"""
     import random
     import hashlib
+    from twilio_service import twilio_sms_service
     
     current_user = await get_current_user(credentials)
     
@@ -3030,13 +3031,44 @@ async def send_payment_otp(
         }}
     )
     
-    # In production, send SMS here. For now, return OTP in response (mock)
-    return {
+    # Send SMS via Twilio
+    worker_name = worker.get("full_name", worker.get("name", "Worker"))
+    amount = payment.get("amount", 0)
+    
+    sms_result = twilio_sms_service.send_payment_otp(
+        worker["phone"], 
+        otp_code, 
+        worker_name, 
+        amount
+    )
+    
+    # Prepare response based on SMS result
+    response = {
         "success": True,
         "message": f"OTP sent to {worker['phone'][-4:].rjust(10, '*')}",
         "expires_in_minutes": 10,
-        "otp_for_testing": otp_code  # Remove in production
+        "worker_phone": worker['phone'][-4:].rjust(10, '*')
     }
+    
+    if sms_result.get("success"):
+        # Twilio SMS sent successfully
+        response.update({
+            "sms_provider": "Twilio",
+            "message_sid": sms_result.get("message_sid"),
+            "status": sms_result.get("status"),
+            "to": sms_result.get("to")
+        })
+        logger.info(f"Payment OTP sent via Twilio to {worker['phone']} for payment {payment_id}")
+    else:
+        # Twilio failed, include error details but still return success for OTP generation
+        response.update({
+            "sms_provider": "Failed - Mock",
+            "twilio_error": sms_result.get("error"),
+            "otp_for_testing": otp_code  # Include OTP for testing when SMS fails
+        })
+        logger.warning(f"Twilio SMS failed for payment {payment_id}: {sms_result.get('error')}")
+    
+    return response
 
 @api_router.post("/labour/payments/{payment_id}/verify-otp")
 async def verify_payment_otp(
