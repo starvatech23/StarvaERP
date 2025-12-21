@@ -105,7 +105,7 @@ from models import (
 from auth import (
     get_password_hash, verify_password, create_access_token,
     get_current_user, require_role, security,
-    generate_otp, send_otp_mock, verify_otp_mock
+    generate_otp, send_otp, verify_otp
 )
 from data_export_import import (
     generate_csv_template, export_data_to_csv, parse_csv_import,
