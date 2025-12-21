@@ -916,6 +916,7 @@ export default function LaborScreen() {
       {/* Content */}
       <ScrollView
         style={styles.content}
+        contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
