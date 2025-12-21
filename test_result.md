@@ -1353,6 +1353,18 @@ agent_communication:
         agent: "main"
         comment: "Implemented POST /api/purchase-order-requests/{request_id}/send-to-vendors endpoint. Features: (1) Accept array of vendor_ids, (2) Toggle for Email and WhatsApp sending methods, (3) Custom message support, (4) Sends to multiple vendors in a loop, (5) Logs sent notifications, (6) Updates PO with sent_to_vendors history, (7) Sends notification to requester. Frontend multi-vendor modal implemented with checkboxes and method toggles. Needs backend testing to verify."
 
+  - task: "Twilio SMS OTP Integration"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/twilio_service.py, /app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Twilio SMS service integrated. Created twilio_service.py with TwilioSMSService class. Credentials configured in .env (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER). Service includes: send_sms(), send_otp(), send_payment_otp(), and send_payment_confirmation() functions. Phone number formatting for E.164 format (India +91). Need to test actual SMS delivery via labour payment OTP flow."
+
 test_plan:
   current_focus:
     - "Multi-Vendor PO Sending APIs"
