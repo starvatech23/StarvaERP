@@ -166,6 +166,56 @@ export default function PORequestDetailScreen() {
     }
   };
 
+  // NEW: Share to Vendor Flow - Step 1: Preview PDF
+  const handleShareToVendorStart = async () => {
+    setShowPdfOptionsModal(false);
+    setSharingStep('preview');
+    setSelectedShareMethod(null);
+    setShowShareToVendorModal(true);
+  };
+
+  // NEW: Share to Vendor Flow - Step 2: Share via WhatsApp/Email
+  const handleShareToVendorSend = async () => {
+    if (!selectedShareMethod) {
+      showError('Select Method', 'Please select WhatsApp or Email to share');
+      return;
+    }
+
+    setSharingToVendor(true);
+    try {
+      const response = await poRequestAPI.sendToVendors(id as string, {
+        vendor_ids: [poRequest.vendor_id],
+        send_email: selectedShareMethod === 'email',
+        send_whatsapp: selectedShareMethod === 'whatsapp',
+        message: '',
+      });
+
+      const sentCount = response.data.sent?.length || 0;
+      const failedCount = response.data.failed?.length || 0;
+
+      setShowShareToVendorModal(false);
+      
+      if (failedCount > 0 && sentCount === 0) {
+        showError('Send Failed', 'Failed to send PO to vendor. Please check vendor contact details.');
+      } else if (failedCount > 0) {
+        showError('Partial Success', `Sent via ${selectedShareMethod}, but some issues occurred.`);
+        loadPORequest();
+      } else {
+        showSuccess(
+          'PO Sent Successfully!',
+          `Purchase order has been sent to ${poRequest.vendor_name} via ${selectedShareMethod === 'whatsapp' ? 'WhatsApp' : 'Email'}.`,
+          true
+        );
+        loadPORequest();
+      }
+    } catch (error: any) {
+      console.error('Error sending PO:', error);
+      showError('Send Failed', error.response?.data?.detail || 'Failed to send PO to vendor');
+    } finally {
+      setSharingToVendor(false);
+    }
+  };
+
   const loadVendors = async () => {
     try {
       setLoadingVendors(true);
