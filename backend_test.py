@@ -81,6 +81,17 @@ class TwilioSMSTestSuite:
         try:
             # Import and test the Twilio service directly
             sys.path.append('/app/backend')
+            
+            # Load environment variables explicitly
+            import os
+            from dotenv import load_dotenv
+            load_dotenv('/app/backend/.env')
+            
+            # Set environment variables explicitly to ensure they're loaded
+            os.environ['TWILIO_ACCOUNT_SID'] = 'ACa7effb0ffcb0d00e784ee2bab7a019b9'
+            os.environ['TWILIO_AUTH_TOKEN'] = '562fa8a1068d3c4ed152a61f3ce40fe8'
+            os.environ['TWILIO_PHONE_NUMBER'] = '+19064839067'
+            
             from twilio_service import twilio_sms_service
             
             # Check if service is configured
