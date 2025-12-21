@@ -7,6 +7,10 @@ import logging
 from typing import Optional, Dict, Any
 from twilio.rest import Client
 from twilio.base.exceptions import TwilioRestException
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
