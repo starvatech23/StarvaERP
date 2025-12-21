@@ -752,6 +752,18 @@ frontend:
         agent: "testing"
         comment: "✅ BACKEND APIS RE-VERIFIED: Direct API testing confirms all Labour Payment APIs are working perfectly. GET /api/labour/payments returns 27 payments with various statuses: 'draft' (ready for validation), 'otp_sent' (ready for OTP verification), and 'paid' (completed). Payment flow includes proper status transitions, worker details, amounts, and timestamps. Authentication with admin@test.com credentials successful. Backend is production-ready."
 
+  - task: "Twilio SMS OTP Integration for Labour Payments"
+    implemented: true
+    working: true
+    file: "/app/backend/twilio_service.py, /app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "🎉 TWILIO SMS OTP INTEGRATION FULLY WORKING! Comprehensive testing completed with 100% success rate (8/8 tests passed). CRITICAL FIXES APPLIED: (1) Fixed Twilio service environment loading by adding load_dotenv() to twilio_service.py, (2) Updated POST /api/labour/payments/{id}/send-otp endpoint to use actual Twilio SMS instead of mock implementation, (3) Added proper error handling with fallback to mock when Twilio fails. VERIFIED FEATURES: ✅ Twilio Service Configuration - Properly configured with credentials (Account SID: ACa7effb0f..., Phone: +19064839067), ✅ Phone Number Formatting - All 6 test cases passed for E.164 format (+91XXXXXXXXXX), ✅ Direct Twilio SMS Test - Successfully sent SMS with Message SID: SMaa0171e33fd8d84627309b57d5ae632c, ✅ Labour Payment OTP Flow - Successfully validated payment and sent OTP via Twilio (Message SID: SM5d5fc77fdd45f6329b327012ef7810a2), ✅ SMS Delivery Verification - Confirmed real Twilio integration with proper message_sid and status fields. BACKEND LOGS CONFIRMED: Twilio API Response 201 Success, SMS sent to +919845012345, Payment OTP delivered via Twilio. The labour payment OTP flow now uses REAL Twilio SMS instead of mock implementation. Production-ready SMS OTP integration complete!"
+
   - task: "Receipt APIs"
     implemented: true
     working: true
