@@ -373,7 +373,7 @@ export const shareViaWhatsApp = async (po: PORequest, phoneNumber?: string): Pro
   }
 };
 
-// General share function
+// General share function - for sharing PDF to other apps
 export const sharePOPdf = async (po: PORequest): Promise<{ success: boolean; error?: string }> => {
   console.log('[PDF] sharePOPdf - General Share');
   try {
@@ -388,20 +388,33 @@ export const sharePOPdf = async (po: PORequest): Promise<{ success: boolean; err
       return { success: false, error: 'Could not open window' };
     }
 
+    // Mobile: Generate PDF and share
+    console.log('[PDF] Generating PDF for sharing...');
     const pdfUri = await generatePdfFile(po);
     if (!pdfUri) {
+      console.log('[PDF] Failed to generate PDF');
       return { success: false, error: 'Failed to generate PDF' };
     }
+    console.log('[PDF] PDF generated at:', pdfUri);
 
     const isAvailable = await Sharing.isAvailableAsync();
+    console.log('[PDF] Sharing available:', isAvailable);
+    
     if (!isAvailable) {
-      return { success: false, error: 'Sharing not available' };
+      // Fallback to print dialog if sharing is not available
+      console.log('[PDF] Sharing not available, using print dialog...');
+      const html = generatePOHtml(po);
+      await Print.printAsync({ html });
+      return { success: true };
     }
 
+    console.log('[PDF] Opening share dialog...');
     await Sharing.shareAsync(pdfUri, {
       mimeType: 'application/pdf',
       UTI: 'com.adobe.pdf',
+      dialogTitle: 'Share Purchase Order',
     });
+    console.log('[PDF] Share dialog completed');
 
     return { success: true };
   } catch (error: any) {
