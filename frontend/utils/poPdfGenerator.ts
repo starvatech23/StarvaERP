@@ -1,9 +1,9 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import { Platform, Linking } from 'react-native';
+import { Platform, Linking, Alert } from 'react-native';
 
-console.log('[PDF Generator] Version 4 loaded - Share/Save focused');
+console.log('[PDF Generator] Version 5 loaded - Mobile Fix with Print fallback');
 
 interface POItem {
   item_name?: string;
