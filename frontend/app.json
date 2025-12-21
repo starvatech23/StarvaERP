@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "StarVacon",
-    "slug": "starvacon",
+    "name": "SiteOps",
+    "slug": "siteops",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "starvacon",
+    "scheme": "siteops",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.starvacon.app"
+      "bundleIdentifier": "com.starva.siteops"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,15 +18,15 @@
         "backgroundColor": "#F97316"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.starvacon.app"
+      "package": "com.starva.siteops"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png",
-      "name": "StarVacon Project Management",
-      "shortName": "StarVacon",
-      "description": "Construction Project Management System",
+      "name": "SiteOps - Site Management",
+      "shortName": "SiteOps",
+      "description": "India's Complete Site Management Application by Starva",
       "backgroundColor": "#FFFFFF",
       "themeColor": "#F97316"
     },
