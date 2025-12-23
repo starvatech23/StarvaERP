@@ -404,13 +404,12 @@ async def send_otp_endpoint(request: OTPRequest):
             "provider": result.get("provider", "unknown"),
             "expires_in_minutes": 10
         }
-        # Include OTP for testing if mock mode or Twilio failed
-        if result.get("otp_for_testing"):
-            response["otp_for_testing"] = result["otp_for_testing"]
+        # Include message_sid for tracking (production)
         if result.get("message_sid"):
             response["message_sid"] = result["message_sid"]
+        # Log but don't expose Twilio errors to client in production
         if result.get("twilio_error"):
-            response["twilio_error"] = result["twilio_error"]
+            logger.warning(f"OTP sent with Twilio warning: {result.get('twilio_error')}")
         return response
     else:
         raise HTTPException(status_code=500, detail=result.get("error", "Failed to send OTP"))
