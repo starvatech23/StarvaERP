@@ -118,6 +118,9 @@ load_dotenv(ROOT_DIR / '.env')
 # Import Twilio SMS Service after loading environment
 from twilio_service import twilio_sms_service
 
+# Secret key for JWT - use environment variable or generate secure default
+SECRET_KEY = os.environ.get('SECRET_KEY', 'siteops-production-secret-key-change-in-production-2025')
+
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
@@ -128,7 +131,11 @@ async def get_database():
     return db
 
 # Create the main app
-app = FastAPI(title="Construction Management API")
+app = FastAPI(
+    title="SiteOps API",
+    description="India's Complete Site Management Application API",
+    version="1.0.0"
+)
 
 # Create Socket.IO server
 sio = socketio.AsyncServer(
@@ -151,6 +158,31 @@ logger = logging.getLogger(__name__)
 
 # Log Twilio service status at startup
 logger.info(f"Twilio SMS Service - Configured: {twilio_sms_service.is_configured()}, Client: {twilio_sms_service.client is not None}")
+
+# ============= Health Check Endpoint =============
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment monitoring"""
+    try:
+        # Check MongoDB connection
+        await db.command('ping')
+        db_status = "healthy"
+    except Exception as e:
+        db_status = f"unhealthy: {str(e)}"
+    
+    return {
+        "status": "healthy",
+        "app": "SiteOps",
+        "version": "1.0.0",
+        "database": db_status,
+        "twilio_configured": twilio_sms_service.is_configured(),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+@api_router.get("/health")
+async def api_health_check():
+    """API health check endpoint"""
+    return await health_check()
 
 # Helper functions
 def serialize_doc(doc):
