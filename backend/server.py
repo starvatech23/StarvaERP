@@ -3097,11 +3097,12 @@ async def send_payment_otp(
         })
         logger.info(f"Payment OTP sent via Twilio to {worker['phone']} for payment {payment_id}")
     else:
-        # Twilio failed, include error details but still return success for OTP generation
+        # Twilio failed - log error but don't expose OTP in production
         response.update({
-            "sms_provider": "Failed - Mock",
+            "sms_provider": "Failed",
             "twilio_error": sms_result.get("error"),
-            "otp_for_testing": otp_code  # Include OTP for testing when SMS fails
+            # Note: OTP is NOT returned in production for security
+            # User should check SMS or retry
         })
         logger.warning(f"Twilio SMS failed for payment {payment_id}: {sms_result.get('error')}")
     
