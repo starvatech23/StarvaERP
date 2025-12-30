@@ -21,6 +21,7 @@ import { userManagementAPI, rolesAPI, teamsAPI } from '../../../services/api';
 
 export default function AddUserScreen() {
   const router = useRouter();
+  const { modalState, showSuccess, showError, hideModal } = useActivityModal();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [fullName, setFullName] = useState('');
