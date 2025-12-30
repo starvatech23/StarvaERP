@@ -70,18 +70,47 @@ class EstimateEngineV2Tester:
     def create_test_lead(self) -> Optional[str]:
         """Create a test lead for estimate testing"""
         try:
+            # First create a lead category if it doesn't exist
+            category_data = {
+                "name": "Residential Construction",
+                "description": "Residential construction projects",
+                "is_active": True
+            }
+            
+            category_response = self.session.post(f"{API_BASE}/crm/categories", json=category_data)
+            category_id = None
+            
+            if category_response.status_code == 201:
+                category_id = category_response.json()["id"]
+                print(f"✅ Test category created: {category_id}")
+            else:
+                # Try to get existing categories
+                categories_response = self.session.get(f"{API_BASE}/crm/categories")
+                if categories_response.status_code == 200:
+                    categories = categories_response.json()
+                    if categories:
+                        category_id = categories[0]["id"]
+                        print(f"✅ Using existing category: {category_id}")
+                
+            if not category_id:
+                print("❌ Could not create or find a category")
+                return None
+            
             lead_data = {
                 "name": "Test Construction Client",
-                "phone": "+919876543210",
+                "primary_phone": "+919876543210",
                 "email": "testclient@example.com",
-                "source": "direct",
+                "source": "website",
                 "priority": "high",
                 "status": "new",
+                "category_id": category_id,
                 "project_type": "residential_individual",
                 "budget_min": 2000000,
                 "budget_max": 3000000,
                 "location": "Bangalore, Karnataka",
-                "notes": "Test lead for Estimate Engine v2.0 testing"
+                "notes": "Test lead for Estimate Engine v2.0 testing",
+                "whatsapp_consent": False,
+                "send_whatsapp": False
             }
             
             response = self.session.post(f"{API_BASE}/crm/leads", json=lead_data)
