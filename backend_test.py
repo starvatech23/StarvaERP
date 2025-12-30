@@ -181,7 +181,7 @@ class EstimateEngineV2Tester:
                 calc_inputs = data["calculation_inputs"]
                 
                 # Verify calculation inputs have expected fields
-                expected_inputs = ["foundation_area", "total_built_up_area", "wall_areas"]
+                expected_inputs = ["foundation_area", "built_up_area_sqft", "num_floors"]
                 found_inputs = [field for field in expected_inputs if field in calc_inputs]
                 
                 if len(found_inputs) < 2:  # At least 2 expected inputs
