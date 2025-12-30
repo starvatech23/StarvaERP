@@ -81,6 +81,22 @@ class ModuleName(str, Enum):
     VENDORS = "vendors"
     REPORTS = "reports"
     USERS = "users"
+    CRM = "crm"
+    LEADS = "leads"
+    FINANCE = "finance"
+    BUDGET = "budget"
+    EXPENSES = "expenses"
+    INVOICES = "invoices"
+    PAYMENTS = "payments"
+    TEAMS = "teams"
+    ROLES = "roles"
+    SETTINGS = "settings"
+    DASHBOARD = "dashboard"
+    MILESTONES = "milestones"
+    DOCUMENTS = "documents"
+    INVENTORY = "inventory"
+    ATTENDANCE = "attendance"
+    ESTIMATES = "estimates"
 
 # ============= Role Models =============
 class RoleBase(BaseModel):
