@@ -16,7 +16,7 @@ import {
 import Colors from '../../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Picker } from '@react-native-picker/picker';
+import AdaptiveDropdown from '../../../../components/AdaptiveDropdown';
 import { userManagementAPI, rolesAPI, teamsAPI } from '../../../../services/api';
 
 export default function EditUserScreen() {
