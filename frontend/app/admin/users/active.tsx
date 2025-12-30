@@ -183,6 +183,15 @@ export default function ActiveUsersScreen() {
                       </Text>
                     </View>
                   </View>
+
+                  {/* Edit Button */}
+                  <TouchableOpacity
+                    style={styles.editButton}
+                    onPress={() => router.push(`/admin/users/edit/${user.id}`)}
+                  >
+                    <Ionicons name="create-outline" size={16} color={Colors.primary} />
+                    <Text style={styles.editButtonText}>Edit User</Text>
+                  </TouchableOpacity>
                 </View>
               );
             })}
