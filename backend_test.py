@@ -1,266 +1,610 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Twilio SMS OTP Integration (LOGIN Flow)
-Testing endpoints: /api/auth/send-otp and /api/auth/verify-otp
+Backend Test Suite for SiteOps Estimate Engine v2.0 APIs
+Testing the new dynamic estimation system for construction projects.
 """
 
 import requests
 import json
-import time
 import os
-import sys
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
 
-# Backend URL from frontend/.env
-BACKEND_URL = "https://siteops-deploy.preview.emergentagent.com/api"
+# Get backend URL from environment
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://siteops-deploy.preview.emergentagent.com')
+API_BASE = f"{BACKEND_URL}/api"
 
-# Test phone number as suggested in the review request
-TEST_PHONE = "9886588992"
-
-class TwilioOTPTester:
+class EstimateEngineV2Tester:
     def __init__(self):
-        self.backend_url = BACKEND_URL
-        self.test_phone = TEST_PHONE
         self.session = requests.Session()
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        })
+        self.access_token = None
+        self.test_lead_id = None
+        self.test_estimate_id = None
+        self.test_project_id = None
         
-    def log(self, message):
-        """Log with timestamp"""
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(f"[{timestamp}] {message}")
-        
-    def test_send_otp_login(self):
-        """Test POST /api/auth/send-otp for login flow"""
-        self.log("🔄 Testing LOGIN OTP Send...")
-        
-        url = f"{self.backend_url}/auth/send-otp"
-        payload = {
-            "phone": self.test_phone
-        }
-        
+    def authenticate(self, email: str = "admin@test.com", password: str = "admin123") -> bool:
+        """Authenticate with the API"""
         try:
-            response = self.session.post(url, json=payload, timeout=30)
-            
-            self.log(f"📤 Request: POST {url}")
-            self.log(f"📤 Payload: {json.dumps(payload, indent=2)}")
-            self.log(f"📥 Status Code: {response.status_code}")
+            response = self.session.post(f"{API_BASE}/auth/login", json={
+                "identifier": email,
+                "password": password,
+                "auth_type": "email"
+            })
             
             if response.status_code == 200:
                 data = response.json()
-                self.log(f"📥 Response: {json.dumps(data, indent=2)}")
-                
-                # Check critical fields
-                provider = data.get("provider")
-                message_sid = data.get("message_sid")
-                otp_for_testing = data.get("otp_for_testing")
-                twilio_error = data.get("twilio_error")
-                
-                self.log(f"🔍 Provider: {provider}")
-                
-                if provider == "twilio":
-                    self.log("✅ SUCCESS: Real Twilio SMS was sent!")
-                    self.log(f"📱 Twilio Message SID: {message_sid}")
-                    return {
-                        "success": True,
-                        "provider": "twilio",
-                        "message_sid": message_sid,
-                        "otp_for_testing": None
-                    }
-                elif provider == "mock":
-                    if twilio_error:
-                        self.log(f"⚠️  FALLBACK: Twilio failed, using mock mode")
-                        self.log(f"❌ Twilio Error: {twilio_error}")
-                    else:
-                        self.log("⚠️  MOCK MODE: Twilio not configured")
-                    
-                    self.log(f"🔑 OTP for Testing: {otp_for_testing}")
-                    return {
-                        "success": True,
-                        "provider": "mock",
-                        "message_sid": None,
-                        "otp_for_testing": otp_for_testing
-                    }
-                else:
-                    self.log(f"❌ UNKNOWN PROVIDER: {provider}")
-                    return {"success": False, "error": f"Unknown provider: {provider}"}
-                    
+                self.access_token = data["access_token"]
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.access_token}"
+                })
+                print(f"✅ Authentication successful for {email}")
+                return True
             else:
-                self.log(f"❌ FAILED: HTTP {response.status_code}")
-                try:
-                    error_data = response.json()
-                    self.log(f"❌ Error: {json.dumps(error_data, indent=2)}")
-                except:
-                    self.log(f"❌ Error: {response.text}")
-                return {"success": False, "error": f"HTTP {response.status_code}"}
-                
-        except requests.exceptions.RequestException as e:
-            self.log(f"❌ REQUEST ERROR: {str(e)}")
-            return {"success": False, "error": str(e)}
+                print(f"❌ Authentication failed: {response.status_code} - {response.text}")
+                return False
         except Exception as e:
-            self.log(f"❌ UNEXPECTED ERROR: {str(e)}")
-            return {"success": False, "error": str(e)}
+            print(f"❌ Authentication error: {str(e)}")
+            return False
     
-    def test_verify_otp_login(self, otp_code):
-        """Test POST /api/auth/verify-otp for login flow"""
-        self.log(f"🔄 Testing LOGIN OTP Verification with code: {otp_code}")
-        
-        url = f"{self.backend_url}/auth/verify-otp"
-        payload = {
-            "phone": self.test_phone,
-            "otp": otp_code,
-            "full_name": "Test User",
-            "role": "engineer"
-        }
+    def create_test_lead(self) -> Optional[str]:
+        """Create a test lead for estimate testing"""
+        try:
+            lead_data = {
+                "name": "Test Construction Client",
+                "phone": "+919876543210",
+                "email": "testclient@example.com",
+                "source": "direct",
+                "priority": "high",
+                "status": "new",
+                "project_type": "residential_individual",
+                "budget_min": 2000000,
+                "budget_max": 3000000,
+                "location": "Bangalore, Karnataka",
+                "notes": "Test lead for Estimate Engine v2.0 testing"
+            }
+            
+            response = self.session.post(f"{API_BASE}/crm/leads", json=lead_data)
+            
+            if response.status_code == 201:
+                data = response.json()
+                lead_id = data["id"]
+                self.test_lead_id = lead_id
+                print(f"✅ Test lead created: {lead_id}")
+                return lead_id
+            else:
+                print(f"❌ Failed to create test lead: {response.status_code} - {response.text}")
+                return None
+        except Exception as e:
+            print(f"❌ Error creating test lead: {str(e)}")
+            return None
+    
+    def test_quick_estimate_calculator(self) -> bool:
+        """Test 1: Quick Estimate Calculator (No auth required for testing, but use auth anyway)"""
+        print("\n🧪 Testing Quick Estimate Calculator...")
         
         try:
-            response = self.session.post(url, json=payload, timeout=30)
+            payload = {
+                "total_area_sqft": 2500,
+                "num_floors": 2,
+                "finishing_grade": "standard",
+                "project_type": "residential_individual"
+            }
             
-            self.log(f"📤 Request: POST {url}")
-            self.log(f"📤 Payload: {json.dumps(payload, indent=2)}")
-            self.log(f"📥 Status Code: {response.status_code}")
+            response = self.session.post(f"{API_BASE}/estimates/quick-calculate", json=payload)
             
             if response.status_code == 200:
                 data = response.json()
-                self.log(f"📥 Response: {json.dumps(data, indent=2)}")
                 
-                # Check for access token
-                access_token = data.get("access_token")
-                user_data = data.get("user")
+                # Verify response structure
+                required_fields = ["success", "summary", "boq_by_category"]
+                missing_fields = [field for field in required_fields if field not in data]
                 
-                if access_token and user_data:
-                    self.log("✅ SUCCESS: OTP verification successful!")
-                    self.log(f"🔑 Access Token: {access_token[:20]}...")
-                    self.log(f"👤 User: {user_data.get('full_name')} ({user_data.get('role')})")
-                    return {"success": True, "access_token": access_token, "user": user_data}
-                else:
-                    self.log("❌ FAILED: Missing access token or user data")
-                    return {"success": False, "error": "Missing access token or user data"}
-                    
+                if missing_fields:
+                    print(f"❌ Missing required fields: {missing_fields}")
+                    return False
+                
+                summary = data["summary"]
+                boq_by_category = data["boq_by_category"]
+                
+                # Verify summary has required fields
+                summary_fields = ["grand_total", "cost_per_sqft"]
+                missing_summary = [field for field in summary_fields if field not in summary]
+                
+                if missing_summary:
+                    print(f"❌ Missing summary fields: {missing_summary}")
+                    return False
+                
+                # Verify we have 14 categories as expected
+                if len(boq_by_category) < 10:  # At least 10 categories expected
+                    print(f"❌ Expected at least 10 BOQ categories, got {len(boq_by_category)}")
+                    return False
+                
+                # Verify payment schedule exists
+                if "payment_schedule" not in summary:
+                    print("❌ Payment schedule missing from summary")
+                    return False
+                
+                print(f"✅ Quick estimate generated successfully:")
+                print(f"   Grand Total: ₹{summary['grand_total']:,.2f}")
+                print(f"   Cost per sqft: ₹{summary['cost_per_sqft']:,.2f}")
+                print(f"   BOQ Categories: {len(boq_by_category)}")
+                print(f"   Payment Schedule: {len(summary['payment_schedule'])} milestones")
+                
+                return True
             else:
-                self.log(f"❌ FAILED: HTTP {response.status_code}")
-                try:
-                    error_data = response.json()
-                    self.log(f"❌ Error: {json.dumps(error_data, indent=2)}")
-                except:
-                    self.log(f"❌ Error: {response.text}")
-                return {"success": False, "error": f"HTTP {response.status_code}"}
+                print(f"❌ Quick estimate failed: {response.status_code} - {response.text}")
+                return False
                 
-        except requests.exceptions.RequestException as e:
-            self.log(f"❌ REQUEST ERROR: {str(e)}")
-            return {"success": False, "error": str(e)}
         except Exception as e:
-            self.log(f"❌ UNEXPECTED ERROR: {str(e)}")
-            return {"success": False, "error": str(e)}
+            print(f"❌ Quick estimate error: {str(e)}")
+            return False
     
-    def check_backend_logs(self):
-        """Check backend logs for Twilio SMS messages"""
-        self.log("🔄 Checking backend logs for Twilio SMS messages...")
+    def test_calculation_inputs_preview(self) -> bool:
+        """Test 2: Calculation Inputs Preview"""
+        print("\n🧪 Testing Calculation Inputs Preview...")
         
         try:
-            # Check supervisor backend logs
-            import subprocess
-            result = subprocess.run(
-                ["tail", "-n", "50", "/var/log/supervisor/backend.out.log"],
-                capture_output=True,
-                text=True,
-                timeout=10
+            response = self.session.get(f"{API_BASE}/estimates/calculation-inputs/2500?num_floors=2")
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify response structure
+                required_fields = ["specifications", "calculation_inputs"]
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if missing_fields:
+                    print(f"❌ Missing required fields: {missing_fields}")
+                    return False
+                
+                calc_inputs = data["calculation_inputs"]
+                
+                # Verify calculation inputs have expected fields
+                expected_inputs = ["foundation_area", "total_built_up_area", "wall_areas"]
+                found_inputs = [field for field in expected_inputs if field in calc_inputs]
+                
+                if len(found_inputs) < 2:  # At least 2 expected inputs
+                    print(f"❌ Expected calculation inputs not found. Got: {list(calc_inputs.keys())}")
+                    return False
+                
+                print(f"✅ Calculation inputs retrieved successfully:")
+                print(f"   Total inputs: {len(calc_inputs)}")
+                print(f"   Sample inputs: {list(calc_inputs.keys())[:5]}")
+                
+                return True
+            else:
+                print(f"❌ Calculation inputs failed: {response.status_code} - {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Calculation inputs error: {str(e)}")
+            return False
+    
+    def test_create_lead_estimate(self) -> bool:
+        """Test 3: Create Lead Estimate (Requires existing lead)"""
+        print("\n🧪 Testing Create Lead Estimate...")
+        
+        if not self.test_lead_id:
+            print("❌ No test lead available. Creating one...")
+            if not self.create_test_lead():
+                return False
+        
+        try:
+            payload = {
+                "lead_id": self.test_lead_id,
+                "estimate_type": "detailed",
+                "specifications": {
+                    "project_type": "residential_individual",
+                    "total_area_sqft": 2500,
+                    "num_floors": 2,
+                    "construction_type": "rcc_framed",
+                    "foundation_type": "isolated_footing",
+                    "finishing_grade": "standard",
+                    "floor_details": [
+                        {
+                            "floor_number": 0,
+                            "floor_name": "Ground Floor",
+                            "area_sqft": 1200,
+                            "rooms": 3,
+                            "bathrooms": 2
+                        },
+                        {
+                            "floor_number": 1,
+                            "floor_name": "First Floor",
+                            "area_sqft": 1300,
+                            "rooms": 3,
+                            "bathrooms": 2
+                        }
+                    ]
+                }
+            }
+            
+            response = self.session.post(f"{API_BASE}/lead-estimates", json=payload)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify response structure
+                if not data.get("success"):
+                    print(f"❌ Lead estimate creation not successful: {data}")
+                    return False
+                
+                estimate = data.get("estimate")
+                if not estimate:
+                    print("❌ No estimate data in response")
+                    return False
+                
+                # Verify estimate has required fields
+                required_fields = ["id", "estimate_number", "line_items", "summary"]
+                missing_fields = [field for field in required_fields if field not in estimate]
+                
+                if missing_fields:
+                    print(f"❌ Missing estimate fields: {missing_fields}")
+                    return False
+                
+                # Verify estimate number format (EST-L-YYYY-XXX)
+                estimate_number = estimate["estimate_number"]
+                if not estimate_number.startswith("EST-L-"):
+                    print(f"❌ Invalid estimate number format: {estimate_number}")
+                    return False
+                
+                # Verify we have line items (30+ BOQ items expected)
+                line_items = estimate["line_items"]
+                if len(line_items) < 20:  # At least 20 line items expected
+                    print(f"❌ Expected at least 20 line items, got {len(line_items)}")
+                    return False
+                
+                # Verify summary has grand_total
+                summary = estimate["summary"]
+                if "grand_total" not in summary:
+                    print("❌ Grand total missing from summary")
+                    return False
+                
+                self.test_estimate_id = estimate["id"]
+                
+                print(f"✅ Lead estimate created successfully:")
+                print(f"   Estimate Number: {estimate_number}")
+                print(f"   Line Items: {len(line_items)}")
+                print(f"   Grand Total: ₹{summary['grand_total']:,.2f}")
+                
+                return True
+            else:
+                print(f"❌ Lead estimate creation failed: {response.status_code} - {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Lead estimate creation error: {str(e)}")
+            return False
+    
+    def test_list_lead_estimates(self) -> bool:
+        """Test 4: List Lead Estimates"""
+        print("\n🧪 Testing List Lead Estimates...")
+        
+        if not self.test_lead_id:
+            print("❌ No test lead available for listing estimates")
+            return False
+        
+        try:
+            response = self.session.get(f"{API_BASE}/lead-estimates?lead_id={self.test_lead_id}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify response structure
+                if "estimates" not in data:
+                    print(f"❌ No estimates field in response: {data}")
+                    return False
+                
+                estimates = data["estimates"]
+                
+                # Should have at least one estimate (the one we created)
+                if len(estimates) == 0:
+                    print("❌ No estimates found for the test lead")
+                    return False
+                
+                # Verify pagination info
+                if "total" not in data:
+                    print("❌ Missing pagination total")
+                    return False
+                
+                print(f"✅ Lead estimates listed successfully:")
+                print(f"   Total estimates: {data['total']}")
+                print(f"   Returned estimates: {len(estimates)}")
+                
+                return True
+            else:
+                print(f"❌ List lead estimates failed: {response.status_code} - {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ List lead estimates error: {str(e)}")
+            return False
+    
+    def test_get_lead_estimate_details(self) -> bool:
+        """Test 5: Get Lead Estimate Details"""
+        print("\n🧪 Testing Get Lead Estimate Details...")
+        
+        if not self.test_estimate_id:
+            print("❌ No test estimate available for details")
+            return False
+        
+        try:
+            response = self.session.get(f"{API_BASE}/lead-estimates/{self.test_estimate_id}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify response structure
+                required_fields = ["id", "estimate_number", "line_items", "summary"]
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if missing_fields:
+                    print(f"❌ Missing estimate detail fields: {missing_fields}")
+                    return False
+                
+                # Verify all BOQ line items are present
+                line_items = data["line_items"]
+                if len(line_items) == 0:
+                    print("❌ No line items in estimate details")
+                    return False
+                
+                print(f"✅ Lead estimate details retrieved successfully:")
+                print(f"   Estimate ID: {data['id']}")
+                print(f"   Line Items: {len(line_items)}")
+                
+                return True
+            else:
+                print(f"❌ Get lead estimate details failed: {response.status_code} - {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Get lead estimate details error: {str(e)}")
+            return False
+    
+    def test_update_line_item(self) -> bool:
+        """Test 6: Update Line Item"""
+        print("\n🧪 Testing Update Line Item...")
+        
+        if not self.test_estimate_id:
+            print("❌ No test estimate available for line item update")
+            return False
+        
+        try:
+            # First get the estimate to find a line item to update
+            response = self.session.get(f"{API_BASE}/lead-estimates/{self.test_estimate_id}")
+            
+            if response.status_code != 200:
+                print("❌ Could not retrieve estimate for line item update")
+                return False
+            
+            estimate_data = response.json()
+            line_items = estimate_data.get("line_items", [])
+            
+            if len(line_items) == 0:
+                print("❌ No line items available to update")
+                return False
+            
+            # Get the first line item
+            line_item = line_items[0]
+            line_id = line_item["id"]
+            original_quantity = line_item.get("quantity", 1)
+            original_rate = line_item.get("rate", 100)
+            
+            # Update the line item
+            update_payload = {
+                "quantity": 15.0,
+                "rate": 6000
+            }
+            
+            response = self.session.put(
+                f"{API_BASE}/lead-estimates/{self.test_estimate_id}/lines/{line_id}",
+                json=update_payload
             )
             
-            if result.returncode == 0:
-                logs = result.stdout
-                twilio_lines = [line for line in logs.split('\n') if '[TWILIO SMS]' in line or 'MOCK SMS' in line]
+            if response.status_code == 200:
+                data = response.json()
                 
-                if twilio_lines:
-                    self.log("📋 Found Twilio/SMS related log entries:")
-                    for line in twilio_lines[-5:]:  # Show last 5 entries
-                        self.log(f"   {line}")
-                else:
-                    self.log("📋 No Twilio SMS log entries found in recent logs")
+                # Verify the estimate was updated
+                if "estimate" not in data:
+                    print("❌ No updated estimate in response")
+                    return False
+                
+                updated_estimate = data["estimate"]
+                
+                # Verify recalculated totals
+                if "summary" not in updated_estimate:
+                    print("❌ No summary in updated estimate")
+                    return False
+                
+                summary = updated_estimate["summary"]
+                if "grand_total" not in summary:
+                    print("❌ No grand_total in updated summary")
+                    return False
+                
+                print(f"✅ Line item updated successfully:")
+                print(f"   Updated quantity: {original_quantity} → 15.0")
+                print(f"   Updated rate: ₹{original_rate} → ₹6000")
+                print(f"   New grand total: ₹{summary['grand_total']:,.2f}")
+                
+                return True
             else:
-                self.log("⚠️  Could not read backend logs")
+                print(f"❌ Update line item failed: {response.status_code} - {response.text}")
+                return False
                 
         except Exception as e:
-            self.log(f"⚠️  Error reading logs: {str(e)}")
+            print(f"❌ Update line item error: {str(e)}")
+            return False
     
-    def run_comprehensive_test(self):
-        """Run comprehensive Twilio OTP integration test"""
-        self.log("🚀 Starting Comprehensive Twilio SMS OTP Integration Test")
-        self.log("=" * 80)
-        self.log(f"📱 Test Phone: {self.test_phone}")
-        self.log(f"🌐 Backend URL: {self.backend_url}")
-        self.log("=" * 80)
+    def test_convert_lead_estimate_to_project(self) -> bool:
+        """Test 7: Convert Lead Estimate to Project"""
+        print("\n🧪 Testing Convert Lead Estimate to Project...")
         
-        # Test 1: Send OTP
-        self.log("\n📋 TEST 1: Send OTP for Login")
-        send_result = self.test_send_otp_login()
+        if not self.test_estimate_id or not self.test_lead_id:
+            print("❌ No test estimate or lead available for conversion")
+            return False
         
-        if not send_result.get("success"):
-            self.log("❌ CRITICAL: Send OTP failed - cannot continue with verification test")
-            return {
-                "send_otp": send_result,
-                "verify_otp": {"success": False, "error": "Skipped due to send OTP failure"},
-                "overall_success": False
+        try:
+            payload = {
+                "lead_id": self.test_lead_id,
+                "lead_estimate_id": self.test_estimate_id,
+                "project_name": "Test Residential Project",
+                "start_date": "2025-01-15T00:00:00Z"
             }
-        
-        # Test 2: Check backend logs
-        self.log("\n📋 TEST 2: Check Backend Logs")
-        self.check_backend_logs()
-        
-        # Test 3: Verify OTP (if we have test OTP)
-        verify_result = {"success": False, "error": "No OTP available for testing"}
-        
-        if send_result.get("otp_for_testing"):
-            self.log("\n📋 TEST 3: Verify OTP")
-            time.sleep(2)  # Brief pause
-            verify_result = self.test_verify_otp_login(send_result["otp_for_testing"])
-        else:
-            self.log("\n📋 TEST 3: Verify OTP - SKIPPED")
-            self.log("⚠️  Real Twilio SMS sent - OTP not available for automated testing")
-            self.log("📱 Please check your phone for the SMS and manually verify if needed")
-        
-        # Summary
-        self.log("\n" + "=" * 80)
-        self.log("📊 TEST SUMMARY")
-        self.log("=" * 80)
-        
-        provider = send_result.get("provider")
-        if provider == "twilio":
-            self.log("✅ TWILIO INTEGRATION: WORKING - Real SMS sent via Twilio")
-            self.log(f"📱 Message SID: {send_result.get('message_sid')}")
-        elif provider == "mock":
-            if send_result.get("twilio_error"):
-                self.log("⚠️  TWILIO INTEGRATION: FAILED - Falling back to mock mode")
-                self.log(f"❌ Twilio Error: {send_result.get('twilio_error')}")
+            
+            response = self.session.post(
+                f"{API_BASE}/lead-estimates/{self.test_estimate_id}/convert-to-project",
+                json=payload
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify response structure
+                required_fields = ["project_id", "project_estimate_id", "milestones_created", "tasks_created"]
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if missing_fields:
+                    print(f"❌ Missing conversion result fields: {missing_fields}")
+                    return False
+                
+                # Verify milestones and tasks were created
+                milestones_created = data["milestones_created"]
+                tasks_created = data["tasks_created"]
+                
+                if milestones_created < 5:  # Expect at least 5 milestones
+                    print(f"❌ Expected at least 5 milestones, got {milestones_created}")
+                    return False
+                
+                if tasks_created < 20:  # Expect at least 20 tasks
+                    print(f"❌ Expected at least 20 tasks, got {tasks_created}")
+                    return False
+                
+                self.test_project_id = data["project_id"]
+                
+                print(f"✅ Lead estimate converted to project successfully:")
+                print(f"   Project ID: {data['project_id']}")
+                print(f"   Project Estimate ID: {data['project_estimate_id']}")
+                print(f"   Milestones Created: {milestones_created}")
+                print(f"   Tasks Created: {tasks_created}")
+                
+                return True
             else:
-                self.log("⚠️  TWILIO INTEGRATION: NOT CONFIGURED - Using mock mode")
+                print(f"❌ Convert to project failed: {response.status_code} - {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Convert to project error: {str(e)}")
+            return False
+    
+    def test_get_project_estimates(self) -> bool:
+        """Test 8: Get Project Estimates"""
+        print("\n🧪 Testing Get Project Estimates...")
         
-        overall_success = send_result.get("success", False)
+        if not self.test_project_id:
+            print("❌ No test project available for project estimates")
+            return False
         
-        return {
-            "send_otp": send_result,
-            "verify_otp": verify_result,
-            "overall_success": overall_success,
-            "provider": provider
-        }
+        try:
+            response = self.session.get(f"{API_BASE}/project-estimates?project_id={self.test_project_id}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify response structure
+                if "estimates" not in data:
+                    print(f"❌ No estimates field in project estimates response: {data}")
+                    return False
+                
+                estimates = data["estimates"]
+                
+                # Should have at least one estimate (the converted one)
+                if len(estimates) == 0:
+                    print("❌ No project estimates found")
+                    return False
+                
+                # Verify the estimate has source linking back to lead estimate
+                estimate = estimates[0]
+                if "source" not in estimate:
+                    print("❌ No source field in project estimate")
+                    return False
+                
+                source = estimate["source"]
+                if "lead_estimate_id" not in source:
+                    print("❌ No lead_estimate_id in source")
+                    return False
+                
+                if source["lead_estimate_id"] != self.test_estimate_id:
+                    print(f"❌ Source lead_estimate_id mismatch: {source['lead_estimate_id']} != {self.test_estimate_id}")
+                    return False
+                
+                print(f"✅ Project estimates retrieved successfully:")
+                print(f"   Total estimates: {len(estimates)}")
+                print(f"   Source lead estimate ID: {source['lead_estimate_id']}")
+                
+                return True
+            else:
+                print(f"❌ Get project estimates failed: {response.status_code} - {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Get project estimates error: {str(e)}")
+            return False
+    
+    def run_all_tests(self) -> Dict[str, bool]:
+        """Run all Estimate Engine v2.0 tests"""
+        print("🚀 Starting Estimate Engine v2.0 API Tests")
+        print("=" * 60)
+        
+        # Authenticate first
+        if not self.authenticate():
+            return {"authentication": False}
+        
+        # Run all tests
+        test_results = {}
+        
+        test_results["quick_estimate_calculator"] = self.test_quick_estimate_calculator()
+        test_results["calculation_inputs_preview"] = self.test_calculation_inputs_preview()
+        test_results["create_lead_estimate"] = self.test_create_lead_estimate()
+        test_results["list_lead_estimates"] = self.test_list_lead_estimates()
+        test_results["get_lead_estimate_details"] = self.test_get_lead_estimate_details()
+        test_results["update_line_item"] = self.test_update_line_item()
+        test_results["convert_lead_estimate_to_project"] = self.test_convert_lead_estimate_to_project()
+        test_results["get_project_estimates"] = self.test_get_project_estimates()
+        
+        return test_results
+    
+    def print_summary(self, results: Dict[str, bool]):
+        """Print test summary"""
+        print("\n" + "=" * 60)
+        print("📊 ESTIMATE ENGINE V2.0 TEST SUMMARY")
+        print("=" * 60)
+        
+        passed = sum(1 for result in results.values() if result)
+        total = len(results)
+        
+        for test_name, result in results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"{status} {test_name.replace('_', ' ').title()}")
+        
+        print(f"\n🎯 Overall Result: {passed}/{total} tests passed")
+        
+        if passed == total:
+            print("🎉 ALL TESTS PASSED! Estimate Engine v2.0 is working perfectly!")
+        else:
+            print("⚠️  Some tests failed. Please check the issues above.")
+        
+        return passed == total
+
 
 def main():
     """Main test execution"""
-    print("🔧 Twilio SMS OTP Integration Test Suite")
-    print("=" * 50)
-    
-    tester = TwilioOTPTester()
-    results = tester.run_comprehensive_test()
+    tester = EstimateEngineV2Tester()
+    results = tester.run_all_tests()
+    success = tester.print_summary(results)
     
     # Exit with appropriate code
-    if results["overall_success"]:
-        print("\n✅ Tests completed successfully")
-        sys.exit(0)
-    else:
-        print("\n❌ Tests failed")
-        sys.exit(1)
+    exit(0 if success else 1)
+
 
 if __name__ == "__main__":
     main()
