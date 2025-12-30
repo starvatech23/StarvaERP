@@ -26,6 +26,13 @@ const MODULES = [
   { key: 'vendors', label: 'Vendors', icon: 'storefront', color: '#F59E0B' },
   { key: 'reports', label: 'Reports', icon: 'stats-chart', color: '#06B6D4' },
   { key: 'users', label: 'Users', icon: 'person', color: '#EC4899' },
+  { key: 'crm', label: 'CRM', icon: 'briefcase', color: '#3B82F6' },
+  { key: 'leads', label: 'Leads', icon: 'trending-up', color: '#14B8A6' },
+  { key: 'finance', label: 'Finance', icon: 'cash', color: '#22C55E' },
+  { key: 'budget', label: 'Budget', icon: 'wallet', color: '#A855F7' },
+  { key: 'expenses', label: 'Expenses', icon: 'receipt', color: '#EF4444' },
+  { key: 'invoices', label: 'Invoices', icon: 'document-text', color: '#F97316' },
+  { key: 'payments', label: 'Payments', icon: 'card', color: '#0EA5E9' },
 ];
 
 const PERMISSION_TYPES = [
