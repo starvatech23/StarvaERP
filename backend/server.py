@@ -943,6 +943,21 @@ async def create_project(
     
     project_dict = serialize_doc(project_dict)
     
+    # Auto-create default milestones and tasks for this project
+    # Use project start_date if provided, otherwise use current date
+    project_start_date = project_dict.get("start_date")
+    if isinstance(project_start_date, str):
+        try:
+            project_start_date = datetime.fromisoformat(project_start_date.replace('Z', '+00:00'))
+        except:
+            project_start_date = None
+    
+    schedule_result = await create_default_milestones_and_tasks(
+        project_id=project_dict["id"],
+        start_date=project_start_date
+    )
+    logger.info(f"Project {project_dict['id']} created with {schedule_result['message']}")
+    
     # Get project manager info
     if project_dict.get("project_manager_id"):
         pm = await get_user_by_id(project_dict["project_manager_id"])
@@ -950,7 +965,7 @@ async def create_project(
             project_dict["project_manager_name"] = pm["full_name"]
             project_dict["manager_phone"] = pm.get("phone")
     
-    # Get task counts for this project (initially 0)
+    # Get task counts for this project (now includes auto-created tasks)
     total_tasks = await db.tasks.count_documents({"project_id": project_dict["id"]})
     completed_tasks = await db.tasks.count_documents({
         "project_id": project_dict["id"],
