@@ -115,16 +115,18 @@ This specification defines a completely revamped Estimate System for SiteOps tha
 
 ## 2.1 Primary Goals
 
-1. **Unified Estimate System**: One estimate per project linked to all milestones/tasks
-2. **Auto-Generation**: Standardized tasks auto-created based on project type
-3. **Dynamic Calculation**: Materials, labor, duration auto-calculated per task
-4. **Real-Time Updates**: Automatic timeline recalculation on condition changes
-5. **Dependency Management**: Clear linkage between materials, labor, and schedules
+1. **Lead Estimate Integration**: Estimates created in CRM flow seamlessly to projects
+2. **Unified Estimate System**: One estimate per project linked to all milestones/tasks
+3. **Auto-Generation**: Standardized tasks auto-created based on project type
+4. **Dynamic Calculation**: Materials, labor, duration auto-calculated per task
+5. **Real-Time Updates**: Automatic timeline recalculation on condition changes
+6. **Full Traceability**: Track estimate from lead stage through project completion
 
 ## 2.2 Success Metrics
 
 | Metric | Target |
 |--------|--------|
+| Lead-to-Project conversion time | < 5 minutes |
 | Estimate creation time | < 30 minutes (vs current 4+ hours) |
 | Calculation accuracy | ≥ 90% vs actual |
 | Timeline prediction accuracy | ≥ 85% |
@@ -141,37 +143,824 @@ This specification defines a completely revamped Estimate System for SiteOps tha
 │                           SITEOPS ESTIMATE ENGINE                           │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐ │
-│  │   PROJECT   │───▶│  ESTIMATE   │───▶│ MILESTONES  │───▶│   TASKS     │ │
-│  │  Creation   │    │  (Central)  │    │  (Phases)   │    │  (Work)     │ │
-│  └─────────────┘    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘ │
-│                            │                  │                  │         │
-│                            ▼                  ▼                  ▼         │
-│                   ┌─────────────────────────────────────────────────┐     │
-│                   │           CALCULATION ENGINE                     │     │
-│                   │  ┌───────────┐ ┌───────────┐ ┌───────────┐     │     │
-│                   │  │ Material  │ │  Labor    │ │  Timeline │     │     │
-│                   │  │Calculator │ │Calculator │ │Calculator │     │     │
-│                   │  └───────────┘ └───────────┘ └───────────┘     │     │
-│                   └─────────────────────────────────────────────────┘     │
-│                                        │                                   │
-│                                        ▼                                   │
-│                   ┌─────────────────────────────────────────────────┐     │
-│                   │         RECALCULATION TRIGGER ENGINE             │     │
-│                   │  • Material Delivery Changes                     │     │
-│                   │  • Labor Availability Changes                    │     │
-│                   │  • Task Completion Updates                       │     │
-│                   │  • Dependency Violations                         │     │
-│                   └─────────────────────────────────────────────────┘     │
-│                                        │                                   │
-│                                        ▼                                   │
-│                   ┌─────────────────────────────────────────────────┐     │
-│                   │              NOTIFICATION ENGINE                 │     │
-│                   │  • Delay Alerts    • Resource Conflicts         │     │
-│                   │  • Timeline Shifts • Approval Requests          │     │
-│                   └─────────────────────────────────────────────────┘     │
+│  CRM MODULE                           PROJECT MODULE                        │
+│  ┌─────────────┐                     ┌─────────────┐                       │
+│  │    LEAD     │                     │   PROJECT   │                       │
+│  │  Management │                     │  Creation   │                       │
+│  └──────┬──────┘                     └──────┬──────┘                       │
+│         │                                   │                               │
+│         ▼                                   │                               │
+│  ┌─────────────┐     CONVERSION      ┌─────────────┐                       │
+│  │    LEAD     │────────────────────▶│   PROJECT   │                       │
+│  │  ESTIMATE   │  (Lead Won)         │  ESTIMATE   │                       │
+│  │  (Sales)    │                     │ (Execution) │                       │
+│  └─────────────┘                     └──────┬──────┘                       │
+│                                             │                               │
+│                                             ▼                               │
+│                           ┌─────────────────────────────────────┐          │
+│                           │         CENTRAL ESTIMATE            │          │
+│                           │  • Linked to Lead Estimate          │          │
+│                           │  • BOQ with Task Links              │          │
+│                           │  • Material/Labor Calculations      │          │
+│                           └──────────────┬──────────────────────┘          │
+│                                          │                                  │
+│              ┌───────────────────────────┼───────────────────────┐         │
+│              │                           │                       │         │
+│              ▼                           ▼                       ▼         │
+│       ┌──────────┐              ┌──────────────┐         ┌──────────┐     │
+│       │MILESTONES│              │    TASKS     │         │ TIMELINE │     │
+│       │ (Phases) │              │   (Work)     │         │(Schedule)│     │
+│       └──────────┘              └──────────────┘         └──────────┘     │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+# 4. LEAD-TO-PROJECT ESTIMATE FLOW
+
+## 4.1 Estimate Types & Stages
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        ESTIMATE TYPES & STAGES                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 1: LEAD ESTIMATE (CRM Module)                                        │
+│  ─────────────────────────────────────                                      │
+│  Purpose: Sales & Client Communication                                       │
+│                                                                             │
+│  Types:                                                                     │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
+│  │ ROUGH ESTIMATE   │  │ DETAILED ESTIMATE│  │ FINAL QUOTATION  │         │
+│  │ (Quick Quote)    │  │ (Item-wise)      │  │ (Client Approved)│         │
+│  │                  │  │                  │  │                  │         │
+│  │ • Per sq.ft rate │  │ • Floor-wise BOQ │  │ • Approved version│        │
+│  │ • Quick calc     │  │ • Material list  │  │ • Client signed  │         │
+│  │ • Range pricing  │  │ • Labor breakdown│  │ • Terms agreed   │         │
+│  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘         │
+│           │                     │                     │                    │
+│           └─────────────────────┴─────────────────────┘                    │
+│                                 │                                           │
+│                    Can have multiple revisions                              │
+│                    Version history maintained                               │
+└─────────────────────────────────┬───────────────────────────────────────────┘
+                                  │
+                                  │ LEAD WON → CONVERT TO PROJECT
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 2: PROJECT ESTIMATE (Project Module)                                 │
+│  ──────────────────────────────────────────                                 │
+│  Purpose: Execution Planning & Tracking                                      │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    PROJECT ESTIMATE                                  │   │
+│  │                                                                      │   │
+│  │  • Inherits from Lead Estimate (linked via lead_estimate_id)        │   │
+│  │  • Enhanced with execution details:                                  │   │
+│  │    - Task-level material assignments                                │   │
+│  │    - Labor scheduling                                                │   │
+│  │    - Timeline with dependencies                                      │   │
+│  │    - Vendor assignments                                              │   │
+│  │  • Can be modified during execution (tracked changes)               │   │
+│  │  • Real-time recalculation support                                  │   │
+│  │                                                                      │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 4.2 Lead Estimate Schema (Enhanced)
+
+```javascript
+// Collection: lead_estimates (existing, enhanced)
+{
+  _id: ObjectId,
+  estimate_number: "EST-L-2025-001",      // Lead estimate number
+  
+  // LEAD LINKAGE
+  lead_id: ObjectId,                       // Required: Link to CRM lead
+  lead_name: "Ramesh Kumar",               // Denormalized for display
+  lead_phone: "+919876543210",
+  lead_email: "ramesh@email.com",
+  
+  // ESTIMATE TYPE & STATUS
+  estimate_type: "rough|detailed|final",
+  status: "draft|sent|reviewed|approved|rejected|converted",
+  
+  // VERSION CONTROL
+  version: 3,
+  version_history: [
+    {
+      version: 1,
+      created_at: ISODate,
+      created_by: ObjectId,
+      changes: "Initial estimate",
+      total_amount: 2200000
+    },
+    {
+      version: 2,
+      created_at: ISODate,
+      created_by: ObjectId,
+      changes: "Added extra room as per client request",
+      total_amount: 2450000
+    }
+  ],
+  
+  // PROJECT SPECIFICATIONS
+  specifications: {
+    project_type: "residential_individual",
+    total_area_sqft: 2500,
+    num_floors: 2,
+    floor_details: [
+      { 
+        floor: "Ground", 
+        area_sqft: 1200, 
+        rooms: 4, 
+        bathrooms: 2,
+        special_items: ["pooja_room", "car_parking"]
+      },
+      { 
+        floor: "First", 
+        area_sqft: 1300, 
+        rooms: 3, 
+        bathrooms: 2,
+        special_items: ["balcony", "terrace_access"]
+      }
+    ],
+    construction_type: "rcc_framed",
+    foundation_type: "isolated_footing",
+    finishing_grade: "standard",           // economy/standard/premium/luxury
+    
+    // Additional client requirements
+    special_requirements: [
+      "Modular kitchen",
+      "False ceiling in living room",
+      "Wooden flooring in master bedroom"
+    ]
+  },
+  
+  // ESTIMATE LINE ITEMS (For detailed/final estimates)
+  line_items: [
+    {
+      _id: ObjectId,
+      category: "foundation",
+      item_code: "FND-001",
+      description: "Foundation work including excavation, PCC, footings",
+      unit: "lumpsum",
+      quantity: 1,
+      rate: 245000,
+      amount: 245000,
+      notes: "Based on standard soil condition"
+    },
+    {
+      _id: ObjectId,
+      category: "structure",
+      description: "RCC Structure - Columns, Beams, Slabs",
+      unit: "sqft",
+      quantity: 2500,
+      rate: 850,
+      amount: 2125000,
+      notes: "M25 grade concrete, Fe500 steel"
+    },
+    // ... more line items
+  ],
+  
+  // FLOOR-WISE BREAKDOWN (Optional detailed view)
+  floor_wise_estimates: [
+    {
+      floor: "Ground",
+      area_sqft: 1200,
+      items: [
+        { category: "structure", amount: 450000 },
+        { category: "masonry", amount: 85000 },
+        { category: "flooring", amount: 96000 },
+        // ...
+      ],
+      floor_total: 850000
+    },
+    {
+      floor: "First",
+      area_sqft: 1300,
+      items: [...],
+      floor_total: 920000
+    }
+  ],
+  
+  // SUMMARY
+  summary: {
+    subtotal: 1770000,
+    overhead_percentage: 10,
+    overhead_amount: 177000,
+    profit_percentage: 15,
+    profit_amount: 292050,
+    total_before_tax: 2239050,
+    gst_percentage: 18,
+    gst_amount: 403029,
+    grand_total: 2642079,
+    
+    // Per unit calculations
+    cost_per_sqft: 1057,
+    
+    // Payment terms
+    payment_schedule: [
+      { milestone: "Agreement", percentage: 10, amount: 264208 },
+      { milestone: "Foundation Complete", percentage: 15, amount: 396312 },
+      { milestone: "Slab Complete", percentage: 25, amount: 660520 },
+      { milestone: "Brickwork Complete", percentage: 20, amount: 528416 },
+      { milestone: "Finishing Start", percentage: 20, amount: 528416 },
+      { milestone: "Handover", percentage: 10, amount: 264208 }
+    ]
+  },
+  
+  // CLIENT COMMUNICATION
+  client_communication: {
+    sent_date: ISODate,
+    sent_via: "email|whatsapp|both",
+    client_viewed: true,
+    client_viewed_at: ISODate,
+    client_response: "approved|changes_requested|rejected",
+    client_comments: "Please reduce budget by removing false ceiling",
+    negotiation_history: [
+      {
+        date: ISODate,
+        original_amount: 2642079,
+        requested_amount: 2400000,
+        final_amount: 2500000,
+        changes_made: "Removed false ceiling, reduced flooring grade"
+      }
+    ]
+  },
+  
+  // CONVERSION TRACKING
+  conversion: {
+    converted_to_project: true,
+    project_id: ObjectId,                  // Link to created project
+    project_estimate_id: ObjectId,         // Link to project estimate
+    converted_at: ISODate,
+    converted_by: ObjectId,
+    conversion_notes: "Client approved with minor modifications"
+  },
+  
+  // AUDIT
+  created_by: ObjectId,
+  created_at: ISODate,
+  updated_at: ISODate,
+  approved_by: ObjectId,
+  approved_at: ISODate
+}
+```
+
+## 4.3 Project Estimate Schema (Enhanced with Lead Link)
+
+```javascript
+// Collection: project_estimates (enhanced)
+{
+  _id: ObjectId,
+  project_id: ObjectId,
+  estimate_number: "EST-P-2025-001",       // Project estimate number
+  
+  // LEAD ESTIMATE LINKAGE (Critical!)
+  source: {
+    type: "lead_conversion|direct_creation",
+    lead_id: ObjectId,                     // Original lead
+    lead_estimate_id: ObjectId,            // Original lead estimate
+    lead_estimate_number: "EST-L-2025-001",
+    lead_estimate_version: 3,              // Which version was converted
+    conversion_date: ISODate,
+    
+    // What was inherited
+    inherited_amount: 2500000,
+    inherited_specifications: {...},
+    
+    // Changes made during/after conversion
+    post_conversion_changes: [
+      {
+        date: ISODate,
+        description: "Added compound wall as per client request",
+        amount_change: +150000,
+        changed_by: ObjectId
+      }
+    ]
+  },
+  
+  version: 1,
+  status: "draft|active|approved|locked",
+  
+  // SPECIFICATIONS (Inherited + Enhanced)
+  specifications: {
+    // ... same as lead estimate but with execution details
+    project_type: "residential_individual",
+    total_area_sqft: 2500,
+    // ...
+  },
+  
+  // DETAILED BOQ (Task-linked)
+  boq: [
+    {
+      _id: ObjectId,
+      category: "foundation",
+      item_code: "FND-001",
+      item_name: "PCC for Foundation",
+      description: "1:4:8 mix plain cement concrete",
+      unit: "cum",
+      quantity: 12.5,
+      rate: 5500,
+      amount: 68750,
+      
+      // FROM LEAD ESTIMATE
+      lead_estimate_line_id: ObjectId,     // Link to original line item
+      variance_from_lead: {
+        quantity_change: 0,
+        rate_change: 0,
+        amount_change: 0
+      },
+      
+      // PROJECT EXECUTION DETAILS
+      linked_tasks: ["task_id_1", "task_id_2"],
+      materials_breakdown: [...],
+      labor_breakdown: [...],
+      
+      // TRACKING
+      ordered_quantity: 0,
+      delivered_quantity: 0,
+      consumed_quantity: 0,
+      status: "pending|in_progress|completed"
+    },
+    // ... more BOQ items
+  ],
+  
+  // SUMMARY WITH COMPARISON
+  summary: {
+    // Current values
+    total_material_cost: 1250000,
+    total_labor_cost: 350000,
+    total_equipment_cost: 75000,
+    overhead_percentage: 10,
+    overhead_amount: 167500,
+    profit_percentage: 15,
+    profit_amount: 276375,
+    total_estimate: 2118875,
+    cost_per_sqft: 848,
+    
+    // Comparison with lead estimate
+    lead_estimate_comparison: {
+      lead_total: 2500000,
+      current_total: 2118875,
+      variance: -381125,
+      variance_percentage: -15.24,
+      notes: "Reduced due to material rate negotiation with vendors"
+    },
+    
+    // Actual vs Estimated (Updated during execution)
+    actual_vs_estimated: {
+      estimated_total: 2118875,
+      actual_spent: 0,
+      remaining_budget: 2118875,
+      variance: 0,
+      variance_percentage: 0
+    }
+  },
+  
+  // AUDIT TRAIL
+  created_by: ObjectId,
+  created_at: ISODate,
+  updated_at: ISODate,
+  
+  // VERSION HISTORY
+  history: [...]
+}
+```
+
+## 4.4 Lead-to-Project Conversion Process
+
+```python
+# services/estimate_conversion.py
+
+class EstimateConversionService:
+    """
+    Handles conversion of Lead Estimate to Project Estimate
+    """
+    
+    async def convert_lead_to_project(
+        self,
+        lead_id: str,
+        lead_estimate_id: str,
+        project_data: ProjectCreate,
+        user_id: str
+    ) -> ConversionResult:
+        """
+        Convert a lead estimate to project estimate when lead is won
+        
+        Process:
+        1. Validate lead and estimate
+        2. Create project
+        3. Convert lead estimate to project estimate
+        4. Generate detailed BOQ from estimate
+        5. Auto-generate milestones and tasks
+        6. Link tasks to BOQ items
+        7. Calculate timeline
+        8. Update lead status
+        """
+        
+        # Step 1: Validate
+        lead = await get_lead(lead_id)
+        lead_estimate = await get_lead_estimate(lead_estimate_id)
+        
+        if lead_estimate.status not in ["approved", "sent"]:
+            raise ValidationError("Only approved/sent estimates can be converted")
+        
+        if lead_estimate.conversion.converted_to_project:
+            raise ValidationError("This estimate has already been converted")
+        
+        # Step 2: Create Project
+        project = await create_project(
+            name=project_data.name or f"Project - {lead.name}",
+            client_name=lead.name,
+            client_phone=lead.phone,
+            client_email=lead.email,
+            location=lead.location,
+            project_type=lead_estimate.specifications.project_type,
+            specifications=lead_estimate.specifications,
+            budget=lead_estimate.summary.grand_total,
+            source_lead_id=lead_id,
+            created_by=user_id
+        )
+        
+        # Step 3: Convert Lead Estimate to Project Estimate
+        project_estimate = await self._create_project_estimate_from_lead(
+            project=project,
+            lead_estimate=lead_estimate,
+            user_id=user_id
+        )
+        
+        # Step 4: Generate Detailed BOQ
+        detailed_boq = await self._generate_detailed_boq(
+            project_estimate=project_estimate,
+            specifications=lead_estimate.specifications
+        )
+        project_estimate.boq = detailed_boq
+        
+        # Step 5: Auto-generate Milestones
+        milestones = await self._generate_milestones(
+            project=project,
+            specifications=lead_estimate.specifications
+        )
+        
+        # Step 6: Auto-generate Tasks and Link to BOQ
+        tasks = await self._generate_tasks_with_boq_links(
+            project=project,
+            milestones=milestones,
+            project_estimate=project_estimate
+        )
+        
+        # Step 7: Calculate Timeline
+        timeline = await self._calculate_project_timeline(project, tasks)
+        
+        # Step 8: Update Lead Status
+        lead.status = "won"
+        lead.converted_project_id = project._id
+        await save_lead(lead)
+        
+        # Step 9: Update Lead Estimate
+        lead_estimate.conversion.converted_to_project = True
+        lead_estimate.conversion.project_id = project._id
+        lead_estimate.conversion.project_estimate_id = project_estimate._id
+        lead_estimate.conversion.converted_at = datetime.utcnow()
+        lead_estimate.conversion.converted_by = user_id
+        lead_estimate.status = "converted"
+        await save_lead_estimate(lead_estimate)
+        
+        # Save project estimate
+        await save_project_estimate(project_estimate)
+        
+        return ConversionResult(
+            success=True,
+            project_id=str(project._id),
+            project_estimate_id=str(project_estimate._id),
+            milestones_created=len(milestones),
+            tasks_created=len(tasks),
+            boq_items=len(detailed_boq),
+            timeline=timeline
+        )
+    
+    async def _create_project_estimate_from_lead(
+        self,
+        project: Project,
+        lead_estimate: LeadEstimate,
+        user_id: str
+    ) -> ProjectEstimate:
+        """
+        Create project estimate inheriting from lead estimate
+        """
+        return ProjectEstimate(
+            project_id=project._id,
+            estimate_number=generate_project_estimate_number(),
+            
+            # Source tracking
+            source={
+                "type": "lead_conversion",
+                "lead_id": lead_estimate.lead_id,
+                "lead_estimate_id": lead_estimate._id,
+                "lead_estimate_number": lead_estimate.estimate_number,
+                "lead_estimate_version": lead_estimate.version,
+                "conversion_date": datetime.utcnow(),
+                "inherited_amount": lead_estimate.summary.grand_total,
+                "inherited_specifications": lead_estimate.specifications,
+                "post_conversion_changes": []
+            },
+            
+            version=1,
+            status="active",
+            specifications=lead_estimate.specifications,
+            boq=[],  # Will be populated
+            summary={
+                **lead_estimate.summary,
+                "lead_estimate_comparison": {
+                    "lead_total": lead_estimate.summary.grand_total,
+                    "current_total": lead_estimate.summary.grand_total,
+                    "variance": 0,
+                    "variance_percentage": 0
+                },
+                "actual_vs_estimated": {
+                    "estimated_total": lead_estimate.summary.grand_total,
+                    "actual_spent": 0,
+                    "remaining_budget": lead_estimate.summary.grand_total,
+                    "variance": 0,
+                    "variance_percentage": 0
+                }
+            },
+            created_by=user_id,
+            created_at=datetime.utcnow()
+        )
+    
+    async def _generate_detailed_boq(
+        self,
+        project_estimate: ProjectEstimate,
+        specifications: dict
+    ) -> List[BOQItem]:
+        """
+        Generate detailed BOQ from specifications
+        Expands lead estimate line items into detailed task-level items
+        """
+        boq_items = []
+        calculator = EstimateCalculator(specifications)
+        
+        # Get BOQ templates for project type
+        templates = await get_boq_templates(specifications["project_type"])
+        
+        for template in templates:
+            # Calculate quantity based on specifications
+            quantity = calculator.calculate_quantity(
+                formula=template["formula"],
+                specifications=specifications
+            )
+            
+            if quantity > 0:
+                boq_item = BOQItem(
+                    category=template["category"],
+                    item_code=template["code"],
+                    item_name=template["name"],
+                    description=template.get("description", ""),
+                    unit=template["unit"],
+                    quantity=round(quantity, 2),
+                    rate=await get_current_rate(template["rate_code"]),
+                    calculation_formula=template["formula"],
+                    materials_breakdown=calculator.calculate_materials(
+                        template["materials"],
+                        quantity
+                    ),
+                    labor_breakdown=calculator.calculate_labor(
+                        template["labor"],
+                        quantity
+                    )
+                )
+                boq_item.amount = boq_item.quantity * boq_item.rate
+                boq_items.append(boq_item)
+        
+        return boq_items
+```
+
+## 4.5 Estimate Comparison & Variance Tracking
+
+```python
+# services/estimate_variance.py
+
+class EstimateVarianceService:
+    """
+    Track variances between lead estimate and project execution
+    """
+    
+    async def calculate_variance(
+        self,
+        project_estimate_id: str
+    ) -> VarianceReport:
+        """
+        Calculate variance between original lead estimate and current project state
+        """
+        project_estimate = await get_project_estimate(project_estimate_id)
+        
+        if not project_estimate.source.lead_estimate_id:
+            raise ValidationError("No lead estimate linked to this project")
+        
+        lead_estimate = await get_lead_estimate(
+            project_estimate.source.lead_estimate_id
+        )
+        
+        report = VarianceReport(
+            project_estimate_id=project_estimate_id,
+            lead_estimate_id=str(lead_estimate._id),
+            as_of_date=datetime.utcnow()
+        )
+        
+        # Overall Variance
+        report.overall = {
+            "lead_estimate_total": lead_estimate.summary.grand_total,
+            "current_estimate_total": project_estimate.summary.total_estimate,
+            "actual_spent": await self._get_actual_spent(project_estimate.project_id),
+            "variance_estimate_vs_lead": (
+                project_estimate.summary.total_estimate - 
+                lead_estimate.summary.grand_total
+            ),
+            "variance_actual_vs_estimate": 0  # Updated below
+        }
+        report.overall["variance_actual_vs_estimate"] = (
+            report.overall["actual_spent"] - 
+            project_estimate.summary.total_estimate
+        )
+        
+        # Category-wise Variance
+        report.by_category = []
+        for category in ["foundation", "structure", "masonry", "mep", "finishing"]:
+            lead_amount = sum(
+                item.amount for item in lead_estimate.line_items 
+                if item.category == category
+            )
+            current_amount = sum(
+                item.amount for item in project_estimate.boq 
+                if item.category == category
+            )
+            actual_amount = await self._get_actual_by_category(
+                project_estimate.project_id, 
+                category
+            )
+            
+            report.by_category.append({
+                "category": category,
+                "lead_estimate": lead_amount,
+                "current_estimate": current_amount,
+                "actual_spent": actual_amount,
+                "variance_pct": self._calc_variance_pct(lead_amount, actual_amount)
+            })
+        
+        # Material Variance
+        report.materials = await self._calculate_material_variance(
+            project_estimate
+        )
+        
+        # Labor Variance
+        report.labor = await self._calculate_labor_variance(
+            project_estimate
+        )
+        
+        return report
+    
+    async def get_estimate_trail(
+        self,
+        project_id: str
+    ) -> EstimateTrail:
+        """
+        Get complete trail from lead estimate to current state
+        """
+        project = await get_project(project_id)
+        project_estimate = await get_project_estimate_by_project(project_id)
+        
+        trail = EstimateTrail(project_id=project_id)
+        
+        # Lead Estimate Versions
+        if project_estimate.source.lead_estimate_id:
+            lead_estimate = await get_lead_estimate(
+                project_estimate.source.lead_estimate_id
+            )
+            
+            trail.lead_estimates = [
+                {
+                    "version": v["version"],
+                    "date": v["created_at"],
+                    "amount": v["total_amount"],
+                    "changes": v["changes"]
+                }
+                for v in lead_estimate.version_history
+            ]
+            trail.lead_final_amount = lead_estimate.summary.grand_total
+            trail.conversion_date = project_estimate.source.conversion_date
+        
+        # Post-conversion Changes
+        trail.post_conversion_changes = project_estimate.source.post_conversion_changes
+        
+        # Current State
+        trail.current_estimate = project_estimate.summary.total_estimate
+        trail.actual_spent = await self._get_actual_spent(project_id)
+        trail.remaining = trail.current_estimate - trail.actual_spent
+        
+        return trail
+```
+
+## 4.6 API Endpoints for Lead-Project Integration
+
+```yaml
+# Lead Estimate to Project Conversion
+POST /api/leads/{lead_id}/convert-to-project
+Request:
+  lead_estimate_id: "est_lead_123"
+  project_name: "Villa Project - Whitefield"  # Optional, defaults to lead name
+  start_date: "2025-04-01"
+  notes: "Client confirmed, starting next month"
+Response:
+  success: true
+  project:
+    _id: "proj_456"
+    name: "Villa Project - Whitefield"
+    estimate_id: "est_proj_789"
+  conversion_summary:
+    lead_estimate_amount: 2500000
+    project_estimate_amount: 2500000
+    milestones_created: 10
+    tasks_created: 45
+    boq_items: 85
+    estimated_duration_days: 180
+
+# Get Estimate Lineage/Trail
+GET /api/projects/{project_id}/estimate-trail
+Response:
+  project_id: "proj_456"
+  lead_estimates:
+    - version: 1
+      date: "2025-01-15"
+      amount: 2200000
+      changes: "Initial estimate"
+    - version: 2
+      date: "2025-01-20"
+      amount: 2400000
+      changes: "Added modular kitchen"
+    - version: 3
+      date: "2025-02-01"
+      amount: 2500000
+      changes: "Final negotiated amount"
+  lead_final_amount: 2500000
+  conversion_date: "2025-02-15"
+  post_conversion_changes:
+    - date: "2025-03-01"
+      description: "Added compound wall"
+      amount_change: 150000
+  current_estimate: 2650000
+  actual_spent: 450000
+  remaining: 2200000
+
+# Get Variance Report
+GET /api/projects/{project_id}/estimate-variance
+Response:
+  overall:
+    lead_estimate_total: 2500000
+    current_estimate_total: 2650000
+    actual_spent: 450000
+    variance_estimate_vs_lead: 150000
+    variance_estimate_vs_lead_pct: 6.0
+  by_category:
+    - category: "foundation"
+      lead_estimate: 250000
+      current_estimate: 260000
+      actual_spent: 245000
+      variance_pct: -5.8
+    - category: "structure"
+      lead_estimate: 800000
+      current_estimate: 850000
+      actual_spent: 0
+      variance_pct: 0
+  recommendations:
+    - "Foundation completed under budget by 5.8%"
+    - "Structure estimate increased - review vendor rates"
+
+# Update Project Estimate (with tracking)
+PUT /api/projects/{project_id}/estimate
+Request:
+  change_description: "Added extra bathroom in first floor"
+  changes:
+    - boq_item_id: "boq_123"
+      field: "quantity"
+      old_value: 2
+      new_value: 3
+    - add_item:
+        category: "plumbing"
+        description: "Additional bathroom fittings"
+        amount: 45000
+Response:
+  estimate_id: "est_proj_789"
+  new_version: 2
+  new_total: 2695000
+  change_from_lead: +195000 (7.8%)
+  change_logged: true
 ```
 
 ## 3.2 Component Interactions
