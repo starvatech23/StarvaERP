@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 
 # Configuration
-BACKEND_URL = "https://siteops-deploy.preview.emergentagent.com/api"
+BACKEND_URL = "https://ops-enhancements.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "admin@buildflow.com"
 TEST_USER_PASSWORD = "admin123"
 

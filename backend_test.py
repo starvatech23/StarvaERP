@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
 # Get backend URL from environment
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://siteops-deploy.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://ops-enhancements.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
 class EstimateEngineV2Tester:
