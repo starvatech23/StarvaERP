@@ -89,7 +89,7 @@ export default function AddUserScreen() {
 
     setLoading(true);
     try {
-      await userManagementAPI.createUser({
+      const response = await userManagementAPI.createUser({
         email: email.trim(),
         phone: phone.trim(),
         full_name: fullName.trim(),
@@ -99,11 +99,19 @@ export default function AddUserScreen() {
         password: password.trim() || null,
       });
 
-      Alert.alert('Success', 'User created successfully and auto-approved', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      const selectedRole = roles.find(r => r.id === roleId);
+      const selectedTeam = teams.find(t => t.id === teamId);
+      
+      showSuccess(
+        'User Created Successfully!',
+        `${fullName} has been added to the system.\n\nRole: ${selectedRole?.name || 'N/A'}\nTeam: ${selectedTeam?.name || 'N/A'}\n\nThe user can now login with their credentials.`,
+        () => router.back()
+      );
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to create user');
+      showError(
+        'Failed to Create User',
+        error.response?.data?.detail || 'Something went wrong. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
