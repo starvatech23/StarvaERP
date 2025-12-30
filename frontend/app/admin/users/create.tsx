@@ -196,37 +196,25 @@ export default function AddUserScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Role & Team Assignment</Text>
 
-            <Text style={styles.label}>Role *</Text>
-            <View style={styles.pickerContainer}>
-              <Ionicons name="shield-checkmark" size={20} color={Colors.textSecondary} style={styles.icon} />
-              <Picker
-                selectedValue={roleId}
-                onValueChange={setRoleId}
-                style={styles.picker}
-                dropdownIconColor={Colors.textPrimary}
-              >
-                <Picker.Item label="Select role..." value="" color="#9CA3AF" />
-                {roles.map((role: any) => (
-                  <Picker.Item key={role.id} label={role.name} value={role.id} color={Colors.textPrimary} />
-                ))}
-              </Picker>
-            </View>
+            <AdaptiveDropdown
+              label="Role *"
+              icon="shield-checkmark"
+              placeholder="Select role..."
+              options={roles.map((role: any) => ({ label: role.name, value: role.id }))}
+              selectedValue={roleId}
+              onValueChange={setRoleId}
+            />
 
-            <Text style={styles.label}>Team/Department *</Text>
-            <View style={styles.pickerContainer}>
-              <Ionicons name="people" size={20} color={Colors.textSecondary} style={styles.icon} />
-              <Picker
-                selectedValue={teamId}
-                onValueChange={setTeamId}
-                style={styles.picker}
-                dropdownIconColor={Colors.textPrimary}
-              >
-                <Picker.Item label="Select team..." value="" color="#9CA3AF" />
-                {teams.map((team: any) => (
-                  <Picker.Item key={team.id} label={team.name} value={team.id} color={Colors.textPrimary} />
-                ))}
-              </Picker>
-            </View>
+            <View style={{ height: 12 }} />
+
+            <AdaptiveDropdown
+              label="Team/Department *"
+              icon="people"
+              placeholder="Select team..."
+              options={teams.map((team: any) => ({ label: team.name, value: team.id }))}
+              selectedValue={teamId}
+              onValueChange={setTeamId}
+            />
           </View>
 
           {/* Optional Password */}
