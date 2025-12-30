@@ -22,9 +22,10 @@ class EstimateEngineV2Tester:
         self.test_estimate_id = None
         self.test_project_id = None
         
-    def authenticate(self, email: str = "crm.manager@test.com", password: str = "password123") -> bool:
+    def authenticate(self, email: str = "test@example.com", password: str = "password123") -> bool:
         """Authenticate with the API"""
         try:
+            # First try to login
             response = self.session.post(f"{API_BASE}/auth/login", json={
                 "identifier": email,
                 "password": password,
@@ -39,9 +40,29 @@ class EstimateEngineV2Tester:
                 })
                 print(f"✅ Authentication successful for {email}")
                 return True
+            
+            # If login fails, try to register
+            print(f"Login failed, attempting to register {email}...")
+            register_response = self.session.post(f"{API_BASE}/auth/register", json={
+                "email": email,
+                "password": password,
+                "full_name": "Test Admin User",
+                "role": "admin",
+                "auth_type": "email"
+            })
+            
+            if register_response.status_code == 200:
+                data = register_response.json()
+                self.access_token = data["access_token"]
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.access_token}"
+                })
+                print(f"✅ Registration and authentication successful for {email}")
+                return True
             else:
-                print(f"❌ Authentication failed: {response.status_code} - {response.text}")
+                print(f"❌ Registration failed: {register_response.status_code} - {register_response.text}")
                 return False
+                
         except Exception as e:
             print(f"❌ Authentication error: {str(e)}")
             return False
