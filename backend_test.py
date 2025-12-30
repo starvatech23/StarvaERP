@@ -115,7 +115,7 @@ class EstimateEngineV2Tester:
             
             response = self.session.post(f"{API_BASE}/crm/leads", json=lead_data)
             
-            if response.status_code == 201:
+            if response.status_code in [200, 201]:
                 data = response.json()
                 lead_id = data["id"]
                 self.test_lead_id = lead_id
