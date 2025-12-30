@@ -5369,6 +5369,115 @@ async def get_active_users(
     
     return result
 
+@api_router.get("/users/{user_id}", response_model=UserResponse)
+async def get_user_by_id(
+    user_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+):
+    """Get a specific user by ID"""
+    current_user = await get_current_user(credentials)
+    
+    # Allow admin or the user themselves
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin" and str(current_user.get("_id")) != user_id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    try:
+        user = await db.users.find_one({"_id": ObjectId(user_id)})
+    except:
+        raise HTTPException(status_code=400, detail="Invalid user ID")
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user_dict = serialize_doc(user)
+    
+    # Get role name
+    if user_dict.get("role_id"):
+        role = await db.roles.find_one({"_id": ObjectId(user_dict["role_id"])})
+        user_dict["role_name"] = role["name"] if role else None
+    
+    # Get team name
+    if user_dict.get("team_id"):
+        team = await db.teams.find_one({"_id": ObjectId(user_dict["team_id"])})
+        user_dict["team_name"] = team["name"] if team else None
+    
+    return UserResponse(**user_dict)
+
+@api_router.put("/users/{user_id}", response_model=UserResponse)
+async def update_user(
+    user_id: str,
+    user_update: UserUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+):
+    """Update a user - Admin only"""
+    current_user = await get_current_user(credentials)
+    
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can update users")
+    
+    try:
+        user = await db.users.find_one({"_id": ObjectId(user_id)})
+    except:
+        raise HTTPException(status_code=400, detail="Invalid user ID")
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Build update dict
+    update_data = {}
+    if user_update.full_name is not None:
+        update_data["full_name"] = user_update.full_name
+    if user_update.email is not None:
+        # Check email domain
+        if not user_update.email.lower().endswith("@starvacon.com"):
+            raise HTTPException(status_code=400, detail="Only @starvacon.com email addresses are allowed")
+        # Check if email is taken by another user
+        existing = await db.users.find_one({"email": user_update.email, "_id": {"$ne": ObjectId(user_id)}})
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already in use")
+        update_data["email"] = user_update.email
+    if user_update.phone is not None:
+        update_data["phone"] = user_update.phone
+    if user_update.address is not None:
+        update_data["address"] = user_update.address
+    if user_update.role_id is not None:
+        # Verify role exists
+        role = await db.roles.find_one({"_id": ObjectId(user_update.role_id)})
+        if not role:
+            raise HTTPException(status_code=400, detail="Role not found")
+        update_data["role_id"] = user_update.role_id
+        update_data["role_name"] = role["name"]
+        update_data["role"] = role.get("code", "user")
+    if user_update.team_id is not None:
+        # Verify team exists
+        team = await db.teams.find_one({"_id": ObjectId(user_update.team_id)})
+        if not team:
+            raise HTTPException(status_code=400, detail="Team not found")
+        update_data["team_id"] = user_update.team_id
+        update_data["team_name"] = team["name"]
+    if user_update.is_active is not None:
+        update_data["is_active"] = user_update.is_active
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": update_data}
+    )
+    
+    # Return updated user
+    updated_user = await db.users.find_one({"_id": ObjectId(user_id)})
+    user_dict = serialize_doc(updated_user)
+    
+    if user_dict.get("role_id"):
+        role = await db.roles.find_one({"_id": ObjectId(user_dict["role_id"])})
+        user_dict["role_name"] = role["name"] if role else None
+    if user_dict.get("team_id"):
+        team = await db.teams.find_one({"_id": ObjectId(user_dict["team_id"])})
+        user_dict["team_name"] = team["name"] if team else None
+    
+    return UserResponse(**user_dict)
+
 @api_router.post("/users/{user_id}/approve")
 async def approve_user(
     user_id: str,
