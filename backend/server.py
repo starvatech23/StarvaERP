@@ -406,12 +406,12 @@ async def login(credentials: UserLogin):
         id=str(user["_id"]),
         email=user.get("email"),
         phone=user.get("phone"),
-        full_name=user["full_name"],
-        role=user["role"],
+        full_name=user.get("full_name", ""),
+        role=user.get("role", ""),
         address=user.get("address"),
         profile_photo=user.get("profile_photo"),
-        is_active=user["is_active"],
-        date_joined=user["date_joined"],
+        is_active=user.get("is_active", True),
+        date_joined=user.get("date_joined"),
         last_login=user.get("last_login")
     )
     
@@ -480,12 +480,12 @@ async def verify_otp_endpoint(request: OTPVerify):
         id=str(user["_id"]),
         email=user.get("email"),
         phone=user.get("phone"),
-        full_name=user["full_name"],
-        role=user["role"],
+        full_name=user.get("full_name", ""),
+        role=user.get("role", ""),
         address=user.get("address"),
         profile_photo=user.get("profile_photo"),
-        is_active=user["is_active"],
-        date_joined=user["date_joined"],
+        is_active=user.get("is_active", True),
+        date_joined=user.get("date_joined"),
         last_login=user.get("last_login")
     )
     
