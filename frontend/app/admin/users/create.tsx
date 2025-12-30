@@ -16,6 +16,7 @@ import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AdaptiveDropdown from '../../../components/AdaptiveDropdown';
+import ActivityConfirmationModal, { useActivityModal } from '../../../components/ActivityConfirmationModal';
 import { userManagementAPI, rolesAPI, teamsAPI } from '../../../services/api';
 
 export default function AddUserScreen() {
