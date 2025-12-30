@@ -1263,10 +1263,11 @@ class EstimateCalculator:
         # Waterproofing
         self.waterproof_area = self.total_bathroom_floor_area + self.built_up_area_sqm * 0.1  # Bathrooms + terrace
         
-        # Paint area (all walls + ceiling)
-        self.paint_area = self.internal_plaster_area + self.ceiling_area
+        # Paint area - Per user requirement: Painting area = Built-up area (1:1)
+        # This is used for display/summary purposes
+        self.paint_area = self.built_up_area_sqm * self.specs.num_floors
         
-        # Floor area for tiling
+        # Floor area for tiling (same as built-up area per user requirement)
         self.floor_area = self.carpet_area_sqm
         self.bathroom_wall_area = self.total_bathroom_wall_area
         
