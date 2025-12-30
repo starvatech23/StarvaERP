@@ -375,7 +375,12 @@ async def login(credentials: UserLogin):
         if not user:
             raise HTTPException(status_code=401, detail="Invalid email or password")
         
-        password_hash = user.get("password_hash", "")
+        password_hash = user.get("password_hash", user.get("password", ""))
+        logger.info(f"Login attempt for {credentials.identifier}, hash present: {bool(password_hash)}")
+        
+        if not password_hash:
+            raise HTTPException(status_code=401, detail="Invalid email or password - no password set")
+        
         if not verify_password(credentials.password, password_hash):
             raise HTTPException(status_code=401, detail="Invalid email or password")
     
