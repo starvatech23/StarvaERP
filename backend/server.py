@@ -27,6 +27,22 @@ from whatsapp_service import (
     send_project_update
 )
 
+# Import Estimate Engine v2
+from estimate_engine_v2 import (
+    EstimateCalculator,
+    EstimateSpecifications,
+    LeadEstimateService,
+    EstimateConversionService,
+    FloorDetail,
+    EstimateTypeEnum,
+    ProjectTypeEnum,
+    ConstructionType,
+    FoundationType,
+    FinishingGrade,
+    BOQLineItem,
+    serialize_estimate_doc
+)
+
 # Import models and auth
 from models import (
     UserCreate, UserLogin, UserResponse, UserUpdate, UserApprovalRequest, UserCreateByAdmin, Token, OTPRequest, OTPVerify,
