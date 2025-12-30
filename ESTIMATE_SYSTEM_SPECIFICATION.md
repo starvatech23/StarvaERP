@@ -13,16 +13,17 @@
 1. [Executive Summary](#1-executive-summary)
 2. [Goals & Objectives](#2-goals--objectives)
 3. [System Architecture Overview](#3-system-architecture-overview)
-4. [Data Models](#4-data-models)
-5. [Functional Requirements](#5-functional-requirements)
-6. [Calculation Engine](#6-calculation-engine)
-7. [Auto-Generation Logic](#7-auto-generation-logic)
-8. [Real-Time Recalculation System](#8-real-time-recalculation-system)
-9. [Data Flow & Dependencies](#9-data-flow--dependencies)
-10. [API Specifications](#10-api-specifications)
-11. [Edge Cases & Handling](#11-edge-cases--handling)
-12. [Examples & Scenarios](#12-examples--scenarios)
-13. [Implementation Roadmap](#13-implementation-roadmap)
+4. [Lead-to-Project Estimate Flow](#4-lead-to-project-estimate-flow)
+5. [Data Models](#5-data-models)
+6. [Functional Requirements](#6-functional-requirements)
+7. [Calculation Engine](#7-calculation-engine)
+8. [Auto-Generation Logic](#8-auto-generation-logic)
+9. [Real-Time Recalculation System](#9-real-time-recalculation-system)
+10. [Data Flow & Dependencies](#10-data-flow--dependencies)
+11. [API Specifications](#11-api-specifications)
+12. [Edge Cases & Handling](#12-edge-cases--handling)
+13. [Examples & Scenarios](#13-examples--scenarios)
+14. [Implementation Roadmap](#14-implementation-roadmap)
 
 ---
 
@@ -30,24 +31,82 @@
 
 ## 1.1 Purpose
 
-This specification defines a completely revamped Estimate System for SiteOps that creates a **centrally linked, dynamic estimation engine** connecting projects, milestones, tasks, materials, and labor. The system will auto-generate standardized tasks, calculate resource requirements automatically, and recalculate timelines in real-time based on actual site conditions.
+This specification defines a completely revamped Estimate System for SiteOps that creates a **centrally linked, dynamic estimation engine** connecting **CRM leads**, projects, milestones, tasks, materials, and labor. 
+
+**CRITICAL LINKAGE:** Estimates created during the lead/sales stage in the CRM module become the foundation for project estimates when leads convert to projects. This ensures a seamless flow from sales to execution with full traceability.
 
 ## 1.2 Key Innovations
 
 | Feature | Description |
 |---------|-------------|
+| **Lead Estimate → Project Estimate** | Seamless conversion with full history |
 | **Centralized Estimate** | Single estimate shared across all project tasks |
 | **Auto-Task Generation** | Standardized tasks created at project creation |
 | **Dynamic Calculations** | Auto-calculate materials, labor, time per task |
 | **Real-Time Recalculation** | Timeline adjustments based on actual conditions |
 | **Bidirectional Linking** | Changes propagate across all dependent entities |
+| **Estimate Versioning** | Track changes from lead stage through project completion |
 
-## 1.3 Business Value
+## 1.3 Estimate Lifecycle Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      ESTIMATE LIFECYCLE FLOW                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  CRM MODULE                              PROJECT MODULE
+  ──────────                              ──────────────
+       │                                        │
+       ▼                                        │
+┌──────────────┐                               │
+│    LEAD      │                               │
+│   Created    │                               │
+└──────┬───────┘                               │
+       │                                        │
+       ▼                                        │
+┌──────────────┐                               │
+│   LEAD       │  ◄─── Initial client          │
+│  ESTIMATE    │       requirements &          │
+│  (Draft)     │       rough costing           │
+└──────┬───────┘                               │
+       │                                        │
+       │ Revisions based on                    │
+       │ client feedback                       │
+       ▼                                        │
+┌──────────────┐                               │
+│   LEAD       │  ◄─── Detailed estimate       │
+│  ESTIMATE    │       shared with client      │
+│  (Approved)  │                               │
+└──────┬───────┘                               │
+       │                                        │
+       │ Lead Won! Convert to Project          │
+       │                                        │
+       ▼                                        ▼
+┌─────────────────────────────────────────────────┐
+│              PROJECT CREATED                     │
+│   • Lead estimate becomes project estimate       │
+│   • Estimate linked to all milestones/tasks     │
+│   • Auto-generate detailed BOQ                   │
+│   • Material & labor calculations               │
+└──────────────────────┬──────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────┐
+│           PROJECT ESTIMATE (Active)              │
+│   • Linked to original lead estimate            │
+│   • Version history maintained                   │
+│   • Real-time recalculations                    │
+│   • Task-level material/labor tracking          │
+└─────────────────────────────────────────────────┘
+```
+
+## 1.4 Business Value
 
 - **Reduce estimation time by 80%** through automation
 - **Improve accuracy by 60%** with formula-based calculations
+- **Seamless sales-to-execution** with lead estimate conversion
+- **Full traceability** from initial quote to project completion
 - **Real-time visibility** into schedule impacts
-- **Proactive alerts** for delays before they occur
 - **Single source of truth** for all project estimates
 
 ---
