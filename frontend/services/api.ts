@@ -49,8 +49,20 @@ import Constants from 'expo-constants';
 
 const API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
+// In web mode when accessed via ngrok, use relative URL
+const getBaseURL = () => {
+  if (typeof window !== 'undefined' && window.location) {
+    const hostname = window.location.hostname;
+    // If accessed via ngrok tunnel, use same origin for API
+    if (hostname.includes('ngrok.io') || hostname.includes('ngrok-free.app')) {
+      return `${window.location.origin}/api`;
+    }
+  }
+  return `${API_URL}/api`;
+};
+
 const api = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },
