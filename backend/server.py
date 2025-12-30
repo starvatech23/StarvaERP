@@ -15463,6 +15463,389 @@ async def send_po_to_vendor(
     )
 
 
+# =============================================================================
+# ESTIMATE ENGINE v2.0 - Lead Estimates & Project Estimates
+# =============================================================================
+
+# Pydantic models for Estimate Engine API requests
+from pydantic import BaseModel as PydanticBaseModel
+
+class CreateLeadEstimateRequest(PydanticBaseModel):
+    lead_id: str
+    estimate_type: str = "detailed"  # rough, detailed, final
+    specifications: Dict[str, Any]
+    rate_overrides: Optional[Dict[str, float]] = None
+
+class UpdateEstimateLineRequest(PydanticBaseModel):
+    quantity: Optional[float] = None
+    rate: Optional[float] = None
+
+class ConvertToProjectRequest(PydanticBaseModel):
+    lead_id: str
+    lead_estimate_id: str
+    project_name: str
+    start_date: str  # ISO format date string
+
+class QuickEstimateRequest(PydanticBaseModel):
+    total_area_sqft: float
+    num_floors: int = 1
+    finishing_grade: str = "standard"  # economy, standard, premium, luxury
+    project_type: str = "residential_individual"
+
+
+# ---- LEAD ESTIMATE ENDPOINTS ----
+
+@api_router.post("/lead-estimates")
+async def create_lead_estimate(
+    request: CreateLeadEstimateRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Create a new lead estimate with auto-generated BOQ.
+    
+    This creates a detailed Bill of Quantities estimate for a lead,
+    automatically calculating materials, labor, and costs based on
+    the provided specifications.
+    """
+    current_user = await get_current_user(credentials)
+    
+    try:
+        # Parse specifications
+        specs_data = request.specifications
+        
+        # Build floor details if provided
+        floor_details = []
+        if "floor_details" in specs_data:
+            for fd in specs_data["floor_details"]:
+                floor_details.append(FloorDetail(**fd))
+        
+        specifications = EstimateSpecifications(
+            project_type=ProjectTypeEnum(specs_data.get("project_type", "residential_individual")),
+            total_area_sqft=specs_data.get("total_area_sqft", 1000),
+            num_floors=specs_data.get("num_floors", 1),
+            floor_details=floor_details,
+            construction_type=ConstructionType(specs_data.get("construction_type", "rcc_framed")),
+            foundation_type=FoundationType(specs_data.get("foundation_type", "isolated_footing")),
+            finishing_grade=FinishingGrade(specs_data.get("finishing_grade", "standard")),
+            soil_type=specs_data.get("soil_type", "medium"),
+            special_requirements=specs_data.get("special_requirements", []),
+        )
+        
+        # Get estimate type
+        estimate_type = EstimateTypeEnum(request.estimate_type)
+        
+        # Create estimate service
+        lead_estimate_service = LeadEstimateService(db)
+        
+        # Create the estimate
+        estimate_doc = await lead_estimate_service.create_lead_estimate(
+            lead_id=request.lead_id,
+            specifications=specifications,
+            estimate_type=estimate_type,
+            created_by=str(current_user["_id"]),
+            rate_overrides=request.rate_overrides
+        )
+        
+        return {
+            "success": True,
+            "message": "Lead estimate created successfully",
+            "estimate": serialize_estimate_doc(estimate_doc)
+        }
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error creating lead estimate: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create estimate: {str(e)}")
+
+
+@api_router.get("/lead-estimates")
+async def list_lead_estimates(
+    lead_id: Optional[str] = None,
+    status: Optional[str] = None,
+    limit: int = 50,
+    skip: int = 0,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get list of lead estimates with optional filtering."""
+    await get_current_user(credentials)
+    
+    query = {}
+    if lead_id:
+        query["lead_id"] = lead_id
+    if status:
+        query["status"] = status
+    
+    estimates = await db.lead_estimates.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.lead_estimates.count_documents(query)
+    
+    return {
+        "estimates": [serialize_estimate_doc(e) for e in estimates],
+        "total": total,
+        "limit": limit,
+        "skip": skip
+    }
+
+
+@api_router.get("/lead-estimates/{estimate_id}")
+async def get_lead_estimate(
+    estimate_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a specific lead estimate with full details."""
+    await get_current_user(credentials)
+    
+    estimate = await db.lead_estimates.find_one({"_id": ObjectId(estimate_id)})
+    if not estimate:
+        raise HTTPException(status_code=404, detail="Lead estimate not found")
+    
+    return serialize_estimate_doc(estimate)
+
+
+@api_router.put("/lead-estimates/{estimate_id}/lines/{line_id}")
+async def update_lead_estimate_line(
+    estimate_id: str,
+    line_id: str,
+    request: UpdateEstimateLineRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Update a specific BOQ line item in a lead estimate.
+    This will recalculate the estimate totals.
+    """
+    current_user = await get_current_user(credentials)
+    
+    try:
+        lead_estimate_service = LeadEstimateService(db)
+        updated_estimate = await lead_estimate_service.update_line_item(
+            estimate_id=estimate_id,
+            line_id=line_id,
+            quantity=request.quantity,
+            rate=request.rate,
+            updated_by=str(current_user["_id"])
+        )
+        
+        return {
+            "success": True,
+            "message": "Line item updated and totals recalculated",
+            "estimate": serialize_estimate_doc(updated_estimate)
+        }
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error updating estimate line: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update line item: {str(e)}")
+
+
+@api_router.put("/lead-estimates/{estimate_id}/status")
+async def update_lead_estimate_status(
+    estimate_id: str,
+    new_status: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update the status of a lead estimate."""
+    current_user = await get_current_user(credentials)
+    
+    valid_statuses = ["draft", "sent", "reviewed", "approved", "rejected", "converted"]
+    if new_status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+    
+    result = await db.lead_estimates.update_one(
+        {"_id": ObjectId(estimate_id)},
+        {"$set": {"status": new_status, "updated_at": datetime.utcnow()}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Lead estimate not found")
+    
+    return {"success": True, "message": f"Status updated to {new_status}"}
+
+
+# ---- PROJECT ESTIMATE CONVERSION ----
+
+@api_router.post("/lead-estimates/{estimate_id}/convert-to-project")
+async def convert_estimate_to_project(
+    estimate_id: str,
+    request: ConvertToProjectRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Convert a lead estimate to a project with full estimate, milestones, and tasks.
+    
+    This is the core Lead-to-Project conversion flow:
+    1. Creates a new project from the lead
+    2. Creates a project estimate linked to the lead estimate
+    3. Auto-generates milestones based on project type
+    4. Auto-generates tasks with calculated durations
+    5. Updates lead status to 'won'
+    """
+    current_user = await get_current_user(credentials)
+    
+    # Verify the estimate_id matches
+    if estimate_id != request.lead_estimate_id:
+        raise HTTPException(status_code=400, detail="Estimate ID mismatch")
+    
+    try:
+        # Parse start date
+        try:
+            start_date = datetime.fromisoformat(request.start_date.replace('Z', '+00:00'))
+        except:
+            start_date = datetime.utcnow()
+        
+        # Create conversion service
+        conversion_service = EstimateConversionService(db)
+        
+        # Perform conversion
+        result = await conversion_service.convert_lead_to_project(
+            lead_id=request.lead_id,
+            lead_estimate_id=request.lead_estimate_id,
+            project_name=request.project_name,
+            start_date=start_date,
+            converted_by=str(current_user["_id"])
+        )
+        
+        return result
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error converting lead to project: {e}")
+        raise HTTPException(status_code=500, detail=f"Conversion failed: {str(e)}")
+
+
+# ---- PROJECT ESTIMATES ----
+
+@api_router.get("/project-estimates")
+async def list_project_estimates(
+    project_id: Optional[str] = None,
+    status: Optional[str] = None,
+    limit: int = 50,
+    skip: int = 0,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get list of project estimates."""
+    await get_current_user(credentials)
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if status:
+        query["status"] = status
+    
+    estimates = await db.project_estimates.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.project_estimates.count_documents(query)
+    
+    return {
+        "estimates": [serialize_estimate_doc(e) for e in estimates],
+        "total": total,
+        "limit": limit,
+        "skip": skip
+    }
+
+
+@api_router.get("/project-estimates/{estimate_id}")
+async def get_project_estimate(
+    estimate_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a specific project estimate with full details."""
+    await get_current_user(credentials)
+    
+    estimate = await db.project_estimates.find_one({"_id": ObjectId(estimate_id)})
+    if not estimate:
+        raise HTTPException(status_code=404, detail="Project estimate not found")
+    
+    # Get linked lead estimate info if available
+    source = estimate.get("source", {})
+    if source.get("lead_estimate_id"):
+        lead_estimate = await db.lead_estimates.find_one({"_id": ObjectId(source["lead_estimate_id"])})
+        if lead_estimate:
+            estimate["lead_estimate_info"] = {
+                "estimate_number": lead_estimate.get("estimate_number"),
+                "version": lead_estimate.get("version"),
+                "status": lead_estimate.get("status"),
+                "grand_total": lead_estimate.get("summary", {}).get("grand_total", 0)
+            }
+    
+    return serialize_estimate_doc(estimate)
+
+
+# ---- QUICK ESTIMATE CALCULATOR ----
+
+@api_router.post("/estimates/quick-calculate")
+async def quick_estimate_calculate(
+    request: QuickEstimateRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Generate a quick estimate without saving to database.
+    Useful for initial client discussions and rough budgeting.
+    """
+    await get_current_user(credentials)
+    
+    try:
+        specifications = EstimateSpecifications(
+            project_type=ProjectTypeEnum(request.project_type),
+            total_area_sqft=request.total_area_sqft,
+            num_floors=request.num_floors,
+            finishing_grade=FinishingGrade(request.finishing_grade),
+        )
+        
+        calculator = EstimateCalculator(specifications)
+        boq_items = calculator.calculate_boq()
+        summary = calculator.calculate_summary(boq_items)
+        payment_schedule = calculator.generate_payment_schedule(summary.grand_total)
+        
+        # Group BOQ items by category
+        boq_by_category = {}
+        for item in boq_items:
+            cat = item.category.value
+            if cat not in boq_by_category:
+                boq_by_category[cat] = []
+            boq_by_category[cat].append(item.dict())
+        
+        return {
+            "success": True,
+            "specifications": specifications.dict(),
+            "summary": {
+                **summary.dict(),
+                "payment_schedule": [ps.dict() for ps in payment_schedule]
+            },
+            "boq_by_category": boq_by_category,
+            "calculation_inputs": calculator.get_calculation_inputs(),
+            "total_boq_items": len(boq_items)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in quick estimate: {e}")
+        raise HTTPException(status_code=500, detail=f"Calculation failed: {str(e)}")
+
+
+@api_router.get("/estimates/calculation-inputs/{area_sqft}")
+async def get_calculation_inputs(
+    area_sqft: float,
+    num_floors: int = 1,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Get all calculation inputs for a given area.
+    Useful for understanding how BOQ quantities are derived.
+    """
+    await get_current_user(credentials)
+    
+    specifications = EstimateSpecifications(
+        total_area_sqft=area_sqft,
+        num_floors=num_floors,
+    )
+    
+    calculator = EstimateCalculator(specifications)
+    return {
+        "specifications": specifications.dict(),
+        "calculation_inputs": calculator.get_calculation_inputs()
+    }
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
