@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://pm-launch-check.preview.emergentagent.com/api"
+BACKEND_URL = "https://siteops-deploy.preview.emergentagent.com/api"
 
 # Test phone number as suggested in the review request
 TEST_PHONE = "9886588992"
