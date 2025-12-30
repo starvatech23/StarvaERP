@@ -311,6 +311,10 @@ async def register(user_data: UserCreate):
         if not user_data.email or not user_data.password:
             raise HTTPException(status_code=400, detail="Email and password required")
         
+        # Restrict to starvacon.com domain only
+        if not user_data.email.lower().endswith("@starvacon.com"):
+            raise HTTPException(status_code=400, detail="Only @starvacon.com email addresses are allowed")
+        
         existing = await db.users.find_one({"email": user_data.email})
         if existing:
             raise HTTPException(status_code=400, detail="Email already registered")
