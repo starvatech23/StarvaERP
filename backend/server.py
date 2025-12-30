@@ -5137,6 +5137,28 @@ async def get_roles(
     roles = await db.roles.find(query).to_list(1000)
     return [RoleResponse(**serialize_doc(role)) for role in roles]
 
+@api_router.get("/roles/{role_id}", response_model=RoleResponse)
+async def get_role(
+    role_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+):
+    """Get a specific role by ID"""
+    current_user = await get_current_user(credentials)
+    
+    # Only admin can view role details
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can view role details")
+    
+    try:
+        role = await db.roles.find_one({"_id": ObjectId(role_id)})
+    except:
+        raise HTTPException(status_code=400, detail="Invalid role ID format")
+    
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    return RoleResponse(**serialize_doc(role))
+
 @api_router.post("/roles", response_model=RoleResponse)
 async def create_role(
     role: RoleCreate,
