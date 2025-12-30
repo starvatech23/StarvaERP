@@ -22,7 +22,7 @@ class EstimateEngineV2Tester:
         self.test_estimate_id = None
         self.test_project_id = None
         
-    def authenticate(self, email: str = "admin@test.com", password: str = "admin123") -> bool:
+    def authenticate(self, email: str = "crm.manager@test.com", password: str = "password123") -> bool:
         """Authenticate with the API"""
         try:
             response = self.session.post(f"{API_BASE}/auth/login", json={
