@@ -219,6 +219,188 @@ async def get_user_by_id(user_id: str):
     except:
         return None
 
+# ============= Project Milestone & Task Templates =============
+
+# Default milestones as requested by user:
+# Preliminary → Design → Construction → Finishing → Handover
+DEFAULT_PROJECT_MILESTONES = [
+    {
+        "name": "Preliminary",
+        "description": "Initial project setup, site assessment, and planning",
+        "order": 1,
+        "color": "#6B7280",  # Gray
+        "tasks": [
+            {"title": "Site Survey", "description": "Conduct detailed site survey and measurements", "order": 1},
+            {"title": "Soil Testing", "description": "Conduct soil testing and analysis", "order": 2},
+            {"title": "Document Collection", "description": "Collect all required documents from client", "order": 3},
+            {"title": "Statutory Approvals", "description": "Apply for necessary permits and approvals", "order": 4},
+        ]
+    },
+    {
+        "name": "Design",
+        "description": "Architectural and structural design phase",
+        "order": 2,
+        "color": "#3B82F6",  # Blue
+        "tasks": [
+            {"title": "Architectural Design", "description": "Complete architectural drawings and floor plans", "order": 1},
+            {"title": "Structural Design", "description": "Complete structural design and calculations", "order": 2},
+            {"title": "MEP Design", "description": "Complete electrical, plumbing, and HVAC design", "order": 3},
+            {"title": "Design Approval", "description": "Get client approval on final designs", "order": 4},
+            {"title": "BOQ Preparation", "description": "Prepare detailed Bill of Quantities", "order": 5},
+        ]
+    },
+    {
+        "name": "Construction",
+        "description": "Main construction phase including foundation, structure, and masonry",
+        "order": 3,
+        "color": "#F59E0B",  # Amber
+        "tasks": [
+            {"title": "Site Preparation", "description": "Clear and level site for construction", "order": 1},
+            {"title": "Foundation Work", "description": "Complete foundation including excavation and concrete", "order": 2},
+            {"title": "Plinth Work", "description": "Complete plinth beam and DPC", "order": 3},
+            {"title": "Superstructure", "description": "Complete columns, beams, and slabs", "order": 4},
+            {"title": "Masonry Work", "description": "Complete internal and external brick walls", "order": 5},
+            {"title": "MEP Rough-in", "description": "Complete electrical and plumbing rough-in work", "order": 6},
+        ]
+    },
+    {
+        "name": "Finishing",
+        "description": "Interior and exterior finishing work",
+        "order": 4,
+        "color": "#10B981",  # Emerald
+        "tasks": [
+            {"title": "Plastering", "description": "Complete internal and external plastering", "order": 1},
+            {"title": "Flooring & Tiling", "description": "Complete floor and wall tiling", "order": 2},
+            {"title": "Doors & Windows", "description": "Install all doors and windows", "order": 3},
+            {"title": "Painting", "description": "Complete interior and exterior painting", "order": 4},
+            {"title": "Electrical Fixtures", "description": "Install all electrical fixtures and fittings", "order": 5},
+            {"title": "Plumbing Fixtures", "description": "Install all sanitary and plumbing fixtures", "order": 6},
+        ]
+    },
+    {
+        "name": "Handover",
+        "description": "Final inspection, documentation, and project handover",
+        "order": 5,
+        "color": "#8B5CF6",  # Violet
+        "tasks": [
+            {"title": "Final Cleaning", "description": "Complete site cleaning and debris removal", "order": 1},
+            {"title": "Snag List", "description": "Prepare and address all snag list items", "order": 2},
+            {"title": "Final Inspection", "description": "Conduct final inspection with client", "order": 3},
+            {"title": "Documentation", "description": "Prepare all handover documents and warranties", "order": 4},
+            {"title": "Key Handover", "description": "Complete formal handover to client", "order": 5},
+        ]
+    },
+]
+
+async def create_default_milestones_and_tasks(project_id: str, start_date: datetime = None):
+    """
+    Create default milestones and tasks for a newly created project.
+    This ensures every project has a standard structure for tracking progress.
+    
+    Args:
+        project_id: The ID of the newly created project
+        start_date: Optional start date for the project (defaults to today)
+    
+    Returns:
+        dict with created_milestones and created_tasks counts
+    """
+    if start_date is None:
+        start_date = datetime.utcnow()
+    
+    created_milestones = 0
+    created_tasks = 0
+    
+    # Calculate dates for each milestone
+    # Each milestone spans approximately 20% of a typical 6-month project
+    milestone_duration_days = 36  # ~5 weeks per milestone
+    current_start = start_date
+    
+    for ms_template in DEFAULT_PROJECT_MILESTONES:
+        # Calculate milestone dates
+        ms_start = current_start
+        ms_end = ms_start + timedelta(days=milestone_duration_days)
+        
+        # Create milestone document
+        milestone_doc = {
+            "name": ms_template["name"],
+            "description": ms_template["description"],
+            "project_id": project_id,
+            "due_date": ms_end,
+            "start_date": ms_start,
+            "status": "pending",
+            "completion_percentage": 0,
+            "order": ms_template["order"],
+            "estimated_cost": 0.0,
+            "actual_cost": 0.0,
+            "budget_variance": 0.0,
+            "depends_on": [],
+            "color": ms_template["color"],
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+            "completed_at": None,
+        }
+        
+        # Insert milestone
+        result = await db.milestones.insert_one(milestone_doc)
+        milestone_id = str(result.inserted_id)
+        created_milestones += 1
+        
+        # Create tasks for this milestone
+        task_count = len(ms_template["tasks"])
+        task_duration_days = milestone_duration_days // max(task_count, 1)
+        task_start = ms_start
+        
+        for task_template in ms_template["tasks"]:
+            task_end = task_start + timedelta(days=task_duration_days)
+            
+            task_doc = {
+                "title": task_template["title"],
+                "description": task_template["description"],
+                "project_id": project_id,
+                "milestone_id": milestone_id,
+                "status": "pending",
+                "priority": "medium",
+                "due_date": task_end,
+                "assigned_to": [],
+                "attachments": [],
+                "parent_task_id": None,
+                "work_type": None,
+                "measurement_type": None,
+                "planned_start_date": task_start,
+                "planned_end_date": task_end,
+                "actual_start_date": None,
+                "actual_end_date": None,
+                "progress_percentage": 0,
+                "work_area": None,
+                "work_length": None,
+                "work_breadth": None,
+                "work_height": None,
+                "work_count": None,
+                "dependencies": [],
+                "estimated_cost": 0.0,
+                "actual_cost": 0.0,
+                "cost_variance": 0.0,
+                "boq_reference_id": None,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+            }
+            
+            await db.tasks.insert_one(task_doc)
+            created_tasks += 1
+            
+            # Move to next task start date
+            task_start = task_end
+        
+        # Move to next milestone start date
+        current_start = ms_end
+    
+    return {
+        "created_milestones": created_milestones,
+        "created_tasks": created_tasks,
+        "message": f"Created {created_milestones} milestones with {created_tasks} tasks"
+    }
+
+
 # ============= CRM Permission System =============
 
 def is_crm_manager(user: dict) -> bool:
