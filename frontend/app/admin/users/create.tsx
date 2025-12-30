@@ -264,6 +264,16 @@ export default function AddUserScreen() {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Success/Error Confirmation Modal */}
+      <ActivityConfirmationModal
+        visible={modalState.visible}
+        type={modalState.type}
+        title={modalState.title}
+        message={modalState.message}
+        onClose={hideModal}
+        onConfirm={modalState.onConfirm}
+      />
     </SafeAreaView>
   );
 }
