@@ -1191,7 +1191,8 @@ class EstimateCalculator:
         self.internal_wall_area = self.external_wall_area * 0.6
         
         # Floor/ceiling area
-        self.carpet_area_sqm = self.built_up_area_sqm * 0.8  # 80% carpet area
+        # Per user requirement: Flooring area = Built-up area (1:1)
+        self.carpet_area_sqm = self.built_up_area_sqm  # Flooring = built-up area
         self.ceiling_area = self.built_up_area_sqm * num_floors
         
         # Room calculations from floor details or estimate
