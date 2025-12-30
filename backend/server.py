@@ -5613,6 +5613,10 @@ async def create_user_by_admin(
     if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
         raise HTTPException(status_code=403, detail="Only admins can create users")
     
+    # Restrict to starvacon.com domain only
+    if not user_data.email.lower().endswith("@starvacon.com"):
+        raise HTTPException(status_code=400, detail="Only @starvacon.com email addresses are allowed")
+    
     # Verify role exists
     role = await db.roles.find_one({"_id": ObjectId(user_data.role_id)})
     if not role:
