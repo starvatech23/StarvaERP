@@ -441,7 +441,7 @@ class BOQTemplate:
             "item_name": "Vitrified tile flooring",
             "description": "600x600mm vitrified tiles with 1:4 CM bed",
             "unit": "sqm",
-            "formula": "carpet_area_sqm * num_floors * 0.9",  # 90% gets vitrified
+            "formula": "carpet_area_sqm * num_floors",  # Flooring = built-up area per floor
             "rate_code": "vitrified_tile_rate",
             "default_rate": 120,
         },
