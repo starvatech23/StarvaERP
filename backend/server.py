@@ -9043,6 +9043,13 @@ async def move_lead_to_project(
     project_result = await db.projects.insert_one(project_data)
     project_id = str(project_result.inserted_id)
     
+    # Auto-create default milestones and tasks for this project
+    schedule_result = await create_default_milestones_and_tasks(
+        project_id=project_id,
+        start_date=project_data.get("start_date")
+    )
+    logger.info(f"Lead-to-Project {project_id}: {schedule_result['message']}")
+    
     # Handle bank transaction
     transaction_id = None
     if request.bank_transaction:
