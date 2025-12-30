@@ -1448,3 +1448,39 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "📊 ESTIMATE ENGINE v2.0 - PHASE 1 IMPLEMENTATION COMPLETE! Implemented the Dynamic Estimate System as per ESTIMATE_SYSTEM_SPECIFICATION.md. Key components: (1) BOQ Templates - 30+ standard construction items with formulas like 'foundation_area * foundation_depth * 1.1', (2) Milestone Templates - 10 construction phases (Foundation, Plinth, Superstructure, Masonry, MEP, Plastering, Flooring, Doors/Windows, Painting, Finishing) with task dependencies, (3) Calculation Engine - Auto-calculates quantities based on area, floors, rooms, (4) Lead-to-Project Conversion - Converts lead estimates to projects with auto-generated milestones and tasks. READY FOR BACKEND TESTING: Test endpoints: POST /api/estimates/quick-calculate (quick estimate without saving), POST /api/lead-estimates (create full estimate for lead), POST /api/lead-estimates/{id}/convert-to-project (convert to project with milestones/tasks)."
+
+  - task: "Estimate Engine v2 - Flooring & Painting Area Fix"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/estimate_engine_v2.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "FIXED: User reported flooring area showing 1066 sqft instead of ~3200 sqft for a 3200 sqft built-up area. Root cause: carpet_area_sqm was calculated as built_up_area_sqm * 0.8 (80% reduction) and then flooring formula applied another 0.9 (90% reduction). FIXES APPLIED: (1) Changed carpet_area_sqm = built_up_area_sqm (1:1 ratio per user requirement), (2) Changed flooring formula from 'carpet_area_sqm * num_floors * 0.9' to 'carpet_area_sqm * num_floors', (3) Changed paint_area = built_up_area_sqm * num_floors. VERIFIED: Test with 3200 sqft input now correctly outputs 3200 sqft for both flooring and painting areas."
+
+  - task: "Auto-Create Project Milestones & Tasks"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: When a project is created (POST /api/projects) or a lead is converted to project (POST /api/crm/leads/move-to-project), the system now automatically creates 5 milestones and their associated tasks. Milestones: (1) Preliminary - 4 tasks (Site Survey, Soil Testing, Document Collection, Statutory Approvals), (2) Design - 5 tasks (Architectural Design, Structural Design, MEP Design, Design Approval, BOQ Preparation), (3) Construction - 6 tasks (Site Preparation, Foundation Work, Plinth Work, Superstructure, Masonry Work, MEP Rough-in), (4) Finishing - 6 tasks (Plastering, Flooring & Tiling, Doors & Windows, Painting, Electrical Fixtures, Plumbing Fixtures), (5) Handover - 5 tasks (Final Cleaning, Snag List, Final Inspection, Documentation, Key Handover). Total: 5 milestones with 26 tasks auto-created per project. Each milestone spans ~36 days with tasks distributed within. Dates are calculated from project start_date or current date."
+
+agent_communication:
+  - agent: "main"
+    message: "Implemented two critical features: (1) Fixed flooring/painting area calculation in estimate_engine_v2.py - areas now correctly equal built-up area instead of being reduced by 28%. (2) Added auto-creation of 5 milestones (Preliminary, Design, Construction, Finishing, Handover) with 26 default tasks when a project is created or a lead is converted. Please test both features via backend API tests."
+
+test_plan:
+  current_focus:
+    - "Estimate Engine v2 - Flooring & Painting Area Fix"
+    - "Auto-Create Project Milestones & Tasks"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
