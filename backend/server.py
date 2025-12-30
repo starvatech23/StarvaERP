@@ -411,7 +411,7 @@ async def login(credentials: UserLogin):
         address=user.get("address"),
         profile_photo=user.get("profile_photo"),
         is_active=user.get("is_active", True),
-        date_joined=user.get("date_joined"),
+        date_joined=user.get("date_joined", datetime.utcnow()),
         last_login=user.get("last_login")
     )
     
@@ -485,7 +485,7 @@ async def verify_otp_endpoint(request: OTPVerify):
         address=user.get("address"),
         profile_photo=user.get("profile_photo"),
         is_active=user.get("is_active", True),
-        date_joined=user.get("date_joined"),
+        date_joined=user.get("date_joined", datetime.utcnow()),
         last_login=user.get("last_login")
     )
     
