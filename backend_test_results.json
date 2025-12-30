@@ -1,0 +1,138 @@
+[
+  {
+    "test_name": "Authentication",
+    "success": true,
+    "message": "Successfully authenticated as admin@starvacon.com",
+    "details": {},
+    "timestamp": "2025-12-30T18:08:08.688206"
+  },
+  {
+    "test_name": "Flooring Area Calculation",
+    "success": true,
+    "message": "Flooring area correctly calculated: 3200 sqft \u2248 3200.0 sqft (tolerance: 0.00%)",
+    "details": {
+      "built_up_area_sqft": 3200.0,
+      "carpet_area_sqft": 3200,
+      "tolerance": "0.00%"
+    },
+    "timestamp": "2025-12-30T18:08:08.688335"
+  },
+  {
+    "test_name": "Painting Area Calculation",
+    "success": true,
+    "message": "Painting area correctly calculated: 3200 sqft \u2248 3200.0 sqft (tolerance: 0.00%)",
+    "details": {
+      "built_up_area_sqft": 3200.0,
+      "paint_area_sqft": 3200,
+      "tolerance": "0.00%"
+    },
+    "timestamp": "2025-12-30T18:08:08.688373"
+  },
+  {
+    "test_name": "BOQ Flooring Line Item",
+    "success": true,
+    "message": "BOQ flooring quantity correct: 3200 sqft \u2248 3200.0 sqft",
+    "details": {
+      "item_code": "FLR-001",
+      "quantity_sqm": 297.29,
+      "quantity_sqft": 3200,
+      "tolerance": "0.00%"
+    },
+    "timestamp": "2025-12-30T18:08:08.689206"
+  },
+  {
+    "test_name": "Project Creation",
+    "success": true,
+    "message": "Project created successfully with ID: 69541508f45cc8e5e2c0aa59",
+    "details": {
+      "project_id": "69541508f45cc8e5e2c0aa59",
+      "project_name": "Test Project - Auto Milestones 20251230_180808",
+      "task_count": {
+        "total": 26,
+        "completed": 0
+      }
+    },
+    "timestamp": "2025-12-30T18:08:08.723853"
+  },
+  {
+    "test_name": "Task Count in Project Response",
+    "success": true,
+    "message": "Project response includes task_count.total = 26",
+    "details": {
+      "task_count": {
+        "total": 26,
+        "completed": 0
+      }
+    },
+    "timestamp": "2025-12-30T18:08:08.723906"
+  },
+  {
+    "test_name": "Milestone Count",
+    "success": true,
+    "message": "Correct number of milestones created: 5",
+    "details": {
+      "milestone_count": 5,
+      "milestone_names": [
+        "Preliminary",
+        "Design",
+        "Construction",
+        "Finishing",
+        "Handover"
+      ]
+    },
+    "timestamp": "2025-12-30T18:08:08.740087"
+  },
+  {
+    "test_name": "Milestone Names",
+    "success": true,
+    "message": "All expected milestone names found",
+    "details": {
+      "expected": [
+        "Preliminary",
+        "Design",
+        "Construction",
+        "Finishing",
+        "Handover"
+      ],
+      "actual": [
+        "Preliminary",
+        "Design",
+        "Construction",
+        "Finishing",
+        "Handover"
+      ]
+    },
+    "timestamp": "2025-12-30T18:08:08.740155"
+  },
+  {
+    "test_name": "Task Count",
+    "success": true,
+    "message": "Correct number of tasks created: 26",
+    "details": {
+      "task_count": 26,
+      "sample_tasks": [
+        "Site Survey",
+        "Soil Testing",
+        "Document Collection",
+        "Statutory Approvals",
+        "Architectural Design"
+      ]
+    },
+    "timestamp": "2025-12-30T18:08:08.764666"
+  },
+  {
+    "test_name": "Task Distribution",
+    "success": true,
+    "message": "Tasks distributed across 5 milestones",
+    "details": {
+      "distribution": {
+        "69541508f45cc8e5e2c0aa5a": 4,
+        "69541508f45cc8e5e2c0aa5f": 5,
+        "69541508f45cc8e5e2c0aa65": 6,
+        "69541508f45cc8e5e2c0aa6c": 6,
+        "69541508f45cc8e5e2c0aa73": 5
+      }
+    },
+    "timestamp": "2025-12-30T18:08:08.764739"
+  }
+]
