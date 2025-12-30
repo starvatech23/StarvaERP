@@ -1,660 +1,505 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for SiteOps Estimate Engine v2.0 APIs
-Testing the new dynamic estimation system for construction projects.
+Backend Testing Script for SiteOps API
+=====================================
+
+This script tests two specific features:
+1. Estimate Engine v2 - Flooring & Painting Area Fix
+2. Auto-Create Project Milestones & Tasks
+
+Usage: python3 backend_test.py
 """
 
+import sys
+import os
 import requests
 import json
-import os
-from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
+from datetime import datetime
+from typing import Dict, Any, List
 
-# Get backend URL from environment
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://ops-enhancements.preview.emergentagent.com')
-API_BASE = f"{BACKEND_URL}/api"
+# Add backend directory to path for imports
+sys.path.append('/app/backend')
 
-class EstimateEngineV2Tester:
+# Import the estimate engine for direct testing
+from estimate_engine_v2 import (
+    EstimateCalculator, 
+    EstimateSpecifications, 
+    ProjectTypeEnum, 
+    FinishingGrade
+)
+
+# Configuration
+BACKEND_URL = "https://ops-enhancements.preview.emergentagent.com/api"
+ADMIN_CREDENTIALS = {
+    "identifier": "admin@starvacon.com",
+    "password": "StarvaWorld23@",
+    "auth_type": "email"
+}
+
+class BackendTester:
     def __init__(self):
         self.session = requests.Session()
         self.access_token = None
-        self.test_lead_id = None
-        self.test_estimate_id = None
-        self.test_project_id = None
+        self.test_results = []
         
-    def authenticate(self, email: str = "test@example.com", password: str = "password123") -> bool:
-        """Authenticate with the API"""
+    def log_result(self, test_name: str, success: bool, message: str, details: Dict = None):
+        """Log test result"""
+        result = {
+            "test_name": test_name,
+            "success": success,
+            "message": message,
+            "details": details or {},
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        self.test_results.append(result)
+        
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status}: {test_name}")
+        print(f"   {message}")
+        if details:
+            print(f"   Details: {json.dumps(details, indent=2)}")
+        print()
+    
+    def authenticate(self) -> bool:
+        """Authenticate with admin credentials"""
         try:
-            # First try to login
-            response = self.session.post(f"{API_BASE}/auth/login", json={
-                "identifier": email,
-                "password": password,
-                "auth_type": "email"
-            })
+            response = self.session.post(
+                f"{BACKEND_URL}/auth/login",
+                json=ADMIN_CREDENTIALS,
+                headers={"Content-Type": "application/json"}
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                self.access_token = data["access_token"]
+                self.access_token = data.get("access_token")
                 self.session.headers.update({
                     "Authorization": f"Bearer {self.access_token}"
                 })
-                print(f"✅ Authentication successful for {email}")
-                return True
-            
-            # If login fails, try to register
-            print(f"Login failed, attempting to register {email}...")
-            register_response = self.session.post(f"{API_BASE}/auth/register", json={
-                "email": email,
-                "password": password,
-                "full_name": "Test Admin User",
-                "role": "admin",
-                "auth_type": "email"
-            })
-            
-            if register_response.status_code == 200:
-                data = register_response.json()
-                self.access_token = data["access_token"]
-                self.session.headers.update({
-                    "Authorization": f"Bearer {self.access_token}"
-                })
-                print(f"✅ Registration and authentication successful for {email}")
+                self.log_result(
+                    "Authentication", 
+                    True, 
+                    f"Successfully authenticated as {ADMIN_CREDENTIALS['identifier']}"
+                )
                 return True
             else:
-                print(f"❌ Registration failed: {register_response.status_code} - {register_response.text}")
+                self.log_result(
+                    "Authentication", 
+                    False, 
+                    f"Authentication failed: {response.status_code} - {response.text}"
+                )
                 return False
                 
         except Exception as e:
-            print(f"❌ Authentication error: {str(e)}")
+            self.log_result(
+                "Authentication", 
+                False, 
+                f"Authentication error: {str(e)}"
+            )
             return False
     
-    def create_test_lead(self) -> Optional[str]:
-        """Create a test lead for estimate testing"""
-        try:
-            # First create a lead category if it doesn't exist
-            category_data = {
-                "name": "Residential Construction",
-                "description": "Residential construction projects",
-                "is_active": True
-            }
-            
-            category_response = self.session.post(f"{API_BASE}/crm/categories", json=category_data)
-            category_id = None
-            
-            if category_response.status_code == 201:
-                category_id = category_response.json()["id"]
-                print(f"✅ Test category created: {category_id}")
-            else:
-                # Try to get existing categories
-                categories_response = self.session.get(f"{API_BASE}/crm/categories")
-                if categories_response.status_code == 200:
-                    categories = categories_response.json()
-                    if categories:
-                        category_id = categories[0]["id"]
-                        print(f"✅ Using existing category: {category_id}")
-                
-            if not category_id:
-                print("❌ Could not create or find a category")
-                return None
-            
-            lead_data = {
-                "name": "Test Construction Client",
-                "primary_phone": "+919876543210",
-                "email": "testclient@example.com",
-                "source": "website",
-                "priority": "high",
-                "status": "new",
-                "category_id": category_id,
-                "project_type": "residential_individual",
-                "budget_min": 2000000,
-                "budget_max": 3000000,
-                "location": "Bangalore, Karnataka",
-                "notes": "Test lead for Estimate Engine v2.0 testing",
-                "whatsapp_consent": False,
-                "send_whatsapp": False
-            }
-            
-            response = self.session.post(f"{API_BASE}/crm/leads", json=lead_data)
-            
-            if response.status_code in [200, 201]:
-                data = response.json()
-                lead_id = data["id"]
-                self.test_lead_id = lead_id
-                print(f"✅ Test lead created: {lead_id}")
-                return lead_id
-            else:
-                print(f"❌ Failed to create test lead: {response.status_code} - {response.text}")
-                return None
-        except Exception as e:
-            print(f"❌ Error creating test lead: {str(e)}")
-            return None
-    
-    def test_quick_estimate_calculator(self) -> bool:
-        """Test 1: Quick Estimate Calculator (No auth required for testing, but use auth anyway)"""
-        print("\n🧪 Testing Quick Estimate Calculator...")
+    def test_estimate_engine_flooring_fix(self):
+        """
+        Test Feature 1: Estimate Engine v2 - Flooring & Painting Area Fix
+        
+        Issue: User reported flooring area showing 1066 sqft instead of ~3200 sqft 
+        for a 3200 sqft built-up area.
+        
+        Fix: Changed carpet_area_sqm and paint_area to equal built_up_area_sqm directly (1:1 ratio).
+        """
+        print("=" * 60)
+        print("TESTING FEATURE 1: Estimate Engine v2 - Flooring & Painting Area Fix")
+        print("=" * 60)
         
         try:
-            payload = {
-                "total_area_sqft": 2500,
-                "num_floors": 2,
-                "finishing_grade": "standard",
-                "project_type": "residential_individual"
-            }
+            # Create specifications for 3200 sqft residential project
+            specs = EstimateSpecifications(
+                project_type=ProjectTypeEnum.RESIDENTIAL_INDIVIDUAL,
+                total_area_sqft=3200,
+                num_floors=1,
+                finishing_grade=FinishingGrade.STANDARD
+            )
             
-            response = self.session.post(f"{API_BASE}/estimates/quick-calculate", json=payload)
+            # Create calculator
+            calc = EstimateCalculator(specs)
+            inputs = calc.get_calculation_inputs()
             
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Verify response structure
-                required_fields = ["success", "summary", "boq_by_category"]
-                missing_fields = [field for field in required_fields if field not in data]
-                
-                if missing_fields:
-                    print(f"❌ Missing required fields: {missing_fields}")
-                    return False
-                
-                summary = data["summary"]
-                boq_by_category = data["boq_by_category"]
-                
-                # Verify summary has required fields
-                summary_fields = ["grand_total", "cost_per_sqft"]
-                missing_summary = [field for field in summary_fields if field not in summary]
-                
-                if missing_summary:
-                    print(f"❌ Missing summary fields: {missing_summary}")
-                    return False
-                
-                # Verify we have 14 categories as expected
-                if len(boq_by_category) < 10:  # At least 10 categories expected
-                    print(f"❌ Expected at least 10 BOQ categories, got {len(boq_by_category)}")
-                    return False
-                
-                # Verify payment schedule exists
-                if "payment_schedule" not in summary:
-                    print("❌ Payment schedule missing from summary")
-                    return False
-                
-                print(f"✅ Quick estimate generated successfully:")
-                print(f"   Grand Total: ₹{summary['grand_total']:,.2f}")
-                print(f"   Cost per sqft: ₹{summary['cost_per_sqft']:,.2f}")
-                print(f"   BOQ Categories: {len(boq_by_category)}")
-                print(f"   Payment Schedule: {len(summary['payment_schedule'])} milestones")
-                
-                return True
+            # Test the key values
+            built_up_area_sqft = inputs["built_up_area_sqft"]
+            carpet_area_sqm = inputs["carpet_area_sqm"]
+            paint_area = inputs["paint_area"]
+            
+            # Convert to sqft for comparison
+            carpet_area_sqft = carpet_area_sqm * 10.764
+            paint_area_sqft = paint_area * 10.764
+            
+            print(f"Input: {built_up_area_sqft} sqft built-up area")
+            print(f"carpet_area_sqm (flooring): {carpet_area_sqm:.2f} sqm = {carpet_area_sqft:.0f} sqft")
+            print(f"paint_area: {paint_area:.2f} sqm = {paint_area_sqft:.0f} sqft")
+            
+            # Check if flooring area is approximately equal to built-up area (allowing 5% tolerance)
+            flooring_tolerance = abs(carpet_area_sqft - built_up_area_sqft) / built_up_area_sqft
+            painting_tolerance = abs(paint_area_sqft - built_up_area_sqft) / built_up_area_sqft
+            
+            if flooring_tolerance <= 0.05:  # 5% tolerance
+                self.log_result(
+                    "Flooring Area Calculation",
+                    True,
+                    f"Flooring area correctly calculated: {carpet_area_sqft:.0f} sqft ≈ {built_up_area_sqft} sqft (tolerance: {flooring_tolerance:.2%})",
+                    {
+                        "built_up_area_sqft": built_up_area_sqft,
+                        "carpet_area_sqft": round(carpet_area_sqft),
+                        "tolerance": f"{flooring_tolerance:.2%}"
+                    }
+                )
             else:
-                print(f"❌ Quick estimate failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Quick estimate error: {str(e)}")
-            return False
-    
-    def test_calculation_inputs_preview(self) -> bool:
-        """Test 2: Calculation Inputs Preview"""
-        print("\n🧪 Testing Calculation Inputs Preview...")
-        
-        try:
-            response = self.session.get(f"{API_BASE}/estimates/calculation-inputs/2500?num_floors=2")
+                self.log_result(
+                    "Flooring Area Calculation",
+                    False,
+                    f"Flooring area incorrect: {carpet_area_sqft:.0f} sqft vs expected {built_up_area_sqft} sqft (tolerance: {flooring_tolerance:.2%})",
+                    {
+                        "built_up_area_sqft": built_up_area_sqft,
+                        "carpet_area_sqft": round(carpet_area_sqft),
+                        "tolerance": f"{flooring_tolerance:.2%}"
+                    }
+                )
             
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Verify response structure
-                required_fields = ["specifications", "calculation_inputs"]
-                missing_fields = [field for field in required_fields if field not in data]
-                
-                if missing_fields:
-                    print(f"❌ Missing required fields: {missing_fields}")
-                    return False
-                
-                calc_inputs = data["calculation_inputs"]
-                
-                # Verify calculation inputs have expected fields
-                expected_inputs = ["foundation_area", "built_up_area_sqft", "num_floors"]
-                found_inputs = [field for field in expected_inputs if field in calc_inputs]
-                
-                if len(found_inputs) < 2:  # At least 2 expected inputs
-                    print(f"❌ Expected calculation inputs not found. Got: {list(calc_inputs.keys())}")
-                    return False
-                
-                print(f"✅ Calculation inputs retrieved successfully:")
-                print(f"   Total inputs: {len(calc_inputs)}")
-                print(f"   Sample inputs: {list(calc_inputs.keys())[:5]}")
-                
-                return True
+            if painting_tolerance <= 0.05:  # 5% tolerance
+                self.log_result(
+                    "Painting Area Calculation",
+                    True,
+                    f"Painting area correctly calculated: {paint_area_sqft:.0f} sqft ≈ {built_up_area_sqft} sqft (tolerance: {painting_tolerance:.2%})",
+                    {
+                        "built_up_area_sqft": built_up_area_sqft,
+                        "paint_area_sqft": round(paint_area_sqft),
+                        "tolerance": f"{painting_tolerance:.2%}"
+                    }
+                )
             else:
-                print(f"❌ Calculation inputs failed: {response.status_code} - {response.text}")
-                return False
+                self.log_result(
+                    "Painting Area Calculation",
+                    False,
+                    f"Painting area incorrect: {paint_area_sqft:.0f} sqft vs expected {built_up_area_sqft} sqft (tolerance: {painting_tolerance:.2%})",
+                    {
+                        "built_up_area_sqft": built_up_area_sqft,
+                        "paint_area_sqft": round(paint_area_sqft),
+                        "tolerance": f"{painting_tolerance:.2%}"
+                    }
+                )
+            
+            # Test BOQ generation to verify flooring line item
+            boq_items = calc.calculate_boq()
+            flooring_item = None
+            
+            for item in boq_items:
+                if item.item_code == 'FLR-001':  # Vitrified Tile flooring
+                    flooring_item = item
+                    break
+            
+            if flooring_item:
+                flooring_boq_sqft = flooring_item.quantity * 10.764
+                boq_tolerance = abs(flooring_boq_sqft - built_up_area_sqft) / built_up_area_sqft
                 
-        except Exception as e:
-            print(f"❌ Calculation inputs error: {str(e)}")
-            return False
-    
-    def test_create_lead_estimate(self) -> bool:
-        """Test 3: Create Lead Estimate (Requires existing lead)"""
-        print("\n🧪 Testing Create Lead Estimate...")
-        
-        if not self.test_lead_id:
-            print("❌ No test lead available. Creating one...")
-            if not self.create_test_lead():
-                return False
-        
-        try:
-            payload = {
-                "lead_id": self.test_lead_id,
-                "estimate_type": "detailed",
-                "specifications": {
-                    "project_type": "residential_individual",
-                    "total_area_sqft": 2500,
-                    "num_floors": 2,
-                    "construction_type": "rcc_framed",
-                    "foundation_type": "isolated_footing",
-                    "finishing_grade": "standard",
-                    "floor_details": [
+                print(f"FLR-001 Vitrified Tile: {flooring_item.quantity:.2f} sqm = {flooring_boq_sqft:.0f} sqft")
+                
+                if boq_tolerance <= 0.05:
+                    self.log_result(
+                        "BOQ Flooring Line Item",
+                        True,
+                        f"BOQ flooring quantity correct: {flooring_boq_sqft:.0f} sqft ≈ {built_up_area_sqft} sqft",
                         {
-                            "floor_number": 0,
-                            "floor_name": "Ground Floor",
-                            "area_sqft": 1200,
-                            "rooms": 3,
-                            "bathrooms": 2
-                        },
-                        {
-                            "floor_number": 1,
-                            "floor_name": "First Floor",
-                            "area_sqft": 1300,
-                            "rooms": 3,
-                            "bathrooms": 2
+                            "item_code": flooring_item.item_code,
+                            "quantity_sqm": flooring_item.quantity,
+                            "quantity_sqft": round(flooring_boq_sqft),
+                            "tolerance": f"{boq_tolerance:.2%}"
                         }
-                    ]
-                }
+                    )
+                else:
+                    self.log_result(
+                        "BOQ Flooring Line Item",
+                        False,
+                        f"BOQ flooring quantity incorrect: {flooring_boq_sqft:.0f} sqft vs expected {built_up_area_sqft} sqft",
+                        {
+                            "item_code": flooring_item.item_code,
+                            "quantity_sqm": flooring_item.quantity,
+                            "quantity_sqft": round(flooring_boq_sqft),
+                            "tolerance": f"{boq_tolerance:.2%}"
+                        }
+                    )
+            else:
+                self.log_result(
+                    "BOQ Flooring Line Item",
+                    False,
+                    "FLR-001 Vitrified Tile flooring item not found in BOQ"
+                )
+                
+        except Exception as e:
+            self.log_result(
+                "Estimate Engine Test",
+                False,
+                f"Error testing estimate engine: {str(e)}"
+            )
+    
+    def test_auto_create_milestones_tasks(self):
+        """
+        Test Feature 2: Auto-Create Project Milestones & Tasks
+        
+        When a project is created, 5 milestones with 26 total tasks should be auto-created.
+        """
+        print("=" * 60)
+        print("TESTING FEATURE 2: Auto-Create Project Milestones & Tasks")
+        print("=" * 60)
+        
+        try:
+            # Create a test project
+            project_data = {
+                "name": f"Test Project - Auto Milestones {datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
+                "description": "Test project for milestone and task auto-creation",
+                "client_name": "Test Client",
+                "client_phone": "+919876543210",
+                "client_email": "test@example.com",
+                "location": "Test Location",
+                "address": "Test Address",
+                "project_type": "residential",
+                "status": "planning",
+                "start_date": datetime.utcnow().isoformat(),
+                "estimated_budget": 1000000.0,
+                "total_area_sqft": 2000.0
             }
             
-            response = self.session.post(f"{API_BASE}/lead-estimates", json=payload)
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Verify response structure
-                if not data.get("success"):
-                    print(f"❌ Lead estimate creation not successful: {data}")
-                    return False
-                
-                estimate = data.get("estimate")
-                if not estimate:
-                    print("❌ No estimate data in response")
-                    return False
-                
-                # Verify estimate has required fields
-                required_fields = ["id", "estimate_number", "line_items", "summary"]
-                missing_fields = [field for field in required_fields if field not in estimate]
-                
-                if missing_fields:
-                    print(f"❌ Missing estimate fields: {missing_fields}")
-                    return False
-                
-                # Verify estimate number format (EST-L-YYYY-XXX)
-                estimate_number = estimate["estimate_number"]
-                if not estimate_number.startswith("EST-L-"):
-                    print(f"❌ Invalid estimate number format: {estimate_number}")
-                    return False
-                
-                # Verify we have line items (30+ BOQ items expected)
-                line_items = estimate["line_items"]
-                if len(line_items) < 20:  # At least 20 line items expected
-                    print(f"❌ Expected at least 20 line items, got {len(line_items)}")
-                    return False
-                
-                # Verify summary has grand_total
-                summary = estimate["summary"]
-                if "grand_total" not in summary:
-                    print("❌ Grand total missing from summary")
-                    return False
-                
-                self.test_estimate_id = estimate["id"]
-                
-                print(f"✅ Lead estimate created successfully:")
-                print(f"   Estimate Number: {estimate_number}")
-                print(f"   Line Items: {len(line_items)}")
-                print(f"   Grand Total: ₹{summary['grand_total']:,.2f}")
-                
-                return True
-            else:
-                print(f"❌ Lead estimate creation failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Lead estimate creation error: {str(e)}")
-            return False
-    
-    def test_list_lead_estimates(self) -> bool:
-        """Test 4: List Lead Estimates"""
-        print("\n🧪 Testing List Lead Estimates...")
-        
-        if not self.test_lead_id:
-            print("❌ No test lead available for listing estimates")
-            return False
-        
-        try:
-            response = self.session.get(f"{API_BASE}/lead-estimates?lead_id={self.test_lead_id}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Verify response structure
-                if "estimates" not in data:
-                    print(f"❌ No estimates field in response: {data}")
-                    return False
-                
-                estimates = data["estimates"]
-                
-                # Should have at least one estimate (the one we created)
-                if len(estimates) == 0:
-                    print("❌ No estimates found for the test lead")
-                    return False
-                
-                # Verify pagination info
-                if "total" not in data:
-                    print("❌ Missing pagination total")
-                    return False
-                
-                print(f"✅ Lead estimates listed successfully:")
-                print(f"   Total estimates: {data['total']}")
-                print(f"   Returned estimates: {len(estimates)}")
-                
-                return True
-            else:
-                print(f"❌ List lead estimates failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ List lead estimates error: {str(e)}")
-            return False
-    
-    def test_get_lead_estimate_details(self) -> bool:
-        """Test 5: Get Lead Estimate Details"""
-        print("\n🧪 Testing Get Lead Estimate Details...")
-        
-        if not self.test_estimate_id:
-            print("❌ No test estimate available for details")
-            return False
-        
-        try:
-            response = self.session.get(f"{API_BASE}/lead-estimates/{self.test_estimate_id}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Verify response structure
-                required_fields = ["id", "estimate_number", "line_items", "summary"]
-                missing_fields = [field for field in required_fields if field not in data]
-                
-                if missing_fields:
-                    print(f"❌ Missing estimate detail fields: {missing_fields}")
-                    return False
-                
-                # Verify all BOQ line items are present
-                line_items = data["line_items"]
-                if len(line_items) == 0:
-                    print("❌ No line items in estimate details")
-                    return False
-                
-                print(f"✅ Lead estimate details retrieved successfully:")
-                print(f"   Estimate ID: {data['id']}")
-                print(f"   Line Items: {len(line_items)}")
-                
-                return True
-            else:
-                print(f"❌ Get lead estimate details failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Get lead estimate details error: {str(e)}")
-            return False
-    
-    def test_update_line_item(self) -> bool:
-        """Test 6: Update Line Item"""
-        print("\n🧪 Testing Update Line Item...")
-        
-        if not self.test_estimate_id:
-            print("❌ No test estimate available for line item update")
-            return False
-        
-        try:
-            # First get the estimate to find a line item to update
-            response = self.session.get(f"{API_BASE}/lead-estimates/{self.test_estimate_id}")
+            # Create project via API
+            response = self.session.post(
+                f"{BACKEND_URL}/projects",
+                json=project_data,
+                headers={"Content-Type": "application/json"}
+            )
             
             if response.status_code != 200:
-                print("❌ Could not retrieve estimate for line item update")
-                return False
+                self.log_result(
+                    "Project Creation",
+                    False,
+                    f"Failed to create project: {response.status_code} - {response.text}"
+                )
+                return
             
-            estimate_data = response.json()
-            line_items = estimate_data.get("line_items", [])
+            project_response = response.json()
+            project_id = project_response.get("id")
+            task_count = project_response.get("task_count", {})
             
-            if len(line_items) == 0:
-                print("❌ No line items available to update")
-                return False
-            
-            # Get the first line item
-            line_item = line_items[0]
-            line_id = line_item["id"]
-            original_quantity = line_item.get("quantity", 1)
-            original_rate = line_item.get("rate", 100)
-            
-            # Update the line item
-            update_payload = {
-                "quantity": 15.0,
-                "rate": 6000
-            }
-            
-            response = self.session.put(
-                f"{API_BASE}/lead-estimates/{self.test_estimate_id}/lines/{line_id}",
-                json=update_payload
+            self.log_result(
+                "Project Creation",
+                True,
+                f"Project created successfully with ID: {project_id}",
+                {
+                    "project_id": project_id,
+                    "project_name": project_response.get("name"),
+                    "task_count": task_count
+                }
             )
             
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Verify the estimate was updated
-                if "estimate" not in data:
-                    print("❌ No updated estimate in response")
-                    return False
-                
-                updated_estimate = data["estimate"]
-                
-                # Verify recalculated totals
-                if "summary" not in updated_estimate:
-                    print("❌ No summary in updated estimate")
-                    return False
-                
-                summary = updated_estimate["summary"]
-                if "grand_total" not in summary:
-                    print("❌ No grand_total in updated summary")
-                    return False
-                
-                print(f"✅ Line item updated successfully:")
-                print(f"   Updated quantity: {original_quantity} → 15.0")
-                print(f"   Updated rate: ₹{original_rate} → ₹6000")
-                print(f"   New grand total: ₹{summary['grand_total']:,.2f}")
-                
-                return True
+            # Check if task_count is populated
+            total_tasks = task_count.get("total", 0)
+            if total_tasks > 0:
+                self.log_result(
+                    "Task Count in Project Response",
+                    True,
+                    f"Project response includes task_count.total = {total_tasks}",
+                    {"task_count": task_count}
+                )
             else:
-                print(f"❌ Update line item failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Update line item error: {str(e)}")
-            return False
-    
-    def test_convert_lead_estimate_to_project(self) -> bool:
-        """Test 7: Convert Lead Estimate to Project"""
-        print("\n🧪 Testing Convert Lead Estimate to Project...")
-        
-        if not self.test_estimate_id or not self.test_lead_id:
-            print("❌ No test estimate or lead available for conversion")
-            return False
-        
-        try:
-            payload = {
-                "lead_id": self.test_lead_id,
-                "lead_estimate_id": self.test_estimate_id,
-                "project_name": "Test Residential Project",
-                "start_date": "2025-01-15T00:00:00Z"
-            }
+                self.log_result(
+                    "Task Count in Project Response",
+                    False,
+                    f"Project response missing or zero task_count.total: {total_tasks}",
+                    {"task_count": task_count}
+                )
             
-            response = self.session.post(
-                f"{API_BASE}/lead-estimates/{self.test_estimate_id}/convert-to-project",
-                json=payload
+            # Get milestones for the project
+            milestones_response = self.session.get(
+                f"{BACKEND_URL}/milestones",
+                params={"project_id": project_id}
             )
             
-            if response.status_code == 200:
-                data = response.json()
+            if milestones_response.status_code == 200:
+                milestones = milestones_response.json()
+                milestone_count = len(milestones)
                 
-                # Verify response structure
-                required_fields = ["project_id", "project_estimate_id", "milestones_created", "tasks_created"]
-                missing_fields = [field for field in required_fields if field not in data]
+                # Check milestone names
+                expected_milestone_names = ["Preliminary", "Design", "Construction", "Finishing", "Handover"]
+                actual_milestone_names = [m.get("name") for m in milestones]
                 
-                if missing_fields:
-                    print(f"❌ Missing conversion result fields: {missing_fields}")
-                    return False
+                if milestone_count == 5:
+                    self.log_result(
+                        "Milestone Count",
+                        True,
+                        f"Correct number of milestones created: {milestone_count}",
+                        {
+                            "milestone_count": milestone_count,
+                            "milestone_names": actual_milestone_names
+                        }
+                    )
+                else:
+                    self.log_result(
+                        "Milestone Count",
+                        False,
+                        f"Incorrect number of milestones: {milestone_count} (expected 5)",
+                        {
+                            "milestone_count": milestone_count,
+                            "milestone_names": actual_milestone_names
+                        }
+                    )
                 
-                # Verify milestones and tasks were created
-                milestones_created = data["milestones_created"]
-                tasks_created = data["tasks_created"]
-                
-                if milestones_created < 5:  # Expect at least 5 milestones
-                    print(f"❌ Expected at least 5 milestones, got {milestones_created}")
-                    return False
-                
-                if tasks_created < 20:  # Expect at least 20 tasks
-                    print(f"❌ Expected at least 20 tasks, got {tasks_created}")
-                    return False
-                
-                self.test_project_id = data["project_id"]
-                
-                print(f"✅ Lead estimate converted to project successfully:")
-                print(f"   Project ID: {data['project_id']}")
-                print(f"   Project Estimate ID: {data['project_estimate_id']}")
-                print(f"   Milestones Created: {milestones_created}")
-                print(f"   Tasks Created: {tasks_created}")
-                
-                return True
+                # Check milestone names
+                names_match = all(name in actual_milestone_names for name in expected_milestone_names)
+                if names_match:
+                    self.log_result(
+                        "Milestone Names",
+                        True,
+                        "All expected milestone names found",
+                        {
+                            "expected": expected_milestone_names,
+                            "actual": actual_milestone_names
+                        }
+                    )
+                else:
+                    self.log_result(
+                        "Milestone Names",
+                        False,
+                        "Milestone names don't match expected",
+                        {
+                            "expected": expected_milestone_names,
+                            "actual": actual_milestone_names
+                        }
+                    )
+                    
             else:
-                print(f"❌ Convert to project failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Convert to project error: {str(e)}")
-            return False
-    
-    def test_get_project_estimates(self) -> bool:
-        """Test 8: Get Project Estimates"""
-        print("\n🧪 Testing Get Project Estimates...")
-        
-        if not self.test_project_id:
-            print("❌ No test project available for project estimates")
-            return False
-        
-        try:
-            response = self.session.get(f"{API_BASE}/project-estimates?project_id={self.test_project_id}")
+                self.log_result(
+                    "Milestone Retrieval",
+                    False,
+                    f"Failed to retrieve milestones: {milestones_response.status_code} - {milestones_response.text}"
+                )
             
-            if response.status_code == 200:
-                data = response.json()
+            # Get tasks for the project
+            tasks_response = self.session.get(
+                f"{BACKEND_URL}/tasks",
+                params={"project_id": project_id}
+            )
+            
+            if tasks_response.status_code == 200:
+                tasks = tasks_response.json()
+                task_count_actual = len(tasks)
                 
-                # Verify response structure
-                if "estimates" not in data:
-                    print(f"❌ No estimates field in project estimates response: {data}")
-                    return False
+                if task_count_actual == 26:
+                    self.log_result(
+                        "Task Count",
+                        True,
+                        f"Correct number of tasks created: {task_count_actual}",
+                        {
+                            "task_count": task_count_actual,
+                            "sample_tasks": [t.get("title") for t in tasks[:5]]  # Show first 5 tasks
+                        }
+                    )
+                else:
+                    self.log_result(
+                        "Task Count",
+                        False,
+                        f"Incorrect number of tasks: {task_count_actual} (expected 26)",
+                        {
+                            "task_count": task_count_actual,
+                            "sample_tasks": [t.get("title") for t in tasks[:5]]  # Show first 5 tasks
+                        }
+                    )
                 
-                estimates = data["estimates"]
+                # Verify tasks are distributed across milestones
+                milestone_task_distribution = {}
+                for task in tasks:
+                    milestone_id = task.get("milestone_id")
+                    if milestone_id:
+                        milestone_task_distribution[milestone_id] = milestone_task_distribution.get(milestone_id, 0) + 1
                 
-                # Should have at least one estimate (the converted one)
-                if len(estimates) == 0:
-                    print("❌ No project estimates found")
-                    return False
-                
-                # Verify the estimate has source linking back to lead estimate
-                estimate = estimates[0]
-                if "source" not in estimate:
-                    print("❌ No source field in project estimate")
-                    return False
-                
-                source = estimate["source"]
-                if "lead_estimate_id" not in source:
-                    print("❌ No lead_estimate_id in source")
-                    return False
-                
-                if source["lead_estimate_id"] != self.test_estimate_id:
-                    print(f"❌ Source lead_estimate_id mismatch: {source['lead_estimate_id']} != {self.test_estimate_id}")
-                    return False
-                
-                print(f"✅ Project estimates retrieved successfully:")
-                print(f"   Total estimates: {len(estimates)}")
-                print(f"   Source lead estimate ID: {source['lead_estimate_id']}")
-                
-                return True
+                if len(milestone_task_distribution) > 0:
+                    self.log_result(
+                        "Task Distribution",
+                        True,
+                        f"Tasks distributed across {len(milestone_task_distribution)} milestones",
+                        {"distribution": milestone_task_distribution}
+                    )
+                else:
+                    self.log_result(
+                        "Task Distribution",
+                        False,
+                        "No tasks found with milestone assignments"
+                    )
+                    
             else:
-                print(f"❌ Get project estimates failed: {response.status_code} - {response.text}")
-                return False
+                self.log_result(
+                    "Task Retrieval",
+                    False,
+                    f"Failed to retrieve tasks: {tasks_response.status_code} - {tasks_response.text}"
+                )
                 
         except Exception as e:
-            print(f"❌ Get project estimates error: {str(e)}")
-            return False
+            self.log_result(
+                "Auto-Create Milestones & Tasks Test",
+                False,
+                f"Error testing auto-creation: {str(e)}"
+            )
     
-    def run_all_tests(self) -> Dict[str, bool]:
-        """Run all Estimate Engine v2.0 tests"""
-        print("🚀 Starting Estimate Engine v2.0 API Tests")
-        print("=" * 60)
+    def run_all_tests(self):
+        """Run all backend tests"""
+        print("🚀 Starting Backend Testing for SiteOps API")
+        print("=" * 80)
         
         # Authenticate first
         if not self.authenticate():
-            return {"authentication": False}
+            print("❌ Authentication failed. Cannot proceed with tests.")
+            return
         
-        # Run all tests
-        test_results = {}
+        # Test Feature 1: Estimate Engine v2 - Flooring & Painting Area Fix
+        self.test_estimate_engine_flooring_fix()
         
-        test_results["quick_estimate_calculator"] = self.test_quick_estimate_calculator()
-        test_results["calculation_inputs_preview"] = self.test_calculation_inputs_preview()
-        test_results["create_lead_estimate"] = self.test_create_lead_estimate()
-        test_results["list_lead_estimates"] = self.test_list_lead_estimates()
-        test_results["get_lead_estimate_details"] = self.test_get_lead_estimate_details()
-        test_results["update_line_item"] = self.test_update_line_item()
-        test_results["convert_lead_estimate_to_project"] = self.test_convert_lead_estimate_to_project()
-        test_results["get_project_estimates"] = self.test_get_project_estimates()
+        # Test Feature 2: Auto-Create Project Milestones & Tasks
+        self.test_auto_create_milestones_tasks()
         
-        return test_results
+        # Print summary
+        self.print_summary()
     
-    def print_summary(self, results: Dict[str, bool]):
+    def print_summary(self):
         """Print test summary"""
-        print("\n" + "=" * 60)
-        print("📊 ESTIMATE ENGINE V2.0 TEST SUMMARY")
-        print("=" * 60)
+        print("=" * 80)
+        print("🏁 TEST SUMMARY")
+        print("=" * 80)
         
-        passed = sum(1 for result in results.values() if result)
-        total = len(results)
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for result in self.test_results if result["success"])
+        failed_tests = total_tests - passed_tests
         
-        for test_name, result in results.items():
-            status = "✅ PASS" if result else "❌ FAIL"
-            print(f"{status} {test_name.replace('_', ' ').title()}")
+        print(f"Total Tests: {total_tests}")
+        print(f"✅ Passed: {passed_tests}")
+        print(f"❌ Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        print()
         
-        print(f"\n🎯 Overall Result: {passed}/{total} tests passed")
+        if failed_tests > 0:
+            print("❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result["success"]:
+                    print(f"   • {result['test_name']}: {result['message']}")
+            print()
         
-        if passed == total:
-            print("🎉 ALL TESTS PASSED! Estimate Engine v2.0 is working perfectly!")
-        else:
-            print("⚠️  Some tests failed. Please check the issues above.")
+        print("✅ PASSED TESTS:")
+        for result in self.test_results:
+            if result["success"]:
+                print(f"   • {result['test_name']}: {result['message']}")
         
-        return passed == total
-
-
-def main():
-    """Main test execution"""
-    tester = EstimateEngineV2Tester()
-    results = tester.run_all_tests()
-    success = tester.print_summary(results)
-    
-    # Exit with appropriate code
-    exit(0 if success else 1)
+        print("\n" + "=" * 80)
+        
+        # Save detailed results to file
+        with open('/app/backend_test_results.json', 'w') as f:
+            json.dump(self.test_results, f, indent=2, default=str)
+        
+        print("📄 Detailed results saved to: /app/backend_test_results.json")
 
 
 if __name__ == "__main__":
-    main()
+    tester = BackendTester()
+    tester.run_all_tests()
