@@ -354,6 +354,7 @@ FINISHING_GRADE_MULTIPLIERS = {
 }
 
 # City-based cost multipliers
+# Tier 2/3 cities are 1.5x Bangalore prices due to logistics and material availability
 CITY_MULTIPLIERS = {
     "mumbai": 1.3,
     "delhi": 1.2,
@@ -363,8 +364,8 @@ CITY_MULTIPLIERS = {
     "pune": 1.05,
     "kolkata": 1.0,
     "ahmedabad": 0.95,
-    "tier2": 0.85,
-    "tier3": 0.75,
+    "tier2": 1.725,  # 1.5x Bangalore (1.15 * 1.5)
+    "tier3": 1.725,  # 1.5x Bangalore (1.15 * 1.5)
     "default": 1.0,
 }
 
