@@ -308,7 +308,15 @@ export default function TaskDetailsScreen() {
         animationType="slide"
         onRequestClose={() => setShowCostModal(false)}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <TouchableOpacity 
+            style={styles.modalDismissArea}
+            activeOpacity={1}
+            onPress={() => setShowCostModal(false)}
+          />
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Update Actual Cost</Text>
@@ -324,6 +332,7 @@ export default function TaskDetailsScreen() {
               onChangeText={setActualCost}
               keyboardType="numeric"
               placeholder="0"
+              placeholderTextColor={Colors.textTertiary}
               autoFocus
             />
             
@@ -353,7 +362,7 @@ export default function TaskDetailsScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
