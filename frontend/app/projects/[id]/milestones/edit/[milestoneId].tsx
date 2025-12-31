@@ -42,10 +42,15 @@ export default function EditMilestoneScreen() {
       
       setName(milestone.name);
       setDescription(milestone.description || '');
-      setDueDate(new Date(milestone.due_date));
+      // Handle both due_date and target_date
+      const dateValue = milestone.due_date || milestone.target_date;
+      setDueDate(dateValue ? new Date(dateValue) : new Date());
       setStatus(milestone.status);
-      setCompletionPercentage(milestone.completion_percentage.toString());
+      // Handle both completion_percentage and progress
+      const progressValue = milestone.completion_percentage ?? milestone.progress ?? 0;
+      setCompletionPercentage(progressValue.toString());
     } catch (error) {
+      console.error('Error loading milestone:', error);
       Alert.alert('Error', 'Failed to load milestone');
       router.back();
     } finally {
