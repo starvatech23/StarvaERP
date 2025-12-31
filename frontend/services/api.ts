@@ -579,6 +579,36 @@ export const estimateV2API = {
     api.post(`/lead-estimates/${estimateId}/convert-to-project`, data),
 };
 
+// Task Cost API - Calculate and apply costs to tasks
+export const taskCostAPI = {
+  getPresets: () => api.get('/task-costs/presets'),
+  getPreset: (taskTitle: string) => api.get(`/task-costs/preset/${encodeURIComponent(taskTitle)}`),
+  calculateSingle: (taskTitle: string, params: {
+    built_up_area_sqft: number;
+    num_floors?: number;
+    finishing_grade?: string;
+    city?: string;
+  }) => api.post(`/task-costs/calculate?task_title=${encodeURIComponent(taskTitle)}`, null, { params }),
+  calculateProject: (data: {
+    project_id: string;
+    built_up_area_sqft: number;
+    num_floors?: number;
+    finishing_grade?: string;
+    city?: string;
+  }) => api.post('/task-costs/calculate-project', data),
+  applyToProject: (projectId: string, params: {
+    built_up_area_sqft: number;
+    num_floors?: number;
+    finishing_grade?: string;
+    city?: string;
+  }) => api.post(`/task-costs/apply-to-project/${projectId}`, null, { params }),
+  researchCost: (taskTitle: string, params: {
+    description?: string;
+    built_up_area_sqft?: number;
+    city?: string;
+  }) => api.post(`/task-costs/research/${encodeURIComponent(taskTitle)}`, null, { params }),
+};
+
 export const estimationAPI = {
   create: (data: any) => api.post('/estimates', data),
   createFloorWise: (data: any) => api.post('/estimates/floor-wise', data),
