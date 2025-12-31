@@ -112,6 +112,7 @@ export default function DashboardScreen() {
     if (user?.role === 'admin' || user?.role === 'project_manager') {
       actions.push(
         { icon: 'add-circle', label: 'New Project', color: Colors.primary, route: '/projects/create' },
+        { icon: 'calculator', label: 'Estimates', color: '#10B981', route: '/estimates' },
         { icon: 'cube', label: 'Materials', color: Colors.secondary, route: '/(tabs)/materials' },
         { icon: 'wallet', label: 'Finance', color: Colors.success, route: '/finance' },
         { icon: 'people', label: 'Labor', color: Colors.info, route: '/labor' }
