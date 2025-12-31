@@ -16816,6 +16816,196 @@ async def get_schedule_delays(
     }
 
 
+# ============= Task Cost API Endpoints =============
+
+class TaskCostCalculationRequest(PydanticBaseModel):
+    project_id: str
+    built_up_area_sqft: float
+    num_floors: int = 1
+    finishing_grade: str = "standard"
+    city: str = "default"
+
+
+@api_router.get("/task-costs/presets")
+async def get_task_cost_presets(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all available task cost presets"""
+    await get_current_user(credentials)
+    return get_all_presets()
+
+
+@api_router.get("/task-costs/preset/{task_title}")
+async def get_single_task_cost_preset(
+    task_title: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get cost preset for a specific task type"""
+    await get_current_user(credentials)
+    preset = get_task_cost_preset(task_title)
+    if preset:
+        return preset
+    return {"found": False, "message": f"No preset found for '{task_title}'"}
+
+
+@api_router.post("/task-costs/calculate")
+async def calculate_single_task_cost(
+    task_title: str,
+    built_up_area_sqft: float,
+    num_floors: int = 1,
+    finishing_grade: str = "standard",
+    city: str = "default",
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Calculate cost for a single task"""
+    await get_current_user(credentials)
+    return calculate_task_cost(
+        task_title=task_title,
+        built_up_area_sqft=built_up_area_sqft,
+        num_floors=num_floors,
+        finishing_grade=finishing_grade,
+        city=city
+    )
+
+
+@api_router.post("/task-costs/calculate-project")
+async def calculate_project_costs(
+    request: TaskCostCalculationRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Calculate costs for all tasks in a project"""
+    await get_current_user(credentials)
+    
+    # Get all tasks for the project
+    tasks = await db.tasks.find({"project_id": request.project_id}).to_list(500)
+    
+    if not tasks:
+        return {"error": "No tasks found for project", "project_id": request.project_id}
+    
+    result = await calculate_project_task_costs(
+        tasks=tasks,
+        built_up_area_sqft=request.built_up_area_sqft,
+        num_floors=request.num_floors,
+        finishing_grade=request.finishing_grade,
+        city=request.city
+    )
+    
+    return result
+
+
+@api_router.post("/task-costs/apply-to-project/{project_id}")
+async def apply_costs_to_project_tasks(
+    project_id: str,
+    built_up_area_sqft: float,
+    num_floors: int = 1,
+    finishing_grade: str = "standard",
+    city: str = "default",
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Calculate and apply cost estimates to all tasks in a project"""
+    await get_current_user(credentials)
+    
+    # Get all tasks for the project
+    tasks = await db.tasks.find({"project_id": project_id}).to_list(500)
+    
+    if not tasks:
+        return {"error": "No tasks found for project", "project_id": project_id}
+    
+    # Calculate costs
+    result = await calculate_project_task_costs(
+        tasks=tasks,
+        built_up_area_sqft=built_up_area_sqft,
+        num_floors=num_floors,
+        finishing_grade=finishing_grade,
+        city=city
+    )
+    
+    # Update each task with calculated costs
+    tasks_updated = 0
+    for cost_data in result["task_costs"]:
+        task_id = cost_data.get("task_id")
+        if task_id and cost_data.get("preset_found"):
+            await db.tasks.update_one(
+                {"_id": ObjectId(task_id)},
+                {"$set": {
+                    "estimated_cost": cost_data["estimated_cost"],
+                    "material_cost": cost_data["material_cost"],
+                    "labour_cost": cost_data["labour_cost"],
+                    "cost_unit": cost_data["unit"],
+                    "cost_quantity": cost_data["quantity"],
+                    "cost_preset_name": cost_data.get("preset_name"),
+                    "cost_calculated_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }}
+            )
+            tasks_updated += 1
+    
+    # Also update milestones with aggregated costs
+    milestones = await db.milestones.find({"project_id": project_id}).to_list(100)
+    
+    for milestone in milestones:
+        ms_id = str(milestone["_id"])
+        ms_tasks = [t for t in result["task_costs"] if t.get("task_id") in 
+                    [str(task["_id"]) for task in tasks if task.get("milestone_id") == ms_id]]
+        
+        if ms_tasks:
+            ms_total = sum(t.get("estimated_cost", 0) for t in ms_tasks)
+            ms_material = sum(t.get("material_cost", 0) for t in ms_tasks)
+            ms_labour = sum(t.get("labour_cost", 0) for t in ms_tasks)
+            
+            await db.milestones.update_one(
+                {"_id": ObjectId(ms_id)},
+                {"$set": {
+                    "estimated_cost": ms_total,
+                    "estimated_material_cost": ms_material,
+                    "estimated_labour_cost": ms_labour,
+                    "cost_calculated_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }}
+            )
+    
+    # Update project total budget
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$set": {
+            "estimated_budget": result["summary"]["total_estimated_cost"],
+            "estimated_material_budget": result["summary"]["total_material_cost"],
+            "estimated_labour_budget": result["summary"]["total_labour_cost"],
+            "cost_per_sqft": result["summary"]["cost_per_sqft"],
+            "cost_calculated_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    
+    return {
+        "success": True,
+        "tasks_updated": tasks_updated,
+        "summary": result["summary"],
+        "parameters": result["parameters"]
+    }
+
+
+@api_router.post("/task-costs/research/{task_title}")
+async def research_unknown_task_cost(
+    task_title: str,
+    description: str = "",
+    built_up_area_sqft: float = 1000,
+    city: str = "bangalore",
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Use LLM to research cost for an unknown task type"""
+    await get_current_user(credentials)
+    
+    result = await research_task_cost_with_llm(
+        task_title=task_title,
+        task_description=description,
+        built_up_area_sqft=built_up_area_sqft,
+        city=city
+    )
+    
+    return result
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
