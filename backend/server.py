@@ -1816,17 +1816,22 @@ async def update_task(
     task_update: TaskUpdate,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    """Update a task"""
+    """Update a task and cascade date changes to consecutive tasks"""
     current_user = await get_current_user(credentials)
     
     existing = await db.tasks.find_one({"_id": ObjectId(task_id)})
     if not existing:
         raise HTTPException(status_code=404, detail="Task not found")
     
-    # Check permissions
-    is_creator = str(existing["created_by"]) == str(current_user["_id"])
-    is_assigned = str(current_user["_id"]) in existing.get("assigned_to", [])
-    is_admin_or_pm = current_user["role"] in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]
+    # Check permissions - handle both role and role_name fields
+    is_creator = str(existing.get("created_by", "")) == str(current_user["_id"])
+    assigned_to_list = existing.get("assigned_to", [])
+    if isinstance(assigned_to_list, str):
+        assigned_to_list = [assigned_to_list] if assigned_to_list else []
+    is_assigned = str(current_user["_id"]) in assigned_to_list
+    
+    user_role = current_user.get("role") or current_user.get("role_name", "")
+    is_admin_or_pm = user_role in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, "Admin", "Project Manager"]
     
     if not (is_creator or is_assigned or is_admin_or_pm):
         raise HTTPException(status_code=403, detail="You don't have permission to update this task")
@@ -1834,15 +1839,42 @@ async def update_task(
     update_data = task_update.dict(exclude_unset=True)
     update_data["updated_at"] = datetime.utcnow()
     
+    # Track if dates changed for cascading
+    dates_changed = False
+    old_end_date = existing.get("planned_end_date") or existing.get("due_date")
+    new_end_date = update_data.get("planned_end_date") or update_data.get("due_date")
+    
+    if new_end_date and old_end_date:
+        if isinstance(old_end_date, str):
+            old_end_date = datetime.fromisoformat(old_end_date.replace('Z', '+00:00'))
+        if isinstance(new_end_date, str):
+            new_end_date = datetime.fromisoformat(new_end_date.replace('Z', '+00:00'))
+        if old_end_date != new_end_date:
+            dates_changed = True
+    
+    # Sync due_date with planned_end_date
+    if "planned_end_date" in update_data:
+        update_data["due_date"] = update_data["planned_end_date"]
+    
     await db.tasks.update_one(
         {"_id": ObjectId(task_id)},
         {"$set": update_data}
     )
     
+    # Cascade date changes to consecutive tasks in the same milestone
+    cascade_result = None
+    if dates_changed and existing.get("milestone_id"):
+        cascade_result = await cascade_task_dates(
+            task_id=task_id,
+            milestone_id=existing["milestone_id"],
+            project_id=existing.get("project_id"),
+            new_end_date=new_end_date
+        )
+    
     updated_task = await db.tasks.find_one({"_id": ObjectId(task_id)})
     task_dict = serialize_doc(updated_task)
     
-    creator = await get_user_by_id(task_dict["created_by"])
+    creator = await get_user_by_id(task_dict.get("created_by"))
     task_dict["created_by_name"] = creator["full_name"] if creator else None
     
     # Get assigned users - handle both string and list cases
@@ -1858,7 +1890,136 @@ async def update_task(
             assigned_users.append({"id": user["id"], "name": user["full_name"]})
     task_dict["assigned_users"] = assigned_users
     
+    # Add cascade info to response if dates were cascaded
+    if cascade_result:
+        task_dict["cascade_result"] = cascade_result
+    
     return TaskResponse(**task_dict)
+
+
+async def cascade_task_dates(
+    task_id: str,
+    milestone_id: str,
+    project_id: str,
+    new_end_date: datetime
+) -> dict:
+    """
+    Cascade date changes to consecutive tasks within the same milestone.
+    When a task's end date changes, all subsequent tasks shift accordingly.
+    """
+    # Get the updated task to find its order/position
+    updated_task = await db.tasks.find_one({"_id": ObjectId(task_id)})
+    if not updated_task:
+        return {"cascaded": False, "reason": "Task not found"}
+    
+    # Get all tasks in the same milestone, sorted by planned_start_date
+    all_tasks = await db.tasks.find({
+        "milestone_id": milestone_id
+    }).sort("planned_start_date", 1).to_list(100)
+    
+    if len(all_tasks) <= 1:
+        return {"cascaded": False, "reason": "No other tasks to cascade"}
+    
+    # Find the position of the updated task
+    task_index = -1
+    for i, task in enumerate(all_tasks):
+        if str(task["_id"]) == task_id:
+            task_index = i
+            break
+    
+    if task_index == -1 or task_index == len(all_tasks) - 1:
+        # Task not found or is the last task - no cascading needed
+        return {"cascaded": False, "reason": "No subsequent tasks to cascade"}
+    
+    # Cascade to subsequent tasks
+    cascaded_tasks = []
+    current_end = new_end_date
+    
+    for i in range(task_index + 1, len(all_tasks)):
+        task = all_tasks[i]
+        
+        # Calculate original duration
+        task_start = task.get("planned_start_date")
+        task_end = task.get("planned_end_date") or task.get("due_date")
+        
+        if task_start and task_end:
+            if isinstance(task_start, str):
+                task_start = datetime.fromisoformat(task_start.replace('Z', '+00:00'))
+            if isinstance(task_end, str):
+                task_end = datetime.fromisoformat(task_end.replace('Z', '+00:00'))
+            duration = (task_end - task_start).days
+        else:
+            duration = 5  # Default duration
+        
+        # New start is 1 day after previous task ends
+        new_start = current_end + timedelta(days=1)
+        new_end = new_start + timedelta(days=max(1, duration))
+        
+        # Update the task
+        await db.tasks.update_one(
+            {"_id": task["_id"]},
+            {"$set": {
+                "planned_start_date": new_start,
+                "planned_end_date": new_end,
+                "due_date": new_end,
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        cascaded_tasks.append({
+            "task_id": str(task["_id"]),
+            "title": task.get("title"),
+            "new_start": new_start.isoformat(),
+            "new_end": new_end.isoformat()
+        })
+        
+        current_end = new_end
+    
+    # Also update the milestone dates
+    if cascaded_tasks:
+        # Get earliest start and latest end from all tasks
+        all_updated_tasks = await db.tasks.find({
+            "milestone_id": milestone_id
+        }).to_list(100)
+        
+        earliest_start = None
+        latest_end = None
+        
+        for task in all_updated_tasks:
+            ts = task.get("planned_start_date")
+            te = task.get("planned_end_date") or task.get("due_date")
+            
+            if ts:
+                if isinstance(ts, str):
+                    ts = datetime.fromisoformat(ts.replace('Z', '+00:00'))
+                if earliest_start is None or ts < earliest_start:
+                    earliest_start = ts
+            
+            if te:
+                if isinstance(te, str):
+                    te = datetime.fromisoformat(te.replace('Z', '+00:00'))
+                if latest_end is None or te > latest_end:
+                    latest_end = te
+        
+        if earliest_start and latest_end:
+            await db.milestones.update_one(
+                {"_id": ObjectId(milestone_id)},
+                {"$set": {
+                    "start_date": earliest_start,
+                    "target_date": latest_end,
+                    "updated_at": datetime.utcnow()
+                }}
+            )
+        
+        # Cascade to subsequent milestones
+        calculator = ScheduleCalculator(db)
+        await calculator.cascade_milestone_dates(project_id, milestone_id, latest_end)
+    
+    return {
+        "cascaded": True,
+        "tasks_updated": len(cascaded_tasks),
+        "cascaded_tasks": cascaded_tasks
+    }
 
 @api_router.delete("/tasks/{task_id}")
 async def delete_task(
