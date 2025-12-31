@@ -5567,7 +5567,7 @@ async def get_active_users(
     return result
 
 @api_router.get("/users/{user_id}", response_model=UserResponse)
-async def get_user_by_id(
+async def get_user_by_id_endpoint(
     user_id: str,
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
