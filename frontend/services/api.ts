@@ -551,6 +551,22 @@ export const estimateV2API = {
   }) => api.post('/estimates/quick-calculate', data),
   getCalculationInputs: (areaSqft: number, numFloors?: number) => 
     api.get(`/estimates/calculation-inputs/${areaSqft}`, { params: { num_floors: numFloors || 1 } }),
+  // Save estimate to project with budget sync
+  saveToProject: (data: {
+    project_id: string;
+    total_area_sqft: number;
+    num_floors?: number;
+    finishing_grade?: string;
+    project_type?: string;
+    estimate_name?: string;
+    sync_to_budget?: boolean;
+  }) => api.post('/estimates/save-to-project', data),
+  // Get project estimates (v2)
+  getProjectEstimates: (projectId: string) => api.get(`/projects/${projectId}/estimates-v2`),
+  getProjectEstimateDetail: (projectId: string, estimateId: string) => 
+    api.get(`/projects/${projectId}/estimates-v2/${estimateId}`),
+  updateEstimateStatus: (projectId: string, estimateId: string, status: string) =>
+    api.put(`/projects/${projectId}/estimates-v2/${estimateId}/status`, null, { params: { status } }),
   // Lead Estimates
   createLeadEstimate: (data: any) => api.post('/lead-estimates', data),
   getLeadEstimates: (leadId?: string) => api.get('/lead-estimates', { params: { lead_id: leadId } }),
