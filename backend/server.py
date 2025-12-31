@@ -16287,7 +16287,7 @@ async def save_estimate_to_project(
             project_id=request.project_id,
             estimate_doc=estimate_doc,
             boq_items=boq_items,
-            summary=summary
+            summary=summary.dict()
         )
     
     return {
