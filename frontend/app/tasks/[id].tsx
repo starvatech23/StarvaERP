@@ -10,6 +10,8 @@ import {
   ActivityIndicator,
   TextInput,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Colors from '../../constants/Colors';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
