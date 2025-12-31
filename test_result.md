@@ -1510,6 +1510,10 @@ agent_communication:
 agent_communication:
   - agent: "main"
     message: "Implemented two critical features: (1) Fixed flooring/painting area calculation in estimate_engine_v2.py - areas now correctly equal built-up area instead of being reduced by 28%. (2) Added auto-creation of 5 milestones (Preliminary, Design, Construction, Finishing, Handover) with 26 default tasks when a project is created or a lead is converted. Please test both features via backend API tests."
+  - agent: "main"
+    message: "New Estimate-Budget sync functionality implemented with several new backend endpoints. Need testing of estimate creation, BOQ generation, and automatic milestone budget sync."
+  - agent: "testing"
+    message: "🎉 ESTIMATE-BUDGET SYNC TESTING COMPLETED SUCCESSFULLY! All 6 tests passed (100% success rate). CRITICAL FIXES APPLIED: (1) Fixed EstimateCalculator.get_summary() method call to calculate_summary(boq_items). (2) Fixed Pydantic object serialization by adding .dict() conversion. (3) Fixed milestone mapping to match actual milestone names. VERIFIED: ✅ Estimate creation with ₹3.96M total, ✅ All 10 milestones synced with budget costs, ✅ Full BOQ breakdown (31 items), ✅ Budget summary integration. Feature is production-ready and fully functional!"
 
 test_plan:
   current_focus:
