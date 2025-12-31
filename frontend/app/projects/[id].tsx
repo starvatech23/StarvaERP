@@ -1412,6 +1412,36 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.secondary,
   },
+  scheduleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.surface,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  scheduleButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  scheduleButtonText: {
+    flex: 1,
+  },
+  scheduleButtonTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  scheduleButtonSubtitle: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
   emptyText: {
     fontSize: 14,
     color: Colors.textSecondary,
