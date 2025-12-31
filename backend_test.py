@@ -1,505 +1,342 @@
 #!/usr/bin/env python3
 """
-Backend Testing Script for SiteOps API
-=====================================
-
-This script tests two specific features:
-1. Estimate Engine v2 - Flooring & Painting Area Fix
-2. Auto-Create Project Milestones & Tasks
-
-Usage: python3 backend_test.py
+Backend API Testing for Dynamic Schedule Management APIs
+Tests the new schedule management endpoints for SiteOps construction management app.
 """
 
-import sys
-import os
 import requests
 import json
-from datetime import datetime
-from typing import Dict, Any, List
-
-# Add backend directory to path for imports
-sys.path.append('/app/backend')
-
-# Import the estimate engine for direct testing
-from estimate_engine_v2 import (
-    EstimateCalculator, 
-    EstimateSpecifications, 
-    ProjectTypeEnum, 
-    FinishingGrade
-)
+import sys
+from datetime import datetime, timedelta
 
 # Configuration
-BACKEND_URL = "https://ops-enhancements.preview.emergentagent.com/api"
-ADMIN_CREDENTIALS = {
-    "identifier": "admin@starvacon.com",
-    "password": "StarvaWorld23@",
-    "auth_type": "email"
-}
+BASE_URL = "https://ops-enhancements.preview.emergentagent.com/api"
+LOGIN_EMAIL = "admin@starvacon.com"
+LOGIN_PASSWORD = "StarvaWorld23@"
 
-class BackendTester:
+class ScheduleAPITester:
     def __init__(self):
         self.session = requests.Session()
-        self.access_token = None
-        self.test_results = []
+        self.token = None
+        self.project_id = None
+        self.task_id = None
+        self.milestone_id = None
         
-    def log_result(self, test_name: str, success: bool, message: str, details: Dict = None):
-        """Log test result"""
-        result = {
-            "test_name": test_name,
-            "success": success,
-            "message": message,
-            "details": details or {},
-            "timestamp": datetime.utcnow().isoformat()
+    def login(self):
+        """Login and get access token"""
+        print("🔐 Logging in...")
+        
+        login_data = {
+            "identifier": LOGIN_EMAIL,
+            "password": LOGIN_PASSWORD,
+            "auth_type": "email"
         }
-        self.test_results.append(result)
         
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status}: {test_name}")
-        print(f"   {message}")
-        if details:
-            print(f"   Details: {json.dumps(details, indent=2)}")
-        print()
-    
-    def authenticate(self) -> bool:
-        """Authenticate with admin credentials"""
-        try:
-            response = self.session.post(
-                f"{BACKEND_URL}/auth/login",
-                json=ADMIN_CREDENTIALS,
-                headers={"Content-Type": "application/json"}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.access_token = data.get("access_token")
-                self.session.headers.update({
-                    "Authorization": f"Bearer {self.access_token}"
-                })
-                self.log_result(
-                    "Authentication", 
-                    True, 
-                    f"Successfully authenticated as {ADMIN_CREDENTIALS['identifier']}"
-                )
-                return True
-            else:
-                self.log_result(
-                    "Authentication", 
-                    False, 
-                    f"Authentication failed: {response.status_code} - {response.text}"
-                )
-                return False
-                
-        except Exception as e:
-            self.log_result(
-                "Authentication", 
-                False, 
-                f"Authentication error: {str(e)}"
-            )
+        response = self.session.post(f"{BASE_URL}/auth/login", json=login_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            self.token = data["access_token"]
+            self.session.headers.update({"Authorization": f"Bearer {self.token}"})
+            print(f"✅ Login successful! User: {data['user']['full_name']} ({data['user']['role']})")
+            return True
+        else:
+            print(f"❌ Login failed: {response.status_code} - {response.text}")
             return False
     
-    def test_estimate_engine_flooring_fix(self):
-        """
-        Test Feature 1: Estimate Engine v2 - Flooring & Painting Area Fix
+    def get_project_and_task_data(self):
+        """Get a project and its tasks/milestones to test with"""
+        print("\n📋 Getting project and task data...")
         
-        Issue: User reported flooring area showing 1066 sqft instead of ~3200 sqft 
-        for a 3200 sqft built-up area.
+        # Get projects
+        response = self.session.get(f"{BASE_URL}/projects")
+        if response.status_code != 200:
+            print(f"❌ Failed to get projects: {response.status_code} - {response.text}")
+            return False
+            
+        projects = response.json()
+        if not projects:
+            print("❌ No projects found")
+            return False
+            
+        self.project_id = projects[0]["id"]
+        project_name = projects[0]["name"]
+        print(f"✅ Using project: {project_name} (ID: {self.project_id})")
         
-        Fix: Changed carpet_area_sqm and paint_area to equal built_up_area_sqm directly (1:1 ratio).
-        """
-        print("=" * 60)
-        print("TESTING FEATURE 1: Estimate Engine v2 - Flooring & Painting Area Fix")
-        print("=" * 60)
+        # Get tasks for this project
+        response = self.session.get(f"{BASE_URL}/tasks", params={"project_id": self.project_id})
+        if response.status_code != 200:
+            print(f"❌ Failed to get tasks: {response.status_code} - {response.text}")
+            return False
+            
+        tasks = response.json()
+        if not tasks:
+            print("❌ No tasks found for project")
+            return False
+            
+        self.task_id = tasks[0]["id"]
+        task_title = tasks[0]["title"]
+        print(f"✅ Using task: {task_title} (ID: {self.task_id})")
         
-        try:
-            # Create specifications for 3200 sqft residential project
-            specs = EstimateSpecifications(
-                project_type=ProjectTypeEnum.RESIDENTIAL_INDIVIDUAL,
-                total_area_sqft=3200,
-                num_floors=1,
-                finishing_grade=FinishingGrade.STANDARD
-            )
-            
-            # Create calculator
-            calc = EstimateCalculator(specs)
-            inputs = calc.get_calculation_inputs()
-            
-            # Test the key values
-            built_up_area_sqft = inputs["built_up_area_sqft"]
-            carpet_area_sqm = inputs["carpet_area_sqm"]
-            paint_area = inputs["paint_area"]
-            
-            # Convert to sqft for comparison
-            carpet_area_sqft = carpet_area_sqm * 10.764
-            paint_area_sqft = paint_area * 10.764
-            
-            print(f"Input: {built_up_area_sqft} sqft built-up area")
-            print(f"carpet_area_sqm (flooring): {carpet_area_sqm:.2f} sqm = {carpet_area_sqft:.0f} sqft")
-            print(f"paint_area: {paint_area:.2f} sqm = {paint_area_sqft:.0f} sqft")
-            
-            # Check if flooring area is approximately equal to built-up area (allowing 5% tolerance)
-            flooring_tolerance = abs(carpet_area_sqft - built_up_area_sqft) / built_up_area_sqft
-            painting_tolerance = abs(paint_area_sqft - built_up_area_sqft) / built_up_area_sqft
-            
-            if flooring_tolerance <= 0.05:  # 5% tolerance
-                self.log_result(
-                    "Flooring Area Calculation",
-                    True,
-                    f"Flooring area correctly calculated: {carpet_area_sqft:.0f} sqft ≈ {built_up_area_sqft} sqft (tolerance: {flooring_tolerance:.2%})",
-                    {
-                        "built_up_area_sqft": built_up_area_sqft,
-                        "carpet_area_sqft": round(carpet_area_sqft),
-                        "tolerance": f"{flooring_tolerance:.2%}"
-                    }
-                )
-            else:
-                self.log_result(
-                    "Flooring Area Calculation",
-                    False,
-                    f"Flooring area incorrect: {carpet_area_sqft:.0f} sqft vs expected {built_up_area_sqft} sqft (tolerance: {flooring_tolerance:.2%})",
-                    {
-                        "built_up_area_sqft": built_up_area_sqft,
-                        "carpet_area_sqft": round(carpet_area_sqft),
-                        "tolerance": f"{flooring_tolerance:.2%}"
-                    }
-                )
-            
-            if painting_tolerance <= 0.05:  # 5% tolerance
-                self.log_result(
-                    "Painting Area Calculation",
-                    True,
-                    f"Painting area correctly calculated: {paint_area_sqft:.0f} sqft ≈ {built_up_area_sqft} sqft (tolerance: {painting_tolerance:.2%})",
-                    {
-                        "built_up_area_sqft": built_up_area_sqft,
-                        "paint_area_sqft": round(paint_area_sqft),
-                        "tolerance": f"{painting_tolerance:.2%}"
-                    }
-                )
-            else:
-                self.log_result(
-                    "Painting Area Calculation",
-                    False,
-                    f"Painting area incorrect: {paint_area_sqft:.0f} sqft vs expected {built_up_area_sqft} sqft (tolerance: {painting_tolerance:.2%})",
-                    {
-                        "built_up_area_sqft": built_up_area_sqft,
-                        "paint_area_sqft": round(paint_area_sqft),
-                        "tolerance": f"{painting_tolerance:.2%}"
-                    }
-                )
-            
-            # Test BOQ generation to verify flooring line item
-            boq_items = calc.calculate_boq()
-            flooring_item = None
-            
-            for item in boq_items:
-                if item.item_code == 'FLR-001':  # Vitrified Tile flooring
-                    flooring_item = item
-                    break
-            
-            if flooring_item:
-                flooring_boq_sqft = flooring_item.quantity * 10.764
-                boq_tolerance = abs(flooring_boq_sqft - built_up_area_sqft) / built_up_area_sqft
-                
-                print(f"FLR-001 Vitrified Tile: {flooring_item.quantity:.2f} sqm = {flooring_boq_sqft:.0f} sqft")
-                
-                if boq_tolerance <= 0.05:
-                    self.log_result(
-                        "BOQ Flooring Line Item",
-                        True,
-                        f"BOQ flooring quantity correct: {flooring_boq_sqft:.0f} sqft ≈ {built_up_area_sqft} sqft",
-                        {
-                            "item_code": flooring_item.item_code,
-                            "quantity_sqm": flooring_item.quantity,
-                            "quantity_sqft": round(flooring_boq_sqft),
-                            "tolerance": f"{boq_tolerance:.2%}"
-                        }
-                    )
-                else:
-                    self.log_result(
-                        "BOQ Flooring Line Item",
-                        False,
-                        f"BOQ flooring quantity incorrect: {flooring_boq_sqft:.0f} sqft vs expected {built_up_area_sqft} sqft",
-                        {
-                            "item_code": flooring_item.item_code,
-                            "quantity_sqm": flooring_item.quantity,
-                            "quantity_sqft": round(flooring_boq_sqft),
-                            "tolerance": f"{boq_tolerance:.2%}"
-                        }
-                    )
-            else:
-                self.log_result(
-                    "BOQ Flooring Line Item",
-                    False,
-                    "FLR-001 Vitrified Tile flooring item not found in BOQ"
-                )
-                
-        except Exception as e:
-            self.log_result(
-                "Estimate Engine Test",
-                False,
-                f"Error testing estimate engine: {str(e)}"
-            )
+        # Get milestones for this project
+        response = self.session.get(f"{BASE_URL}/milestones", params={"project_id": self.project_id})
+        if response.status_code == 200:
+            milestones = response.json()
+            if milestones:
+                self.milestone_id = milestones[0]["id"]
+                milestone_name = milestones[0]["name"]
+                print(f"✅ Using milestone: {milestone_name} (ID: {self.milestone_id})")
+        
+        return True
     
-    def test_auto_create_milestones_tasks(self):
-        """
-        Test Feature 2: Auto-Create Project Milestones & Tasks
+    def test_get_current_dates(self):
+        """Test 1: Get Current Task and Milestone Dates"""
+        print("\n🧪 TEST 1: Get Current Task and Milestone Dates")
         
-        When a project is created, 5 milestones with 26 total tasks should be auto-created.
-        """
-        print("=" * 60)
-        print("TESTING FEATURE 2: Auto-Create Project Milestones & Tasks")
-        print("=" * 60)
+        # Get current task data
+        response = self.session.get(f"{BASE_URL}/tasks", params={"project_id": self.project_id})
+        if response.status_code == 200:
+            tasks = response.json()
+            if tasks:
+                task = tasks[0]
+                print(f"✅ Current Task Data:")
+                print(f"   - Title: {task.get('title')}")
+                print(f"   - Planned Start: {task.get('planned_start_date')}")
+                print(f"   - Planned End: {task.get('planned_end_date')}")
+                print(f"   - Duration Days: {task.get('duration_days', 'N/A')}")
+                print(f"   - Assigned To: {len(task.get('assigned_to', []))} workers")
+        else:
+            print(f"❌ Failed to get task data: {response.status_code}")
+            return False
+            
+        # Get current milestone data
+        if self.milestone_id:
+            response = self.session.get(f"{BASE_URL}/milestones", params={"project_id": self.project_id})
+            if response.status_code == 200:
+                milestones = response.json()
+                if milestones:
+                    milestone = milestones[0]
+                    print(f"✅ Current Milestone Data:")
+                    print(f"   - Name: {milestone.get('name')}")
+                    print(f"   - Start Date: {milestone.get('start_date')}")
+                    print(f"   - Due Date: {milestone.get('due_date')}")
+                    print(f"   - Status: {milestone.get('status')}")
         
-        try:
-            # Create a test project
-            project_data = {
-                "name": f"Test Project - Auto Milestones {datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
-                "description": "Test project for milestone and task auto-creation",
-                "client_name": "Test Client",
-                "client_phone": "+919876543210",
-                "client_email": "test@example.com",
-                "location": "Test Location",
-                "address": "Test Address",
-                "project_type": "residential",
-                "status": "planning",
-                "start_date": datetime.utcnow().isoformat(),
-                "estimated_budget": 1000000.0,
-                "total_area_sqft": 2000.0
-            }
+        return True
+    
+    def test_recalculate_project_schedule(self):
+        """Test 2: Recalculate Project Schedule"""
+        print("\n🧪 TEST 2: Recalculate Project Schedule")
+        
+        response = self.session.post(f"{BASE_URL}/schedule/project/recalculate/{self.project_id}")
+        
+        if response.status_code == 200:
+            result = response.json()
+            print("✅ Project schedule recalculation successful!")
+            print(f"   - Milestones Updated: {len(result.get('milestones_updated', []))}")
+            print(f"   - Tasks Updated: {result.get('tasks_updated', 0)}")
+            print(f"   - New Project End: {result.get('new_project_end', 'N/A')}")
             
-            # Create project via API
-            response = self.session.post(
-                f"{BACKEND_URL}/projects",
-                json=project_data,
-                headers={"Content-Type": "application/json"}
-            )
+            # Show milestone updates
+            for milestone in result.get('milestones_updated', []):
+                print(f"   - Milestone '{milestone.get('name')}': {milestone.get('start_date')} → {milestone.get('due_date')}")
             
-            if response.status_code != 200:
-                self.log_result(
-                    "Project Creation",
-                    False,
-                    f"Failed to create project: {response.status_code} - {response.text}"
-                )
-                return
+            return True
+        else:
+            print(f"❌ Project schedule recalculation failed: {response.status_code} - {response.text}")
+            return False
+    
+    def test_update_task_labour(self):
+        """Test 3: Update Task Labour and Recalculate"""
+        print("\n🧪 TEST 3: Update Task Labour and Recalculate")
+        
+        # Test with increased labour count (should reduce duration)
+        labour_data = {
+            "task_id": self.task_id,
+            "labour_count": 5
+        }
+        
+        response = self.session.post(f"{BASE_URL}/schedule/task/update-labour", json=labour_data)
+        
+        if response.status_code == 200:
+            result = response.json()
+            print("✅ Task labour update successful!")
             
-            project_response = response.json()
-            project_id = project_response.get("id")
-            task_count = project_response.get("task_count", {})
+            if 'task_updated' in result:
+                task = result['task_updated']
+                print(f"   - Task: {task.get('title')}")
+                print(f"   - New Planned Start: {task.get('planned_start_date')}")
+                print(f"   - New Planned End: {task.get('planned_end_date')}")
+                print(f"   - New Duration Days: {task.get('duration_days')}")
+                print(f"   - Labour Count: {labour_data['labour_count']}")
             
-            self.log_result(
-                "Project Creation",
-                True,
-                f"Project created successfully with ID: {project_id}",
-                {
-                    "project_id": project_id,
-                    "project_name": project_response.get("name"),
-                    "task_count": task_count
-                }
-            )
+            if 'milestone_updated' in result:
+                milestone = result['milestone_updated']
+                print(f"   - Milestone Updated: {milestone.get('name')}")
+                print(f"   - New Milestone Dates: {milestone.get('start_date')} → {milestone.get('due_date')}")
             
-            # Check if task_count is populated
-            total_tasks = task_count.get("total", 0)
-            if total_tasks > 0:
-                self.log_result(
-                    "Task Count in Project Response",
-                    True,
-                    f"Project response includes task_count.total = {total_tasks}",
-                    {"task_count": task_count}
-                )
-            else:
-                self.log_result(
-                    "Task Count in Project Response",
-                    False,
-                    f"Project response missing or zero task_count.total: {total_tasks}",
-                    {"task_count": task_count}
-                )
+            return True
+        else:
+            print(f"❌ Task labour update failed: {response.status_code} - {response.text}")
+            return False
+    
+    def test_apply_material_delay(self):
+        """Test 4: Apply Material Delay"""
+        print("\n🧪 TEST 4: Apply Material Delay")
+        
+        delay_data = {
+            "task_id": self.task_id,
+            "delay_days": 7,
+            "reason": "Cement delivery delayed"
+        }
+        
+        response = self.session.post(f"{BASE_URL}/schedule/task/apply-material-delay", json=delay_data)
+        
+        if response.status_code == 200:
+            result = response.json()
+            print("✅ Material delay application successful!")
             
-            # Get milestones for the project
-            milestones_response = self.session.get(
-                f"{BACKEND_URL}/milestones",
-                params={"project_id": project_id}
-            )
+            if 'task_updated' in result:
+                task = result['task_updated']
+                print(f"   - Task: {task.get('title')}")
+                print(f"   - New Planned Start: {task.get('planned_start_date')}")
+                print(f"   - New Planned End: {task.get('planned_end_date')}")
+                print(f"   - Delay Applied: {delay_data['delay_days']} days")
+                print(f"   - Reason: {delay_data['reason']}")
             
-            if milestones_response.status_code == 200:
-                milestones = milestones_response.json()
-                milestone_count = len(milestones)
+            if 'milestone_updated' in result:
+                milestone = result['milestone_updated']
+                print(f"   - Milestone Updated: {milestone.get('name')}")
+                print(f"   - New Target Date: {milestone.get('due_date')}")
+            
+            if 'cascaded_updates' in result:
+                cascaded = result['cascaded_updates']
+                print(f"   - Cascaded Updates: {len(cascaded)} subsequent milestones")
+                for update in cascaded:
+                    print(f"     • {update.get('name')}: pushed to {update.get('due_date')}")
+            
+            return True
+        else:
+            print(f"❌ Material delay application failed: {response.status_code} - {response.text}")
+            return False
+    
+    def test_verify_cascading_updates(self):
+        """Test 5: Verify Cascading Updates"""
+        print("\n🧪 TEST 5: Verify Cascading Updates")
+        
+        # Get updated milestones to verify cascading
+        response = self.session.get(f"{BASE_URL}/milestones", params={"project_id": self.project_id})
+        
+        if response.status_code == 200:
+            milestones = response.json()
+            print("✅ Milestone cascading verification:")
+            
+            # Sort by order to check sequence
+            milestones.sort(key=lambda x: x.get('order', 0))
+            
+            for i, milestone in enumerate(milestones):
+                print(f"   {i+1}. {milestone.get('name')}")
+                print(f"      Start: {milestone.get('start_date')}")
+                print(f"      Target: {milestone.get('due_date')}")
+                print(f"      Status: {milestone.get('status')}")
                 
-                # Check milestone names
-                expected_milestone_names = ["Preliminary", "Design", "Construction", "Finishing", "Handover"]
-                actual_milestone_names = [m.get("name") for m in milestones]
-                
-                if milestone_count == 5:
-                    self.log_result(
-                        "Milestone Count",
-                        True,
-                        f"Correct number of milestones created: {milestone_count}",
-                        {
-                            "milestone_count": milestone_count,
-                            "milestone_names": actual_milestone_names
-                        }
-                    )
-                else:
-                    self.log_result(
-                        "Milestone Count",
-                        False,
-                        f"Incorrect number of milestones: {milestone_count} (expected 5)",
-                        {
-                            "milestone_count": milestone_count,
-                            "milestone_names": actual_milestone_names
-                        }
-                    )
-                
-                # Check milestone names
-                names_match = all(name in actual_milestone_names for name in expected_milestone_names)
-                if names_match:
-                    self.log_result(
-                        "Milestone Names",
-                        True,
-                        "All expected milestone names found",
-                        {
-                            "expected": expected_milestone_names,
-                            "actual": actual_milestone_names
-                        }
-                    )
-                else:
-                    self.log_result(
-                        "Milestone Names",
-                        False,
-                        "Milestone names don't match expected",
-                        {
-                            "expected": expected_milestone_names,
-                            "actual": actual_milestone_names
-                        }
-                    )
-                    
-            else:
-                self.log_result(
-                    "Milestone Retrieval",
-                    False,
-                    f"Failed to retrieve milestones: {milestones_response.status_code} - {milestones_response.text}"
-                )
+                # Check if dates are logical (each milestone starts after previous ends)
+                if i > 0:
+                    prev_end = milestones[i-1].get('due_date')
+                    curr_start = milestone.get('start_date')
+                    if prev_end and curr_start:
+                        print(f"      ✓ Sequence check: Previous ends {prev_end}, Current starts {curr_start}")
             
-            # Get tasks for the project
-            tasks_response = self.session.get(
-                f"{BACKEND_URL}/tasks",
-                params={"project_id": project_id}
-            )
+            return True
+        else:
+            print(f"❌ Failed to verify cascading updates: {response.status_code}")
+            return False
+    
+    def test_get_schedule_delays_log(self):
+        """Test 6: Get Schedule Delays Log"""
+        print("\n🧪 TEST 6: Get Schedule Delays Log")
+        
+        response = self.session.get(f"{BASE_URL}/schedule/delays/{self.project_id}")
+        
+        if response.status_code == 200:
+            delays = response.json()
+            print("✅ Schedule delays log retrieved!")
+            print(f"   - Total Delays Logged: {len(delays)}")
             
-            if tasks_response.status_code == 200:
-                tasks = tasks_response.json()
-                task_count_actual = len(tasks)
-                
-                if task_count_actual == 26:
-                    self.log_result(
-                        "Task Count",
-                        True,
-                        f"Correct number of tasks created: {task_count_actual}",
-                        {
-                            "task_count": task_count_actual,
-                            "sample_tasks": [t.get("title") for t in tasks[:5]]  # Show first 5 tasks
-                        }
-                    )
-                else:
-                    self.log_result(
-                        "Task Count",
-                        False,
-                        f"Incorrect number of tasks: {task_count_actual} (expected 26)",
-                        {
-                            "task_count": task_count_actual,
-                            "sample_tasks": [t.get("title") for t in tasks[:5]]  # Show first 5 tasks
-                        }
-                    )
-                
-                # Verify tasks are distributed across milestones
-                milestone_task_distribution = {}
-                for task in tasks:
-                    milestone_id = task.get("milestone_id")
-                    if milestone_id:
-                        milestone_task_distribution[milestone_id] = milestone_task_distribution.get(milestone_id, 0) + 1
-                
-                if len(milestone_task_distribution) > 0:
-                    self.log_result(
-                        "Task Distribution",
-                        True,
-                        f"Tasks distributed across {len(milestone_task_distribution)} milestones",
-                        {"distribution": milestone_task_distribution}
-                    )
-                else:
-                    self.log_result(
-                        "Task Distribution",
-                        False,
-                        "No tasks found with milestone assignments"
-                    )
-                    
-            else:
-                self.log_result(
-                    "Task Retrieval",
-                    False,
-                    f"Failed to retrieve tasks: {tasks_response.status_code} - {tasks_response.text}"
-                )
-                
-        except Exception as e:
-            self.log_result(
-                "Auto-Create Milestones & Tasks Test",
-                False,
-                f"Error testing auto-creation: {str(e)}"
-            )
+            for delay in delays:
+                print(f"   - Delay Entry:")
+                print(f"     • Task: {delay.get('task_title', 'N/A')}")
+                print(f"     • Delay Days: {delay.get('delay_days')}")
+                print(f"     • Reason: {delay.get('reason')}")
+                print(f"     • Applied On: {delay.get('applied_at')}")
+                print(f"     • Applied By: {delay.get('applied_by_name', 'N/A')}")
+            
+            return True
+        else:
+            print(f"❌ Failed to get schedule delays log: {response.status_code} - {response.text}")
+            return False
     
     def run_all_tests(self):
-        """Run all backend tests"""
-        print("🚀 Starting Backend Testing for SiteOps API")
-        print("=" * 80)
+        """Run all schedule management API tests"""
+        print("🚀 Starting Dynamic Schedule Management API Tests")
+        print("=" * 60)
         
-        # Authenticate first
-        if not self.authenticate():
-            print("❌ Authentication failed. Cannot proceed with tests.")
-            return
+        # Login first
+        if not self.login():
+            return False
         
-        # Test Feature 1: Estimate Engine v2 - Flooring & Painting Area Fix
-        self.test_estimate_engine_flooring_fix()
+        # Get test data
+        if not self.get_project_and_task_data():
+            return False
         
-        # Test Feature 2: Auto-Create Project Milestones & Tasks
-        self.test_auto_create_milestones_tasks()
+        # Run all tests
+        tests = [
+            ("Get Current Task and Milestone Dates", self.test_get_current_dates),
+            ("Recalculate Project Schedule", self.test_recalculate_project_schedule),
+            ("Update Task Labour and Recalculate", self.test_update_task_labour),
+            ("Apply Material Delay", self.test_apply_material_delay),
+            ("Verify Cascading Updates", self.test_verify_cascading_updates),
+            ("Get Schedule Delays Log", self.test_get_schedule_delays_log),
+        ]
         
-        # Print summary
-        self.print_summary()
+        passed = 0
+        failed = 0
+        
+        for test_name, test_func in tests:
+            try:
+                if test_func():
+                    passed += 1
+                else:
+                    failed += 1
+            except Exception as e:
+                print(f"❌ {test_name} failed with exception: {str(e)}")
+                failed += 1
+        
+        # Summary
+        print("\n" + "=" * 60)
+        print("📊 TEST SUMMARY")
+        print(f"✅ Passed: {passed}")
+        print(f"❌ Failed: {failed}")
+        print(f"📈 Success Rate: {(passed/(passed+failed)*100):.1f}%")
+        
+        if failed == 0:
+            print("🎉 ALL DYNAMIC SCHEDULE MANAGEMENT APIS WORKING PERFECTLY!")
+            return True
+        else:
+            print("⚠️  Some tests failed. Check the output above for details.")
+            return False
+
+
+def main():
+    """Main test execution"""
+    tester = ScheduleAPITester()
+    success = tester.run_all_tests()
     
-    def print_summary(self):
-        """Print test summary"""
-        print("=" * 80)
-        print("🏁 TEST SUMMARY")
-        print("=" * 80)
-        
-        total_tests = len(self.test_results)
-        passed_tests = sum(1 for result in self.test_results if result["success"])
-        failed_tests = total_tests - passed_tests
-        
-        print(f"Total Tests: {total_tests}")
-        print(f"✅ Passed: {passed_tests}")
-        print(f"❌ Failed: {failed_tests}")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
-        print()
-        
-        if failed_tests > 0:
-            print("❌ FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"   • {result['test_name']}: {result['message']}")
-            print()
-        
-        print("✅ PASSED TESTS:")
-        for result in self.test_results:
-            if result["success"]:
-                print(f"   • {result['test_name']}: {result['message']}")
-        
-        print("\n" + "=" * 80)
-        
-        # Save detailed results to file
-        with open('/app/backend_test_results.json', 'w') as f:
-            json.dump(self.test_results, f, indent=2, default=str)
-        
-        print("📄 Detailed results saved to: /app/backend_test_results.json")
+    if success:
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    tester = BackendTester()
-    tester.run_all_tests()
+    main()
