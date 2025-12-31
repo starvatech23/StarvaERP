@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import Colors from '../../../constants/Colors';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { projectsAPI, tasksAPI } from '../../../services/api';
 import moment from 'moment';
@@ -26,9 +26,12 @@ export default function ProjectTimelineScreen() {
   const [loading, setLoading] = useState(true);
   const [ganttData, setGanttData] = useState<any[]>([]);
 
-  useEffect(() => {
-    loadData();
-  }, [id]);
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [id])
+  );
 
   const loadData = async () => {
     try {
