@@ -16261,7 +16261,7 @@ async def save_estimate_to_project(
             "project_type": request.project_type,
         },
         "calculation_inputs": inputs,
-        "summary": summary,
+        "summary": summary.dict(),
         "boq_items": [item.dict() for item in boq_items],
         "boq_by_category": {},
         "created_by": str(current_user["_id"]),
