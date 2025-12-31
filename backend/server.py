@@ -127,6 +127,7 @@ from data_export_import import (
     generate_csv_template, export_data_to_csv, parse_csv_import,
     validate_import_data, EXPORT_TEMPLATES
 )
+from schedule_engine import ScheduleCalculator, on_labour_change, on_material_delay
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
