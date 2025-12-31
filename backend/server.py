@@ -16503,6 +16503,133 @@ async def update_estimate_status(
     return {"success": True, "status": status}
 
 
+# ============= Schedule Management API Endpoints =============
+
+class LabourChangeRequest(PydanticBaseModel):
+    task_id: str
+    labour_count: int
+
+
+class MaterialDelayRequest(PydanticBaseModel):
+    task_id: str
+    delay_days: int
+    reason: Optional[str] = "Material delivery delay"
+
+
+@api_router.post("/schedule/task/update-labour")
+async def update_task_labour_and_recalculate(
+    request: LabourChangeRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Update labour count for a task and automatically recalculate dates.
+    When labour increases, task duration decreases (and vice versa).
+    Cascades updates to milestone and subsequent milestones.
+    """
+    await get_current_user(credentials)
+    
+    calculator = ScheduleCalculator(db)
+    result = await calculator.recalculate_task_dates(
+        task_id=request.task_id,
+        labour_count=request.labour_count
+    )
+    
+    # Also recalculate the milestone
+    task = await db.tasks.find_one({"_id": ObjectId(request.task_id)})
+    if task and task.get("milestone_id"):
+        ms_result = await calculator.recalculate_milestone_dates(
+            task["milestone_id"],
+            cascade=True
+        )
+        result["milestone_updated"] = ms_result
+    
+    return result
+
+
+@api_router.post("/schedule/task/apply-material-delay")
+async def apply_material_delay_endpoint(
+    request: MaterialDelayRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Apply a material delivery delay to a task.
+    This will:
+    1. Push the task start date by the delay days
+    2. Recalculate the task's end date
+    3. Update the milestone dates
+    4. Cascade updates to all subsequent milestones and their tasks
+    """
+    await get_current_user(credentials)
+    
+    calculator = ScheduleCalculator(db)
+    result = await calculator.apply_material_delay(
+        task_id=request.task_id,
+        delay_days=request.delay_days,
+        reason=request.reason or "Material delivery delay"
+    )
+    
+    return result
+
+
+@api_router.post("/schedule/milestone/recalculate/{milestone_id}")
+async def recalculate_milestone_schedule(
+    milestone_id: str,
+    cascade: bool = True,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Recalculate a milestone's dates based on its tasks.
+    Optionally cascade updates to subsequent milestones.
+    """
+    await get_current_user(credentials)
+    
+    calculator = ScheduleCalculator(db)
+    result = await calculator.recalculate_milestone_dates(
+        milestone_id=milestone_id,
+        cascade=cascade
+    )
+    
+    return result
+
+
+@api_router.post("/schedule/project/recalculate/{project_id}")
+async def recalculate_project_schedule(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Full recalculation of entire project schedule.
+    Recalculates all milestones and tasks sequentially.
+    Updates project end date.
+    """
+    await get_current_user(credentials)
+    
+    calculator = ScheduleCalculator(db)
+    result = await calculator.recalculate_project_schedule(project_id)
+    
+    return result
+
+
+@api_router.get("/schedule/delays/{project_id}")
+async def get_schedule_delays(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Get all schedule delays logged for a project.
+    """
+    await get_current_user(credentials)
+    
+    delays = await db.schedule_delays.find({
+        "project_id": project_id
+    }).sort("applied_at", -1).to_list(100)
+    
+    return {
+        "delays": [serialize_doc(d) for d in delays],
+        "total_delay_days": sum(d.get("delay_days", 0) for d in delays)
+    }
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
