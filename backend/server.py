@@ -15080,17 +15080,29 @@ async def get_project_budget_summary(
     # Get all tasks with their estimates
     tasks = await db.tasks.find({"project_id": project_id}).to_list(1000)
     
-    # Get all labour estimates
+    # Get all labour estimates from separate collection
     labour_estimates = await db.task_labour_estimates.find({"project_id": project_id}).to_list(1000)
     
-    # Get all material estimates
+    # Get all material estimates from separate collection
     material_estimates = await db.task_material_estimates.find({"project_id": project_id}).to_list(1000)
     
-    # Calculate totals
-    total_labour_planned = sum(e.get("planned_cost", 0) for e in labour_estimates)
-    total_labour_actual = sum(e.get("actual_cost", 0) for e in labour_estimates)
-    total_material_planned = sum(e.get("planned_cost", 0) for e in material_estimates)
-    total_material_actual = sum(e.get("actual_cost", 0) for e in material_estimates)
+    # Calculate totals from separate estimate collections (legacy/manual estimates)
+    legacy_labour_planned = sum(e.get("planned_cost", 0) for e in labour_estimates)
+    legacy_labour_actual = sum(e.get("actual_cost", 0) for e in labour_estimates)
+    legacy_material_planned = sum(e.get("planned_cost", 0) for e in material_estimates)
+    legacy_material_actual = sum(e.get("actual_cost", 0) for e in material_estimates)
+    
+    # Calculate totals from task-embedded costs (LLM-calculated costs)
+    task_labour_planned = sum(t.get("labour_cost", 0) or 0 for t in tasks)
+    task_material_planned = sum(t.get("material_cost", 0) or 0 for t in tasks)
+    task_total_planned = sum(t.get("estimated_cost", 0) or 0 for t in tasks)
+    task_actual = sum(t.get("actual_cost", 0) or 0 for t in tasks)
+    
+    # Use the higher of legacy or task-embedded costs (prefer task-embedded if available)
+    total_labour_planned = task_labour_planned if task_labour_planned > 0 else legacy_labour_planned
+    total_labour_actual = legacy_labour_actual  # Actuals still come from manual entry
+    total_material_planned = task_material_planned if task_material_planned > 0 else legacy_material_planned
+    total_material_actual = legacy_material_actual  # Actuals still come from manual entry
     
     # Build milestone breakdown
     milestone_breakdown = []
@@ -15099,13 +15111,26 @@ async def get_project_budget_summary(
         ms_tasks = [t for t in tasks if t.get("milestone_id") == ms_id]
         ms_task_ids = [str(t["_id"]) for t in ms_tasks]
         
-        ms_labour_planned = sum(e.get("planned_cost", 0) for e in labour_estimates if e.get("task_id") in ms_task_ids)
+        # Legacy estimates
+        ms_legacy_labour = sum(e.get("planned_cost", 0) for e in labour_estimates if e.get("task_id") in ms_task_ids)
+        ms_legacy_material = sum(e.get("planned_cost", 0) for e in material_estimates if e.get("task_id") in ms_task_ids)
+        
+        # Task-embedded costs (LLM-calculated)
+        ms_task_labour = sum(t.get("labour_cost", 0) or 0 for t in ms_tasks)
+        ms_task_material = sum(t.get("material_cost", 0) or 0 for t in ms_tasks)
+        ms_task_estimated = sum(t.get("estimated_cost", 0) or 0 for t in ms_tasks)
+        
+        # Use task-embedded if available, otherwise legacy
+        ms_labour_planned = ms_task_labour if ms_task_labour > 0 else ms_legacy_labour
         ms_labour_actual = sum(e.get("actual_cost", 0) for e in labour_estimates if e.get("task_id") in ms_task_ids)
-        ms_material_planned = sum(e.get("planned_cost", 0) for e in material_estimates if e.get("task_id") in ms_task_ids)
+        ms_material_planned = ms_task_material if ms_task_material > 0 else ms_legacy_material
         ms_material_actual = sum(e.get("actual_cost", 0) for e in material_estimates if e.get("task_id") in ms_task_ids)
         
         ms_total_planned = ms_labour_planned + ms_material_planned
-        ms_total_actual = ms_labour_actual + ms_material_actual
+        # If we have task-embedded estimated_cost that differs, use that
+        if ms_task_estimated > 0 and ms_task_estimated != ms_total_planned:
+            ms_total_planned = ms_task_estimated
+        ms_total_actual = ms_labour_actual + ms_material_actual + sum(t.get("actual_cost", 0) or 0 for t in ms_tasks)
         
         milestone_breakdown.append({
             "milestone_id": ms_id,
@@ -15126,11 +15151,20 @@ async def get_project_budget_summary(
         })
     
     total_planned = total_labour_planned + total_material_planned
-    total_actual = total_labour_actual + total_material_actual
+    # If task_total_planned is available and different, prefer it
+    if task_total_planned > 0 and task_total_planned != total_planned:
+        total_planned = task_total_planned
+    total_actual = total_labour_actual + total_material_actual + task_actual
+    
+    # Get project built-up area for the calculator
+    built_up_area = project.get("built_up_area") or project.get("total_built_area") or 0
+    num_floors = len(project.get("floor_details", [])) or project.get("num_floors", 1)
     
     return {
         "project_id": project_id,
         "project_name": project.get("name"),
+        "built_up_area": built_up_area,
+        "num_floors": num_floors,
         "labour": {
             "planned": total_labour_planned,
             "actual": total_labour_actual,
