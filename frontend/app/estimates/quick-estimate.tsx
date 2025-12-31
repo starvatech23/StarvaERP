@@ -678,6 +678,7 @@ export default function QuickEstimateScreen() {
 
         {step === 1 ? renderInputForm() : renderResults()}
         {renderGradePicker()}
+        {renderSaveModal()}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
