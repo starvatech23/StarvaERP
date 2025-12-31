@@ -896,6 +896,21 @@ export default function ProjectDetailsScreen() {
           tasks={tasks}
         />
 
+        {/* Schedule Visualization Link */}
+        <TouchableOpacity
+          style={styles.scheduleButton}
+          onPress={() => router.push(`/projects/${id}/schedule` as any)}
+        >
+          <View style={styles.scheduleButtonContent}>
+            <Ionicons name="calendar" size={20} color={Colors.primary} />
+            <View style={styles.scheduleButtonText}>
+              <Text style={styles.scheduleButtonTitle}>View Full Schedule</Text>
+              <Text style={styles.scheduleButtonSubtitle}>Timeline, delays & schedule health</Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+        </TouchableOpacity>
+
         {/* Team Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
