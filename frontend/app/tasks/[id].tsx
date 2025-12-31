@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
   Modal,
 } from 'react-native';
 import Colors from '../../constants/Colors';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { tasksAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -31,9 +31,12 @@ export default function TaskDetailsScreen() {
   const canEdit = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'engineer';
   const canEditCost = canEdit; // PM and Engineer can edit actual cost
 
-  useEffect(() => {
-    loadTask();
-  }, [id]);
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadTask();
+    }, [id])
+  );
 
   const loadTask = async () => {
     try {
