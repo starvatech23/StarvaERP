@@ -308,6 +308,7 @@ export default function ProjectDetailsScreen() {
 
   const canEdit = user?.role === 'admin' || user?.role === 'project_manager';
 
+  // Initial load
   useEffect(() => {
     loadProject();
     loadTasks();
@@ -317,6 +318,15 @@ export default function ProjectDetailsScreen() {
     loadIncomingTransfers();
     loadAllProjects();
   }, [id]);
+
+  // Refresh data when screen comes into focus (after returning from edit screens)
+  useFocusEffect(
+    useCallback(() => {
+      // Reload tasks and milestones to ensure fresh data after edits
+      loadTasks();
+      loadMilestones();
+    }, [id])
+  );
 
   const loadStatusUpdates = async () => {
     try {
