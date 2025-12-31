@@ -9,6 +9,7 @@ export default function EstimatesLayout() {
         contentStyle: { backgroundColor: Colors.background },
       }}
     >
+      <Stack.Screen name="index" />
       <Stack.Screen name="quick-estimate" />
     </Stack>
   );
