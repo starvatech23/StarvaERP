@@ -180,7 +180,9 @@ export default function ProjectBudgetScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Budget & Deviations</Text>
-        <View style={{ width: 24 }} />
+        <TouchableOpacity onPress={() => setShowCostModal(true)} style={styles.headerButton}>
+          <Ionicons name="calculator" size={22} color={Colors.primary} />
+        </TouchableOpacity>
       </View>
 
       {/* Tabs */}
@@ -214,6 +216,21 @@ export default function ProjectBudgetScreen() {
       >
         {activeTab === 'budget' && budget && (
           <>
+            {/* Calculate Costs Banner */}
+            {(!budget.total?.planned || budget.total?.planned === 0) && (
+              <TouchableOpacity 
+                style={styles.calculateBanner}
+                onPress={() => setShowCostModal(true)}
+              >
+                <Ionicons name="calculator" size={24} color={Colors.primary} />
+                <View style={styles.bannerTextContainer}>
+                  <Text style={styles.bannerTitle}>Calculate Task Costs</Text>
+                  <Text style={styles.bannerSubtitle}>Generate cost estimates for all tasks</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            )}
+
             {/* Summary Cards */}
             <View style={styles.summarySection}>
               <Text style={styles.sectionTitle}>Cost Summary</Text>
