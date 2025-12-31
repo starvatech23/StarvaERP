@@ -541,6 +541,28 @@ export const taskMaterialsAPI = {
 
 
 // Budgeting & Estimation API
+// Estimate Engine v2 - Quick Calculate API (new dynamic system)
+export const estimateV2API = {
+  quickCalculate: (data: { 
+    total_area_sqft: number; 
+    num_floors?: number; 
+    finishing_grade?: 'economy' | 'standard' | 'premium' | 'luxury';
+    project_type?: string;
+  }) => api.post('/estimates/quick-calculate', data),
+  getCalculationInputs: (areaSqft: number, numFloors?: number) => 
+    api.get(`/estimates/calculation-inputs/${areaSqft}`, { params: { num_floors: numFloors || 1 } }),
+  // Lead Estimates
+  createLeadEstimate: (data: any) => api.post('/lead-estimates', data),
+  getLeadEstimates: (leadId?: string) => api.get('/lead-estimates', { params: { lead_id: leadId } }),
+  getLeadEstimate: (estimateId: string) => api.get(`/lead-estimates/${estimateId}`),
+  updateLeadEstimateLine: (estimateId: string, lineId: string, data: { quantity?: number; rate?: number }) =>
+    api.put(`/lead-estimates/${estimateId}/lines/${lineId}`, data),
+  updateLeadEstimateStatus: (estimateId: string, status: string) =>
+    api.put(`/lead-estimates/${estimateId}/status`, { status }),
+  convertToProject: (estimateId: string, data: any) =>
+    api.post(`/lead-estimates/${estimateId}/convert-to-project`, data),
+};
+
 export const estimationAPI = {
   create: (data: any) => api.post('/estimates', data),
   createFloorWise: (data: any) => api.post('/estimates/floor-wise', data),
