@@ -52,10 +52,14 @@ export default function QuickEstimateScreen() {
   const projectId = params.projectId as string | undefined;
 
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [step, setStep] = useState(1); // 1: Input, 2: Results
   const [result, setResult] = useState<EstimateResult | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [showGradePicker, setShowGradePicker] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [estimateName, setEstimateName] = useState('');
+  const [syncToBudget, setSyncToBudget] = useState(true);
 
   // Form state
   const [builtUpArea, setBuiltUpArea] = useState('');
@@ -106,6 +110,48 @@ export default function QuickEstimateScreen() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveToProject = async () => {
+    if (!projectId) {
+      Alert.alert('No Project', 'Please open this from a project to save the estimate.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const response = await estimateV2API.saveToProject({
+        project_id: projectId,
+        total_area_sqft: parseFloat(builtUpArea),
+        num_floors: parseInt(numFloors) || 1,
+        finishing_grade: finishingGrade,
+        project_type: 'residential_individual',
+        estimate_name: estimateName || undefined,
+        sync_to_budget: syncToBudget,
+      });
+
+      if (response.data?.success) {
+        setShowSaveModal(false);
+        Alert.alert(
+          'Estimate Saved!',
+          `${response.data.message}${syncToBudget ? '\n\nBudget has been synced with milestones.' : ''}`,
+          [
+            { text: 'View Estimates', onPress: () => router.push(`/projects/${projectId}/estimate` as any) },
+            { text: 'Done', onPress: () => router.back() },
+          ]
+        );
+      } else {
+        throw new Error(response.data?.detail || 'Save failed');
+      }
+    } catch (error: any) {
+      console.error('Save estimate error:', error);
+      Alert.alert(
+        'Save Error',
+        error.response?.data?.detail || error.message || 'Failed to save estimate'
+      );
+    } finally {
+      setSaving(false);
     }
   };
 
