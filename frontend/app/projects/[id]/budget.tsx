@@ -7,12 +7,20 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Modal,
+  TextInput,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../../constants/Colors';
-import { projectsAPI } from '../../../services/api';
+import { projectsAPI, taskCostAPI } from '../../../services/api';
+
+type FinishingGrade = 'economy' | 'standard' | 'premium' | 'luxury';
+type City = 'mumbai' | 'delhi' | 'bangalore' | 'chennai' | 'hyderabad' | 'pune' | 'kolkata' | 'tier2' | 'tier3' | 'default';
 
 export default function ProjectBudgetScreen() {
   const router = useRouter();
@@ -22,6 +30,35 @@ export default function ProjectBudgetScreen() {
   const [budget, setBudget] = useState<any>(null);
   const [deviations, setDeviations] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'budget' | 'deviations'>('budget');
+  
+  // Cost calculation modal state
+  const [showCostModal, setShowCostModal] = useState(false);
+  const [calculating, setCalculating] = useState(false);
+  const [builtUpArea, setBuiltUpArea] = useState('');
+  const [numFloors, setNumFloors] = useState('1');
+  const [finishingGrade, setFinishingGrade] = useState<FinishingGrade>('standard');
+  const [city, setCity] = useState<City>('bangalore');
+  const [showGradeOptions, setShowGradeOptions] = useState(false);
+  const [showCityOptions, setShowCityOptions] = useState(false);
+
+  const gradeOptions: { value: FinishingGrade; label: string; multiplier: string }[] = [
+    { value: 'economy', label: 'Economy', multiplier: '0.8x' },
+    { value: 'standard', label: 'Standard', multiplier: '1.0x' },
+    { value: 'premium', label: 'Premium', multiplier: '1.4x' },
+    { value: 'luxury', label: 'Luxury', multiplier: '2.0x' },
+  ];
+
+  const cityOptions: { value: City; label: string; multiplier: string }[] = [
+    { value: 'mumbai', label: 'Mumbai', multiplier: '1.3x' },
+    { value: 'delhi', label: 'Delhi NCR', multiplier: '1.2x' },
+    { value: 'bangalore', label: 'Bangalore', multiplier: '1.15x' },
+    { value: 'chennai', label: 'Chennai', multiplier: '1.1x' },
+    { value: 'hyderabad', label: 'Hyderabad', multiplier: '1.1x' },
+    { value: 'pune', label: 'Pune', multiplier: '1.05x' },
+    { value: 'kolkata', label: 'Kolkata', multiplier: '1.0x' },
+    { value: 'tier2', label: 'Tier 2 City', multiplier: '1.73x' },
+    { value: 'tier3', label: 'Tier 3 City', multiplier: '1.73x' },
+  ];
 
   // Refresh data when screen comes into focus
   useFocusEffect(
@@ -43,6 +80,45 @@ export default function ProjectBudgetScreen() {
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const handleCalculateCosts = async () => {
+    const area = parseFloat(builtUpArea);
+    if (!area || area < 100) {
+      Alert.alert('Invalid Input', 'Please enter a valid built-up area (minimum 100 sqft)');
+      return;
+    }
+
+    setCalculating(true);
+    try {
+      const response = await taskCostAPI.applyToProject(id as string, {
+        built_up_area_sqft: area,
+        num_floors: parseInt(numFloors) || 1,
+        finishing_grade: finishingGrade,
+        city: city,
+      });
+
+      if (response.data?.success) {
+        const summary = response.data.summary;
+        setShowCostModal(false);
+        Alert.alert(
+          'Costs Calculated!',
+          `✅ ${response.data.tasks_updated} tasks updated\n\n` +
+          `Total Estimated: ₹${summary.total_estimated_cost?.toLocaleString()}\n` +
+          `Material: ₹${summary.total_material_cost?.toLocaleString()}\n` +
+          `Labour: ₹${summary.total_labour_cost?.toLocaleString()}\n` +
+          `Cost/sqft: ₹${summary.cost_per_sqft?.toLocaleString()}`,
+          [{ text: 'OK', onPress: () => loadData() }]
+        );
+      } else {
+        throw new Error(response.data?.detail || 'Calculation failed');
+      }
+    } catch (error: any) {
+      console.error('Cost calculation error:', error);
+      Alert.alert('Error', error.response?.data?.detail || error.message || 'Failed to calculate costs');
+    } finally {
+      setCalculating(false);
     }
   };
 
