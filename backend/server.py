@@ -13517,66 +13517,84 @@ async def get_project_gantt_data(
         current_user = await get_current_user(credentials)
         
         # Get project
-        project = await db.projects.find_one({"_id": ObjectId(project_id)})
+        try:
+            project = await db.projects.find_one({"_id": ObjectId(project_id)})
+        except:
+            project = None
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
         
-        # Get milestones
+        # Get milestones - filter by string project_id since that's how we store it
         milestones = await db.milestones.find({"project_id": project_id}).sort("order", 1).to_list(100)
         
-        # Get tasks
+        # Get tasks - filter by string project_id
         tasks = await db.tasks.find({"project_id": project_id}).to_list(500)
         
         # Build Gantt data structure
         gantt_items = []
         
         for milestone in milestones:
-            m_dict = serialize_doc(milestone)
+            m_id = str(milestone["_id"])
             
             # Get tasks for this milestone
-            milestone_tasks = [t for t in tasks if t.get("milestone_id") == m_dict["id"]]
+            milestone_tasks = [t for t in tasks if t.get("milestone_id") == m_id]
+            
+            # Get milestone dates - handle various field names
+            ms_start = milestone.get("start_date") or milestone.get("created_at")
+            ms_end = milestone.get("target_date") or milestone.get("due_date")
             
             gantt_items.append({
-                "id": m_dict["id"],
+                "id": m_id,
                 "type": "milestone",
-                "name": m_dict["name"],
-                "start_date": m_dict.get("start_date") or m_dict.get("created_at"),
-                "end_date": m_dict.get("due_date"),
-                "progress": m_dict.get("completion_percentage", 0),
-                "status": m_dict.get("status"),
-                "color": m_dict.get("color", "#8B5CF6"),
-                "children": [serialize_doc(t)["id"] for t in milestone_tasks]
+                "name": milestone.get("name", "Unnamed"),
+                "start_date": ms_start.isoformat() if ms_start else None,
+                "end_date": ms_end.isoformat() if ms_end else None,
+                "progress": milestone.get("completion_percentage") or milestone.get("progress", 0),
+                "status": milestone.get("status", "pending"),
+                "color": milestone.get("color", "#8B5CF6"),
+                "children": [str(t["_id"]) for t in milestone_tasks]
             })
             
             # Add tasks under this milestone
             for task in milestone_tasks:
-                t_dict = serialize_doc(task)
+                t_id = str(task["_id"])
+                t_start = task.get("planned_start_date") or task.get("created_at")
+                t_end = task.get("planned_end_date") or task.get("due_date")
+                
                 gantt_items.append({
-                    "id": t_dict["id"],
+                    "id": t_id,
                     "type": "task",
-                    "name": t_dict["title"],
-                    "start_date": t_dict.get("planned_start_date") or t_dict.get("created_at"),
-                    "end_date": t_dict.get("planned_end_date") or t_dict.get("due_date"),
-                    "progress": t_dict.get("progress_percentage", 0),
-                    "status": t_dict.get("status"),
-                    "parent_id": m_dict["id"],
-                    "assigned_to": t_dict.get("assigned_to", [])
+                    "name": task.get("title", "Unnamed Task"),
+                    "start_date": t_start.isoformat() if t_start else None,
+                    "end_date": t_end.isoformat() if t_end else None,
+                    "progress": task.get("progress_percentage", 0),
+                    "status": task.get("status", "pending"),
+                    "parent_id": m_id,
+                    "assigned_to": task.get("assigned_to", [])
                 })
         
         # Add unassigned tasks
-        unassigned_tasks = [t for t in tasks if not t.get("milestone_id")]
+        assigned_task_ids = set()
+        for item in gantt_items:
+            if item["type"] == "task":
+                assigned_task_ids.add(item["id"])
+        
+        unassigned_tasks = [t for t in tasks if str(t["_id"]) not in assigned_task_ids]
         for task in unassigned_tasks:
-            t_dict = serialize_doc(task)
+            t_id = str(task["_id"])
+            t_start = task.get("planned_start_date") or task.get("created_at")
+            t_end = task.get("planned_end_date") or task.get("due_date")
+            
             gantt_items.append({
-                "id": t_dict["id"],
+                "id": t_id,
                 "type": "task",
-                "name": t_dict["title"],
-                "start_date": t_dict.get("planned_start_date") or t_dict.get("created_at"),
-                "end_date": t_dict.get("planned_end_date") or t_dict.get("due_date"),
-                "progress": t_dict.get("progress_percentage", 0),
-                "status": t_dict.get("status"),
+                "name": task.get("title", "Unnamed Task"),
+                "start_date": t_start.isoformat() if t_start else None,
+                "end_date": t_end.isoformat() if t_end else None,
+                "progress": task.get("progress_percentage", 0),
+                "status": task.get("status", "pending"),
                 "parent_id": None,
-                "assigned_to": t_dict.get("assigned_to", [])
+                "assigned_to": task.get("assigned_to", [])
             })
         
         # Calculate date range based on view
