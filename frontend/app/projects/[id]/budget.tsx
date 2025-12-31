@@ -75,6 +75,14 @@ export default function ProjectBudgetScreen() {
       ]);
       setBudget(budgetRes.data);
       setDeviations(deviationRes.data);
+      
+      // Auto-populate built-up area from project data if available
+      if (budgetRes.data?.built_up_area && !builtUpArea) {
+        setBuiltUpArea(String(budgetRes.data.built_up_area));
+      }
+      if (budgetRes.data?.num_floors && numFloors === '1') {
+        setNumFloors(String(budgetRes.data.num_floors));
+      }
     } catch (error) {
       console.error('Error loading budget:', error);
     } finally {
