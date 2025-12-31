@@ -1894,7 +1894,12 @@ async def update_task(
     if cascade_result:
         task_dict["cascade_result"] = cascade_result
     
-    return TaskResponse(**task_dict)
+    # Return extended response with cascade info if available
+    response = TaskResponse(**task_dict)
+    response_dict = response.dict()
+    if cascade_result:
+        response_dict["cascade_result"] = cascade_result
+    return response_dict
 
 
 async def cascade_task_dates(
