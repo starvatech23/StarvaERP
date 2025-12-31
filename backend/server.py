@@ -6120,6 +6120,14 @@ async def update_milestone(
     update_data = {k: v for k, v in milestone_update.dict(exclude_unset=True).items() if v is not None}
     update_data["updated_at"] = datetime.utcnow()
     
+    # Handle due_date -> target_date mapping for consistency
+    if "due_date" in update_data:
+        update_data["target_date"] = update_data.pop("due_date")
+    
+    # Handle completion_percentage -> progress mapping
+    if "completion_percentage" in update_data:
+        update_data["progress"] = update_data.get("completion_percentage")
+    
     # Mark completion timestamp
     if update_data.get("status") == MilestoneStatus.COMPLETED and milestone.get("status") != MilestoneStatus.COMPLETED:
         update_data["completed_at"] = datetime.utcnow()
