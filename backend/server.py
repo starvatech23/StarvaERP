@@ -1844,13 +1844,11 @@ async def update_task(
     old_end_date = existing.get("planned_end_date") or existing.get("due_date")
     new_end_date = update_data.get("planned_end_date") or update_data.get("due_date")
     
-    if new_end_date and old_end_date:
-        if isinstance(old_end_date, str):
-            old_end_date = datetime.fromisoformat(old_end_date.replace('Z', '+00:00'))
+    # Always cascade if end date is being updated
+    if new_end_date:
+        dates_changed = True
         if isinstance(new_end_date, str):
-            new_end_date = datetime.fromisoformat(new_end_date.replace('Z', '+00:00'))
-        if old_end_date != new_end_date:
-            dates_changed = True
+            new_end_date = datetime.fromisoformat(new_end_date.replace('Z', '+00:00').replace('+00:00', ''))
     
     # Sync due_date with planned_end_date
     if "planned_end_date" in update_data:
