@@ -593,6 +593,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
+  modalDismissArea: {
+    flex: 1,
+  },
   modalContent: {
     backgroundColor: Colors.surface,
     borderTopLeftRadius: 24,
