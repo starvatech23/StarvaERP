@@ -783,6 +783,28 @@ export default function ProjectDetailsScreen() {
 
             <TouchableOpacity
               style={styles.quickActionButton}
+              onPress={() => router.push({ pathname: '/estimates/quick-estimate', params: { projectId: id } } as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#FDF2F8' }]}>
+                <Ionicons name="calculator" size={24} color="#EC4899" />
+              </View>
+              <Text style={styles.quickActionLabel}>Quick Estimate</Text>
+              <Text style={styles.quickActionSubtext}>Cost calculator</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
+              onPress={() => router.push(`/projects/${id}/estimate` as any)}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#ECFDF5' }]}>
+                <Ionicons name="receipt" size={24} color="#10B981" />
+              </View>
+              <Text style={styles.quickActionLabel}>Estimates</Text>
+              <Text style={styles.quickActionSubtext}>Detailed BOQ</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
               onPress={() => router.push(`/projects/${id}/share-access` as any)}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: '#EDE9FE' }]}>
