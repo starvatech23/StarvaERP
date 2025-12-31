@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import {
   TextInput,
 } from 'react-native';
 import Colors from '../../constants/Colors';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { projectsAPI, tasksAPI, statusUpdatesAPI, siteMaterialsAPI, materialTransfersAPI, milestonesAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
