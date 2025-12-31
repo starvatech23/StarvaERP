@@ -128,6 +128,10 @@ from data_export_import import (
     validate_import_data, EXPORT_TEMPLATES
 )
 from schedule_engine import ScheduleCalculator, on_labour_change, on_material_delay
+from task_cost_engine import (
+    calculate_task_cost, calculate_project_task_costs,
+    get_task_cost_preset, get_all_presets, research_task_cost_with_llm
+)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
