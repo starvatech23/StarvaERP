@@ -16318,21 +16318,21 @@ async def sync_estimate_to_budget(
     
     # Map categories to construction phases/milestones
     category_to_milestone = {
-        "excavation": "Preliminary",
-        "foundation": "Construction",
-        "plinth": "Construction",
-        "superstructure": "Construction",
-        "masonry": "Construction",
-        "plastering": "Finishing",
-        "flooring": "Finishing",
-        "doors_windows": "Finishing",
-        "electrical": "Finishing",
-        "plumbing": "Finishing",
-        "painting": "Finishing",
-        "kitchen": "Finishing",
-        "bathroom": "Finishing",
-        "exterior": "Finishing",
-        "miscellaneous": "Handover",
+        "excavation": "Foundation Work",
+        "foundation": "Foundation Work", 
+        "plinth": "Plinth Work",
+        "superstructure": "Superstructure",
+        "masonry": "Masonry Work",
+        "plastering": "Plastering",
+        "flooring": "Flooring & Tiling",
+        "doors_windows": "Doors & Windows",
+        "electrical": "MEP Rough-in",
+        "plumbing": "MEP Rough-in",
+        "painting": "Painting",
+        "kitchen": "Finishing & Handover",
+        "bathroom": "Finishing & Handover",
+        "exterior": "Finishing & Handover",
+        "miscellaneous": "Finishing & Handover",
     }
     
     # Cost distribution by milestone phase
