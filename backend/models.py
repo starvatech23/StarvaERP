@@ -457,8 +457,13 @@ class TaskBase(BaseModel):
     dependencies: List[str] = []  # Task IDs that must complete before this one
     # Cost Tracking (from BOQ/Estimate)
     estimated_cost: Optional[float] = 0.0  # From project estimate/BOQ
+    material_cost: Optional[float] = 0.0  # Material cost portion
+    labour_cost: Optional[float] = 0.0  # Labour cost portion
     actual_cost: Optional[float] = 0.0  # Actual cost (editable by PM/Engineer)
     cost_variance: Optional[float] = 0.0  # estimated - actual
+    cost_unit: Optional[str] = None  # Unit of measurement (sqft, cum, etc.)
+    cost_quantity: Optional[float] = None  # Quantity for cost calculation
+    cost_preset_name: Optional[str] = None  # Name of preset used
     boq_reference_id: Optional[str] = None  # Link to BOQ/Estimate line item
 
 class TaskCreate(TaskBase):
