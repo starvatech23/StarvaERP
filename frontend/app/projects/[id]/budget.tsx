@@ -428,6 +428,154 @@ export default function ProjectBudgetScreen() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Cost Calculation Modal */}
+      <Modal
+        visible={showCostModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowCostModal(false)}
+      >
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <TouchableOpacity 
+            style={styles.modalDismiss}
+            activeOpacity={1}
+            onPress={() => setShowCostModal(false)}
+          />
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Calculate Task Costs</Text>
+              <TouchableOpacity onPress={() => setShowCostModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              {/* Built-up Area */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Built-up Area (sqft) *</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={builtUpArea}
+                  onChangeText={setBuiltUpArea}
+                  placeholder="e.g., 3200"
+                  placeholderTextColor={Colors.textTertiary}
+                  keyboardType="numeric"
+                />
+              </View>
+
+              {/* Number of Floors */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Number of Floors</Text>
+                <View style={styles.floorButtons}>
+                  {['1', '2', '3', '4'].map(f => (
+                    <TouchableOpacity
+                      key={f}
+                      style={[styles.floorBtn, numFloors === f && styles.floorBtnActive]}
+                      onPress={() => setNumFloors(f)}
+                    >
+                      <Text style={[styles.floorBtnText, numFloors === f && styles.floorBtnTextActive]}>{f}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Finishing Grade */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Finishing Grade</Text>
+                <TouchableOpacity 
+                  style={styles.selectButton}
+                  onPress={() => setShowGradeOptions(!showGradeOptions)}
+                >
+                  <Text style={styles.selectText}>
+                    {gradeOptions.find(g => g.value === finishingGrade)?.label} 
+                    ({gradeOptions.find(g => g.value === finishingGrade)?.multiplier})
+                  </Text>
+                  <Ionicons name={showGradeOptions ? "chevron-up" : "chevron-down"} size={20} color={Colors.textSecondary} />
+                </TouchableOpacity>
+                {showGradeOptions && (
+                  <View style={styles.optionsList}>
+                    {gradeOptions.map(opt => (
+                      <TouchableOpacity
+                        key={opt.value}
+                        style={[styles.optionItem, finishingGrade === opt.value && styles.optionItemActive]}
+                        onPress={() => { setFinishingGrade(opt.value); setShowGradeOptions(false); }}
+                      >
+                        <Text style={styles.optionText}>{opt.label}</Text>
+                        <Text style={styles.optionMult}>{opt.multiplier}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+
+              {/* City */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>City / Location</Text>
+                <TouchableOpacity 
+                  style={styles.selectButton}
+                  onPress={() => setShowCityOptions(!showCityOptions)}
+                >
+                  <Text style={styles.selectText}>
+                    {cityOptions.find(c => c.value === city)?.label}
+                    ({cityOptions.find(c => c.value === city)?.multiplier})
+                  </Text>
+                  <Ionicons name={showCityOptions ? "chevron-up" : "chevron-down"} size={20} color={Colors.textSecondary} />
+                </TouchableOpacity>
+                {showCityOptions && (
+                  <View style={styles.optionsList}>
+                    {cityOptions.map(opt => (
+                      <TouchableOpacity
+                        key={opt.value}
+                        style={[styles.optionItem, city === opt.value && styles.optionItemActive]}
+                        onPress={() => { setCity(opt.value); setShowCityOptions(false); }}
+                      >
+                        <Text style={styles.optionText}>{opt.label}</Text>
+                        <Text style={styles.optionMult}>{opt.multiplier}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+
+              {/* Info */}
+              <View style={styles.infoBox}>
+                <Ionicons name="information-circle" size={20} color={Colors.info} />
+                <Text style={styles.infoText}>
+                  This will calculate and apply estimated costs to all tasks in this project using Indian construction rates (2024-2025).
+                </Text>
+              </View>
+            </ScrollView>
+
+            {/* Actions */}
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.cancelBtn}
+                onPress={() => setShowCostModal(false)}
+              >
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.calculateBtn, calculating && styles.btnDisabled]}
+                onPress={handleCalculateCosts}
+                disabled={calculating}
+              >
+                {calculating ? (
+                  <ActivityIndicator color="#FFF" size="small" />
+                ) : (
+                  <>
+                    <Ionicons name="calculator" size={18} color="#FFF" />
+                    <Text style={styles.calculateBtnText}>Calculate</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
