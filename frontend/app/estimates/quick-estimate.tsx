@@ -1267,4 +1267,112 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.success,
   },
+  // Save Modal styles
+  saveModalContent: {
+    paddingTop: 8,
+  },
+  saveInputGroup: {
+    marginBottom: 16,
+  },
+  saveInputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 8,
+  },
+  saveInput: {
+    backgroundColor: Colors.background,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: Colors.textPrimary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  syncToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: Colors.background,
+    borderRadius: 10,
+    marginBottom: 16,
+  },
+  syncToggleLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  syncToggleText: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  syncToggleLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  syncToggleDesc: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  saveSummary: {
+    backgroundColor: Colors.background,
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 16,
+  },
+  saveSummaryTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: 10,
+  },
+  saveSummaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+  },
+  saveSummaryLabel: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+  },
+  saveSummaryValue: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  saveActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  saveCancelButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 10,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+  },
+  saveCancelText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
+  saveConfirmButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 10,
+    backgroundColor: Colors.primary,
+  },
+  saveConfirmText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.white,
+  },
 });
