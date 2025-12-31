@@ -481,16 +481,121 @@ export default function QuickEstimateScreen() {
             <Ionicons name="refresh" size={20} color={Colors.primary} />
             <Text style={styles.secondaryButtonText}>Recalculate</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.primaryButton} onPress={() => router.back()}>
-            <Ionicons name="checkmark-circle" size={20} color={Colors.white} />
-            <Text style={styles.primaryButtonText}>Done</Text>
-          </TouchableOpacity>
+          {projectId ? (
+            <TouchableOpacity style={styles.primaryButton} onPress={() => setShowSaveModal(true)}>
+              <Ionicons name="save" size={20} color={Colors.white} />
+              <Text style={styles.primaryButtonText}>Save to Project</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.primaryButton} onPress={() => router.back()}>
+              <Ionicons name="checkmark-circle" size={20} color={Colors.white} />
+              <Text style={styles.primaryButtonText}>Done</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={{ height: 40 }} />
       </ScrollView>
     );
   };
+
+  // Save to Project Modal
+  const renderSaveModal = () => (
+    <Modal
+      visible={showSaveModal}
+      animationType="slide"
+      transparent
+      onRequestClose={() => setShowSaveModal(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Save Estimate to Project</Text>
+            <TouchableOpacity onPress={() => setShowSaveModal(false)}>
+              <Ionicons name="close" size={24} color={Colors.textPrimary} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.saveModalContent}>
+            <View style={styles.saveInputGroup}>
+              <Text style={styles.saveInputLabel}>Estimate Name (Optional)</Text>
+              <TextInput
+                style={styles.saveInput}
+                value={estimateName}
+                onChangeText={setEstimateName}
+                placeholder="e.g., Initial Estimate, Final Quote"
+                placeholderTextColor={Colors.textTertiary}
+              />
+            </View>
+
+            <TouchableOpacity 
+              style={styles.syncToggle}
+              onPress={() => setSyncToBudget(!syncToBudget)}
+            >
+              <View style={styles.syncToggleLeft}>
+                <Ionicons 
+                  name={syncToBudget ? "checkbox" : "square-outline"} 
+                  size={24} 
+                  color={syncToBudget ? Colors.primary : Colors.textSecondary} 
+                />
+                <View style={styles.syncToggleText}>
+                  <Text style={styles.syncToggleLabel}>Sync to Project Budget</Text>
+                  <Text style={styles.syncToggleDesc}>
+                    Distribute costs across milestones automatically
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+
+            {result && (
+              <View style={styles.saveSummary}>
+                <Text style={styles.saveSummaryTitle}>Summary</Text>
+                <View style={styles.saveSummaryRow}>
+                  <Text style={styles.saveSummaryLabel}>Total Estimate</Text>
+                  <Text style={styles.saveSummaryValue}>
+                    {formatCurrency(result.summary.grand_total)}
+                  </Text>
+                </View>
+                <View style={styles.saveSummaryRow}>
+                  <Text style={styles.saveSummaryLabel}>Built-up Area</Text>
+                  <Text style={styles.saveSummaryValue}>{builtUpArea} sqft</Text>
+                </View>
+                <View style={styles.saveSummaryRow}>
+                  <Text style={styles.saveSummaryLabel}>Finishing Grade</Text>
+                  <Text style={styles.saveSummaryValue}>
+                    {gradeOptions.find(g => g.value === finishingGrade)?.label}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            <View style={styles.saveActions}>
+              <TouchableOpacity 
+                style={styles.saveCancelButton} 
+                onPress={() => setShowSaveModal(false)}
+              >
+                <Text style={styles.saveCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.saveConfirmButton, saving && styles.buttonDisabled]}
+                onPress={handleSaveToProject}
+                disabled={saving}
+              >
+                {saving ? (
+                  <ActivityIndicator color={Colors.white} size="small" />
+                ) : (
+                  <>
+                    <Ionicons name="save" size={18} color={Colors.white} />
+                    <Text style={styles.saveConfirmText}>Save Estimate</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   // Grade Picker Modal
   const renderGradePicker = () => (
