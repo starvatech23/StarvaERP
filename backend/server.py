@@ -16233,7 +16233,7 @@ async def save_estimate_to_project(
         
         calculator = EstimateCalculator(specifications)
         boq_items = calculator.calculate_boq()
-        summary = calculator.get_summary()
+        summary = calculator.calculate_summary(boq_items)
         inputs = calculator.get_calculation_inputs()
         
     except Exception as e:
