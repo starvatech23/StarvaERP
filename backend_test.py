@@ -259,7 +259,8 @@ class ScheduleAPITester:
         response = self.session.get(f"{BASE_URL}/schedule/delays/{self.project_id}")
         
         if response.status_code == 200:
-            delays = response.json()
+            result = response.json()
+            delays = result.get('delays', [])
             print("✅ Schedule delays log retrieved!")
             print(f"   - Total Delays Logged: {len(delays)}")
             
