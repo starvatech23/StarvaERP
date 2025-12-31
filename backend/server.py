@@ -16194,6 +16194,306 @@ async def get_calculation_inputs(
     }
 
 
+class SaveEstimateToProjectRequest(PydanticBaseModel):
+    project_id: str
+    total_area_sqft: float
+    num_floors: int = 1
+    finishing_grade: str = "standard"
+    project_type: str = "residential_individual"
+    estimate_name: Optional[str] = None
+    sync_to_budget: bool = True  # Whether to sync to budget/milestones
+
+
+@api_router.post("/estimates/save-to-project")
+async def save_estimate_to_project(
+    request: SaveEstimateToProjectRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Save a quick estimate to a project and optionally sync to budget.
+    This creates:
+    1. A saved estimate document
+    2. Optionally syncs cost breakdown to milestones and tasks
+    """
+    current_user = await get_current_user(credentials)
+    
+    # Verify project exists
+    project = await db.projects.find_one({"_id": ObjectId(request.project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Calculate estimate using v2 engine
+    try:
+        specifications = EstimateSpecifications(
+            project_type=ProjectTypeEnum(request.project_type),
+            total_area_sqft=request.total_area_sqft,
+            num_floors=request.num_floors,
+            finishing_grade=FinishingGrade(request.finishing_grade),
+        )
+        
+        calculator = EstimateCalculator(specifications)
+        boq_items = calculator.calculate_boq()
+        summary = calculator.get_summary()
+        inputs = calculator.get_calculation_inputs()
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Calculation failed: {str(e)}")
+    
+    # Get next version number
+    existing_estimates = await db.project_estimates_v2.find(
+        {"project_id": request.project_id}
+    ).sort("version", -1).limit(1).to_list(1)
+    
+    version = 1
+    if existing_estimates:
+        version = existing_estimates[0].get("version", 0) + 1
+    
+    # Create estimate document
+    estimate_doc = {
+        "project_id": request.project_id,
+        "name": request.estimate_name or f"Estimate v{version}",
+        "version": version,
+        "status": "draft",  # draft, approved, rejected
+        "specifications": {
+            "total_area_sqft": request.total_area_sqft,
+            "num_floors": request.num_floors,
+            "finishing_grade": request.finishing_grade,
+            "project_type": request.project_type,
+        },
+        "calculation_inputs": inputs,
+        "summary": summary,
+        "boq_items": [item.dict() for item in boq_items],
+        "boq_by_category": {},
+        "created_by": str(current_user["_id"]),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+    
+    # Group BOQ items by category
+    for item in boq_items:
+        category = item.category
+        if category not in estimate_doc["boq_by_category"]:
+            estimate_doc["boq_by_category"][category] = []
+        estimate_doc["boq_by_category"][category].append(item.dict())
+    
+    # Save estimate
+    result = await db.project_estimates_v2.insert_one(estimate_doc)
+    estimate_id = str(result.inserted_id)
+    
+    # Sync to budget if requested
+    sync_result = None
+    if request.sync_to_budget:
+        sync_result = await sync_estimate_to_budget(
+            project_id=request.project_id,
+            estimate_doc=estimate_doc,
+            boq_items=boq_items,
+            summary=summary
+        )
+    
+    return {
+        "success": True,
+        "estimate_id": estimate_id,
+        "version": version,
+        "summary": summary,
+        "sync_result": sync_result,
+        "message": f"Estimate saved to project. Version {version}"
+    }
+
+
+async def sync_estimate_to_budget(
+    project_id: str,
+    estimate_doc: dict,
+    boq_items: list,
+    summary: dict
+):
+    """
+    Sync estimate data to project budget and milestones.
+    Distributes costs across milestones based on standard construction phases.
+    """
+    # Get project milestones
+    milestones = await db.milestones.find({"project_id": project_id}).to_list(100)
+    
+    if not milestones:
+        return {"synced": False, "reason": "No milestones found for project"}
+    
+    # Map categories to construction phases/milestones
+    category_to_milestone = {
+        "excavation": "Preliminary",
+        "foundation": "Construction",
+        "plinth": "Construction",
+        "superstructure": "Construction",
+        "masonry": "Construction",
+        "plastering": "Finishing",
+        "flooring": "Finishing",
+        "doors_windows": "Finishing",
+        "electrical": "Finishing",
+        "plumbing": "Finishing",
+        "painting": "Finishing",
+        "kitchen": "Finishing",
+        "bathroom": "Finishing",
+        "exterior": "Finishing",
+        "miscellaneous": "Handover",
+    }
+    
+    # Cost distribution by milestone phase
+    milestone_costs = {}
+    for ms in milestones:
+        ms_name = ms.get("name")
+        ms_id = str(ms["_id"])
+        milestone_costs[ms_name] = {
+            "milestone_id": ms_id,
+            "material_cost": 0,
+            "labour_cost": 0,
+            "total_cost": 0,
+            "items": []
+        }
+    
+    # Distribute BOQ items to milestones
+    for item in boq_items:
+        category = item.category
+        milestone_name = category_to_milestone.get(category, "Construction")
+        
+        if milestone_name in milestone_costs:
+            # Estimate 60% material, 40% labour for each item
+            material_portion = item.amount * 0.6
+            labour_portion = item.amount * 0.4
+            
+            milestone_costs[milestone_name]["material_cost"] += material_portion
+            milestone_costs[milestone_name]["labour_cost"] += labour_portion
+            milestone_costs[milestone_name]["total_cost"] += item.amount
+            milestone_costs[milestone_name]["items"].append({
+                "item_code": item.item_code,
+                "item_name": item.item_name,
+                "amount": item.amount
+            })
+    
+    # Update milestones with estimated costs
+    updates_made = 0
+    for ms_name, costs in milestone_costs.items():
+        if costs["total_cost"] > 0:
+            await db.milestones.update_one(
+                {"_id": ObjectId(costs["milestone_id"])},
+                {
+                    "$set": {
+                        "estimated_cost": costs["total_cost"],
+                        "estimated_material_cost": costs["material_cost"],
+                        "estimated_labour_cost": costs["labour_cost"],
+                        "estimate_synced_at": datetime.utcnow(),
+                        "updated_at": datetime.utcnow()
+                    }
+                }
+            )
+            updates_made += 1
+    
+    # Update project with total estimated budget
+    await db.projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {
+            "$set": {
+                "estimated_budget": summary.get("grand_total", 0),
+                "estimated_cost_per_sqft": summary.get("cost_per_sqft", 0),
+                "budget_last_synced": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    return {
+        "synced": True,
+        "milestones_updated": updates_made,
+        "total_estimated_budget": summary.get("grand_total", 0),
+        "milestone_breakdown": {
+            name: {"total": costs["total_cost"], "items_count": len(costs["items"])}
+            for name, costs in milestone_costs.items() if costs["total_cost"] > 0
+        }
+    }
+
+
+@api_router.get("/projects/{project_id}/estimates-v2")
+async def get_project_estimates_v2(
+    project_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all v2 estimates for a project"""
+    await get_current_user(credentials)
+    
+    estimates = await db.project_estimates_v2.find(
+        {"project_id": project_id}
+    ).sort("created_at", -1).to_list(50)
+    
+    return {
+        "estimates": [serialize_doc(e) for e in estimates],
+        "count": len(estimates)
+    }
+
+
+@api_router.get("/projects/{project_id}/estimates-v2/{estimate_id}")
+async def get_project_estimate_v2_detail(
+    project_id: str,
+    estimate_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a specific v2 estimate detail"""
+    await get_current_user(credentials)
+    
+    estimate = await db.project_estimates_v2.find_one({
+        "_id": ObjectId(estimate_id),
+        "project_id": project_id
+    })
+    
+    if not estimate:
+        raise HTTPException(status_code=404, detail="Estimate not found")
+    
+    return serialize_doc(estimate)
+
+
+@api_router.put("/projects/{project_id}/estimates-v2/{estimate_id}/status")
+async def update_estimate_status(
+    project_id: str,
+    estimate_id: str,
+    status: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update estimate status (approve/reject)"""
+    current_user = await get_current_user(credentials)
+    
+    if status not in ["draft", "approved", "rejected"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    
+    estimate = await db.project_estimates_v2.find_one({
+        "_id": ObjectId(estimate_id),
+        "project_id": project_id
+    })
+    
+    if not estimate:
+        raise HTTPException(status_code=404, detail="Estimate not found")
+    
+    update_data = {
+        "status": status,
+        "updated_at": datetime.utcnow()
+    }
+    
+    if status == "approved":
+        update_data["approved_by"] = str(current_user["_id"])
+        update_data["approved_at"] = datetime.utcnow()
+        
+        # Re-sync to budget on approval
+        boq_items = [BOQItem(**item) for item in estimate.get("boq_items", [])]
+        await sync_estimate_to_budget(
+            project_id=project_id,
+            estimate_doc=estimate,
+            boq_items=boq_items,
+            summary=estimate.get("summary", {})
+        )
+    
+    await db.project_estimates_v2.update_one(
+        {"_id": ObjectId(estimate_id)},
+        {"$set": update_data}
+    )
+    
+    return {"success": True, "status": status}
+
+
 # Include the routers in the main app (after all routes are defined)
 app.include_router(api_router)
 
