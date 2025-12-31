@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../../constants/Colors';
 import { projectsAPI } from '../../../services/api';
@@ -23,9 +23,12 @@ export default function ProjectBudgetScreen() {
   const [deviations, setDeviations] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'budget' | 'deviations'>('budget');
 
-  useEffect(() => {
-    loadData();
-  }, [id]);
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [id])
+  );
 
   const loadData = async () => {
     try {
