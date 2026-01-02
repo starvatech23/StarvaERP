@@ -644,8 +644,20 @@ async def verify_otp_endpoint(request: OTPVerify):
     if not verify_otp(request.phone, request.otp):
         raise HTTPException(status_code=400, detail="Invalid or expired OTP")
     
-    # Check if user exists
-    user = await db.users.find_one({"phone": request.phone})
+    # Check if user exists - try multiple phone formats
+    phone_variants = [
+        request.phone,
+        request.phone.replace("+91", ""),
+        "+91" + request.phone.lstrip("+91"),
+        request.phone.lstrip("0"),
+        "0" + request.phone.lstrip("0"),
+    ]
+    
+    user = None
+    for phone_variant in phone_variants:
+        user = await db.users.find_one({"phone": phone_variant})
+        if user:
+            break
     
     if not user:
         # Register new user
@@ -657,6 +669,7 @@ async def verify_otp_endpoint(request: OTPVerify):
             "full_name": request.full_name,
             "role": request.role,
             "is_active": True,
+            "approval_status": "approved",
             "date_joined": datetime.utcnow(),
             "last_login": datetime.utcnow()
         }
@@ -664,11 +677,32 @@ async def verify_otp_endpoint(request: OTPVerify):
         user_dict["_id"] = result.inserted_id
         user = user_dict
     else:
+        # Check if user is approved and active
+        if user.get("approval_status") == "pending":
+            raise HTTPException(status_code=403, detail="Your account is pending approval. Please contact admin.")
+        if user.get("approval_status") == "rejected":
+            raise HTTPException(status_code=403, detail="Your account has been rejected. Please contact admin.")
+        if not user.get("is_active", True):
+            raise HTTPException(status_code=403, detail="Your account is deactivated. Please contact admin.")
+        
         # Update last login
         await db.users.update_one(
             {"_id": user["_id"]},
             {"$set": {"last_login": datetime.utcnow()}}
         )
+    
+    # Get role info - handle both role_id (admin-created) and role (self-registered)
+    role_name = user.get("role", "")
+    role_code = user.get("role", "user")
+    
+    if user.get("role_id"):
+        try:
+            role = await db.roles.find_one({"_id": ObjectId(user["role_id"])})
+            if role:
+                role_name = role.get("name", role_name)
+                role_code = role.get("code", role.get("name", "user")).lower()
+        except:
+            pass
     
     # Create token
     access_token = create_access_token(data={"sub": str(user["_id"])})
@@ -679,7 +713,11 @@ async def verify_otp_endpoint(request: OTPVerify):
         email=user.get("email"),
         phone=user.get("phone"),
         full_name=user.get("full_name", ""),
-        role=user.get("role", ""),
+        role=role_code,
+        role_name=role_name,
+        role_id=user.get("role_id"),
+        team_id=user.get("team_id"),
+        team_name=user.get("team_name"),
         address=user.get("address"),
         profile_photo=user.get("profile_photo"),
         is_active=user.get("is_active", True),
