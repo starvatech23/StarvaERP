@@ -9,19 +9,6 @@
     "scheme": "siteops",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "owner": "starvacon",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/YOUR_PROJECT_ID"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "YOUR_EAS_PROJECT_ID"
-      }
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.starva.siteops",
@@ -31,13 +18,11 @@
         "NSPhotoLibraryUsageDescription": "SiteOps needs photo library access to upload site images",
         "NSPhotoLibraryAddUsageDescription": "SiteOps needs permission to save photos to your library",
         "NSLocationWhenInUseUsageDescription": "SiteOps uses your location for site check-ins and tracking",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "SiteOps uses your location for site tracking features",
-        "UIBackgroundModes": ["location", "fetch", "remote-notification"]
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "SiteOps uses your location for site tracking features"
       },
       "config": {
         "usesNonExemptEncryption": false
-      },
-      "associatedDomains": ["applinks:siteops.starvacon.com"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -57,20 +42,6 @@
         "RECEIVE_BOOT_COMPLETED",
         "INTERNET",
         "ACCESS_NETWORK_STATE"
-      ],
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "autoVerify": true,
-          "data": [
-            {
-              "scheme": "https",
-              "host": "siteops.starvacon.com",
-              "pathPrefix": "/"
-            }
-          ],
-          "category": ["BROWSABLE", "DEFAULT"]
-        }
       ]
     },
     "web": {
