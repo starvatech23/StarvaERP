@@ -9772,7 +9772,7 @@ async def send_client_portal_credentials(
     project_code = project.get("project_code") or project.get("code") or project_id
     
     # Generate client portal link using project_code
-    base_url = "https://construction-hub-77.preview.emergentagent.com"
+    base_url = os.environ.get("APP_BASE_URL", "https://construction-hub-77.preview.emergentagent.com")
     portal_link = f"{base_url}/client-portal/?projectId={project_code}"
     
     # Create credential message with project_code
