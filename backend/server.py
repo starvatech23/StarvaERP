@@ -753,6 +753,59 @@ async def get_current_user_info(credentials: HTTPAuthorizationCredentials = Depe
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
+@api_router.put("/auth/me", response_model=UserResponse)
+async def update_current_user_profile(
+    user_update: UserUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update current logged-in user's own profile"""
+    try:
+        current_user = await get_current_user(credentials)
+        user_id = current_user.get("id") or str(current_user.get("_id"))
+        
+        # Build update dict - users can only update certain fields
+        update_data = {}
+        if user_update.full_name is not None:
+            update_data["full_name"] = user_update.full_name
+        if user_update.address is not None:
+            update_data["address"] = user_update.address
+        if user_update.profile_photo is not None:
+            update_data["profile_photo"] = user_update.profile_photo
+        
+        # Users cannot update their own email, phone, role, or team
+        # Those require admin action
+        
+        if update_data:
+            update_data["updated_at"] = datetime.utcnow()
+            await db.users.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$set": update_data}
+            )
+        
+        # Get updated user
+        updated_user = await db.users.find_one({"_id": ObjectId(user_id)})
+        user_dict = serialize_doc(updated_user)
+        
+        # Get role info
+        if user_dict.get("role_id"):
+            try:
+                role = await db.roles.find_one({"_id": ObjectId(user_dict["role_id"])})
+                if role:
+                    user_dict["role_name"] = role.get("name")
+                    user_dict["role"] = role.get("code", role.get("name", "user")).lower()
+            except:
+                pass
+        
+        # Get team info
+        if user_dict.get("team_id"):
+            team = await db.teams.find_one({"_id": ObjectId(user_dict["team_id"])})
+            if team:
+                user_dict["team_name"] = team["name"]
+        
+        return UserResponse(**user_dict)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to update profile: {str(e)}")
+
 # ============= User Management Routes =============
 
 @api_router.get("/users", response_model=List[UserResponse])
