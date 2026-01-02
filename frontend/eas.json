@@ -1,74 +1,15 @@
 {
   "cli": {
-    "version": ">= 5.0.0",
-    "appVersionSource": "local"
+    "version": ">= 5.0.0"
   },
   "build": {
-    "base": {
-      "node": "18.18.0",
-      "env": {
-        "EXPO_PUBLIC_APP_NAME": "SiteOps"
-      }
-    },
     "development": {
-      "extends": "base",
       "developmentClient": true,
-      "distribution": "internal",
-      "ios": {
-        "simulator": true
-      },
-      "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleDebug"
-      },
-      "env": {
-        "APP_ENV": "development"
-      }
+      "distribution": "internal"
     },
     "preview": {
-      "extends": "base",
-      "distribution": "internal",
-      "ios": {
-        "simulator": false
-      },
-      "android": {
-        "buildType": "apk"
-      },
-      "env": {
-        "APP_ENV": "preview"
-      },
-      "channel": "preview"
+      "distribution": "internal"
     },
-    "production": {
-      "extends": "base",
-      "autoIncrement": true,
-      "ios": {
-        "distribution": "store",
-        "credentialsSource": "remote",
-        "resourceClass": "m-medium"
-      },
-      "android": {
-        "buildType": "app-bundle",
-        "credentialsSource": "remote"
-      },
-      "env": {
-        "APP_ENV": "production"
-      },
-      "channel": "production"
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {
-        "appleId": "YOUR_APPLE_ID@email.com",
-        "ascAppId": "YOUR_APP_STORE_CONNECT_APP_ID",
-        "appleTeamId": "YOUR_TEAM_ID"
-      },
-      "android": {
-        "serviceAccountKeyPath": "./google-service-account.json",
-        "track": "internal",
-        "releaseStatus": "draft"
-      }
-    }
+    "production": {}
   }
 }
