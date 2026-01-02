@@ -93,24 +93,6 @@
           "resizeMode": "contain",
           "backgroundColor": "#F97316"
         }
-      ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "SiteOps needs camera access to capture site photos and documents"
-        }
-      ],
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "SiteOps needs access to your photos to upload site images"
-        }
-      ],
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "SiteOps uses your location for site tracking"
-        }
       ]
     ],
     "experiments": {
