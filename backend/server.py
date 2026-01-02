@@ -158,6 +158,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Health check endpoint at root for Kubernetes probes
+@app.get("/")
+async def root_health_check():
+    """Root health check endpoint for Kubernetes liveness/readiness probes"""
+    return {"status": "healthy", "service": "siteops-api", "version": "1.0.0"}
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "siteops-api", "version": "1.0.0"}
+
 # Create Socket.IO server
 sio = socketio.AsyncServer(
     async_mode='asgi',
