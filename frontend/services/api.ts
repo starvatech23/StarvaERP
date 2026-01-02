@@ -93,6 +93,7 @@ export const authAPI = {
   sendOTP: (phone: string) => api.post('/auth/send-otp', { phone }),
   verifyOTP: (data: any) => api.post('/auth/verify-otp', data),
   getCurrentUser: () => api.get('/auth/me'),
+  updateProfile: (data: any) => api.put('/auth/me', data),
 };
 
 // Users API
