@@ -4,31 +4,57 @@
     "appVersionSource": "local"
   },
   "build": {
+    "base": {
+      "node": "18.18.0",
+      "env": {
+        "EXPO_PUBLIC_APP_NAME": "SiteOps"
+      }
+    },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
         "simulator": true
+      },
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "env": {
+        "APP_ENV": "development"
       }
     },
     "preview": {
+      "extends": "base",
       "distribution": "internal",
       "ios": {
         "simulator": false
       },
       "android": {
         "buildType": "apk"
-      }
+      },
+      "env": {
+        "APP_ENV": "preview"
+      },
+      "channel": "preview"
     },
     "production": {
+      "extends": "base",
+      "autoIncrement": true,
       "ios": {
         "distribution": "store",
-        "credentialsSource": "remote"
+        "credentialsSource": "remote",
+        "resourceClass": "m-medium"
       },
       "android": {
         "buildType": "app-bundle",
-        "credentialsSource": "local"
-      }
+        "credentialsSource": "remote"
+      },
+      "env": {
+        "APP_ENV": "production"
+      },
+      "channel": "production"
     }
   },
   "submit": {
@@ -40,7 +66,8 @@
       },
       "android": {
         "serviceAccountKeyPath": "./google-service-account.json",
-        "track": "production"
+        "track": "internal",
+        "releaseStatus": "draft"
       }
     }
   }
