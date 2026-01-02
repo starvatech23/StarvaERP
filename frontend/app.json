@@ -9,9 +9,35 @@
     "scheme": "siteops",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "owner": "starvacon",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/YOUR_PROJECT_ID"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID"
+      }
+    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.starva.siteops"
+      "bundleIdentifier": "com.starva.siteops",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "SiteOps needs camera access to capture site photos and documents",
+        "NSPhotoLibraryUsageDescription": "SiteOps needs photo library access to upload site images",
+        "NSPhotoLibraryAddUsageDescription": "SiteOps needs permission to save photos to your library",
+        "NSLocationWhenInUseUsageDescription": "SiteOps uses your location for site check-ins and tracking",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "SiteOps uses your location for site tracking features",
+        "UIBackgroundModes": ["location", "fetch", "remote-notification"]
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "associatedDomains": ["applinks:siteops.starvacon.com"]
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +45,33 @@
         "backgroundColor": "#F97316"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.starva.siteops"
+      "package": "com.starva.siteops",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "siteops.starvacon.com",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -40,6 +92,24 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#F97316"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SiteOps needs camera access to capture site photos and documents"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "SiteOps needs access to your photos to upload site images"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "SiteOps uses your location for site tracking"
         }
       ]
     ],
