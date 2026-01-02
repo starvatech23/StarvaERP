@@ -986,7 +986,7 @@ async def create_project(
 def generate_client_portal_link(project_id: str, base_url: str = None) -> str:
     """Generate a client portal access link for a project"""
     if not base_url:
-        base_url = "https://construction-hub-77.preview.emergentagent.com"
+        base_url = os.environ.get("APP_BASE_URL", "https://construction-hub-77.preview.emergentagent.com")
     return f"{base_url}/client-portal/?projectId={project_id}"
 
 
