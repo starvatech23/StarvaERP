@@ -158,12 +158,12 @@ export default function LeadFollowUpSection({
   };
 
   const handleCreateFollowUp = async () => {
-    if (!formData.title.trim()) {
-      return;
-    }
-
     try {
       setCreating(true);
+      
+      // Generate default title if not provided
+      const defaultTitle = `${FOLLOW_UP_TYPES.find(t => t.value === formData.follow_up_type)?.label} with ${leadName}`;
+      const finalTitle = formData.title.trim() || defaultTitle;
       
       if (isEditing && selectedFollowUp) {
         // Update existing follow-up
@@ -171,7 +171,7 @@ export default function LeadFollowUpSection({
           follow_up_type: formData.follow_up_type,
           scheduled_date: formData.scheduled_date.toISOString(),
           scheduled_time: formData.scheduled_date.toTimeString().slice(0, 5),
-          title: formData.title.trim(),
+          title: finalTitle,
           description: formData.description || null,
           next_step: formData.next_step || null,
           reminder_enabled: formData.reminder_enabled,
@@ -183,7 +183,7 @@ export default function LeadFollowUpSection({
           follow_up_type: formData.follow_up_type,
           scheduled_date: formData.scheduled_date.toISOString(),
           scheduled_time: formData.scheduled_date.toTimeString().slice(0, 5),
-          title: formData.title.trim() || `${FOLLOW_UP_TYPES.find(t => t.value === formData.follow_up_type)?.label} with ${leadName}`,
+          title: finalTitle,
           description: formData.description || null,
           next_step: formData.next_step || null,
           reminder_enabled: formData.reminder_enabled,
