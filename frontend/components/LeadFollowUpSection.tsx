@@ -420,35 +420,93 @@ export default function LeadFollowUpSection({
 
               {/* Date & Time */}
               <Text style={styles.inputLabel}>Date & Time</Text>
-              <TouchableOpacity
-                style={styles.dateButton}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
-                <Text style={styles.dateButtonText}>
-                  {formData.scheduled_date.toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.dateTimeRow}>
+                <TouchableOpacity
+                  style={[styles.dateButton, { flex: 1 }]}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
+                  <Text style={styles.dateButtonText}>
+                    {formData.scheduled_date.toLocaleDateString('en-IN', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.dateButton, { flex: 1 }]}
+                  onPress={() => setShowTimePicker(true)}
+                >
+                  <Ionicons name="time-outline" size={20} color={Colors.primary} />
+                  <Text style={styles.dateButtonText}>
+                    {formData.scheduled_date.toLocaleTimeString('en-IN', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
+              {/* Date Picker - Show inline on iOS, modal on Android */}
               {showDatePicker && (
-                <DateTimePicker
-                  value={formData.scheduled_date}
-                  mode="datetime"
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                  onChange={(event, date) => {
-                    setShowDatePicker(Platform.OS === 'ios');
-                    if (date) {
-                      setFormData({ ...formData, scheduled_date: date });
-                    }
-                  }}
-                  minimumDate={new Date()}
-                />
+                <View style={styles.pickerContainer}>
+                  <DateTimePicker
+                    value={formData.scheduled_date}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(event, date) => {
+                      if (Platform.OS === 'android') {
+                        setShowDatePicker(false);
+                      }
+                      if (date) {
+                        const newDate = new Date(formData.scheduled_date);
+                        newDate.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+                        setFormData({ ...formData, scheduled_date: newDate });
+                      }
+                    }}
+                    minimumDate={new Date()}
+                    themeVariant="light"
+                  />
+                  {Platform.OS === 'ios' && (
+                    <TouchableOpacity 
+                      style={styles.pickerDoneButton}
+                      onPress={() => setShowDatePicker(false)}
+                    >
+                      <Text style={styles.pickerDoneText}>Done</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+
+              {/* Time Picker */}
+              {showTimePicker && (
+                <View style={styles.pickerContainer}>
+                  <DateTimePicker
+                    value={formData.scheduled_date}
+                    mode="time"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(event, date) => {
+                      if (Platform.OS === 'android') {
+                        setShowTimePicker(false);
+                      }
+                      if (date) {
+                        const newDate = new Date(formData.scheduled_date);
+                        newDate.setHours(date.getHours(), date.getMinutes());
+                        setFormData({ ...formData, scheduled_date: newDate });
+                      }
+                    }}
+                    themeVariant="light"
+                  />
+                  {Platform.OS === 'ios' && (
+                    <TouchableOpacity 
+                      style={styles.pickerDoneButton}
+                      onPress={() => setShowTimePicker(false)}
+                    >
+                      <Text style={styles.pickerDoneText}>Done</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               )}
 
               {/* Description */}
