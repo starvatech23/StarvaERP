@@ -644,24 +644,50 @@ async def verify_otp_endpoint(request: OTPVerify):
     if not verify_otp(request.phone, request.otp):
         raise HTTPException(status_code=400, detail="Invalid or expired OTP")
     
-    # Check if user exists - try multiple phone formats
+    # Normalize phone number - extract just digits
+    phone_digits = ''.join(filter(str.isdigit, request.phone))
+    
+    # Remove leading country code if present (91 for India)
+    if phone_digits.startswith('91') and len(phone_digits) > 10:
+        phone_10_digit = phone_digits[2:]  # Remove 91
+    else:
+        phone_10_digit = phone_digits[-10:] if len(phone_digits) >= 10 else phone_digits
+    
+    # Generate all possible phone format variations
     phone_variants = [
-        request.phone,
-        request.phone.replace("+91", ""),
-        "+91" + request.phone.lstrip("+91"),
-        request.phone.lstrip("0"),
-        "0" + request.phone.lstrip("0"),
+        request.phone,                          # Original input
+        phone_digits,                           # Just digits
+        phone_10_digit,                         # 10 digit number
+        f"+91{phone_10_digit}",                 # +91 format
+        f"91{phone_10_digit}",                  # 91 format
+        f"0{phone_10_digit}",                   # 0 prefix format
+        phone_digits.lstrip('0'),               # Remove leading zeros
     ]
+    
+    # Remove duplicates while preserving order
+    phone_variants = list(dict.fromkeys(phone_variants))
+    
+    logger.info(f"[OTP] Looking up user with phone variants: {phone_variants}")
     
     user = None
     for phone_variant in phone_variants:
         user = await db.users.find_one({"phone": phone_variant})
         if user:
+            logger.info(f"[OTP] Found user with phone: {phone_variant}")
             break
+    
+    # Also try regex search for partial match on last 10 digits
+    if not user and len(phone_10_digit) == 10:
+        user = await db.users.find_one({
+            "phone": {"$regex": f"{phone_10_digit}$"}
+        })
+        if user:
+            logger.info(f"[OTP] Found user via regex match for: {phone_10_digit}")
     
     if not user:
         # Register new user
         if not request.full_name or not request.role:
+            logger.warning(f"[OTP] User not found for phone: {request.phone}, registration required")
             raise HTTPException(status_code=400, detail="Full name and role required for registration")
         
         user_dict = {
@@ -676,6 +702,7 @@ async def verify_otp_endpoint(request: OTPVerify):
         result = await db.users.insert_one(user_dict)
         user_dict["_id"] = result.inserted_id
         user = user_dict
+        logger.info(f"[OTP] New user registered: {request.phone}")
     else:
         # Check if user is approved and active
         if user.get("approval_status") == "pending":
@@ -690,6 +717,7 @@ async def verify_otp_endpoint(request: OTPVerify):
             {"_id": user["_id"]},
             {"$set": {"last_login": datetime.utcnow()}}
         )
+        logger.info(f"[OTP] User logged in: {user.get('full_name')} ({user.get('phone')})")
     
     # Get role info - handle both role_id (admin-created) and role (self-registered)
     role_name = user.get("role", "")
