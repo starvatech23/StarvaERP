@@ -571,9 +571,9 @@ export default function LeadFollowUpSection({
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.submitButton, (!formData.title.trim() || creating) && styles.submitButtonDisabled]}
+                style={[styles.submitButton, creating && styles.submitButtonDisabled]}
                 onPress={handleCreateFollowUp}
-                disabled={!formData.title.trim() || creating}
+                disabled={creating}
               >
                 {creating ? (
                   <ActivityIndicator size="small" color="#fff" />
