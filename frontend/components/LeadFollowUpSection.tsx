@@ -909,6 +909,30 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: Colors.textPrimary,
   },
+  dateTimeRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  pickerContainer: {
+    backgroundColor: Colors.background,
+    borderRadius: 12,
+    marginTop: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  pickerDoneButton: {
+    alignItems: 'center',
+    padding: 12,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    marginTop: 10,
+  },
+  pickerDoneText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
   toggleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
