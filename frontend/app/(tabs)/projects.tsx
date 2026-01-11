@@ -314,6 +314,39 @@ export default function ProjectsScreen() {
                     )}
                   </View>
 
+                  {/* Weekly Budget & Dependency Risk - Hidden for Engineers */}
+                  {user?.role !== 'engineer' && (
+                    <View style={styles.weeklyBudgetSection}>
+                      <View style={styles.weeklyBudgetRow}>
+                        <View style={styles.weeklyBudgetItem}>
+                          <View style={styles.weeklyBudgetHeader}>
+                            <Ionicons name="calendar-outline" size={14} color={Colors.primary} />
+                            <Text style={styles.weeklyBudgetLabel}>This Week</Text>
+                          </View>
+                          <Text style={styles.weeklyBudgetValue}>
+                            ₹{(project.weekly_budget_estimate || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                          </Text>
+                        </View>
+                        <View style={[
+                          styles.riskBadge,
+                          { backgroundColor: getRiskColor(project.dependency_risk_level) + '15' }
+                        ]}>
+                          <Ionicons 
+                            name={getRiskIcon(project.dependency_risk_level)} 
+                            size={14} 
+                            color={getRiskColor(project.dependency_risk_level)} 
+                          />
+                          <Text style={[
+                            styles.riskText,
+                            { color: getRiskColor(project.dependency_risk_level) }
+                          ]}>
+                            {project.dependency_risk_count || 0} at risk
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
                   {/* Progress Bar */}
                   <View style={styles.progressSection}>
                     <View style={styles.progressHeader}>
