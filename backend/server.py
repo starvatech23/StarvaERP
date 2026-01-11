@@ -15462,7 +15462,8 @@ async def get_project_budget_summary(
     
     # Get project built-up area for the calculator
     built_up_area = project.get("built_up_area") or project.get("total_built_area") or 0
-    num_floors = len(project.get("floor_details", [])) or project.get("num_floors", 1)
+    floor_details = project.get("floor_details") or []
+    num_floors = len(floor_details) if floor_details else project.get("num_floors", 1) or 1
     
     return {
         "project_id": project_id,
