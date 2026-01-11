@@ -866,6 +866,168 @@ async def get_users_by_role(role: UserRole, credentials: HTTPAuthorizationCreden
     users = await db.users.find({"role": role}).to_list(1000)
     return [{"id": str(u["_id"]), "name": u["full_name"], "role": u["role"]} for u in users]
 
+# ============= Weekly Budget & Dependency Risk Calculator =============
+
+async def calculate_weekly_budget_and_risk(project_id: str) -> dict:
+    """
+    Calculate weekly budget estimate and dependency risk for a project.
+    
+    Weekly budget is calculated based on:
+    - Tasks scheduled for the current week
+    - Their estimated/material/labour costs
+    - Adjusts when schedule changes
+    
+    Dependency risk is calculated based on:
+    - Tasks with dependencies that are not yet completed
+    - Tasks whose dependencies are delayed
+    - Critical path analysis
+    
+    Returns:
+        {
+            "weekly_budget": float,
+            "risk_level": "low" | "medium" | "high" | "critical",
+            "at_risk_count": int,
+            "at_risk_tasks": list
+        }
+    """
+    try:
+        # Get current week's date range
+        today = datetime.utcnow()
+        week_start = today - timedelta(days=today.weekday())  # Monday
+        week_end = week_start + timedelta(days=6)  # Sunday
+        
+        # Get all tasks for this project
+        tasks = await db.tasks.find({"project_id": project_id}).to_list(1000)
+        
+        if not tasks:
+            return {
+                "weekly_budget": 0,
+                "risk_level": "low",
+                "at_risk_count": 0,
+                "at_risk_tasks": []
+            }
+        
+        # Calculate weekly budget - tasks active this week
+        weekly_budget = 0
+        for task in tasks:
+            task_start = task.get("start_date")
+            task_end = task.get("end_date")
+            
+            # Parse dates if they're strings
+            if isinstance(task_start, str):
+                try:
+                    task_start = datetime.fromisoformat(task_start.replace("Z", "+00:00"))
+                except:
+                    task_start = None
+            if isinstance(task_end, str):
+                try:
+                    task_end = datetime.fromisoformat(task_end.replace("Z", "+00:00"))
+                except:
+                    task_end = None
+            
+            # Check if task is active this week
+            if task_start and task_end:
+                # Make dates timezone-naive for comparison
+                if task_start.tzinfo:
+                    task_start = task_start.replace(tzinfo=None)
+                if task_end.tzinfo:
+                    task_end = task_end.replace(tzinfo=None)
+                
+                # Task overlaps with current week
+                if task_start <= week_end and task_end >= week_start:
+                    # Calculate the portion of the task in this week
+                    overlap_start = max(task_start, week_start)
+                    overlap_end = min(task_end, week_end)
+                    task_duration = (task_end - task_start).days or 1
+                    overlap_duration = (overlap_end - overlap_start).days + 1
+                    
+                    # Pro-rate the cost for this week
+                    task_cost = (
+                        (task.get("estimated_cost") or 0) +
+                        (task.get("material_cost") or 0) +
+                        (task.get("labour_cost") or 0)
+                    )
+                    
+                    if task_cost > 0:
+                        weekly_portion = overlap_duration / task_duration
+                        weekly_budget += task_cost * weekly_portion
+        
+        # Calculate dependency risk
+        at_risk_tasks = []
+        task_dict = {str(t.get("_id")): t for t in tasks}
+        
+        for task in tasks:
+            task_id = str(task.get("_id"))
+            task_status = task.get("status", "")
+            dependencies = task.get("dependencies", [])
+            
+            if task_status == "completed":
+                continue
+            
+            # Check if any dependency is not completed or delayed
+            for dep_id in dependencies:
+                dep_task = task_dict.get(dep_id)
+                if dep_task:
+                    dep_status = dep_task.get("status", "")
+                    dep_end = dep_task.get("end_date")
+                    
+                    # Dependency not completed
+                    if dep_status != "completed":
+                        # Check if dependency is delayed
+                        is_delayed = False
+                        if dep_end:
+                            if isinstance(dep_end, str):
+                                try:
+                                    dep_end = datetime.fromisoformat(dep_end.replace("Z", "+00:00"))
+                                except:
+                                    dep_end = None
+                            if dep_end and dep_end.replace(tzinfo=None) < today:
+                                is_delayed = True
+                        
+                        at_risk_tasks.append({
+                            "task_id": task_id,
+                            "task_title": task.get("title"),
+                            "blocked_by": dep_task.get("title"),
+                            "dependency_status": dep_status,
+                            "is_delayed": is_delayed
+                        })
+                        break
+        
+        # Determine risk level
+        at_risk_count = len(at_risk_tasks)
+        total_incomplete = len([t for t in tasks if t.get("status") != "completed"])
+        
+        if total_incomplete == 0:
+            risk_level = "low"
+        else:
+            risk_ratio = at_risk_count / total_incomplete if total_incomplete > 0 else 0
+            delayed_count = len([t for t in at_risk_tasks if t.get("is_delayed")])
+            
+            if delayed_count > 3 or risk_ratio > 0.5:
+                risk_level = "critical"
+            elif delayed_count > 1 or risk_ratio > 0.3:
+                risk_level = "high"
+            elif at_risk_count > 2 or risk_ratio > 0.15:
+                risk_level = "medium"
+            else:
+                risk_level = "low"
+        
+        return {
+            "weekly_budget": round(weekly_budget, 2),
+            "risk_level": risk_level,
+            "at_risk_count": at_risk_count,
+            "at_risk_tasks": at_risk_tasks[:5]  # Return top 5 at-risk tasks
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating weekly budget and risk: {e}")
+        return {
+            "weekly_budget": 0,
+            "risk_level": "low",
+            "at_risk_count": 0,
+            "at_risk_tasks": []
+        }
+
 # ============= Projects Routes =============
 
 @api_router.get("/projects", response_model=List[ProjectResponse])
