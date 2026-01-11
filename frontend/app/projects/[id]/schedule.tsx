@@ -743,6 +743,22 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     fontWeight: '600',
   },
+  dependencyIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    marginTop: 2,
+    backgroundColor: '#F59E0B15',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  dependencyText: {
+    fontSize: 9,
+    color: '#F59E0B',
+    fontWeight: '500',
+    maxWidth: 100,
+  },
   taskBar: {
     position: 'absolute',
     height: 20,
