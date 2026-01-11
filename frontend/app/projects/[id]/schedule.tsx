@@ -430,11 +430,22 @@ export default function ProjectScheduleScreen() {
                             <Text style={styles.taskName} numberOfLines={1}>
                               {task.title}
                             </Text>
+                            {task.has_dependency_risk && (
+                              <Ionicons name="link" size={12} color="#F59E0B" style={{ marginLeft: 4 }} />
+                            )}
                           </View>
                           {task.is_delayed && (
                             <View style={styles.delayIndicator}>
                               <Ionicons name="alert" size={12} color="#EF4444" />
                               <Text style={styles.delayText}>+{task.delay_days}d</Text>
+                            </View>
+                          )}
+                          {task.has_dependency_risk && task.blocked_by && (
+                            <View style={styles.dependencyIndicator}>
+                              <Ionicons name="lock-closed" size={10} color="#F59E0B" />
+                              <Text style={styles.dependencyText} numberOfLines={1}>
+                                Blocked by: {task.blocked_by}
+                              </Text>
                             </View>
                           )}
                         </View>
