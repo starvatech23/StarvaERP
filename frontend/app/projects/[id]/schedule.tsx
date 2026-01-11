@@ -38,6 +38,9 @@ interface Task {
   progress: number;
   is_delayed: boolean;
   delay_days: number;
+  dependencies: string[];
+  has_dependency_risk: boolean;
+  blocked_by?: string;
 }
 
 interface ScheduleDelay {
