@@ -1038,9 +1038,14 @@ export default function ProjectDetailsScreen() {
                       <View style={styles.milestoneTasks}>
                         {milestoneTasks.map((task: any) => (
                           <TouchableOpacity
-                            key={task.id}
+                            key={task.id || task._id}
                             style={styles.scheduleTaskItem}
-                            onPress={() => router.push(`/tasks/${task.id}` as any)}
+                            onPress={() => {
+                              const taskId = task.id || task._id;
+                              if (taskId) {
+                                router.push(`/tasks/${taskId}` as any);
+                              }
+                            }}
                           >
                             <View style={styles.scheduleTaskLeft}>
                               <Ionicons 
