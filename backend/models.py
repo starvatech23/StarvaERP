@@ -421,6 +421,10 @@ class ProjectResponse(ProjectBase):
     gantt_share_tokens: List[GanttShareToken] = []  # Active share links
     client_portal_link: Optional[str] = None  # Client portal access link
     address: Optional[str] = None  # Make address optional
+    # Weekly budget and dependency risk fields
+    weekly_budget_estimate: Optional[float] = None  # Estimated budget for current week
+    dependency_risk_level: Optional[str] = None  # "low", "medium", "high", "critical"
+    dependency_risk_count: Optional[int] = None  # Number of tasks at risk due to dependencies
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
