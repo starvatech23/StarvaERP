@@ -625,6 +625,48 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginLeft: 8,
   },
+  weeklyBudgetSection: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  weeklyBudgetRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  weeklyBudgetItem: {
+    flex: 1,
+  },
+  weeklyBudgetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 4,
+  },
+  weeklyBudgetLabel: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    fontWeight: '500',
+  },
+  weeklyBudgetValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  riskBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  riskText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
   progressSection: {
     marginTop: 12,
     paddingTop: 12,
