@@ -942,6 +942,12 @@ async def get_projects(
             "completed": completed_tasks
         }
         
+        # Calculate weekly budget estimate and dependency risk
+        weekly_budget_data = await calculate_weekly_budget_and_risk(project_dict["id"])
+        project_dict["weekly_budget_estimate"] = weekly_budget_data.get("weekly_budget", 0)
+        project_dict["dependency_risk_level"] = weekly_budget_data.get("risk_level", "low")
+        project_dict["dependency_risk_count"] = weekly_budget_data.get("at_risk_count", 0)
+        
         # Remove gantt_share_tokens to avoid ObjectId serialization issues
         # This field will be populated separately via the gantt-share endpoints
         if "gantt_share_tokens" in project_dict:
