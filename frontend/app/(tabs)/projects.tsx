@@ -100,6 +100,34 @@ export default function ProjectsScreen() {
     return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
+  const getRiskColor = (level: string) => {
+    switch (level) {
+      case 'critical':
+        return '#DC2626';
+      case 'high':
+        return '#EF4444';
+      case 'medium':
+        return '#F59E0B';
+      case 'low':
+      default:
+        return '#10B981';
+    }
+  };
+
+  const getRiskIcon = (level: string) => {
+    switch (level) {
+      case 'critical':
+        return 'alert-circle';
+      case 'high':
+        return 'warning';
+      case 'medium':
+        return 'alert';
+      case 'low':
+      default:
+        return 'checkmark-circle';
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
