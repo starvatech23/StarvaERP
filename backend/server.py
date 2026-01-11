@@ -6621,9 +6621,15 @@ async def delete_milestone(
     """Delete a milestone"""
     current_user = await get_current_user(credentials)
     
-    # Check role - handle both role and role_name fields
+    # Check role - handle various role formats
     user_role = current_user.get("role") or current_user.get("role_name", "")
-    if user_role not in ["Admin", "Project Manager", UserRole.ADMIN]:
+    if isinstance(user_role, str):
+        user_role_lower = user_role.lower()
+    else:
+        user_role_lower = str(user_role).lower()
+    
+    allowed_roles = ["admin", "project_manager", "project manager", "superadmin", "super_admin"]
+    if user_role_lower not in allowed_roles and user_role != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Only admins and project managers can delete milestones")
     
     result = await db.milestones.delete_one({"_id": ObjectId(milestone_id)})
