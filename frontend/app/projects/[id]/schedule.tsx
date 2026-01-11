@@ -79,6 +79,12 @@ export default function ProjectScheduleScreen() {
       // Load Gantt data (milestones and tasks)
       const ganttRes = await ganttAPI.getProjectGantt(id as string);
       const ganttData = ganttRes.data;
+      
+      // Create task lookup for dependency checking
+      const allTasksLookup: { [key: string]: any } = {};
+      (ganttData.tasks || []).forEach((t: any) => {
+        allTasksLookup[t.id] = t;
+      });
 
       // Process milestones with tasks
       const processedMilestones: Milestone[] = (ganttData.milestones || []).map((ms: any) => {
@@ -90,16 +96,35 @@ export default function ProjectScheduleScreen() {
           target_date: ms.target_date || ms.end_date,
           status: ms.status,
           completion_percentage: ms.completion_percentage || 0,
-          tasks: msTasks.map((t: any) => ({
-            id: t.id,
-            title: t.title,
-            start_date: t.start_date,
-            end_date: t.end_date,
-            status: t.status,
-            progress: t.progress || 0,
-            is_delayed: isTaskDelayed(t),
-            delay_days: calculateDelayDays(t),
-          })),
+          tasks: msTasks.map((t: any) => {
+            const dependencies = t.dependencies || [];
+            let hasDependencyRisk = false;
+            let blockedBy = undefined;
+            
+            // Check if any dependency is not completed
+            for (const depId of dependencies) {
+              const depTask = allTasksLookup[depId];
+              if (depTask && depTask.status !== 'completed') {
+                hasDependencyRisk = true;
+                blockedBy = depTask.title;
+                break;
+              }
+            }
+            
+            return {
+              id: t.id,
+              title: t.title,
+              start_date: t.start_date,
+              end_date: t.end_date,
+              status: t.status,
+              progress: t.progress || 0,
+              is_delayed: isTaskDelayed(t),
+              delay_days: calculateDelayDays(t),
+              dependencies: dependencies,
+              has_dependency_risk: hasDependencyRisk,
+              blocked_by: blockedBy,
+            };
+          }),
         };
       });
 
