@@ -26,6 +26,23 @@ class UserRole(str, Enum):
     HR = "hr"
     PROCUREMENT = "procurement"
     USER = "user"  # Default role
+    # Extended roles from database
+    AVP = "avp"
+    CEO = "ceo"
+    COO = "coo"
+    DIRECTOR = "director"
+    FINANCE_MANAGER = "finance_manager"
+    DESIGN_MANAGER = "design_manager"
+    STRUCTURAL_HEAD = "structural_head"
+    SENIOR_ARCHITECT = "senior_architect"
+    JUNIOR_ARCHITECT = "junior_architect"
+    STRUCTURAL_ENGINEER = "structural_engineer"
+    PROJECT_ENGINEER = "project_engineer"
+    FINANCE_EXECUTIVE = "finance_executive"
+    ADMIN_EXECUTIVE = "admin_executive"
+    INTERN_PROJECTS = "intern_projects"
+    INTERN_OPERATIONS = "intern_operations"
+    INTERN_DESIGN = "intern_design"
 
 class ProjectStatus(str, Enum):
     PLANNING = "planning"
