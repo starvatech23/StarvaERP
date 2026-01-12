@@ -784,6 +784,153 @@ async def verify_otp_endpoint(request: OTPVerify):
     
     return Token(access_token=access_token, token_type="bearer", user=user_response)
 
+# ============= Forgot Password Endpoints =============
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(request_data: dict):
+    """
+    Request a password reset email.
+    Only @starvacon.com emails are allowed.
+    """
+    from email_service import email_service
+    import secrets
+    
+    email = request_data.get("email", "").lower().strip()
+    
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+    
+    # Restrict to starvacon.com domain
+    if not email.endswith("@starvacon.com"):
+        raise HTTPException(status_code=400, detail="Only @starvacon.com email addresses are allowed")
+    
+    # Find user by email
+    user = await db.users.find_one({"email": email})
+    
+    # Always return success to prevent email enumeration attacks
+    # But only send email if user exists
+    if user:
+        # Generate secure reset token
+        reset_token = secrets.token_urlsafe(32)
+        reset_expiry = datetime.utcnow() + timedelta(hours=1)
+        
+        # Store reset token in database
+        await db.password_resets.update_one(
+            {"user_id": str(user["_id"])},
+            {
+                "$set": {
+                    "user_id": str(user["_id"]),
+                    "email": email,
+                    "token": reset_token,
+                    "expires_at": reset_expiry,
+                    "used": False,
+                    "created_at": datetime.utcnow()
+                }
+            },
+            upsert=True
+        )
+        
+        # Send password reset email
+        try:
+            email_service.send_password_reset_email(
+                to_email=email,
+                reset_token=reset_token,
+                full_name=user.get("full_name", "User")
+            )
+            logger.info(f"Password reset email sent to {email}")
+        except Exception as e:
+            logger.error(f"Failed to send password reset email: {e}")
+            # Don't reveal email sending failure to prevent enumeration
+    else:
+        logger.info(f"Password reset requested for non-existent email: {email}")
+    
+    return {
+        "message": "If an account exists with this email, you will receive a password reset link shortly.",
+        "expires_in_minutes": 60
+    }
+
+
+@api_router.post("/auth/reset-password")
+async def reset_password(request_data: dict):
+    """
+    Reset password using the token from email.
+    """
+    token = request_data.get("token", "").strip()
+    new_password = request_data.get("new_password", "")
+    
+    if not token:
+        raise HTTPException(status_code=400, detail="Reset token is required")
+    
+    if not new_password or len(new_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters long")
+    
+    # Find the reset token
+    reset_record = await db.password_resets.find_one({
+        "token": token,
+        "used": False,
+        "expires_at": {"$gt": datetime.utcnow()}
+    })
+    
+    if not reset_record:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    # Get the user
+    user = await db.users.find_one({"_id": ObjectId(reset_record["user_id"])})
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    # Hash the new password
+    new_password_hash = get_password_hash(new_password)
+    
+    # Update user's password
+    await db.users.update_one(
+        {"_id": user["_id"]},
+        {"$set": {
+            "password": new_password_hash,
+            "password_hash": new_password_hash,
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    
+    # Mark token as used
+    await db.password_resets.update_one(
+        {"_id": reset_record["_id"]},
+        {"$set": {"used": True, "used_at": datetime.utcnow()}}
+    )
+    
+    logger.info(f"Password reset successful for user: {user.get('email')}")
+    
+    return {
+        "message": "Password reset successful. You can now login with your new password."
+    }
+
+
+@api_router.get("/auth/verify-reset-token/{token}")
+async def verify_reset_token(token: str):
+    """
+    Verify if a reset token is valid (not expired or used).
+    Used by frontend to validate token before showing reset form.
+    """
+    reset_record = await db.password_resets.find_one({
+        "token": token,
+        "used": False,
+        "expires_at": {"$gt": datetime.utcnow()}
+    })
+    
+    if not reset_record:
+        return {"valid": False, "message": "Invalid or expired reset token"}
+    
+    # Get user email (masked for security)
+    user = await db.users.find_one({"_id": ObjectId(reset_record["user_id"])})
+    email = user.get("email", "") if user else ""
+    masked_email = email[:3] + "***" + email[email.find("@"):] if email else ""
+    
+    return {
+        "valid": True,
+        "email": masked_email,
+        "expires_at": reset_record["expires_at"].isoformat()
+    }
+
 @api_router.get("/auth/me", response_model=UserResponse)
 async def get_current_user_info(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get current logged-in user info with CRM permissions"""
