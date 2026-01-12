@@ -590,11 +590,36 @@ async def login(credentials: UserLogin):
     else:
         raise HTTPException(status_code=400, detail="Invalid auth type")
     
+    # Check if user is active and approved
+    if user.get("approval_status") == "pending":
+        raise HTTPException(status_code=403, detail="Your account is pending approval. Please contact admin.")
+    if user.get("approval_status") == "rejected":
+        raise HTTPException(status_code=403, detail="Your account has been rejected. Please contact admin.")
+    if not user.get("is_active", True):
+        raise HTTPException(status_code=403, detail="Your account is deactivated. Please contact admin.")
+    
     # Update last login
     await db.users.update_one(
         {"_id": user["_id"]},
         {"$set": {"last_login": datetime.utcnow()}}
     )
+    
+    # Get role info - handle both role_id (admin-created) and role (self-registered)
+    role_name = user.get("role", "")
+    role_code = user.get("role", "user")
+    
+    if user.get("role_id"):
+        try:
+            role = await db.roles.find_one({"_id": ObjectId(user["role_id"])})
+            if role:
+                role_name = role.get("name", role_name)
+                role_code = role.get("code", role.get("name", "user")).lower()
+        except:
+            pass
+    
+    # If still no valid role, default to 'user'
+    if not role_code or role_code == "":
+        role_code = "user"
     
     # Create token
     access_token = create_access_token(data={"sub": str(user["_id"])})
@@ -605,7 +630,11 @@ async def login(credentials: UserLogin):
         email=user.get("email"),
         phone=user.get("phone"),
         full_name=user.get("full_name", ""),
-        role=user.get("role", ""),
+        role=role_code,
+        role_name=role_name,
+        role_id=user.get("role_id"),
+        team_id=user.get("team_id"),
+        team_name=user.get("team_name"),
         address=user.get("address"),
         profile_photo=user.get("profile_photo"),
         is_active=user.get("is_active", True),
