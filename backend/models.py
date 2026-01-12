@@ -18,6 +18,14 @@ class UserRole(str, Enum):
     OPERATIONS_HEAD = "operations_head"
     PROJECT_HEAD = "project_head"
     OPERATIONS_EXECUTIVE = "operations_executive"
+    # Additional roles from admin panel
+    MARKETING_HEAD = "marketing_head"
+    SITE_ENGINEER = "site_engineer"
+    SUPERVISOR = "supervisor"
+    ACCOUNTS = "accounts"
+    HR = "hr"
+    PROCUREMENT = "procurement"
+    USER = "user"  # Default role
 
 class ProjectStatus(str, Enum):
     PLANNING = "planning"
