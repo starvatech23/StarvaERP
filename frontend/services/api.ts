@@ -94,6 +94,19 @@ export const authAPI = {
   verifyOTP: (data: any) => api.post('/auth/verify-otp', data),
   getCurrentUser: () => api.get('/auth/me'),
   updateProfile: (data: any) => api.put('/auth/me', data),
+  // Forgot Password APIs
+  forgotPassword: async (email: string) => {
+    const response = await api.post('/auth/forgot-password', { email });
+    return response.data;
+  },
+  verifyResetToken: async (token: string) => {
+    const response = await api.get(`/auth/verify-reset-token/${token}`);
+    return response.data;
+  },
+  resetPassword: async (token: string, newPassword: string) => {
+    const response = await api.post('/auth/reset-password', { token, new_password: newPassword });
+    return response.data;
+  },
 };
 
 // Users API
