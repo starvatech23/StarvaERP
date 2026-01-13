@@ -129,6 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         otp,
         full_name: userData?.full_name,
         role: userData?.role,
+        role_id: userData?.role_id,
       });
 
       const { access_token, user: userResponse } = response.data;
