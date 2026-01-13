@@ -266,7 +266,8 @@ class OTPVerify(BaseModel):
     phone: str
     otp: str
     full_name: Optional[str] = None
-    role: Optional[UserRole] = None
+    role: Optional[str] = None  # Changed from UserRole to str for flexibility
+    role_id: Optional[str] = None
 
 # Token Models
 class Token(BaseModel):
