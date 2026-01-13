@@ -313,4 +313,25 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     fontWeight: '600',
   },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  warningCard: {
+    flexDirection: 'row',
+    backgroundColor: '#FEF2F2',
+    padding: 12,
+    borderRadius: 8,
+    gap: 10,
+    marginTop: 8,
+  },
+  warningText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#DC2626',
+    lineHeight: 18,
+  },
 });
