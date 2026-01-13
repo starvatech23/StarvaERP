@@ -9,7 +9,7 @@ export default function TabsLayout() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
 
-  const canAccessCRM = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'crm_manager' || user?.role === 'crm_user';
+  const canAccessCRM = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'crm_manager' || user?.role === 'crm_user' || user?.role === 'marketing_head';
   const canAccessProjects = user?.role !== 'vendor';
   const isWorker = user?.role === 'worker';
 
