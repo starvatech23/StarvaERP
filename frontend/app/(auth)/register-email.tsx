@@ -403,4 +403,18 @@ const styles = StyleSheet.create({
     color: '#1E40AF',
     lineHeight: 18,
   },
+  warningCard: {
+    flexDirection: 'row',
+    backgroundColor: '#FEF2F2',
+    padding: 12,
+    borderRadius: 8,
+    gap: 10,
+    marginTop: 8,
+  },
+  warningText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#DC2626',
+    lineHeight: 18,
+  },
 });
