@@ -142,27 +142,37 @@ def send_otp_mock(phone: str, otp: str) -> bool:
 
 def verify_otp(phone: str, otp: str) -> bool:
     """Verify OTP from storage"""
-    if phone not in otp_storage:
+    # Normalize phone for lookup
+    normalized_phone = normalize_phone(phone)
+    print(f"[OTP] Verifying OTP for normalized phone: {normalized_phone}")
+    print(f"[OTP] Current storage keys: {list(otp_storage.keys())}")
+    
+    if normalized_phone not in otp_storage:
+        print(f"[OTP] Phone not found in storage")
         return False
     
-    stored_data = otp_storage[phone]
+    stored_data = otp_storage[normalized_phone]
     
     # Check if OTP expired (10 minutes)
     if (datetime.utcnow() - stored_data["created_at"]).seconds > 600:
-        del otp_storage[phone]
+        del otp_storage[normalized_phone]
+        print(f"[OTP] OTP expired")
         return False
     
     # Check attempts (max 5)
     if stored_data["attempts"] >= 5:
-        del otp_storage[phone]
+        del otp_storage[normalized_phone]
+        print(f"[OTP] Too many attempts")
         return False
     
     # Verify OTP
     if stored_data["otp"] == otp:
-        del otp_storage[phone]
+        del otp_storage[normalized_phone]
+        print(f"[OTP] OTP verified successfully")
         return True
     else:
         stored_data["attempts"] += 1
+        print(f"[OTP] Invalid OTP. Expected: {stored_data['otp']}, Got: {otp}")
         return False
 
 def verify_otp_mock(phone: str, otp: str) -> bool:
