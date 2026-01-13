@@ -36,10 +36,13 @@ export default function OTPVerifyScreen() {
 
     setLoading(true);
     try {
-      await verifyOTP(phone, otp, { full_name: fullName, role });
+      await verifyOTP(phone, otp, { full_name: fullName, role, role_id: params.roleId });
       router.replace('/(tabs)');
     } catch (error: any) {
-      Alert.alert('Verification Failed', error.message);
+      const errorMessage = typeof error.message === 'string' 
+        ? error.message 
+        : (error.message?.detail || 'OTP verification failed. Please try again.');
+      Alert.alert('Verification Failed', errorMessage);
     } finally {
       setLoading(false);
     }
