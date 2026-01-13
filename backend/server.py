@@ -638,6 +638,9 @@ async def login(credentials: UserLogin):
         address=user.get("address"),
         profile_photo=user.get("profile_photo"),
         is_active=user.get("is_active", True),
+        approval_status=user.get("approval_status", "approved"),
+        approved_by=user.get("approved_by"),
+        approved_at=user.get("approved_at"),
         date_joined=user.get("date_joined", datetime.utcnow()),
         last_login=user.get("last_login")
     )
