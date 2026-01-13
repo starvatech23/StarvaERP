@@ -40,11 +40,16 @@ export default function RegisterEmailScreen() {
 
   const loadRoles = async () => {
     try {
-      const response = await rolesAPI.getAll(true); // Get only active roles
+      const response = await rolesAPI.getPublic(); // Get public roles for registration
       setAvailableRoles(response.data);
+      if (response.data.length > 0) {
+        // Auto-select first role
+        setRoleId(response.data[0].id);
+        setRole(response.data[0].code || response.data[0].name.toLowerCase().replace(/ /g, '_'));
+      }
     } catch (error) {
       console.error('Error loading roles:', error);
-      // Use default roles if API fails
+      // Don't show fallback - registration requires roles from admin
       setAvailableRoles([]);
     }
   };
