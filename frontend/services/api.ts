@@ -1,6 +1,7 @@
 // Role Management API
 export const rolesAPI = {
   getAll: (isActive?: boolean) => api.get('/roles', { params: { is_active: isActive } }),
+  getPublic: () => api.get('/roles/public'), // Public endpoint for registration
   getById: (id: string) => api.get(`/roles/${id}`),
   create: (data: any) => api.post('/roles', data),
   update: (id: string, data: any) => api.put(`/roles/${id}`, data),
