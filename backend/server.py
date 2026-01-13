@@ -568,12 +568,17 @@ async def login(credentials: UserLogin):
     """Login with email/password or phone/OTP"""
     
     # Debug logging
-    logger.info(f"Login request - identifier: '{credentials.identifier}', auth_type: '{credentials.auth_type}'")
+    logger.info(f"Login request - identifier: '{credentials.identifier}', auth_type: '{credentials.auth_type}', password_provided: {bool(credentials.password)}, password_length: {len(credentials.password) if credentials.password else 0}")
     
     if credentials.auth_type == "email":
         # Email login - normalize email
         email = credentials.identifier.lower().strip()
         logger.info(f"Looking up user by email: '{email}'")
+        
+        # Check if password is provided
+        if not credentials.password:
+            logger.warning(f"No password provided for email login: {email}")
+            raise HTTPException(status_code=401, detail="Invalid email or password")
         
         user = await db.users.find_one({"email": email})
         if not user:
