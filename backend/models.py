@@ -293,17 +293,23 @@ class ProjectRole(str, Enum):
     OPERATIONS_EXECUTIVE = "operations_executive"
     OPERATIONS_MANAGER = "operations_manager"
     OPERATIONS_HEAD = "operations_head"
+    OWNER = "Owner"
+    CO_OWNER = "Co-Owner"
+    CLIENT = "Client"
+    CONTRACTOR = "Contractor"
+    CONSULTANT = "Consultant"
+    OTHER = "Other"
 
 class ProjectContact(BaseModel):
-    role: ProjectRole
-    type: ContactType
+    role: Optional[str] = None  # Made flexible to accept any role string
+    type: Optional[str] = None  # Made optional for backwards compatibility
     user_id: Optional[str] = None  # If internal user
     name: str
-    phone_mobile: str
+    phone_mobile: Optional[str] = None  # Made optional
     phone_alternate: Optional[str] = None
-    email: EmailStr
+    email: Optional[str] = None  # Made optional
     office_phone: Optional[str] = None
-    preferred_contact_method: ContactMethod = ContactMethod.PHONE
+    preferred_contact_method: Optional[ContactMethod] = ContactMethod.PHONE
     working_hours: Optional[str] = None  # e.g., "9 AM - 6 PM IST"
     timezone: Optional[str] = None  # e.g., "Asia/Kolkata"
     notes: Optional[str] = None
