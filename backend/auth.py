@@ -96,18 +96,28 @@ def require_role(allowed_roles: list):
 # OTP Functions with Twilio SMS
 from twilio_service import send_otp_sms, twilio_sms_service
 
+def normalize_phone(phone: str) -> str:
+    """Normalize phone number to just last 10 digits for consistent storage"""
+    digits = ''.join(filter(str.isdigit, phone))
+    # Return last 10 digits
+    return digits[-10:] if len(digits) >= 10 else digits
+
 def generate_otp() -> str:
     """Generate a 6-digit OTP"""
     return ''.join(random.choices(string.digits, k=6))
 
 def send_otp(phone: str, otp: str) -> dict:
     """Send OTP via Twilio SMS"""
+    # Normalize phone for storage
+    normalized_phone = normalize_phone(phone)
+    
     # Store OTP in memory for verification
-    otp_storage[phone] = {
+    otp_storage[normalized_phone] = {
         "otp": otp,
         "created_at": datetime.utcnow(),
         "attempts": 0
     }
+    print(f"[OTP] Stored OTP for normalized phone: {normalized_phone}")
     
     # Check if Twilio is configured
     if twilio_sms_service.is_configured():
