@@ -8,9 +8,13 @@ interface User {
   phone?: string;
   full_name: string;
   role: string;
+  role_name?: string;
+  role_id?: string;
+  team_name?: string;
   address?: string;
   profile_photo?: string;
   is_active: boolean;
+  approval_status?: string;
   date_joined: string;
   last_login?: string;
 }
