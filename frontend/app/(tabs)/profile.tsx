@@ -73,7 +73,7 @@ export default function ProfileScreen() {
             <Ionicons name="person" size={48} color={Colors.secondary} />
           </View>
           <Text style={styles.name}>{user?.full_name || 'User'}</Text>
-          <Text style={styles.role}>{getRoleLabel(user?.role || '')}</Text>
+          <Text style={styles.role}>{getDisplayRole()}</Text>
           
           <View style={styles.infoContainer}>
             {user?.email && (
