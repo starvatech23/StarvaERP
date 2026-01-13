@@ -567,19 +567,42 @@ async def register(user_data: UserCreate):
 async def login(credentials: UserLogin):
     """Login with email/password or phone/OTP"""
     
+    # Debug logging
+    logger.info(f"Login request - identifier: '{credentials.identifier}', auth_type: '{credentials.auth_type}'")
+    
     if credentials.auth_type == "email":
-        # Email login
-        user = await db.users.find_one({"email": credentials.identifier})
+        # Email login - normalize email
+        email = credentials.identifier.lower().strip()
+        logger.info(f"Looking up user by email: '{email}'")
+        
+        user = await db.users.find_one({"email": email})
         if not user:
+            # Try case-insensitive search
+            user = await db.users.find_one({"email": {"$regex": f"^{email}$", "$options": "i"}})
+            if user:
+                logger.info(f"Found user with case-insensitive match: {user.get('email')}")
+        
+        if not user:
+            logger.warning(f"User not found for email: '{email}'")
             raise HTTPException(status_code=401, detail="Invalid email or password")
         
         password_hash = user.get("password_hash", user.get("password", ""))
-        logger.info(f"Login attempt for {credentials.identifier}, hash present: {bool(password_hash)}")
+        logger.info(f"Login attempt for {email}, hash present: {bool(password_hash)}, hash length: {len(password_hash) if password_hash else 0}")
         
         if not password_hash:
+            logger.warning(f"No password set for user: {email}")
             raise HTTPException(status_code=401, detail="Invalid email or password - no password set")
         
-        if not verify_password(credentials.password, password_hash):
+        # Debug password verification
+        try:
+            is_valid = verify_password(credentials.password, password_hash)
+            logger.info(f"Password verification for {email}: {is_valid}")
+        except Exception as e:
+            logger.error(f"Password verification error for {email}: {e}")
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+        if not is_valid:
+            logger.warning(f"Invalid password for user: {email}")
             raise HTTPException(status_code=401, detail="Invalid email or password")
     
     elif credentials.auth_type == "phone":
