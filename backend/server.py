@@ -746,16 +746,30 @@ async def verify_otp_endpoint(request: OTPVerify):
     
     if not user:
         # Register new user
-        if not request.full_name or not request.role:
+        if not request.full_name or (not request.role and not request.role_id):
             logger.warning(f"[OTP] User not found for phone: {request.phone}, registration required")
             raise HTTPException(status_code=400, detail="Full name and role required for registration")
+        
+        # Get role info if role_id is provided
+        role_code = request.role
+        role_name = None
+        if request.role_id:
+            try:
+                role_doc = await db.roles.find_one({"_id": ObjectId(request.role_id)})
+                if role_doc:
+                    role_code = role_doc.get("code", role_doc.get("name", "").lower().replace(" ", "_"))
+                    role_name = role_doc.get("name")
+            except:
+                pass
         
         user_dict = {
             "phone": request.phone,
             "full_name": request.full_name,
-            "role": request.role,
+            "role": role_code,
+            "role_id": request.role_id,
+            "role_name": role_name,
             "is_active": True,
-            "approval_status": "approved",
+            "approval_status": "pending",  # New users need approval
             "date_joined": datetime.utcnow(),
             "last_login": datetime.utcnow()
         }
