@@ -1,5 +1,5 @@
 """
-Email Service for SiteOps using SendGrid
+Email Service for SiteOps using Brevo (formerly Sendinblue)
 
 This module handles all email sending functionality including:
 - Password reset emails
@@ -7,8 +7,8 @@ This module handles all email sending functionality including:
 - Welcome emails
 """
 
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 import os
 import logging
 from typing import Optional
@@ -20,16 +20,25 @@ class EmailDeliveryError(Exception):
     pass
 
 class EmailService:
-    """SendGrid Email Service wrapper"""
+    """Brevo Email Service wrapper"""
     
     def __init__(self):
-        self.api_key = os.getenv('SENDGRID_API_KEY')
+        self.api_key = os.getenv('BREVO_API_KEY')
         self.sender_email = os.getenv('SENDER_EMAIL', 'noreply@starvacon.com')
         self.sender_name = os.getenv('SENDER_NAME', 'SiteOps')
         self.is_configured = bool(self.api_key)
         
-        if not self.is_configured:
-            logger.warning("SendGrid API key not configured. Emails will be logged only.")
+        if self.is_configured:
+            # Configure Brevo API client
+            configuration = sib_api_v3_sdk.Configuration()
+            configuration.api_key['api-key'] = self.api_key
+            self.api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+                sib_api_v3_sdk.ApiClient(configuration)
+            )
+            logger.info("Brevo email service configured successfully")
+        else:
+            self.api_instance = None
+            logger.warning("Brevo API key not configured. Emails will be logged only.")
     
     def send_email(
         self, 
@@ -39,7 +48,7 @@ class EmailService:
         plain_content: Optional[str] = None
     ) -> bool:
         """
-        Send an email via SendGrid
+        Send an email via Brevo
         
         Args:
             to_email: Recipient email address
@@ -61,26 +70,23 @@ class EmailService:
             return True
         
         try:
-            message = Mail(
-                from_email=(self.sender_email, self.sender_name),
-                to_emails=to_email,
+            # Create email object
+            send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+                to=[{"email": to_email}],
+                sender={"name": self.sender_name, "email": self.sender_email},
                 subject=subject,
-                html_content=html_content
+                html_content=html_content,
+                text_content=plain_content
             )
             
-            if plain_content:
-                message.plain_text_content = plain_content
-            
-            sg = SendGridAPIClient(self.api_key)
-            response = sg.send(message)
-            
-            if response.status_code in [200, 201, 202]:
-                logger.info(f"Email sent successfully to {to_email}")
-                return True
-            else:
-                logger.error(f"Failed to send email. Status: {response.status_code}")
-                return False
+            # Send the email
+            api_response = self.api_instance.send_transac_email(send_smtp_email)
+            logger.info(f"Email sent successfully to {to_email}, message_id: {api_response.message_id}")
+            return True
                 
+        except ApiException as e:
+            logger.error(f"Brevo API error: {e}")
+            raise EmailDeliveryError(f"Failed to send email: {str(e)}")
         except Exception as e:
             logger.error(f"Email delivery failed: {str(e)}")
             raise EmailDeliveryError(f"Failed to send email: {str(e)}")
