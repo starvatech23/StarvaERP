@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,19 +17,45 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { Picker } from '@react-native-picker/picker';
+import { rolesAPI } from '../../services/api';
 
 export default function RegisterPhoneScreen() {
   const router = useRouter();
   const { sendOTP } = useAuth();
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [role, setRole] = useState('worker');
+  const [role, setRole] = useState('');
+  const [roleId, setRoleId] = useState('');
+  const [availableRoles, setAvailableRoles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [mockOtp, setMockOtp] = useState('');
+
+  useEffect(() => {
+    loadRoles();
+  }, []);
+
+  const loadRoles = async () => {
+    try {
+      const response = await rolesAPI.getPublic();
+      setAvailableRoles(response.data);
+      if (response.data.length > 0) {
+        setRoleId(response.data[0].id);
+        setRole(response.data[0].code || response.data[0].name.toLowerCase().replace(/ /g, '_'));
+      }
+    } catch (error) {
+      console.error('Error loading roles:', error);
+      setAvailableRoles([]);
+    }
+  };
 
   const handleSendOTP = async () => {
     if (!fullName || !phone) {
       Alert.alert('Error', 'Please enter your name and phone number');
+      return;
+    }
+
+    if (!roleId && availableRoles.length > 0) {
+      Alert.alert('Error', 'Please select a role');
       return;
     }
 
@@ -46,7 +72,7 @@ export default function RegisterPhoneScreen() {
             onPress: () =>
               router.push({
                 pathname: '/(auth)/otp-verify',
-                params: { phone, fullName, role, otp: otpCode },
+                params: { phone, fullName, role, roleId, otp: otpCode },
               }),
           },
         ]
