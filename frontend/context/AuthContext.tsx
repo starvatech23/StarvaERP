@@ -56,12 +56,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (identifier: string, password: string, authType: string) => {
     try {
+      console.log('[Auth] Login attempt:', { identifier, authType, passwordLength: password?.length });
+      
       const response = await authAPI.login({
         identifier,
         password: authType === 'email' ? password : undefined,
         auth_type: authType,
       });
 
+      console.log('[Auth] Login successful:', response.data?.user?.email);
+      
       const { access_token, user: userData } = response.data;
 
       await AsyncStorage.setItem('token', access_token);
@@ -70,6 +74,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(access_token);
       setUser(userData);
     } catch (error: any) {
+      console.log('[Auth] Login error:', {
+        status: error.response?.status,
+        detail: error.response?.data?.detail,
+        message: error.message,
+      });
       throw new Error(error.response?.data?.detail || 'Login failed');
     }
   };
