@@ -5984,6 +5984,12 @@ async def root():
 
 # ============= Role Management Routes =============
 
+@api_router.get("/roles/public", response_model=List[RoleResponse])
+async def get_public_roles():
+    """Get all active roles for registration - no authentication required"""
+    roles = await db.roles.find({"is_active": True}).to_list(1000)
+    return [RoleResponse(**serialize_doc(role)) for role in roles]
+
 @api_router.get("/roles", response_model=List[RoleResponse])
 async def get_roles(
     is_active: bool = None,
