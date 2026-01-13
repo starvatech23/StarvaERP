@@ -133,6 +133,7 @@ export default function RegisterPhoneScreen() {
               />
             </View>
 
+            <Text style={styles.label}>Select Your Role *</Text>
             <View style={styles.pickerContainer}>
               <Ionicons
                 name="briefcase-outline"
@@ -141,17 +142,32 @@ export default function RegisterPhoneScreen() {
                 style={styles.inputIcon}
               />
               <Picker
-                selectedValue={role}
-                onValueChange={setRole}
+                selectedValue={roleId}
+                onValueChange={(value) => {
+                  setRoleId(value);
+                  const selectedRole = availableRoles.find(r => r.id === value);
+                  if (selectedRole) {
+                    setRole(selectedRole.code || selectedRole.name.toLowerCase().replace(/ /g, '_'));
+                  }
+                }}
                 style={styles.picker}
+                dropdownIconColor={Colors.textPrimary}
               >
-                <Picker.Item label="Worker" value="worker" />
-                <Picker.Item label="Engineer" value="engineer" />
-                <Picker.Item label="Project Manager" value="project_manager" />
-                <Picker.Item label="Admin" value="admin" />
-                <Picker.Item label="Vendor" value="vendor" />
+                <Picker.Item label="Select your role..." value="" color="#9CA3AF" />
+                {availableRoles.map((r: any) => (
+                  <Picker.Item key={r.id} label={r.name} value={r.id} color={Colors.textPrimary} />
+                ))}
               </Picker>
             </View>
+
+            {availableRoles.length === 0 && (
+              <View style={styles.warningCard}>
+                <Ionicons name="alert-circle" size={20} color="#DC2626" />
+                <Text style={styles.warningText}>
+                  No roles available. Please contact your administrator.
+                </Text>
+              </View>
+            )}
 
             {mockOtp && (
               <View style={styles.otpDisplay}>
