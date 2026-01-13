@@ -17,21 +17,19 @@ export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
 
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'project_manager':
-        return 'Project Manager';
-      case 'admin':
-        return 'Admin';
-      case 'engineer':
-        return 'Engineer';
-      case 'worker':
-        return 'Worker';
-      case 'vendor':
-        return 'Vendor';
-      default:
-        return role;
+  // Use role_name if available, otherwise format the role code
+  const getDisplayRole = () => {
+    // First check if role_name is available (from backend)
+    if (user?.role_name) {
+      return user.role_name;
     }
+    
+    // Fallback: format the role code
+    const role = user?.role || '';
+    return role
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   const handleLogout = () => {
