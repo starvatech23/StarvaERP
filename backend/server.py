@@ -1250,8 +1250,9 @@ async def get_projects(
     if status:
         query["status"] = status
     
-    # Vendors can't access projects
-    if current_user["role"] == UserRole.VENDOR:
+    # Vendors can't access projects - safely check role
+    user_role = current_user.get("role", current_user.get("role_name", ""))
+    if user_role == UserRole.VENDOR or user_role == "vendor" or user_role == "Vendor":
         raise HTTPException(status_code=403, detail="Vendors cannot access projects")
     
     projects = await db.projects.find(query).to_list(1000)
