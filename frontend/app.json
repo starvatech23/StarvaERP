@@ -9,10 +9,16 @@
     "scheme": "siteops",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-image.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#2563EB"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.starva.siteops",
       "buildNumber": "1",
+      "icon": "./assets/images/icon.png",
       "infoPlist": {
         "NSCameraUsageDescription": "SiteOps needs camera access to capture site photos and documents",
         "NSPhotoLibraryUsageDescription": "SiteOps needs photo library access to upload site images",
@@ -27,7 +33,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#F97316"
+        "backgroundColor": "#2563EB"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.starva.siteops",
@@ -52,7 +58,7 @@
       "shortName": "SiteOps",
       "description": "India's Complete Site Management Application by Starva",
       "backgroundColor": "#FFFFFF",
-      "themeColor": "#F97316"
+      "themeColor": "#2563EB"
     },
     "plugins": [
       "expo-router",
@@ -62,7 +68,7 @@
           "image": "./assets/images/splash-image.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#F97316"
+          "backgroundColor": "#2563EB"
         }
       ]
     ],
