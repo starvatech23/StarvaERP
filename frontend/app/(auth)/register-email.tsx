@@ -180,26 +180,27 @@ export default function RegisterEmailScreen() {
                   setRoleId(value);
                   const selectedRole = availableRoles.find(r => r.id === value);
                   if (selectedRole) {
-                    setRole(selectedRole.name.toLowerCase().replace(/ /g, '_'));
+                    setRole(selectedRole.code || selectedRole.name.toLowerCase().replace(/ /g, '_'));
                   }
                 }}
                 style={styles.picker}
                 dropdownIconColor={Colors.textPrimary}
               >
                 <Picker.Item label="Select your role..." value="" color="#9CA3AF" />
-                {availableRoles.length > 0 ? (
-                  availableRoles.map((r: any) => (
-                    <Picker.Item key={r.id} label={r.name} value={r.id} color={Colors.textPrimary} />
-                  ))
-                ) : (
-                  <>
-                    <Picker.Item label="Worker" value="worker" color={Colors.textPrimary} />
-                    <Picker.Item label="Engineer" value="engineer" color={Colors.textPrimary} />
-                    <Picker.Item label="Project Manager" value="project_manager" color={Colors.textPrimary} />
-                  </>
-                )}
+                {availableRoles.map((r: any) => (
+                  <Picker.Item key={r.id} label={r.name} value={r.id} color={Colors.textPrimary} />
+                ))}
               </Picker>
             </View>
+            
+            {availableRoles.length === 0 && (
+              <View style={styles.warningCard}>
+                <Ionicons name="alert-circle" size={20} color="#DC2626" />
+                <Text style={styles.warningText}>
+                  No roles available. Please contact your administrator.
+                </Text>
+              </View>
+            )}
 
             {/* Approval Notice */}
             <View style={styles.infoCard}>
