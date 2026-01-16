@@ -258,7 +258,6 @@ class UserResponse(UserBase):
     crm_permissions: Optional[Dict[str, bool]] = None  # CRM permissions for frontend
 
 class UserApprovalRequest(BaseModel):
-    user_id: str
     action: str  # 'approve' or 'reject'
     role_id: Optional[str] = None  # Assign role during approval
 
