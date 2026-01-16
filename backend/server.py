@@ -569,11 +569,12 @@ async def register(user_data: UserCreate):
     except Exception as e:
         logger.error(f"Failed to create admin notification: {e}")
     
-    # Return response - user needs to wait for approval
-    raise HTTPException(
-        status_code=201, 
-        detail="Registration successful! Your account is pending approval. You will be notified once approved."
-    )
+    # Return success response - user account created but pending approval
+    return {
+        "status": "pending_approval",
+        "message": "Registration successful! Your account is pending approval. You will be notified once approved.",
+        "user_id": str(result.inserted_id)
+    }
 
 @api_router.post("/auth/login", response_model=Token)
 async def login(credentials: UserLogin):
