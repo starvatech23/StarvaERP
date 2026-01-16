@@ -633,7 +633,7 @@ async def login(credentials: UserLogin):
     )
     
     # Get role info - handle both role_id (admin-created) and role (self-registered)
-    role_name = user.get("role", "")
+    role_name = user.get("role_name", user.get("role", ""))
     role_code = user.get("role", "user")
     
     if user.get("role_id"):
@@ -641,13 +641,17 @@ async def login(credentials: UserLogin):
             role = await db.roles.find_one({"_id": ObjectId(user["role_id"])})
             if role:
                 role_name = role.get("name", role_name)
-                role_code = role.get("code", role.get("name", "user")).lower()
+                # Use code field, or convert name to code format (lowercase with underscores)
+                role_code = role.get("code") or role.get("name", "user").lower().replace(" ", "_").replace("-", "_")
         except:
             pass
     
     # If still no valid role, default to 'user'
     if not role_code or role_code == "":
         role_code = "user"
+    
+    # Normalize role_code - replace spaces with underscores
+    role_code = role_code.replace(" ", "_").replace("-", "_").lower()
     
     # Create token
     access_token = create_access_token(data={"sub": str(user["_id"])})
