@@ -1,12 +1,16 @@
 """
-Email Service for SiteOps using Brevo (formerly Sendinblue)
+Email Service for SiteOps using Juvlon (Primary) and Brevo (Fallback)
 
 This module handles all email sending functionality including:
 - Password reset emails
 - Notification emails
 - Welcome emails
+
+Priority: Juvlon -> Brevo -> Mock
 """
 
+import requests
+import json
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 import os
@@ -19,26 +23,136 @@ class EmailDeliveryError(Exception):
     """Custom exception for email delivery failures"""
     pass
 
-class EmailService:
-    """Brevo Email Service wrapper"""
+class JuvlonEmailService:
+    """Juvlon Email Service - Primary Provider"""
+    
+    def __init__(self):
+        self.api_key = os.getenv('JUVLON_API_KEY')
+        self.sender_email = os.getenv('SENDER_EMAIL', 'noreply@starvacon.com')
+        self.sender_name = os.getenv('SENDER_NAME', 'StarvaTech')
+        self.api_url = "https://api2.juvlon.com/v4/sendEmail"
+        self.is_configured = bool(self.api_key)
+        
+        if self.is_configured:
+            logger.info("Juvlon email service configured successfully")
+        else:
+            logger.warning("Juvlon API key not configured")
+    
+    def send_email(
+        self, 
+        to_email: str, 
+        subject: str, 
+        html_content: str,
+        plain_content: Optional[str] = None
+    ) -> bool:
+        """Send email via Juvlon API"""
+        if not self.is_configured:
+            return False
+        
+        try:
+            payload = {
+                "ApiKey": self.api_key,
+                "requests": [
+                    {
+                        "subject": subject,
+                        "from": self.sender_email,
+                        "fromName": self.sender_name,
+                        "to": to_email,
+                        "body": html_content
+                    }
+                ]
+            }
+            
+            response = requests.post(
+                self.api_url,
+                data=json.dumps(payload),
+                headers={"Content-Type": "application/json"},
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                logger.info(f"Juvlon: Email sent successfully to {to_email}, response: {result}")
+                return True
+            else:
+                logger.error(f"Juvlon: Failed to send email. Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Juvlon: Email delivery error: {str(e)}")
+            return False
+
+
+class BrevoEmailService:
+    """Brevo Email Service - Fallback Provider"""
     
     def __init__(self):
         self.api_key = os.getenv('BREVO_API_KEY')
         self.sender_email = os.getenv('SENDER_EMAIL', 'noreply@starvacon.com')
-        self.sender_name = os.getenv('SENDER_NAME', 'SiteOps')
+        self.sender_name = os.getenv('SENDER_NAME', 'StarvaTech')
         self.is_configured = bool(self.api_key)
         
         if self.is_configured:
-            # Configure Brevo API client
             configuration = sib_api_v3_sdk.Configuration()
             configuration.api_key['api-key'] = self.api_key
             self.api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
                 sib_api_v3_sdk.ApiClient(configuration)
             )
-            logger.info("Brevo email service configured successfully")
+            logger.info("Brevo email service configured successfully (fallback)")
         else:
             self.api_instance = None
-            logger.warning("Brevo API key not configured. Emails will be logged only.")
+            logger.warning("Brevo API key not configured")
+    
+    def send_email(
+        self, 
+        to_email: str, 
+        subject: str, 
+        html_content: str,
+        plain_content: Optional[str] = None
+    ) -> bool:
+        """Send email via Brevo API"""
+        if not self.is_configured:
+            return False
+        
+        try:
+            send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+                to=[{"email": to_email}],
+                sender={"name": self.sender_name, "email": self.sender_email},
+                subject=subject,
+                html_content=html_content,
+                text_content=plain_content
+            )
+            
+            api_response = self.api_instance.send_transac_email(send_smtp_email)
+            logger.info(f"Brevo: Email sent successfully to {to_email}, message_id: {api_response.message_id}")
+            return True
+                
+        except ApiException as e:
+            logger.error(f"Brevo API error: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"Brevo: Email delivery error: {str(e)}")
+            return False
+
+
+class EmailService:
+    """
+    Unified Email Service
+    Uses Juvlon as primary, Brevo as fallback
+    """
+    
+    def __init__(self):
+        self.juvlon = JuvlonEmailService()
+        self.brevo = BrevoEmailService()
+        self.sender_name = os.getenv('SENDER_NAME', 'StarvaTech')
+        
+        # Check configuration status
+        if self.juvlon.is_configured:
+            logger.info("Email Service: Juvlon configured as PRIMARY")
+        if self.brevo.is_configured:
+            logger.info("Email Service: Brevo configured as FALLBACK")
+        if not self.juvlon.is_configured and not self.brevo.is_configured:
+            logger.warning("Email Service: No providers configured. Emails will be logged only (MOCK mode).")
     
     def send_email(
         self, 
@@ -48,7 +162,9 @@ class EmailService:
         plain_content: Optional[str] = None
     ) -> bool:
         """
-        Send an email via Brevo
+        Send an email using available providers
+        
+        Priority: Juvlon -> Brevo -> Mock
         
         Args:
             to_email: Recipient email address
@@ -59,37 +175,31 @@ class EmailService:
         Returns:
             True if email was sent successfully
         """
-        # Log the email for debugging
-        logger.info(f"Email to: {to_email}, Subject: {subject}")
+        logger.info(f"Email request: to={to_email}, subject={subject}")
         
-        if not self.is_configured:
-            # Mock mode - just log the email
+        # Try Juvlon first (primary)
+        if self.juvlon.is_configured:
+            logger.info("Attempting to send via Juvlon (primary)...")
+            if self.juvlon.send_email(to_email, subject, html_content, plain_content):
+                return True
+            logger.warning("Juvlon failed, trying fallback...")
+        
+        # Try Brevo as fallback
+        if self.brevo.is_configured:
+            logger.info("Attempting to send via Brevo (fallback)...")
+            if self.brevo.send_email(to_email, subject, html_content, plain_content):
+                return True
+            logger.warning("Brevo also failed")
+        
+        # Mock mode - log the email
+        if not self.juvlon.is_configured and not self.brevo.is_configured:
             logger.info(f"[MOCK EMAIL] To: {to_email}")
             logger.info(f"[MOCK EMAIL] Subject: {subject}")
             logger.info(f"[MOCK EMAIL] Content: {html_content[:200]}...")
             return True
         
-        try:
-            # Create email object
-            send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-                to=[{"email": to_email}],
-                sender={"name": self.sender_name, "email": self.sender_email},
-                subject=subject,
-                html_content=html_content,
-                text_content=plain_content
-            )
-            
-            # Send the email
-            api_response = self.api_instance.send_transac_email(send_smtp_email)
-            logger.info(f"Email sent successfully to {to_email}, message_id: {api_response.message_id}")
-            return True
-                
-        except ApiException as e:
-            logger.error(f"Brevo API error: {e}")
-            raise EmailDeliveryError(f"Failed to send email: {str(e)}")
-        except Exception as e:
-            logger.error(f"Email delivery failed: {str(e)}")
-            raise EmailDeliveryError(f"Failed to send email: {str(e)}")
+        # Both providers failed
+        raise EmailDeliveryError("All email providers failed to deliver the email")
     
     def send_password_reset_email(
         self, 
@@ -121,16 +231,17 @@ class EmailService:
             <style>
                 body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
                 .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ background-color: #2563EB; color: white; padding: 20px; text-align: center; }}
+                .header {{ background-color: #F97316; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
                 .content {{ padding: 30px; background-color: #f9fafb; }}
                 .button {{ 
                     display: inline-block; 
-                    background-color: #2563EB; 
+                    background-color: #F97316; 
                     color: white; 
                     padding: 12px 30px; 
                     text-decoration: none; 
                     border-radius: 6px;
                     margin: 20px 0;
+                    font-weight: bold;
                 }}
                 .footer {{ padding: 20px; text-align: center; color: #666; font-size: 12px; }}
                 .warning {{ color: #DC2626; font-size: 14px; margin-top: 20px; }}
@@ -139,7 +250,7 @@ class EmailService:
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>🏗️ SiteOps</h1>
+                    <h1>🏗️ Starva's SiteOps</h1>
                 </div>
                 <div class="content">
                     <h2>Password Reset Request</h2>
@@ -160,7 +271,7 @@ class EmailService:
                     </p>
                 </div>
                 <div class="footer">
-                    <p>© 2025 SiteOps by Starvacon. All rights reserved.</p>
+                    <p>© 2025 SiteOps by StarvaTech. All rights reserved.</p>
                     <p>This is an automated message, please do not reply directly.</p>
                 </div>
             </div>
@@ -181,7 +292,7 @@ class EmailService:
         
         If you didn't request this password reset, please ignore this email.
         
-        © 2025 SiteOps by Starvacon
+        © 2025 SiteOps by StarvaTech
         """
         
         return self.send_email(to_email, subject, html_content, plain_content)
@@ -204,7 +315,7 @@ class EmailService:
             <style>
                 body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
                 .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ background-color: #2563EB; color: white; padding: 20px; text-align: center; }}
+                .header {{ background-color: #F97316; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
                 .content {{ padding: 30px; background-color: #f9fafb; }}
                 .footer {{ padding: 20px; text-align: center; color: #666; font-size: 12px; }}
             </style>
@@ -212,7 +323,7 @@ class EmailService:
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>🏗️ SiteOps</h1>
+                    <h1>🏗️ Starva's SiteOps</h1>
                 </div>
                 <div class="content">
                     <h2>Welcome to SiteOps!</h2>
@@ -222,7 +333,7 @@ class EmailService:
                     <p>If you have any questions, please contact your administrator.</p>
                 </div>
                 <div class="footer">
-                    <p>© 2025 SiteOps by Starvacon. All rights reserved.</p>
+                    <p>© 2025 SiteOps by StarvaTech. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -230,6 +341,7 @@ class EmailService:
         """
         
         return self.send_email(to_email, subject, html_content)
+
 
 # Create singleton instance
 email_service = EmailService()
