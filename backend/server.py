@@ -500,7 +500,7 @@ def require_crm_access(current_user: dict):
 
 # ============= Authentication Routes =============
 
-@api_router.post("/auth/register", response_model=Token)
+@api_router.post("/auth/register")
 async def register(user_data: UserCreate):
     """Register a new user with email/password or phone"""
     
