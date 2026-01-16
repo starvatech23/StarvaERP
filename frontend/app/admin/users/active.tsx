@@ -207,14 +207,24 @@ export default function ActiveUsersScreen() {
                     </View>
                   </View>
 
-                  {/* Edit Button */}
-                  <TouchableOpacity
-                    style={styles.editButton}
-                    onPress={() => router.push(`/admin/users/edit/${user.id}`)}
-                  >
-                    <Ionicons name="create-outline" size={16} color={Colors.primary} />
-                    <Text style={styles.editButtonText}>Edit User</Text>
-                  </TouchableOpacity>
+                  {/* Action Buttons */}
+                  <View style={styles.actionButtons}>
+                    <TouchableOpacity
+                      style={styles.editButton}
+                      onPress={() => router.push(`/admin/users/edit/${user.id}`)}
+                    >
+                      <Ionicons name="create-outline" size={16} color={Colors.primary} />
+                      <Text style={styles.editButtonText}>Edit</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDeleteUser(user.id, user.full_name)}
+                    >
+                      <Ionicons name="trash-outline" size={16} color="#DC2626" />
+                      <Text style={styles.deleteButtonText}>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               );
             })}
