@@ -238,7 +238,7 @@ class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     full_name: Optional[str] = None
-    role: Optional[UserRole] = None
+    role: Optional[str] = None  # Accept any role string (dynamic roles)
     role_id: Optional[str] = None
     team_id: Optional[str] = None
     address: Optional[str] = None
