@@ -87,11 +87,11 @@ export default function RegisterEmailScreen() {
         auth_type: 'email',
       });
       
-      // Show success message with approval notice
+      // Show success message - user needs admin approval
       Alert.alert(
-        'Registration Successful',
-        'Your account has been created. An admin will review your request shortly. You can log in with limited access.',
-        [{ text: 'OK', onPress: () => router.replace('/(tabs)') }]
+        'Registration Submitted!',
+        'Your account has been created and is pending approval. You will be notified via email once an admin approves your account.',
+        [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
       );
     } catch (error: any) {
       Alert.alert('Registration Failed', error.message);
