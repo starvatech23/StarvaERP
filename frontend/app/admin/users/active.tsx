@@ -14,7 +14,7 @@ import {
 import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { userManagementAPI } from '../../../services/api';
+import { userManagementAPI, usersAPI } from '../../../services/api';
 
 export default function ActiveUsersScreen() {
   const router = useRouter();
@@ -50,6 +50,29 @@ export default function ActiveUsersScreen() {
             Linking.openURL(`tel:${phone}`).catch(() => {
               Alert.alert('Error', 'Unable to make call');
             });
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteUser = (userId: string, userName: string) => {
+    Alert.alert(
+      'Delete User',
+      `Are you sure you want to delete "${userName}"? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await usersAPI.delete(userId);
+              Alert.alert('Success', `${userName} has been deleted`);
+              loadUsers(); // Refresh the list
+            } catch (error: any) {
+              Alert.alert('Error', error.response?.data?.detail || 'Failed to delete user');
+            }
           },
         },
       ]
