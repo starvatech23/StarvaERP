@@ -6713,7 +6713,8 @@ async def create_user_by_admin(
     
     # Hash password if provided
     if user_data.password:
-        user_dict["password"] = pwd_context.hash(user_data.password)
+        user_dict["password"] = get_password_hash(user_data.password)
+        user_dict["password_hash"] = user_dict["password"]
     
     result = await db.users.insert_one(user_dict)
     user_dict["_id"] = result.inserted_id
