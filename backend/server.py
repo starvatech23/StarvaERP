@@ -136,8 +136,8 @@ from task_cost_engine import (
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Import Twilio SMS Service after loading environment
-from twilio_service import twilio_sms_service
+# Import Brevo SMS Service after loading environment
+from brevo_sms_service import brevo_sms_service
 
 # Secret key for JWT - use environment variable or generate secure default
 SECRET_KEY = os.environ.get('SECRET_KEY', 'siteops-production-secret-key-change-in-production-2025')
