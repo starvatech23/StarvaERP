@@ -207,7 +207,7 @@ async def health_check():
         "app": "SiteOps",
         "version": "1.0.0",
         "database": db_status,
-        "twilio_configured": twilio_sms_service.is_configured(),
+        "sms_configured": brevo_sms_service.is_configured(),
         "timestamp": datetime.utcnow().isoformat()
     }
 
