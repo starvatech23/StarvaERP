@@ -737,6 +737,18 @@ frontend:
         agent: "testing"
         comment: "✅ ALL CRM DASHBOARD APIS WORKING PERFECTLY: Comprehensive testing completed with 100% success rate (4/4 tests passed). VERIFIED ENDPOINTS: (1) POST /api/auth/login - Successfully authenticated with crm.manager@test.com credentials, obtained access token, verified user role (crm_manager). (2) GET /api/crm/dashboard/analytics - Successfully retrieved comprehensive analytics with all required fields: summary (total_leads: 14, pipeline_value: ₹0.00, won_leads: 4, conversion_rate: 28.57%), by_status (5 statuses), by_source (6 sources), by_priority (3 priorities), by_city (4 cities), by_state (5 states), by_category (3 categories), by_funnel (0 funnels), by_value_range. (3) GET /api/crm/dashboard/filters - Successfully retrieved all filter options: cities (3), states (4), categories (3), funnels (0), statuses (8), sources (8), priorities (4), assigned_users (5), value_ranges (5 with proper label/min/max structure). (4) Analytics with Filters - Successfully tested 5 filter combinations: status=won (4 leads), priority=urgent (5 leads), status=won+priority=high (0 leads), min_value=100000 (0 leads), max_value=500000 (0 leads). All filter parameters working correctly. Authentication working with Bearer token. All CRM Dashboard APIs are production-ready and fully functional."
 
+  - task: "CRM Create Lead Dropdown Picker Component"
+    implemented: true
+    working: false
+    file: "/app/frontend/app/crm/leads/create.tsx, /app/frontend/components/DropdownPicker.tsx"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL FRONTEND LOADING ISSUE: Unable to test CRM Create Lead Dropdown Picker Component due to frontend app not loading past splash screen. ISSUE DETAILS: (1) App shows 'STARVA'S SiteOps' splash screen and does not progress to main interface, (2) Attempted multiple navigation approaches including direct URL access to /crm/leads/create but app remains on splash screen, (3) No login form or main app interface accessible, (4) App appears stuck in loading state preventing any UI testing. COMPONENT ANALYSIS: ✅ Code review shows DropdownPicker component is properly implemented with Modal-based approach, 4 dropdowns in Create Lead screen (Category, Source, Priority, Currency), proper mobile-first design with touch feedback and bottom-sheet modals. RECOMMENDATION: Main agent needs to investigate frontend app loading issue - possible authentication, routing, or JavaScript loading problems preventing app initialization."
+
   - task: "Labour Payment APIs"
     implemented: true
     working: true
