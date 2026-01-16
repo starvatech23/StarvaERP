@@ -3995,11 +3995,11 @@ async def send_payment_otp(
         }}
     )
     
-    # Send SMS via Twilio
+    # Send SMS via Brevo
     worker_name = worker.get("full_name", worker.get("name", "Worker"))
     amount = payment.get("amount", 0)
     
-    sms_result = twilio_sms_service.send_payment_otp(
+    sms_result = brevo_sms_service.send_payment_otp(
         worker["phone"], 
         otp_code, 
         worker_name, 
@@ -4015,23 +4015,22 @@ async def send_payment_otp(
     }
     
     if sms_result.get("success"):
-        # Twilio SMS sent successfully
+        # Brevo SMS sent successfully
         response.update({
-            "sms_provider": "Twilio",
-            "message_sid": sms_result.get("message_sid"),
-            "status": sms_result.get("status"),
+            "sms_provider": "Brevo",
+            "message_id": sms_result.get("message_id"),
             "to": sms_result.get("to")
         })
-        logger.info(f"Payment OTP sent via Twilio to {worker['phone']} for payment {payment_id}")
+        logger.info(f"Payment OTP sent via Brevo to {worker['phone']} for payment {payment_id}")
     else:
-        # Twilio failed - log error but don't expose OTP in production
+        # Brevo failed - log error but don't expose OTP in production
         response.update({
             "sms_provider": "Failed",
-            "twilio_error": sms_result.get("error"),
+            "brevo_error": sms_result.get("error"),
             # Note: OTP is NOT returned in production for security
             # User should check SMS or retry
         })
-        logger.warning(f"Twilio SMS failed for payment {payment_id}: {sms_result.get('error')}")
+        logger.warning(f"Brevo SMS failed for payment {payment_id}: {sms_result.get('error')}")
     
     return response
 
