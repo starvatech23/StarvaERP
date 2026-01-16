@@ -694,7 +694,7 @@ async def login(credentials: UserLogin):
 
 @api_router.post("/auth/send-otp")
 async def send_otp_endpoint(request: OTPRequest):
-    """Send OTP to phone number via Twilio SMS"""
+    """Send OTP to phone number via Brevo SMS"""
     otp = generate_otp()
     result = send_otp(request.phone, otp)
     
@@ -704,12 +704,12 @@ async def send_otp_endpoint(request: OTPRequest):
             "provider": result.get("provider", "unknown"),
             "expires_in_minutes": 10
         }
-        # Include message_sid for tracking (production)
-        if result.get("message_sid"):
-            response["message_sid"] = result["message_sid"]
-        # Log but don't expose Twilio errors to client in production
-        if result.get("twilio_error"):
-            logger.warning(f"OTP sent with Twilio warning: {result.get('twilio_error')}")
+        # Include message_id for tracking (production)
+        if result.get("message_id"):
+            response["message_id"] = result["message_id"]
+        # Log but don't expose Brevo errors to client in production
+        if result.get("brevo_error"):
+            logger.warning(f"OTP sent with Brevo warning: {result.get('brevo_error')}")
         return response
     else:
         raise HTTPException(status_code=500, detail=result.get("error", "Failed to send OTP"))
