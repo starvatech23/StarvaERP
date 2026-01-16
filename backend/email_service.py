@@ -30,7 +30,7 @@ class JuvlonEmailService:
         self.api_key = os.getenv('JUVLON_API_KEY')
         self.sender_email = os.getenv('SENDER_EMAIL', 'noreply@starvacon.com')
         self.sender_name = os.getenv('SENDER_NAME', 'StarvaTech')
-        self.api_url = "https://api2.juvlon.com/v4/sendEmail"
+        self.api_url = "https://api2.juvlon.com/v5/sendEmail"
         self.is_configured = bool(self.api_key)
         
         if self.is_configured:
@@ -45,22 +45,23 @@ class JuvlonEmailService:
         html_content: str,
         plain_content: Optional[str] = None
     ) -> bool:
-        """Send email via Juvlon API"""
+        """Send email via Juvlon API v5"""
         if not self.is_configured:
             return False
         
         try:
+            # URL encode the HTML body as required by Juvlon
+            import urllib.parse
+            encoded_body = urllib.parse.quote(html_content)
+            
             payload = {
-                "ApiKey": self.api_key,
-                "requests": [
-                    {
-                        "subject": subject,
-                        "from": self.sender_email,
-                        "fromName": self.sender_name,
-                        "to": to_email,
-                        "body": html_content
-                    }
-                ]
+                "apiKey": self.api_key,
+                "from": self.sender_email,
+                "fromName": self.sender_name,
+                "to": to_email,
+                "subject": subject,
+                "body": encoded_body,
+                "trackClicks": "1"
             }
             
             response = requests.post(
@@ -70,12 +71,15 @@ class JuvlonEmailService:
                 timeout=30
             )
             
-            if response.status_code == 200:
-                result = response.json()
-                logger.info(f"Juvlon: Email sent successfully to {to_email}, response: {result}")
+            result = response.json() if response.text else {}
+            
+            if response.status_code == 200 and result.get('code') == '200':
+                logger.info(f"Juvlon: Email sent successfully to {to_email}, transactionId: {result.get('transactionId')}")
                 return True
             else:
-                logger.error(f"Juvlon: Failed to send email. Status: {response.status_code}, Response: {response.text}")
+                error_code = result.get('code', response.status_code)
+                error_status = result.get('status', 'Unknown error')
+                logger.error(f"Juvlon: Failed to send email. Code: {error_code}, Status: {error_status}")
                 return False
                 
         except Exception as e:
