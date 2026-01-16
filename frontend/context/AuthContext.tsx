@@ -90,15 +90,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (data: any) => {
     try {
       const response = await authAPI.register(data);
+      
+      // Check if registration requires approval
+      if (response.data.status === 'pending_approval') {
+        // User registered but needs approval - don't log them in
+        return;
+      }
+      
+      // Legacy flow - if server returns token (shouldn't happen with new flow)
       const { access_token, user: userData } = response.data;
+      if (access_token && userData) {
+        await AsyncStorage.setItem('token', access_token);
+        await AsyncStorage.setItem('user', JSON.stringify(userData));
 
-      await AsyncStorage.setItem('token', access_token);
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
-
-      setToken(access_token);
-      setUser(userData);
+        setToken(access_token);
+        setUser(userData);
+      }
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Registration failed');
+      throw new Error(error.response?.data?.detail || error.response?.data?.message || 'Registration failed');
     }
   };
 
