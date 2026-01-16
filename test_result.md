@@ -739,15 +739,18 @@ frontend:
 
   - task: "CRM Create Lead Dropdown Picker Component"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/app/crm/leads/create.tsx, /app/frontend/components/DropdownPicker.tsx"
-    stuck_count: 1
+    stuck_count: 0
     priority: "critical"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL FRONTEND LOADING ISSUE: Unable to test CRM Create Lead Dropdown Picker Component due to frontend app not loading past splash screen. ISSUE DETAILS: (1) App shows 'STARVA'S SiteOps' splash screen and does not progress to main interface, (2) Attempted multiple navigation approaches including direct URL access to /crm/leads/create but app remains on splash screen, (3) No login form or main app interface accessible, (4) App appears stuck in loading state preventing any UI testing. COMPONENT ANALYSIS: ✅ Code review shows DropdownPicker component is properly implemented with Modal-based approach, 4 dropdowns in Create Lead screen (Category, Source, Priority, Currency), proper mobile-first design with touch feedback and bottom-sheet modals. RECOMMENDATION: Main agent needs to investigate frontend app loading issue - possible authentication, routing, or JavaScript loading problems preventing app initialization."
+      - working: true
+        agent: "testing"
+        comment: "✅ CRM CREATE LEAD DROPDOWN PICKER COMPONENT WORKING PERFECTLY! Comprehensive testing completed on mobile viewport (390x844). VERIFIED FEATURES: (1) App loads successfully after splash screen (~3 seconds as fixed), (2) All 4 DropdownPicker components present and functional: Category (Lead Classification), Source (8 options: Website, Referral, Social Media, Cold Call, Walk In, Advertisement, Partner, Other), Priority (4 options with emojis: 🟢 Low, 🟡 Medium, 🟠 High, 🔴 Urgent), Currency (4 options: ₹ INR, $ USD, € EUR, £ GBP), (3) Modal behavior working correctly: Bottom-sheet style modal opens with proper header (title + X close button), Options displayed in scrollable list with touch feedback, Selection updates form field correctly, Modal closes with X button and tap outside, (4) Mobile-first design with proper touch targets and responsive layout, (5) Chevron-down icons on all selectors, (6) Expected behavior matches requirements exactly. The splash screen loading issue has been resolved and all dropdown functionality is working as specified."
 
   - task: "Labour Payment APIs"
     implemented: true
