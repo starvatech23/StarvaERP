@@ -6406,7 +6406,7 @@ async def approve_user(
     if approval.action == "approve":
         update_data = {
             "approval_status": ApprovalStatus.APPROVED,
-            "approved_by": current_user["id"],
+            "approved_by": str(current_user["_id"]),
             "approved_at": datetime.utcnow()
         }
         
