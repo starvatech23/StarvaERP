@@ -517,12 +517,14 @@ async def register(user_data: UserCreate):
         if existing:
             raise HTTPException(status_code=400, detail="Email already registered")
         
-        # Create user with hashed password
+        # Create user with hashed password - set as PENDING for admin approval
         user_dict = user_data.dict(exclude={"password", "auth_type"})
         user_dict["password_hash"] = get_password_hash(user_data.password)
+        user_dict["password"] = user_dict["password_hash"]  # Store in both fields
         user_dict["is_active"] = True
+        user_dict["approval_status"] = "pending"  # Requires admin approval
         user_dict["date_joined"] = datetime.utcnow()
-        user_dict["last_login"] = datetime.utcnow()
+        user_dict["last_login"] = None
         
     elif user_data.auth_type == "phone":
         if not user_data.phone:
@@ -532,11 +534,12 @@ async def register(user_data: UserCreate):
         if existing:
             raise HTTPException(status_code=400, detail="Phone already registered")
         
-        # Create user without password (OTP verified)
+        # Create user without password (OTP verified) - set as PENDING
         user_dict = user_data.dict(exclude={"password", "auth_type"})
         user_dict["is_active"] = True
+        user_dict["approval_status"] = "pending"  # Requires admin approval
         user_dict["date_joined"] = datetime.utcnow()
-        user_dict["last_login"] = datetime.utcnow()
+        user_dict["last_login"] = None
     else:
         raise HTTPException(status_code=400, detail="Invalid auth type")
     
@@ -544,24 +547,33 @@ async def register(user_data: UserCreate):
     result = await db.users.insert_one(user_dict)
     user_dict["_id"] = result.inserted_id
     
-    # Create token
-    access_token = create_access_token(data={"sub": str(result.inserted_id)})
+    # Create notification for all admins about new user registration
+    try:
+        admins = await db.users.find({"role": "admin"}).to_list(100)
+        for admin in admins:
+            await db.notifications.insert_one({
+                "user_id": str(admin["_id"]),
+                "title": "New User Registration",
+                "message": f"{user_dict.get('full_name', 'A new user')} has registered and is awaiting approval.",
+                "type": "user_approval",
+                "data": {
+                    "user_id": str(result.inserted_id),
+                    "email": user_dict.get("email"),
+                    "phone": user_dict.get("phone"),
+                    "full_name": user_dict.get("full_name")
+                },
+                "is_read": False,
+                "created_at": datetime.utcnow()
+            })
+        logger.info(f"New user registration notification sent to {len(admins)} admin(s)")
+    except Exception as e:
+        logger.error(f"Failed to create admin notification: {e}")
     
-    # Prepare response
-    user_response = UserResponse(
-        id=str(user_dict["_id"]),
-        email=user_dict.get("email"),
-        phone=user_dict.get("phone"),
-        full_name=user_dict["full_name"],
-        role=user_dict["role"],
-        address=user_dict.get("address"),
-        profile_photo=user_dict.get("profile_photo"),
-        is_active=user_dict["is_active"],
-        date_joined=user_dict["date_joined"],
-        last_login=user_dict.get("last_login")
+    # Return response - user needs to wait for approval
+    raise HTTPException(
+        status_code=201, 
+        detail="Registration successful! Your account is pending approval. You will be notified once approved."
     )
-    
-    return Token(access_token=access_token, token_type="bearer", user=user_response)
 
 @api_router.post("/auth/login", response_model=Token)
 async def login(credentials: UserLogin):
