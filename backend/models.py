@@ -210,7 +210,7 @@ class UserBase(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     full_name: str
-    role: Optional[UserRole] = None  # Keep for backward compatibility
+    role: Optional[str] = None  # Accept any role string (dynamic roles)
     role_id: Optional[str] = None  # New: dynamic role reference
     team_id: Optional[str] = None  # Team/Department reference
     address: Optional[str] = None
