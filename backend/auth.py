@@ -93,8 +93,8 @@ def require_role(allowed_roles: list):
         return user
     return role_checker
 
-# OTP Functions with Twilio SMS
-from twilio_service import send_otp_sms, twilio_sms_service
+# OTP Functions with Brevo SMS
+from brevo_sms_service import send_otp_sms, brevo_sms_service
 
 def normalize_phone(phone: str) -> str:
     """Normalize phone number to just last 10 digits for consistent storage"""
@@ -107,7 +107,7 @@ def generate_otp() -> str:
     return ''.join(random.choices(string.digits, k=6))
 
 def send_otp(phone: str, otp: str) -> dict:
-    """Send OTP via Twilio SMS"""
+    """Send OTP via Brevo SMS"""
     # Normalize phone for storage
     normalized_phone = normalize_phone(phone)
     
@@ -119,20 +119,20 @@ def send_otp(phone: str, otp: str) -> dict:
     }
     print(f"[OTP] Stored OTP for normalized phone: {normalized_phone}")
     
-    # Check if Twilio is configured
-    if twilio_sms_service.is_configured():
+    # Check if Brevo SMS is configured
+    if brevo_sms_service.is_configured():
         result = send_otp_sms(phone, otp)
         if result.get("success"):
-            print(f"[TWILIO SMS] OTP sent to {phone}, SID: {result.get('message_sid')}")
-            return {"success": True, "provider": "twilio", "message_sid": result.get("message_sid")}
+            print(f"[BREVO SMS] OTP sent to {phone}, messageId: {result.get('message_id')}")
+            return {"success": True, "provider": "brevo", "message_id": result.get("message_id")}
         else:
-            print(f"[TWILIO SMS] Failed to send OTP to {phone}: {result.get('error')}")
-            # Fall back to mock if Twilio fails
+            print(f"[BREVO SMS] Failed to send OTP to {phone}: {result.get('error')}")
+            # Fall back to mock if Brevo fails
             print(f"[MOCK SMS] Fallback - OTP {otp} for {phone}")
-            return {"success": True, "provider": "mock", "otp_for_testing": otp, "twilio_error": result.get("error")}
+            return {"success": True, "provider": "mock", "otp_for_testing": otp, "brevo_error": result.get("error")}
     else:
         # Mock mode - just store and return OTP for testing
-        print(f"[MOCK SMS] Twilio not configured - OTP {otp} for {phone}")
+        print(f"[MOCK SMS] Brevo not configured - OTP {otp} for {phone}")
         return {"success": True, "provider": "mock", "otp_for_testing": otp}
 
 def send_otp_mock(phone: str, otp: str) -> bool:
