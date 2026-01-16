@@ -188,8 +188,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Log Twilio service status at startup
-logger.info(f"Twilio SMS Service - Configured: {twilio_sms_service.is_configured()}, Client: {twilio_sms_service.client is not None}")
+# Log Brevo SMS service status at startup
+logger.info(f"Brevo SMS Service - Configured: {brevo_sms_service.is_configured()}")
 
 # ============= Health Check Endpoint =============
 @app.get("/health")
