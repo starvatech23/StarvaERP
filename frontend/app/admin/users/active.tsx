@@ -402,7 +402,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#059669',
   },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 12,
+  },
   editButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -410,12 +416,27 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
-    marginTop: 12,
     gap: 6,
   },
   editButtonText: {
     fontSize: 14,
     fontWeight: '600',
     color: Colors.primary,
+  },
+  deleteButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FEF2F2',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    gap: 6,
+  },
+  deleteButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#DC2626',
   },
 });
