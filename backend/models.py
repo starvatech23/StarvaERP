@@ -20,6 +20,7 @@ class UserRole(str, Enum):
     OPERATIONS_EXECUTIVE = "operations_executive"
     # Additional roles from admin panel
     MARKETING_HEAD = "marketing_head"
+    MARKETING_EXPERT = "marketing_expert"
     SITE_ENGINEER = "site_engineer"
     SUPERVISOR = "supervisor"
     ACCOUNTS = "accounts"
@@ -43,6 +44,8 @@ class UserRole(str, Enum):
     INTERN_PROJECTS = "intern_projects"
     INTERN_OPERATIONS = "intern_operations"
     INTERN_DESIGN = "intern_design"
+    # Catch-all for any custom roles
+    OTHER = "other"
 
 class ProjectStatus(str, Enum):
     PLANNING = "planning"
