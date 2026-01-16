@@ -6414,6 +6414,36 @@ async def approve_user(
     else:
         raise HTTPException(status_code=400, detail="Invalid action. Use 'approve' or 'reject'")
 
+@api_router.delete("/users/{user_id}")
+async def delete_user(
+    user_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+):
+    """Delete a user (Admin only)"""
+    current_user = await get_current_user(credentials)
+    
+    # Only admin can delete users
+    if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can delete users")
+    
+    # Prevent self-deletion
+    if str(current_user.get("_id")) == user_id or current_user.get("id") == user_id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    user = await db.users.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Delete the user
+    result = await db.users.delete_one({"_id": ObjectId(user_id)})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=500, detail="Failed to delete user")
+    
+    logger.info(f"User {user.get('email')} deleted by {current_user.get('email')}")
+    
+    return {"message": f"User {user.get('email', user.get('full_name'))} deleted successfully"}
+
 @api_router.put("/users/{user_id}", response_model=UserResponse)
 async def update_user(
     user_id: str,
