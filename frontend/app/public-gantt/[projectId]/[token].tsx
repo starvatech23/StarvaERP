@@ -13,7 +13,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://authsystem-dash.preview.emergentagent.com';
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://login-fix-142.preview.emergentagent.com';
 
 export default function PublicGanttScreen() {
   const { projectId, token } = useLocalSearchParams();

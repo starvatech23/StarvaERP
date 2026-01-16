@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 
 # Configuration
-BASE_URL = "https://authsystem-dash.preview.emergentagent.com/api"
+BASE_URL = "https://login-fix-142.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "admin@test.com"
 TEST_USER_PASSWORD = "admin123"
 

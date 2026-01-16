@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://authsystem-dash.preview.emergentagent.com/api"
+BASE_URL = "https://login-fix-142.preview.emergentagent.com/api"
 LOGIN_EMAIL = "admin@starvacon.com"
 LOGIN_PASSWORD = "StarvaWorld23@"
 

@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timedelta
 import uuid
 
-BASE_URL = "https://authsystem-dash.preview.emergentagent.com/api"
+BASE_URL = "https://login-fix-142.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 class FinalComprehensiveTest:

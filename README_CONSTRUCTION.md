@@ -158,7 +158,7 @@ curl -X POST http://localhost:8001/api/auth/verify-otp \
 ### Mobile App Testing
 
 1. **Access the app:**
-   - Web Preview: `https://authsystem-dash.preview.emergentagent.com`
+   - Web Preview: `https://login-fix-142.preview.emergentagent.com`
    - Scan QR code with Expo Go app on your mobile device
 
 2. **Test Authentication Flows:**
@@ -236,8 +236,8 @@ SECRET_KEY=your-secret-key-change-in-production
 
 ### Frontend (.env)
 ```
-EXPO_PUBLIC_BACKEND_URL=https://authsystem-dash.preview.emergentagent.com
-EXPO_PACKAGER_HOSTNAME=https://authsystem-dash.preview.emergentagent.com
+EXPO_PUBLIC_BACKEND_URL=https://login-fix-142.preview.emergentagent.com
+EXPO_PACKAGER_HOSTNAME=https://login-fix-142.preview.emergentagent.com
 ```
 
 ## Mock OTP Feature
