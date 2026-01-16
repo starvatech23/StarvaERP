@@ -94,7 +94,22 @@ export default function RegisterEmailScreen() {
         [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
       );
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.message);
+      console.error('Registration error:', error);
+      // Extract error message from various possible formats
+      let errorMessage = 'Registration failed';
+      if (error.response?.data) {
+        const data = error.response.data;
+        if (typeof data === 'string') {
+          errorMessage = data;
+        } else if (data.detail) {
+          errorMessage = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
+        } else if (data.message) {
+          errorMessage = typeof data.message === 'string' ? data.message : JSON.stringify(data.message);
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      Alert.alert('Registration Failed', errorMessage);
     } finally {
       setLoading(false);
     }
