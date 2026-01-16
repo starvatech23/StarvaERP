@@ -1544,11 +1544,12 @@ agent_communication:
     message: "New Estimate-Budget sync functionality implemented with several new backend endpoints. Need testing of estimate creation, BOQ generation, and automatic milestone budget sync."
   - agent: "testing"
     message: "🎉 ESTIMATE-BUDGET SYNC TESTING COMPLETED SUCCESSFULLY! All 6 tests passed (100% success rate). CRITICAL FIXES APPLIED: (1) Fixed EstimateCalculator.get_summary() method call to calculate_summary(boq_items). (2) Fixed Pydantic object serialization by adding .dict() conversion. (3) Fixed milestone mapping to match actual milestone names. VERIFIED: ✅ Estimate creation with ₹3.96M total, ✅ All 10 milestones synced with budget costs, ✅ Full BOQ breakdown (31 items), ✅ Budget summary integration. Feature is production-ready and fully functional!"
+  - agent: "main"
+    message: "🔧 CRM DROPDOWN FIX IMPLEMENTED - Created new DropdownPicker.tsx component (/app/frontend/components/DropdownPicker.tsx) to replace poorly styled native Picker components. Integrated into CRM Create Lead screen (/app/frontend/app/crm/leads/create.tsx) for Category, Source, Priority, and Currency dropdowns. The new component uses a modal-based approach for better cross-platform UX with touch-friendly option selection, clear visual feedback, and proper styling. NEEDS TESTING: Navigate to CRM → Create Lead and verify that tapping each dropdown opens a modal list, and selecting an option updates the form correctly."
 
 test_plan:
   current_focus:
-    - "Estimate Engine v2 - Flooring & Painting Area Fix"
-    - "Auto-Create Project Milestones & Tasks"
+    - "CRM Dropdown Picker Fix"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
