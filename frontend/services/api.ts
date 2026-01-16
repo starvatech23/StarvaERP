@@ -114,6 +114,12 @@ export const authAPI = {
 export const usersAPI = {
   getAll: () => api.get('/users'),
   getByRole: (role: string) => api.get(`/users/by-role/${role}`),
+  getById: (id: string) => api.get(`/users/${id}`),
+  update: (id: string, data: any) => api.put(`/users/${id}`, data),
+  delete: (id: string) => api.delete(`/users/${id}`),
+  approve: (id: string, data: any) => api.post(`/users/${id}/approve`, data),
+  getPending: () => api.get('/users/pending'),
+  getActive: () => api.get('/users/active'),
 };
 
 // Projects API
