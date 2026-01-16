@@ -52,8 +52,8 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
         duration: 500,
         useNativeDriver: true,
       }),
-      // Hold for 6 seconds (total ~7-8 seconds with animations)
-      Animated.delay(6000),
+      // Hold for 1.5 seconds (total ~2.5-3 seconds with animations)
+      Animated.delay(1500),
     ]).start(() => {
       onFinish();
     });
