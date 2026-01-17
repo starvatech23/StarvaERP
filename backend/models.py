@@ -1791,7 +1791,7 @@ class LeadCategoryResponse(LeadCategoryBase):
 
 class LeadBase(BaseModel):
     name: str  # Lead/Client name
-    primary_phone: str
+    primary_phone: Optional[str] = None  # Made optional for legacy data
     alternate_phone: Optional[str] = None
     email: Optional[EmailStr] = None
     city: Optional[str] = None
@@ -1799,7 +1799,7 @@ class LeadBase(BaseModel):
     budget: Optional[float] = None
     budget_currency: Currency = Currency.INR
     requirement: Optional[str] = None  # Project requirements/description
-    category_id: str  # Reference to LeadCategory
+    category_id: Optional[str] = None  # Made optional for legacy data
     status: LeadStatus = LeadStatus.NEW
     assigned_to: Optional[str] = None  # User ID
     source: LeadSource = LeadSource.OTHER
