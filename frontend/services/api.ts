@@ -112,6 +112,12 @@ export const authAPI = {
   },
 };
 
+// Profile API - for user profile management including avatar
+export const profileAPI = {
+  get: () => api.get('/auth/me'),
+  update: (data: any) => api.put('/auth/me', data),
+};
+
 // Users API
 export const usersAPI = {
   getAll: () => api.get('/users'),
