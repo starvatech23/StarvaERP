@@ -83,52 +83,6 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.headerTitle}>Profile</Text>
 
-        {/* Company Card */}
-        {companySettings && (
-          <View style={styles.companyCard}>
-            <View style={styles.companyHeader}>
-              {companySettings.logo_base64 ? (
-                <Image
-                  source={{ uri: `data:image/png;base64,${companySettings.logo_base64}` }}
-                  style={styles.companyLogo}
-                  resizeMode="contain"
-                />
-              ) : (
-                <View style={styles.companyLogoPlaceholder}>
-                  <Ionicons name="business" size={28} color={Colors.primary} />
-                </View>
-              )}
-              <View style={styles.companyInfo}>
-                <Text style={styles.companyName}>{companySettings.company_name}</Text>
-                {companySettings.website && (
-                  <Text style={styles.companyWebsite}>{companySettings.website}</Text>
-                )}
-              </View>
-            </View>
-
-            <View style={styles.companyDetails}>
-              {companySettings.phone && (
-                <View style={styles.companyDetailRow}>
-                  <Ionicons name="call" size={16} color={Colors.textSecondary} />
-                  <Text style={styles.companyDetailText}>{companySettings.phone}</Text>
-                </View>
-              )}
-              {companySettings.email && (
-                <View style={styles.companyDetailRow}>
-                  <Ionicons name="mail" size={16} color={Colors.textSecondary} />
-                  <Text style={styles.companyDetailText}>{companySettings.email}</Text>
-                </View>
-              )}
-              {getFullAddress() && (
-                <View style={styles.companyDetailRow}>
-                  <Ionicons name="location" size={16} color={Colors.textSecondary} />
-                  <Text style={styles.companyDetailText}>{getFullAddress()}</Text>
-                </View>
-              )}
-            </View>
-          </View>
-        )}
-
         {/* User Profile Card */}
         <View style={styles.profileCard}>
           {userDetails?.profile_photo || user?.profile_photo ? (
