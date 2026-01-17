@@ -9011,7 +9011,8 @@ async def get_crm_dashboard_stats(
     """Get CRM dashboard statistics"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+    # Use CRM access check that includes Marketing roles
+    if not is_crm_user(current_user):
         raise HTTPException(status_code=403, detail="Permission denied")
     
     # Total leads
