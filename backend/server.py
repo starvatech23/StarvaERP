@@ -421,25 +421,24 @@ async def create_default_milestones_and_tasks(project_id: str, start_date: datet
 
 def is_crm_manager(user: dict) -> bool:
     """Check if user has CRM Manager role - includes Marketing Head"""
-    role = user.get('role')
-    role_name = user.get('role_name', '').lower()
+    role = user.get('role', '').lower() if user.get('role') else ''
+    role_name = user.get('role_name', '').lower() if user.get('role_name') else ''
     
-    # Admin roles that have full CRM management access
-    allowed_roles = [UserRole.ADMIN, UserRole.CRM_MANAGER, UserRole.MARKETING_HEAD]
+    # Admin roles that have full CRM management access (check as strings)
+    allowed_roles = ['admin', 'crm_manager', 'marketing_head', 'avp_marketing', 'ceo', 'coo']
     allowed_role_names = ['admin', 'crm manager', 'marketing head', 'avp-marketing', 'avp marketing', 'ceo', 'coo']
     
     return role in allowed_roles or role_name in allowed_role_names
 
 def is_crm_user(user: dict) -> bool:
     """Check if user has CRM User role or higher - includes marketing roles"""
-    role = user.get('role')
-    role_name = user.get('role_name', '').lower()
+    role = user.get('role', '').lower() if user.get('role') else ''
+    role_name = user.get('role_name', '').lower() if user.get('role_name') else ''
     
-    # Allowed role codes
+    # Allowed role codes (as lowercase strings)
     allowed_roles = [
-        UserRole.ADMIN, UserRole.CRM_MANAGER, UserRole.CRM_USER, 
-        UserRole.PROJECT_MANAGER, UserRole.MARKETING_HEAD, UserRole.MARKETING_EXPERT,
-        UserRole.OPERATIONS_MANAGER, UserRole.OPERATIONS_HEAD
+        'admin', 'crm_manager', 'crm_user', 'project_manager', 
+        'marketing_head', 'marketing_expert', 'operations_manager', 'operations_head'
     ]
     
     # Also check by role name for dynamically created roles
