@@ -466,7 +466,11 @@ def can_update_lead(user: dict, lead: dict) -> bool:
         return True
     # CRM Users can only update leads assigned to them
     if is_crm_user(user):
-        return str(lead.get('assigned_to')) == user.get('_id')
+        user_id = str(user.get('_id'))
+        lead_assigned_to = str(lead.get('assigned_to', '')) if lead.get('assigned_to') else ''
+        lead_created_by = str(lead.get('created_by', '')) if lead.get('created_by') else ''
+        # Can update if assigned to them OR if they created the lead
+        return user_id == lead_assigned_to or user_id == lead_created_by
     return False
 
 def can_change_lead_owner(user: dict) -> bool:
