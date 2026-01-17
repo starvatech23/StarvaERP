@@ -1793,7 +1793,7 @@ class LeadBase(BaseModel):
     name: str  # Lead/Client name
     primary_phone: Optional[str] = None  # Made optional for legacy data
     alternate_phone: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None  # Changed from EmailStr to allow empty strings
     city: Optional[str] = None
     state: Optional[str] = None
     budget: Optional[float] = None
@@ -1815,6 +1815,29 @@ class LeadBase(BaseModel):
     funnel_stage: Optional[str] = None  # Current stage in funnel
     # Custom fields
     custom_fields: Optional[Dict[str, Any]] = {}
+    
+    @validator('email', pre=True, always=True)
+    def empty_str_to_none_email(cls, v):
+        if v == '' or v is None:
+            return None
+        return v
+    
+    @validator('budget', pre=True, always=True)
+    def empty_str_to_none_budget(cls, v):
+        if v == '' or v is None:
+            return None
+        if isinstance(v, str):
+            try:
+                return float(v)
+            except ValueError:
+                return None
+        return v
+    
+    @validator('alternate_phone', 'city', 'state', 'requirement', 'notes', pre=True, always=True)
+    def empty_str_to_none_strings(cls, v):
+        if v == '':
+            return None
+        return v
 
 class LeadCreate(LeadBase):
     send_whatsapp: bool = False  # Auto-send WhatsApp on creation
