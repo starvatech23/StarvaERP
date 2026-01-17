@@ -422,13 +422,29 @@ async def create_default_milestones_and_tasks(project_id: str, start_date: datet
 def is_crm_manager(user: dict) -> bool:
     """Check if user has CRM Manager role"""
     role = user.get('role')
-    return role in [UserRole.ADMIN, UserRole.CRM_MANAGER]
+    role_name = user.get('role_name', '').lower()
+    return role in [UserRole.ADMIN, UserRole.CRM_MANAGER] or role_name in ['admin', 'crm manager']
 
 def is_crm_user(user: dict) -> bool:
-    """Check if user has CRM User role or higher"""
+    """Check if user has CRM User role or higher - includes marketing roles"""
     role = user.get('role')
-    # Include project_manager as they often need to create/manage leads
-    return role in [UserRole.ADMIN, UserRole.CRM_MANAGER, UserRole.CRM_USER, UserRole.PROJECT_MANAGER]
+    role_name = user.get('role_name', '').lower()
+    
+    # Allowed role codes
+    allowed_roles = [
+        UserRole.ADMIN, UserRole.CRM_MANAGER, UserRole.CRM_USER, 
+        UserRole.PROJECT_MANAGER, UserRole.MARKETING_HEAD, UserRole.MARKETING_EXPERT,
+        UserRole.OPERATIONS_MANAGER, UserRole.OPERATIONS_HEAD
+    ]
+    
+    # Also check by role name for dynamically created roles
+    allowed_role_names = [
+        'admin', 'crm manager', 'crm user', 'project manager',
+        'marketing head', 'marketing expert', 'marketing manager',
+        'operations manager', 'operations head', 'sales', 'sales manager'
+    ]
+    
+    return role in allowed_roles or role_name in allowed_role_names
 
 def can_delete_lead(user: dict) -> bool:
     """Check if user can delete leads"""
