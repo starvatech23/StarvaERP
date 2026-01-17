@@ -4,36 +4,16 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  View,
-  Text,
-  StyleSheet,
-
-  ScrollView,
   TouchableOpacity,
   Alert,
   Image,
 } from 'react-native';
 import Colors from '../../constants/Colors';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView, Ionicons } from '@expo/vector-icons';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView, useAuth } from '../../context/AuthContext';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView, useRouter } from 'expo-router';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView, userManagementAPI } from '../../services/api';
+import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../context/AuthContext';
+import { useRouter } from 'expo-router';
+import { userManagementAPI } from '../../services/api';
+import SafeAreaWrapper from '../../components/SafeAreaWrapper';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -99,7 +79,7 @@ export default function ProfileScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaWrapper style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.headerTitle}>Profile</Text>
 
@@ -150,21 +130,19 @@ export default function ProfileScreen() {
 
         {/* Menu Items */}
         <View style={styles.menuContainer}>
-          {menuItems
-            .filter((item) => !item.adminOnly || user?.role === 'admin')
-            .map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.menuItem}
-                onPress={item.onPress}
-              >
-                <View style={styles.menuLeft}>
-                  <Ionicons name={item.icon as any} size={24} color={Colors.textSecondary} />
-                  <Text style={styles.menuLabel}>{item.label}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#CBD5E0" />
-              </TouchableOpacity>
-            ))}
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.menuItem}
+              onPress={item.onPress}
+            >
+              <View style={styles.menuLeft}>
+                <Ionicons name={item.icon as any} size={24} color={Colors.textSecondary} />
+                <Text style={styles.menuLabel}>{item.label}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#CBD5E0" />
+            </TouchableOpacity>
+          ))}
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -174,7 +152,7 @@ export default function ProfileScreen() {
 
         <Text style={styles.version}>Version 1.0.0</Text>
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaWrapper>
   );
 }
 
