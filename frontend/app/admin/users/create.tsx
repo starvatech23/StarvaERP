@@ -99,6 +99,7 @@ export default function AddUserScreen() {
         full_name: fullName.trim(),
         role_id: roleId,
         team_id: teamId,
+        reporting_manager_id: reportingManagerId || null,
         address: address.trim() || null,
         password: password.trim() || null,
       });
