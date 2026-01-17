@@ -6289,6 +6289,13 @@ async def get_active_users(
         if user_dict.get("team_id"):
             team = await db.teams.find_one({"_id": ObjectId(user_dict["team_id"])})
             user_dict["team_name"] = team["name"] if team else None
+        # Get reporting manager name if reporting_manager_id exists
+        if user_dict.get("reporting_manager_id"):
+            try:
+                manager = await db.users.find_one({"_id": ObjectId(user_dict["reporting_manager_id"])})
+                user_dict["reporting_manager_name"] = manager["full_name"] if manager else None
+            except:
+                user_dict["reporting_manager_name"] = None
         result.append(UserResponse(**user_dict))
     
     return result
@@ -6324,6 +6331,14 @@ async def get_user_by_id_endpoint(
     if user_dict.get("team_id"):
         team = await db.teams.find_one({"_id": ObjectId(user_dict["team_id"])})
         user_dict["team_name"] = team["name"] if team else None
+    
+    # Get reporting manager name
+    if user_dict.get("reporting_manager_id"):
+        try:
+            manager = await db.users.find_one({"_id": ObjectId(user_dict["reporting_manager_id"])})
+            user_dict["reporting_manager_name"] = manager["full_name"] if manager else None
+        except:
+            user_dict["reporting_manager_name"] = None
     
     return UserResponse(**user_dict)
 
