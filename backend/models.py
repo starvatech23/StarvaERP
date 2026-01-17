@@ -214,6 +214,7 @@ class UserBase(BaseModel):
     role: Optional[str] = None  # Accept any role string (dynamic roles)
     role_id: Optional[str] = None  # New: dynamic role reference
     team_id: Optional[str] = None  # Team/Department reference
+    reporting_manager_id: Optional[str] = None  # Reporting Manager user ID
     address: Optional[str] = None
     profile_photo: Optional[str] = None  # base64
 
@@ -227,6 +228,7 @@ class UserCreateByAdmin(BaseModel):
     full_name: str
     role_id: str
     team_id: str
+    reporting_manager_id: Optional[str] = None
     address: Optional[str] = None
     password: Optional[str] = None  # Optional - can be set later
 
@@ -242,6 +244,7 @@ class UserUpdate(BaseModel):
     role: Optional[str] = None  # Accept any role string (dynamic roles)
     role_id: Optional[str] = None
     team_id: Optional[str] = None
+    reporting_manager_id: Optional[str] = None
     address: Optional[str] = None
     profile_photo: Optional[str] = None
     is_active: Optional[bool] = None
@@ -254,6 +257,7 @@ class UserResponse(UserBase):
     approved_at: Optional[datetime] = None
     role_name: Optional[str] = None  # Populated from role_id
     team_name: Optional[str] = None  # Populated from team_id
+    reporting_manager_name: Optional[str] = None  # Populated from reporting_manager_id
     date_joined: Optional[datetime] = None
     last_login: Optional[datetime] = None
     crm_permissions: Optional[Dict[str, bool]] = None  # CRM permissions for frontend
