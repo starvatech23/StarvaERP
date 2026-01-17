@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
@@ -17,6 +16,7 @@ import * as Clipboard from 'expo-clipboard';
 import { projectsAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Colors from '../../constants/Colors';
+import SafeAreaWrapper from '../../components/SafeAreaWrapper';
 
 type SortOption = 'name' | 'date' | 'region' | 'city' | 'status';
 
