@@ -21,11 +21,13 @@ export const userManagementAPI = {
   getPending: () => api.get('/users/pending'),
   getActive: () => api.get('/users/active'),
   getUser: (userId: string) => api.get(`/users/${userId}`),
+  getById: (userId: string) => api.get(`/users/${userId}`),
   approve: (userId: string, action: string, roleId?: string) => 
     api.post(`/users/${userId}/approve`, { user_id: userId, action, role_id: roleId }),
   update: (userId: string, data: any) => api.put(`/users/${userId}`, data),
   updateUser: (userId: string, data: any) => api.put(`/users/${userId}`, data),
   createUser: (data: any) => api.post('/users/create', data),
+  deleteUser: (userId: string) => api.delete(`/users/${userId}`),
 };
 
 // System Settings API (RBAC)
