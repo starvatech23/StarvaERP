@@ -130,16 +130,16 @@ export default function ProjectsScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaWrapper style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.primary} />
         </View>
-      </SafeAreaView>
+      </SafeAreaWrapper>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaWrapper style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Projects</Text>
         <View style={styles.headerActions}>
@@ -456,7 +456,7 @@ export default function ProjectsScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaWrapper>
   );
 }
 
