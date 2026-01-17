@@ -8,18 +8,16 @@ import {
   TouchableOpacity,
   Alert,
   Image,
-  ActivityIndicator,
 } from 'react-native';
 import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'expo-router';
-import { companySettingsAPI, userManagementAPI } from '../../services/api';
+import { userManagementAPI } from '../../services/api';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
-  const [companySettings, setCompanySettings] = useState<any>(null);
   const [userDetails, setUserDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,12 +27,10 @@ export default function ProfileScreen() {
 
   const loadData = async () => {
     try {
-      const [companyRes, userRes] = await Promise.all([
-        companySettingsAPI.get().catch(() => ({ data: null })),
-        user?.id ? userManagementAPI.getById(user.id).catch(() => ({ data: null })) : Promise.resolve({ data: null }),
-      ]);
-      setCompanySettings(companyRes.data);
-      setUserDetails(userRes.data);
+      if (user?.id) {
+        const userRes = await userManagementAPI.getById(user.id).catch(() => ({ data: null }));
+        setUserDetails(userRes.data);
+      }
     } catch (error) {
       console.error('Error loading profile data:', error);
     } finally {
