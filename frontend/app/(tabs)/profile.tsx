@@ -154,9 +154,18 @@ export default function ProfileScreen() {
 
         {/* User Profile Card */}
         <View style={styles.profileCard}>
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={48} color={Colors.secondary} />
-          </View>
+          {userDetails?.profile_photo || user?.profile_photo ? (
+            <Image
+              source={{ 
+                uri: `data:image/jpeg;base64,${userDetails?.profile_photo || user?.profile_photo}` 
+              }}
+              style={styles.avatarImage}
+            />
+          ) : (
+            <View style={styles.avatar}>
+              <Ionicons name="person" size={48} color={Colors.secondary} />
+            </View>
+          )}
           <Text style={styles.name}>{user?.full_name || 'User'}</Text>
           <Text style={styles.role}>{getDisplayRole()}</Text>
           
