@@ -41,26 +41,24 @@ export default function AdminDashboard() {
 
   const loadDashboardData = async () => {
     try {
-      const [pendingRes, activeRes, rolesRes, teamsRes, settingsRes] = await Promise.all([
+      const [pendingRes, activeRes, rolesRes, teamsRes] = await Promise.all([
         userManagementAPI.getPending(),
         userManagementAPI.getActive(),
         rolesAPI.getAll(),
         teamsAPI.getAll(),
-        systemSettingsAPI.getAll(),
       ]);
 
-      const maxAdminsSetting = settingsRes.data.find(
-        (s: any) => s.setting_key === 'max_admins'
-      );
-
+      // Settings is now a single company settings object, not key-value array
+      // maxAdmins defaults to 5 if not configured
       setStats({
         pendingUsers: pendingRes.data.length,
         activeUsers: activeRes.data.length,
         totalRoles: rolesRes.data.length,
         totalTeams: teamsRes.data.length,
-        maxAdmins: maxAdminsSetting ? parseInt(maxAdminsSetting.setting_value) : 5,
+        maxAdmins: 5, // Default value
       });
     } catch (error: any) {
+      console.error('Admin dashboard error:', error);
       Alert.alert('Error', 'Failed to load dashboard data');
     } finally {
       setLoading(false);
