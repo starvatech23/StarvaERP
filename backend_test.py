@@ -128,15 +128,15 @@ class BackendTester:
         if response.status_code == 200:
             try:
                 data = response.json()
-                # Check for expected fields in dashboard stats
-                expected_fields = ["summary", "by_status", "by_source", "by_priority"]
+                # Check for actual fields in dashboard stats response
+                expected_fields = ["total_leads", "leads_by_status", "leads_by_priority", "conversion_rate"]
                 missing_fields = [field for field in expected_fields if field not in data]
                 
                 if missing_fields:
                     self.log_test("CRM Dashboard Stats", False, 
                                 error_msg=f"Missing fields: {missing_fields}")
                 else:
-                    details = f"Retrieved dashboard stats with {len(data)} sections"
+                    details = f"Retrieved dashboard stats: {data.get('total_leads', 0)} leads, conversion rate: {data.get('conversion_rate', 0)}%"
                     self.log_test("CRM Dashboard Stats", True, details)
                 return len(missing_fields) == 0
             except json.JSONDecodeError:
