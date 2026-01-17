@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
@@ -19,6 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { workersAPI, laborAttendanceAPI, siteTransfersAPI, weeklyPaymentsAPI, advancePaymentsAPI } from '../../services/api';
 import moment from 'moment';
 import { captureRef } from 'react-native-view-shot';
+import SafeAreaWrapper from '../../components/SafeAreaWrapper';
 
 export default function LaborScreen() {
   const router = useRouter();
