@@ -82,20 +82,6 @@ export default function ImportExportScreen() {
     }
   };
 
-  const handleMetaImport = () => {
-    Alert.alert(
-      'Meta Import',
-      'Meta lead import requires API credentials. Would you like to configure Meta integration?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Configure',
-          onPress: () => Alert.alert('Coming Soon', 'Meta integration setup will be available soon'),
-        },
-      ]
-    );
-  };
-
   const handleExportCSV = async () => {
     try {
       setExporting(true);
