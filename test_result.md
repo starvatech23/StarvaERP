@@ -1569,3 +1569,27 @@ test_plan:
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
+
+  - task: "Marketing Head CRM Access (UAC Fix)"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ MARKETING HEAD CRM ACCESS FULLY WORKING: Comprehensive verification completed with 100% success rate (7/7 tests passed). VERIFIED FEATURES: (1) Login - Successfully authenticated Marketing Head user (sridikshaa@starvacon.com) with role='marketing_head' and role_name='Marketing Head', (2) CRM Dashboard Stats - 200 OK, (3) Get Leads - Successfully retrieved 6 leads, (4) UPDATE LEAD (Critical) - Successfully updated lead with 200 OK response, (5) CRM Config - 200 OK, (6) Funnels - 200 OK, (7) Custom Fields - 200 OK. The permission functions (is_crm_manager, is_crm_user, can_update_lead) in server.py are correctly handling role checks with lowercase string comparison. No string vs enum issues found - the fix was already applied in a previous session."
+
+  - task: "Profile Picture Feature (Complete Backend & Frontend)"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py, /app/backend/models.py, /app/frontend/services/api.ts, /app/frontend/app/profile/edit.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ PROFILE PICTURE FEATURE FULLY WORKING: Comprehensive testing completed with 100% success rate. BACKEND VERIFICATION: (1) UserBase model already has profile_photo: Optional[str] field, (2) UserUpdate model already supports profile_photo updates, (3) PUT /api/auth/me endpoint correctly handles profile_photo updates and stores base64 data in MongoDB, (4) GET /api/auth/me returns profile_photo in response. FRONTEND FIX APPLIED: Added missing 'profileAPI' export to /app/frontend/services/api.ts that was being imported by /app/frontend/app/profile/edit.tsx. The frontend already had complete implementation for: camera capture, gallery selection, image cropping, base64 conversion, and photo display. Full flow tested: Login → Update profile_photo → Verify via GET. Profile photo data (base64) persists correctly in database."
