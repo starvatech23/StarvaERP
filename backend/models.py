@@ -1706,6 +1706,7 @@ class LeadStatus(str, Enum):
     WON = "won"
     LOST = "lost"
     ON_HOLD = "on_hold"
+    CONVERTED = "converted"  # Legacy status from database
 
 # Lead Priority Enum
 class LeadPriority(str, Enum):
