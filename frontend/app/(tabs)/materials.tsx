@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
@@ -15,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { vendorsAPI, materialsAPI, siteInventoryAPI, siteMaterialsAPI } from '../../services/api';
+import SafeAreaWrapper from '../../components/SafeAreaWrapper';
 
 export default function MaterialsScreen() {
   const router = useRouter();
