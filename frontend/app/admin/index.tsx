@@ -12,7 +12,7 @@ import {
 import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { userManagementAPI, rolesAPI, systemSettingsAPI, teamsAPI } from '../../services/api';
+import { userManagementAPI, rolesAPI, teamsAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminDashboard() {
