@@ -9174,7 +9174,8 @@ async def get_funnels(
     """Get all funnels"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+    # Use CRM access check that includes Marketing roles
+    if not is_crm_user(current_user):
         raise HTTPException(status_code=403, detail="Permission denied")
     
     funnels = await db.funnels.find({"is_active": True}).to_list(100)
