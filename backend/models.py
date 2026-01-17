@@ -2262,7 +2262,7 @@ class CRMPermission(str, Enum):
 class RolePermissions(BaseModel):
     role: str  # Display name
     role_code: str = ""  # Internal role code
-    description: str = ""
+    description: Optional[str] = ""
     is_admin: bool = False
     permissions: List[CRMPermission]
     member_roles: List[str] = []  # List of role codes that belong to this group
