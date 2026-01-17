@@ -354,13 +354,6 @@ const styles = StyleSheet.create({
   },
   optionTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
   optionDescription: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
-  comingSoonBadge: {
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  comingSoonText: { fontSize: 11, fontWeight: '600', color: '#92400E' },
   historyTitle: {
     fontSize: 16,
     fontWeight: '700',
