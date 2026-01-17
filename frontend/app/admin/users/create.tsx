@@ -230,6 +230,23 @@ export default function AddUserScreen() {
               selectedValue={teamId}
               onValueChange={setTeamId}
             />
+
+            <View style={{ height: 12 }} />
+
+            <AdaptiveDropdown
+              label="Reporting Manager"
+              icon="person-circle"
+              placeholder="Select reporting manager..."
+              options={[
+                { label: 'No Reporting Manager', value: '' },
+                ...users.map((user: any) => ({ 
+                  label: `${user.full_name}${user.role_name ? ` (${user.role_name})` : ''}`, 
+                  value: user.id 
+                }))
+              ]}
+              selectedValue={reportingManagerId}
+              onValueChange={setReportingManagerId}
+            />
           </View>
 
           {/* Optional Password */}
