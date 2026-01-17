@@ -668,7 +668,7 @@ export default function DashboardScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaWrapper>
   );
 }
 
