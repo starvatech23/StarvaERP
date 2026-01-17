@@ -9402,53 +9402,156 @@ async def get_permission_matrix(
     """Get CRM permission matrix for all roles"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Only admins can view permission matrix")
+    # Check if user has CRM admin access
+    if not is_crm_manager(current_user):
+        raise HTTPException(status_code=403, detail="Only CRM admins can view permission matrix")
     
-    # Define default permission matrix
-    matrix = [
-        RolePermissions(
-            role=UserRole.ADMIN,
-            permissions=[
-                CRMPermission.VIEW_LEADS,
-                CRMPermission.CREATE_LEADS,
-                CRMPermission.EDIT_LEADS,
-                CRMPermission.DELETE_LEADS,
-                CRMPermission.MOVE_TO_PROJECT,
-                CRMPermission.BYPASS_REQUIRED_FIELDS,
-                CRMPermission.MANAGE_FUNNELS,
-                CRMPermission.MANAGE_CUSTOM_FIELDS,
-                CRMPermission.ACCESS_CRM_SETTINGS,
-                CRMPermission.VIEW_ANALYTICS,
-                CRMPermission.EXPORT_LEADS,
-                CRMPermission.IMPORT_LEADS,
-            ]
-        ),
-        RolePermissions(
-            role=UserRole.PROJECT_MANAGER,
-            permissions=[
-                CRMPermission.VIEW_LEADS,
-                CRMPermission.CREATE_LEADS,
-                CRMPermission.EDIT_LEADS,
-                CRMPermission.MOVE_TO_PROJECT,
-                CRMPermission.MANAGE_FUNNELS,
-                CRMPermission.ACCESS_CRM_SETTINGS,
-                CRMPermission.VIEW_ANALYTICS,
-                CRMPermission.EXPORT_LEADS,
-                CRMPermission.IMPORT_LEADS,
-            ]
-        ),
-        RolePermissions(
-            role=UserRole.WORKER,
-            permissions=[]
-        ),
-        RolePermissions(
-            role=UserRole.VENDOR,
-            permissions=[]
-        ),
+    # First, get saved permissions from database
+    saved_permissions = await db.crm_permissions.find().to_list(100)
+    saved_map = {p["role_code"]: p for p in saved_permissions}
+    
+    # Define CRM Admin roles (full access)
+    crm_admin_roles = ["admin", "marketing_head", "avp_marketing", "ceo", "coo"]
+    
+    # Get all marketing-related roles from the roles collection
+    marketing_roles = await db.roles.find({
+        "$or": [
+            {"department": {"$regex": "marketing", "$options": "i"}},
+            {"name": {"$regex": "marketing", "$options": "i"}},
+            {"code": {"$regex": "marketing", "$options": "i"}}
+        ]
+    }).to_list(100)
+    
+    # Also get roles from users who have CRM access
+    crm_users_roles = await db.users.distinct("role", {
+        "is_active": True,
+        "$or": [
+            {"role": {"$in": crm_admin_roles}},
+            {"role": {"$regex": "marketing", "$options": "i"}},
+            {"role": {"$regex": "crm", "$options": "i"}},
+            {"role": {"$regex": "sales", "$options": "i"}}
+        ]
+    })
+    
+    # All CRM permissions
+    all_permissions = [
+        CRMPermission.VIEW_LEADS,
+        CRMPermission.CREATE_LEADS,
+        CRMPermission.EDIT_LEADS,
+        CRMPermission.DELETE_LEADS,
+        CRMPermission.MOVE_TO_PROJECT,
+        CRMPermission.BYPASS_REQUIRED_FIELDS,
+        CRMPermission.MANAGE_FUNNELS,
+        CRMPermission.MANAGE_CUSTOM_FIELDS,
+        CRMPermission.ACCESS_CRM_SETTINGS,
+        CRMPermission.VIEW_ANALYTICS,
+        CRMPermission.EXPORT_LEADS,
+        CRMPermission.IMPORT_LEADS,
     ]
     
+    matrix = []
+    processed_roles = set()
+    
+    # 1. Add CRM Admin group (Marketing Head, AVP-Marketing, CEO, COO)
+    admin_group = RolePermissions(
+        role="CRM Admin",
+        role_code="crm_admin",
+        description="Full CRM access (Marketing Head, AVP-Marketing, CEO, COO)",
+        is_admin=True,
+        permissions=all_permissions,
+        member_roles=crm_admin_roles
+    )
+    matrix.append(admin_group)
+    processed_roles.update(crm_admin_roles)
+    
+    # 2. Add dynamic marketing roles
+    for role in marketing_roles:
+        role_code = role.get("code", role.get("name", "").lower().replace(" ", "_"))
+        if role_code in processed_roles:
+            continue
+        
+        # Check if we have saved permissions for this role
+        if role_code in saved_map:
+            saved = saved_map[role_code]
+            permissions = [CRMPermission(p) for p in saved.get("permissions", [])]
+        else:
+            # Default permissions for marketing roles
+            permissions = [
+                CRMPermission.VIEW_LEADS,
+                CRMPermission.CREATE_LEADS,
+                CRMPermission.EDIT_LEADS,
+            ]
+        
+        matrix.append(RolePermissions(
+            role=role.get("name", role_code.replace("_", " ").title()),
+            role_code=role_code,
+            description=role.get("description", ""),
+            is_admin=False,
+            permissions=permissions,
+            member_roles=[role_code]
+        ))
+        processed_roles.add(role_code)
+    
+    # 3. Add other CRM user roles from users collection
+    for role_code in crm_users_roles:
+        if role_code in processed_roles or not role_code:
+            continue
+        
+        # Check if we have saved permissions for this role
+        if role_code in saved_map:
+            saved = saved_map[role_code]
+            permissions = [CRMPermission(p) for p in saved.get("permissions", [])]
+        else:
+            # Default minimal permissions
+            permissions = [CRMPermission.VIEW_LEADS]
+        
+        matrix.append(RolePermissions(
+            role=role_code.replace("_", " ").title(),
+            role_code=role_code,
+            description="",
+            is_admin=False,
+            permissions=permissions,
+            member_roles=[role_code]
+        ))
+        processed_roles.add(role_code)
+    
     return PermissionMatrixResponse(matrix=matrix)
+
+
+@api_router.put("/crm/permissions/{role_code}")
+async def update_role_permissions(
+    role_code: str,
+    permissions_update: Dict[str, Any],
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update CRM permissions for a specific role"""
+    current_user = await get_current_user(credentials)
+    
+    # Only CRM admins can update permissions
+    if not is_crm_manager(current_user):
+        raise HTTPException(status_code=403, detail="Only CRM admins can update permissions")
+    
+    # Don't allow modifying CRM Admin group
+    if role_code == "crm_admin":
+        raise HTTPException(status_code=400, detail="Cannot modify CRM Admin permissions")
+    
+    permissions = permissions_update.get("permissions", [])
+    
+    # Upsert the permissions
+    await db.crm_permissions.update_one(
+        {"role_code": role_code},
+        {
+            "$set": {
+                "role_code": role_code,
+                "permissions": permissions,
+                "updated_by": str(current_user["_id"]),
+                "updated_at": datetime.utcnow()
+            }
+        },
+        upsert=True
+    )
+    
+    return {"message": f"Permissions updated for {role_code}", "permissions": permissions}
 
 # ============= Lead Import/Export Routes =============
 
