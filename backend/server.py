@@ -6510,19 +6510,31 @@ async def update_user(
 
 # ============= System Settings Routes =============
 
-@api_router.get("/settings", response_model=List[SystemSettingResponse])
+@api_router.get("/settings")
 async def get_settings(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     
 ):
-    """Get all system settings"""
+    """Get all system settings - returns company settings document"""
     current_user = await get_current_user(credentials)
     
     if current_user.get("role") != UserRole.ADMIN and current_user.get("role_name") != "Admin":
         raise HTTPException(status_code=403, detail="Only admins can view settings")
     
-    settings = await db.system_settings.find().to_list(1000)
-    return [SystemSettingResponse(**serialize_doc(s)) for s in settings]
+    # Get the single company settings document
+    settings = await db.system_settings.find_one()
+    if settings:
+        return serialize_doc(settings)
+    
+    # Return default settings if none exist
+    return {
+        "id": None,
+        "company_name": "SiteOps",
+        "company_short_name": "SiteOps",
+        "currency": "INR",
+        "currency_symbol": "₹",
+        "date_format": "DD/MM/YYYY"
+    }
 
 @api_router.post("/settings", response_model=SystemSettingResponse)
 async def create_or_update_setting(
