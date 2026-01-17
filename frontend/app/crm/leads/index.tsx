@@ -90,9 +90,9 @@ export default function LeadsScreen() {
         <View style={styles.headerLeft}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.push('/')}
+            onPress={() => router.push('/crm' as any)}
           >
-            <Ionicons name="home" size={20} color={Colors.secondary} />
+            <Ionicons name="arrow-back" size={20} color={Colors.secondary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Leads</Text>
         </View>
