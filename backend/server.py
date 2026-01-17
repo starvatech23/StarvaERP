@@ -9101,7 +9101,8 @@ async def get_custom_fields(
     """Get all custom fields"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER]:
+    # Allow CRM managers to view custom fields
+    if not is_crm_manager(current_user):
         raise HTTPException(status_code=403, detail="Permission denied")
     
     fields = await db.custom_fields.find({"is_active": True}).sort("order", 1).to_list(100)
@@ -9112,11 +9113,11 @@ async def create_custom_field(
     field: CustomFieldCreate,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    """Create a custom field (Admin only)"""
+    """Create a custom field (CRM Manager only)"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Only admins can create custom fields")
+    if not is_crm_manager(current_user):
+        raise HTTPException(status_code=403, detail="Only CRM managers can create custom fields")
     
     field_dict = field.dict()
     field_dict["created_at"] = datetime.utcnow()
