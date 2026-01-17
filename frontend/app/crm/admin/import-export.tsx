@@ -159,7 +159,7 @@ export default function ImportExportScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackToCRM title="Import <BackToHome /> Export" />
+      <BackToCRM title="Import & Export" />
       
       <View style={styles.header}>
         <View>
