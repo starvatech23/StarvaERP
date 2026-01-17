@@ -222,7 +222,7 @@ class EmailService:
             reset_url_base: Base URL for reset link (defaults to app URL)
         """
         if not reset_url_base:
-            reset_url_base = os.getenv('FRONTEND_BASE_URL', 'https://login-fix-142.preview.emergentagent.com')
+            reset_url_base = os.getenv('FRONTEND_BASE_URL', 'https://uacmender.preview.emergentagent.com')
         
         reset_link = f"{reset_url_base}/reset-password?token={reset_token}"
         
