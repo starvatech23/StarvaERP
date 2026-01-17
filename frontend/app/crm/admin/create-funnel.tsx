@@ -14,7 +14,7 @@ import {
 import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import BackToHome from '../../../components/BackToHome';
+import BackToCRM from '../../../components/BackToCRM';
 import { crmFunnelsAPI, crmCategoriesAPI } from '../../../services/api';
 
 interface Stage {
@@ -183,7 +183,7 @@ export default function CreateFunnelScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackToHome />
+      <BackToCRM title="Create Funnel" />
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>

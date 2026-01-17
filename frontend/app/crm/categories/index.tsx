@@ -16,7 +16,7 @@ import {
 import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import BackToHome from '../../../components/BackToHome';
+import BackToCRM from '../../../components/BackToCRM';
 import { crmCategoriesAPI } from '../../../services/api';
 
 export default function CategoriesScreen() {
@@ -136,7 +136,7 @@ export default function CategoriesScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <BackToHome />
+        <BackToCRM title="Categories" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
@@ -146,7 +146,7 @@ export default function CategoriesScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackToHome />
+      <BackToCRM title="Categories" />
       
       <View style={styles.header}>
         <View style={{ flex: 1 }}>

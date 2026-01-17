@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import BackToHome from '../../../components/BackToHome';
+import BackToCRM from '../../../components/BackToCRM';
 
 export default function LabelsSettingsScreen() {
   const [labels, setLabels] = useState({
@@ -109,7 +109,7 @@ export default function LabelsSettingsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackToHome />
+      <BackToCRM title="Labels <BackToHome /> Settings" />
       
       <View style={styles.header}>
         <View style={{ flex: 1 }}>

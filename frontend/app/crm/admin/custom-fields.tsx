@@ -16,7 +16,7 @@ import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
-import BackToHome from '../../../components/BackToHome';
+import BackToCRM from '../../../components/BackToCRM';
 import { crmCustomFieldsAPI } from '../../../services/api';
 
 export default function CustomFieldsScreen() {
@@ -144,7 +144,7 @@ export default function CustomFieldsScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <BackToHome />
+        <BackToCRM title="Custom Fields" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
@@ -154,7 +154,7 @@ export default function CustomFieldsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackToHome />
+      <BackToCRM title="Custom Fields" />
       
       <View style={styles.header}>
         <View style={{ flex: 1 }}>

@@ -12,7 +12,7 @@ import {
 import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import BackToHome from '../../../components/BackToHome';
+import BackToCRM from '../../../components/BackToCRM';
 import { crmFunnelsAPI } from '../../../services/api';
 
 export default function FunnelsScreen() {
@@ -90,7 +90,7 @@ export default function FunnelsScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <BackToHome />
+        <BackToCRM title="Funnels" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
@@ -100,7 +100,7 @@ export default function FunnelsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackToHome />
+      <BackToCRM title="Funnels" />
       
       <View style={styles.header}>
         <View style={{ flex: 1 }}>

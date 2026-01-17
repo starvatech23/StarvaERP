@@ -11,7 +11,7 @@ import {
 import Colors from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import BackToHome from '../../../components/BackToHome';
+import BackToCRM from '../../../components/BackToCRM';
 import { crmPermissionsAPI } from '../../../services/api';
 
 export default function PermissionsScreen() {
@@ -40,7 +40,7 @@ export default function PermissionsScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <BackToHome />
+        <BackToCRM title="Permissions" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
@@ -50,7 +50,7 @@ export default function PermissionsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackToHome />
+      <BackToCRM title="Permissions" />
       
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Permission Matrix</Text>

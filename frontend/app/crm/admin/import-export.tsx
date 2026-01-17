@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import BackToHome from '../../../components/BackToHome';
+import BackToCRM from '../../../components/BackToCRM';
 import { crmLeadsAPI } from '../../../services/api';
 
 export default function ImportExportScreen() {
@@ -159,7 +159,7 @@ export default function ImportExportScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackToHome />
+      <BackToCRM title="Import <BackToHome /> Export" />
       
       <View style={styles.header}>
         <View>
