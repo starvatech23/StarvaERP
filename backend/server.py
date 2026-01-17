@@ -8312,8 +8312,8 @@ async def get_lead(
     """Get a single lead by ID"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] not in [UserRole.ADMIN, UserRole.PROJECT_MANAGER, "crm_manager"]:
-        raise HTTPException(status_code=403, detail="Only admins, PMs and CRM managers can access CRM")
+    if not is_crm_user(current_user):
+        raise HTTPException(status_code=403, detail="Only CRM users can access leads")
     
     lead = await db.leads.find_one({"_id": ObjectId(lead_id), "is_deleted": {"$ne": True}})
     if not lead:
