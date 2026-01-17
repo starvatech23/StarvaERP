@@ -2260,8 +2260,12 @@ class CRMPermission(str, Enum):
     IMPORT_LEADS = "import_leads"
 
 class RolePermissions(BaseModel):
-    role: UserRole
+    role: str  # Display name
+    role_code: str = ""  # Internal role code
+    description: str = ""
+    is_admin: bool = False
     permissions: List[CRMPermission]
+    member_roles: List[str] = []  # List of role codes that belong to this group
 
 class PermissionMatrixResponse(BaseModel):
     matrix: List[RolePermissions]
