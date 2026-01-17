@@ -3,17 +3,37 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+
   ScrollView,
   TouchableOpacity,
   Alert,
   Image,
 } from 'react-native';
 import Colors from '../../constants/Colors';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../context/AuthContext';
-import { useRouter } from 'expo-router';
-import { userManagementAPI } from '../../services/api';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView, Ionicons } from '@expo/vector-icons';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView, useAuth } from '../../context/AuthContext';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView, useRouter } from 'expo-router';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView, userManagementAPI } from '../../services/api';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
