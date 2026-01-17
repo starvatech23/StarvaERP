@@ -216,24 +216,6 @@ export default function ImportExportScreen() {
                 <Ionicons name="chevron-forward" size={24} color="#CBD5E0" />
               )}
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.optionCard}
-              onPress={handleMetaImport}
-            >
-              <View style={styles.optionLeft}>
-                <View style={[styles.optionIcon, { backgroundColor: '#8B5CF620' }]}>
-                  <Ionicons name="logo-facebook" size={24} color="#8B5CF6" />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.optionTitle}>Meta Leads</Text>
-                  <Text style={styles.optionDescription}>Import from Facebook Lead Ads</Text>
-                </View>
-              </View>
-              <View style={styles.comingSoonBadge}>
-                <Text style={styles.comingSoonText}>Soon</Text>
-              </View>
-            </TouchableOpacity>
           </View>
         </View>
 
