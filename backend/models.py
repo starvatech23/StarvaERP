@@ -2008,25 +2008,96 @@ class LeadImportResponse(BaseModel):
 # ============= CRM Configuration =============
 
 class CRMConfigBase(BaseModel):
-    # WhatsApp Mock Settings
+    # WhatsApp Integration Settings
     whatsapp_enabled: bool = False
     whatsapp_api_key: Optional[str] = None
+    whatsapp_phone_number_id: Optional[str] = None
+    whatsapp_business_account_id: Optional[str] = None
     whatsapp_template_on_create: Optional[str] = "Hello {name}, thank you for your interest! We'll get back to you soon."
-    # Telephony Mock Settings
+    whatsapp_auto_send_on_lead: bool = False
+    
+    # Telephony Integration Settings
     telephony_enabled: bool = False
-    telephony_provider: Optional[str] = "mock"
+    telephony_provider: Optional[str] = "none"  # none, twilio, exotel, knowlarity
+    telephony_api_key: Optional[str] = None
+    telephony_api_secret: Optional[str] = None
+    telephony_caller_id: Optional[str] = None
+    telephony_webhook_url: Optional[str] = None
+    
+    # Meta (Facebook/Instagram) Leads Integration
+    meta_leads_enabled: bool = False
+    meta_page_id: Optional[str] = None
+    meta_access_token: Optional[str] = None
+    meta_form_id: Optional[str] = None
+    meta_webhook_url: Optional[str] = None
+    meta_sync_frequency: str = "realtime"  # realtime, hourly, daily
+    meta_auto_assign_user_id: Optional[str] = None
+    meta_default_category_id: Optional[str] = None
+    meta_last_sync: Optional[datetime] = None
+    
+    # Google Ads Lead Integration
+    google_ads_enabled: bool = False
+    google_ads_customer_id: Optional[str] = None
+    google_ads_developer_token: Optional[str] = None
+    google_ads_client_id: Optional[str] = None
+    google_ads_client_secret: Optional[str] = None
+    google_ads_refresh_token: Optional[str] = None
+    google_ads_campaign_id: Optional[str] = None
+    google_ads_form_id: Optional[str] = None
+    google_ads_sync_frequency: str = "hourly"  # realtime, hourly, daily
+    google_ads_auto_assign_user_id: Optional[str] = None
+    google_ads_default_category_id: Optional[str] = None
+    google_ads_last_sync: Optional[datetime] = None
+    
     # Auto-assignment Settings
     auto_assign_enabled: bool = False
     auto_assign_strategy: str = "round_robin"  # or "least_assigned"
+    auto_assign_user_ids: List[str] = []  # Users to assign leads to
 
 class CRMConfigUpdate(BaseModel):
+    # WhatsApp
     whatsapp_enabled: Optional[bool] = None
     whatsapp_api_key: Optional[str] = None
+    whatsapp_phone_number_id: Optional[str] = None
+    whatsapp_business_account_id: Optional[str] = None
     whatsapp_template_on_create: Optional[str] = None
+    whatsapp_auto_send_on_lead: Optional[bool] = None
+    
+    # Telephony
     telephony_enabled: Optional[bool] = None
     telephony_provider: Optional[str] = None
+    telephony_api_key: Optional[str] = None
+    telephony_api_secret: Optional[str] = None
+    telephony_caller_id: Optional[str] = None
+    telephony_webhook_url: Optional[str] = None
+    
+    # Meta Leads
+    meta_leads_enabled: Optional[bool] = None
+    meta_page_id: Optional[str] = None
+    meta_access_token: Optional[str] = None
+    meta_form_id: Optional[str] = None
+    meta_webhook_url: Optional[str] = None
+    meta_sync_frequency: Optional[str] = None
+    meta_auto_assign_user_id: Optional[str] = None
+    meta_default_category_id: Optional[str] = None
+    
+    # Google Ads
+    google_ads_enabled: Optional[bool] = None
+    google_ads_customer_id: Optional[str] = None
+    google_ads_developer_token: Optional[str] = None
+    google_ads_client_id: Optional[str] = None
+    google_ads_client_secret: Optional[str] = None
+    google_ads_refresh_token: Optional[str] = None
+    google_ads_campaign_id: Optional[str] = None
+    google_ads_form_id: Optional[str] = None
+    google_ads_sync_frequency: Optional[str] = None
+    google_ads_auto_assign_user_id: Optional[str] = None
+    google_ads_default_category_id: Optional[str] = None
+    
+    # Auto-assignment
     auto_assign_enabled: Optional[bool] = None
     auto_assign_strategy: Optional[str] = None
+    auto_assign_user_ids: Optional[List[str]] = None
 
 class CRMConfigResponse(CRMConfigBase):
     id: str
