@@ -109,7 +109,7 @@ export default function LabelsSettingsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackToCRM title="Labels <BackToHome /> Settings" />
+      <BackToCRM title="Labels & Settings" />
       
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
