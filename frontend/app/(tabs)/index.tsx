@@ -161,16 +161,16 @@ export default function DashboardScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaWrapper style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.primary} />
         </View>
-      </SafeAreaView>
+      </SafeAreaWrapper>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaWrapper style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={
