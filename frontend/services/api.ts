@@ -258,6 +258,7 @@ export const crmFunnelsAPI = {
 // Permission Matrix
 export const crmPermissionsAPI = {
   getMatrix: () => api.get('/crm/permissions/matrix'),
+  updateRolePermissions: (roleCode: string, data: any) => api.put(`/crm/permissions/${roleCode}`, data),
 };
 
 // Chat/Messaging API
