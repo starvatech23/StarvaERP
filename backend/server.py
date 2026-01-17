@@ -8942,8 +8942,9 @@ async def get_crm_config(
     """Get CRM configuration"""
     current_user = await get_current_user(credentials)
     
-    if current_user["role"] != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Only admins can access CRM config")
+    # Allow CRM managers to view config
+    if not is_crm_manager(current_user):
+        raise HTTPException(status_code=403, detail="Only CRM managers can access CRM config")
     
     config = await db.crm_config.find_one({})
     
