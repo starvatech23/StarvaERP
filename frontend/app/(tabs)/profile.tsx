@@ -74,28 +74,9 @@ export default function ProfileScreen() {
   const menuItems = [
     { icon: 'person-outline', label: 'Edit Profile', onPress: () => router.push('/profile/edit') },
     { icon: 'notifications-outline', label: 'Notifications', onPress: () => {} },
-    { 
-      icon: 'settings-outline', 
-      label: 'Company Settings', 
-      onPress: () => router.push('/settings/company'),
-      adminOnly: true
-    },
     { icon: 'help-circle-outline', label: 'Help & Support', onPress: () => {} },
     { icon: 'information-circle-outline', label: 'About', onPress: () => {} },
   ];
-
-  const getFullAddress = () => {
-    if (!companySettings) return null;
-    const parts = [
-      companySettings.address_line1,
-      companySettings.address_line2,
-      companySettings.city,
-      companySettings.state,
-      companySettings.pincode,
-      companySettings.country,
-    ].filter(Boolean);
-    return parts.length > 0 ? parts.join(', ') : null;
-  };
 
   return (
     <SafeAreaView style={styles.container}>
