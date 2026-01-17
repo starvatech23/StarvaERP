@@ -782,7 +782,7 @@ export default function LaborScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaWrapper style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Labor Management</Text>
         <View style={styles.headerButtons}>
@@ -1025,7 +1025,7 @@ export default function LaborScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </SafeAreaWrapper>
   );
 }
 
