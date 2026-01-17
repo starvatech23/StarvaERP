@@ -361,7 +361,7 @@ export default function MaterialsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaWrapper style={styles.container}>
       {/* Compact Header with Tabs */}
       <View style={styles.headerCompact}>
         <View style={styles.headerRow}>
@@ -511,7 +511,7 @@ export default function MaterialsScreen() {
           </>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaWrapper>
   );
 }
 
