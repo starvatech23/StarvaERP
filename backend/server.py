@@ -420,10 +420,15 @@ async def create_default_milestones_and_tasks(project_id: str, start_date: datet
 # ============= CRM Permission System =============
 
 def is_crm_manager(user: dict) -> bool:
-    """Check if user has CRM Manager role"""
+    """Check if user has CRM Manager role - includes Marketing Head"""
     role = user.get('role')
     role_name = user.get('role_name', '').lower()
-    return role in [UserRole.ADMIN, UserRole.CRM_MANAGER] or role_name in ['admin', 'crm manager']
+    
+    # Admin roles that have full CRM management access
+    allowed_roles = [UserRole.ADMIN, UserRole.CRM_MANAGER, UserRole.MARKETING_HEAD]
+    allowed_role_names = ['admin', 'crm manager', 'marketing head', 'avp-marketing', 'avp marketing', 'ceo', 'coo']
+    
+    return role in allowed_roles or role_name in allowed_role_names
 
 def is_crm_user(user: dict) -> bool:
     """Check if user has CRM User role or higher - includes marketing roles"""
@@ -441,7 +446,8 @@ def is_crm_user(user: dict) -> bool:
     allowed_role_names = [
         'admin', 'crm manager', 'crm user', 'project manager',
         'marketing head', 'marketing expert', 'marketing manager',
-        'operations manager', 'operations head', 'sales', 'sales manager'
+        'operations manager', 'operations head', 'sales', 'sales manager',
+        'avp-marketing', 'avp marketing', 'ceo', 'coo'
     ]
     
     return role in allowed_roles or role_name in allowed_role_names
