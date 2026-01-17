@@ -29,10 +29,12 @@ export default function AddUserScreen() {
   const [phone, setPhone] = useState('');
   const [roleId, setRoleId] = useState('');
   const [teamId, setTeamId] = useState('');
+  const [reportingManagerId, setReportingManagerId] = useState('');
   const [address, setAddress] = useState('');
   const [password, setPassword] = useState('');
   const [roles, setRoles] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
 
   useEffect(() => {
     loadData();
@@ -40,12 +42,14 @@ export default function AddUserScreen() {
 
   const loadData = async () => {
     try {
-      const [rolesRes, teamsRes] = await Promise.all([
+      const [rolesRes, teamsRes, usersRes] = await Promise.all([
         rolesAPI.getAll(true),
         teamsAPI.getAll(true),
+        userManagementAPI.getActive(),
       ]);
       setRoles(rolesRes.data);
       setTeams(teamsRes.data);
+      setUsers(usersRes.data);
     } catch (error) {
       Alert.alert('Error', 'Failed to load roles and teams');
     } finally {
