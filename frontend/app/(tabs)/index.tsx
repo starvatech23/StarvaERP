@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Dimensions,
@@ -19,6 +18,7 @@ import Colors from '../../constants/Colors';
 import { statusUpdatesAPI } from '../../services/api';
 import api from '../../services/api';
 import NotificationBell from '../../components/NotificationBell';
+import SafeAreaWrapper from '../../components/SafeAreaWrapper';
 
 const { width } = Dimensions.get('window');
 
